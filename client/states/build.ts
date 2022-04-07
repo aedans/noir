@@ -54,7 +54,7 @@ export async function buildState(name: string) {
     
     left(cardList, 5);
     top(cardList, 5);
-    wrap(cardSprites, { width: app.screen.width - deckList.width, height: app.screen.height }, 5);
+    wrap(cardSprites, { width: app.screen.width - deckList.width - 5, height: app.screen.height }, 5);
   
     right(deckList, app.screen, 5);
     below(deckName, deckList, 10);

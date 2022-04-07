@@ -1,4 +1,4 @@
-import { Container, ObservablePoint } from "pixi.js";
+import { Container } from "pixi.js";
 
 const alphaFactor = .7;
 
@@ -55,6 +55,14 @@ export function below(below: Container, container: Container, offset = 0) {
 
 export function above(above: Container, container: Container, offset = 0) {
   container.y = above.y - container.height - offset;
+}
+
+export function scrollContainer() {
+  const container = new Container();
+  // container.on('pointermove', (e) => {
+  //   console.log(e);
+  // })
+  return container;
 }
 
 export function horizontal(containers: Container[], offset = 0) {

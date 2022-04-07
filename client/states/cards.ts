@@ -3,10 +3,12 @@ import { app } from "..";
 import { getCards } from "../card";
 import { button } from "../sprites/text";
 import { beginState } from "../state";
-import { above, center, vertical } from "../ui";
+import { below, center, scrollContainer, top, vertical } from "../ui";
 
 export async function cardsState() {
   beginState('cards');
+
+  const scroll = scrollContainer();
 
   const list = new Container();
 
@@ -55,12 +57,14 @@ export async function cardsState() {
     sprites.push(sprite);
   }
 
-  center(list, app.screen);
   vertical(sprites, 5);
+  below(upload, list, 10);
 
-  center(upload, app.screen);
-  above(list, upload, 10);
+  scroll.addChild(upload);
+  scroll.addChild(list);
 
-  app.stage.addChild(upload);
-  app.stage.addChild(list);
+  center(scroll, app.screen);
+  top(scroll, 5);
+
+  app.stage.addChild(scroll);
 }

@@ -3,6 +3,7 @@ import { CardState, PlayerState } from "../../common/card";
 import { app } from "..";
 import { top, left, right, bottom, interactive } from "../ui";
 import { loadCardInfo, util } from "../card";
+import { text } from "./text";
 
 const colorMap = {
   orange: 0xEB7900,
@@ -38,18 +39,16 @@ export async function cardSprite(card: CardState, player: PlayerState, opponent:
   border.lineStyle(1, borderColor);
   border.drawRect(0, 0, width, height);
 
-  const nameText = new Text(card.name, {
-    fontSize: 14 * scale,
-    fill: 0xffffff,
+  const nameText = text(card.name, {
+    fontSize: 16 * scale
   });
 
-  const moneyText = new Text((cardInfo.cost(util, card, player, opponent).money ?? "") + "", {
-    fontSize: 14 * scale,
-    fill: 0xffffff,
+  const moneyText = text((cardInfo.cost(util, card, player, opponent).money ?? "") + "", {
+    fontSize: 16 * scale
   });
 
-  const textText = new Text(cardInfo.text(util, card, player, opponent), {
-    fontSize: 12 * scale,
+  const textText = text(cardInfo.text(util, card, player, opponent), {
+    fontSize: 14 * scale,
     fill: 0xffffff,
     wordWrap: true,
     wordWrapWidth: width - 10,
