@@ -1,0 +1,39 @@
+{
+  "name": "noir",
+  "version": "1.0.0",
+  "description": "",
+  "dependencies": {
+    "@types/express": "^4.17.13",
+    "@types/lodash": "^4.14.180",
+    "express": "^4.17.3",
+    "lodash": "^4.17.21",
+    "pixi.js": "^6.2.2",
+    "socket.io": "^4.4.1",
+    "socket.io-client": "^4.4.1",
+    "ts-node": "^10.7.0",
+    "typescript": "^4.6.2"
+  },
+  "devDependencies": {
+    "assert": "^2.0.0",
+    "browserify-zlib": "^0.2.0",
+    "buffer": "^6.0.3",
+    "crypto-browserify": "^3.12.0",
+    "events": "^3.3.0",
+    "https-browserify": "^1.0.0",
+    "parcel": "^2.3.2",
+    "path-browserify": "^1.0.1",
+    "process": "^0.11.10",
+    "querystring-es3": "^0.2.1",
+    "stream-browserify": "^3.0.0",
+    "stream-http": "^3.2.0",
+    "timers-browserify": "^2.0.12",
+    "util": "^0.12.4"
+  },
+  "scripts": {
+    "start": "ts-node server/index.ts",
+    "client": "parcel watch index.html",
+    "build": "parcel build index.html"
+  },
+  "author": "",
+  "license": "MIT"
+}
