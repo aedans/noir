@@ -1,7 +1,7 @@
 import { Socket } from "socket.io";
 import { getCardInfo, util } from "./card";
 import { isEqual } from "lodash";
-import { CardCost, CardState, CardType, CardZone, defaultCardState, defaultPlayerState, Init, PlayerAction, PlayerState, Util } from "../common/card";
+import { CardCost, CardState, CardType, CardZone, defaultCardState, defaultPlayerState, Init, PlayerAction, PlayerState } from "../common/card";
 
 function init(socket: Socket): Promise<Init> {
   return new Promise((resolve, reject) => {
@@ -37,12 +37,16 @@ function update(player: PlayerState, opponent: PlayerState) {
 }
 
 function turn(player: PlayerState, opponent: PlayerState) {
-  player.turn = false;
-  opponent.turn = true;
+  opponent.turn = false;
+  player.turn = true;
 
+  for (const card of player.board) {
+    card.used = false;
+  }
+  
   for (const zone of ["board", "deck", "hand"] as CardZone[]) {
     for (const card of player[zone]) {
-      getCardInfo(card, player, opponent).turn?.[zone]?.(util, card, opponent, player);
+      getCardInfo(card, player, opponent).turn?.[zone]?.(util, card, player, opponent);
     }
   }
 }
@@ -55,29 +59,41 @@ function playCard(state: CardState, player: PlayerState, opponent: PlayerState):
   const info = getCardInfo(state, player, opponent);
   const cost: CardCost = info.cost(util, state, player, opponent);
   const play = (info.play ?? (() => () => {}))(util, state, player, opponent);
-  const money = cost.money ?? 0;
   if (play == null) return null;
-  if (player.money < money) return null;
+  if (player.money < cost.money) return null;
   return () => {
     play();
-    player.money -= money; 
+    
+    player.money -= cost.money; 
     if (canBeOnBoard(info.type(util, state, player, opponent))) {
       player.board.push(state);
     }
+
+    for (const zone of ["board", "deck", "hand"] as CardZone[]) {
+      for (const card of player[zone]) {
+        (getCardInfo(card, player, opponent).played?.[zone]?.(util, card, player, opponent) ?? (() => {}))(state);
+      }
+
+      for (const card of opponent[zone]) {
+        (getCardInfo(card, opponent, player).played?.[zone]?.(util, card, opponent, player) ?? (() => {}))(state);
+      }
+    }
+
     update(player, opponent);
   };
 }
 
 function useCard(state: CardState, player: PlayerState, opponent: PlayerState): (() => void) | null {
   const info = getCardInfo(state, player, opponent);
-  const cost: CardCost = (info.useCost ?? (() => ({})))(util, state, player, opponent);
+  const cost: CardCost = (info.useCost ?? (() => ({ money: 0 })))(util, state, player, opponent);
   const use = (info.use ?? (() => () => {}))(util, state, player, opponent);
-  const money = cost.money ?? 0;
   if (use == null) return null;
-  if (player.money < money) return null;
+  if (player.money < cost.money) return null;
+  if (state.used) return null;
   return () => {
     use();
-    player.money -= money; 
+    player.money -= cost.money; 
+    state.used = true;
     update(player, opponent);
   };
 }
@@ -112,7 +128,7 @@ export async function startGame(socket1: Socket, socket2: Socket) {
     if (!player.turn) return;
 
     if (action.type == "end") {
-      turn(player, opponent);
+      turn(opponent, player);
     } else if (action.type == "play") {
       const index = player.deck.findIndex(x => isEqual(action.card, x));
       if (index >= 0) {

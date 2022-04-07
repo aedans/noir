@@ -1,7 +1,7 @@
-import { cloneDeep, sample } from "lodash";
+import { cloneDeep, sample, isEqual } from "lodash";
 import { Util, CardInfo, updateCardInfo, CardState, defaultCardState, PlayerState } from "../common/card";
 
-export const util: Util = { getCardInfo, defaultCardState, sample, copy: cloneDeep  }
+export const util: Util = { getCardInfo, defaultCardState, sample, isEqual, cloneDeep }
 
 const cards: { [name: string]: CardInfo } = {};
 

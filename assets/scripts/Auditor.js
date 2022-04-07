@@ -3,14 +3,14 @@ exports.card = {
 	type: () => "guy",
 	colors: () => ["blue"],
 	cost: () => ({ money: 50 }),
-	play: (util, card) => () => card.modifiers.push({ name: "auditing", card: util.copy(card) }),
+	play: (util, card) => () => card.modifiers.push({ name: "auditing", card: util.cloneDeep(card) }),
 	update: {
-		board: (util, card, player, opponent) => card.numbers.opponentMoney = opponent.money
+		board: (util, card, player, opponent) => card.number.opponentMoney = opponent.money
 	},
 	modifiers: {
 		auditing: (card) => ({
 			...card,
-			text: (util, state, player, opponent) => `${card.text(util, state, player, opponent)}\nOpponent's money: $${state.numbers.opponentMoney}`
+			text: (util, state, player, opponent) => `${card.text(util, state, player, opponent)}\nOpponent's money: $${state.number.opponentMoney}`
 		})
 	}
 }

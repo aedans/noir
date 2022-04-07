@@ -1,3 +1,5 @@
+import _ from "lodash";
+
 export type CardColor = "orange" | "blue" | "green" | "purple";
 export type CardType = "guy" | "location" | "operation";
 export type CardZone = "board" | "deck" | "hand";
@@ -5,14 +7,15 @@ export type CardZone = "board" | "deck" | "hand";
 export type Util = {
   getCardInfo: (card: CardState, player: PlayerState, opponent: PlayerState, base?: boolean) => CardInfo,
   defaultCardState: typeof defaultCardState,
-  sample: <A> (as: A[]) => A,
-  copy: <A> (a: A) => A,
+  sample: typeof _.sample,
+  cloneDeep: typeof _.cloneDeep,
+  isEqual: typeof _.isEqual,
 }
 
 export type CardData<A> = (util: Util, card: CardState, player: PlayerState, opponent: PlayerState) => A;
 
 export type CardCost = {
-  money?: number,
+  money: number,
   guys?: { [K in CardColor]?: number },
 }
 
@@ -27,9 +30,10 @@ export type CardInfo = {
   useCost?: CardData<CardCost>,
   play?: CardData<(() => void) | null>,
   use?: CardData<(() => void) | null>,
+  played?: { [K in CardZone]?: CardData<(played: CardState) => void> }, 
   update?: { [K in CardZone]?: CardData<void> },
   turn?: { [K in CardZone]?: CardData<void> },
-  effects?: { [K in CardZone]?: CardEffect },
+  effects?: { [K in CardZone]?: CardData<CardEffect> },
   modifiers?: { [name: string]: CardModifier },
 }
 
@@ -49,9 +53,10 @@ export type ModifierState = {
 export type CardState = {
   name: string,
   revealed: boolean,
+  used: boolean,
   modifiers: ModifierState[],
-  numbers: { [name: string]: number },
-  strings: { [name: string]: string }
+  number: { [name: string]: number },
+  string: { [name: string]: string }
 }
 
 export type Init = {
@@ -67,9 +72,10 @@ export function defaultCardState(name: string): CardState {
   return {
     name,
     revealed: false,
+    used: true,
     modifiers: [],
-    numbers: {},
-    strings: {},
+    number: {},
+    string: {},
   };
 }
 
@@ -91,11 +97,11 @@ export function updateCardInfo(util: Util, info: CardInfo, state: CardState, pla
 
   for (const zone of ["board", "deck", "hand"] as CardZone[]) {
     for (const card of player[zone]) {
-      info = (util.getCardInfo(card, player, opponent, true).effects?.[zone] ?? (x => x))(info);
+      info = (util.getCardInfo(card, player, opponent, true).effects?.[zone]?.(util, card, player, opponent) ?? (x => x))(info);
     }
 
     for (const card of opponent[zone]) {
-      info = (util.getCardInfo(card, opponent, player, true).effects?.[zone] ?? (x => x))(info);
+      info = (util.getCardInfo(card, opponent, player, true).effects?.[zone]?.(util, card, player, opponent) ?? (x => x))(info);
     }
   }
 
