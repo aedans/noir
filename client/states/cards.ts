@@ -3,12 +3,12 @@ import { app } from "..";
 import { getCards } from "../card";
 import { button } from "../sprites/text";
 import { beginState } from "../state";
-import { below, center, scrollContainer, top, vertical } from "../ui";
+import { below, center, top, vertical } from "../ui";
 
 export async function cardsState() {
   beginState('cards');
 
-  const scroll = scrollContainer();
+  const cards = new Container();
 
   const list = new Container();
 
@@ -42,6 +42,13 @@ export async function cardsState() {
     }
   }
 
+  let scroll = 0;
+  window.addEventListener('wheel', (e) => {
+    scroll -= e.deltaY;
+    if (scroll > 0) scroll = 0;
+    cards.y = 5 + scroll;
+  });
+
   const sprites: Sprite[] = [];
   for (const card of await getCards()) {
     const sprite = button(card);
@@ -58,13 +65,13 @@ export async function cardsState() {
   }
 
   vertical(sprites, 5);
-  below(upload, list, 10);
+  below(upload, list, 20);
 
-  scroll.addChild(upload);
-  scroll.addChild(list);
+  cards.addChild(upload);
+  cards.addChild(list);
 
-  center(scroll, app.screen);
-  top(scroll, 5);
+  center(cards, app.screen);
+  top(cards, 5);
 
-  app.stage.addChild(scroll);
+  app.stage.addChild(cards);
 }

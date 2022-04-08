@@ -57,14 +57,6 @@ export function above(above: Container, container: Container, offset = 0) {
   container.y = above.y - container.height - offset;
 }
 
-export function scrollContainer() {
-  const container = new Container();
-  window.addEventListener('scroll', (e) => {
-    
-  });
-  return container;
-}
-
 export function horizontal(containers: Container[], offset = 0) {
   let x = 0;
   for (const container of containers) {

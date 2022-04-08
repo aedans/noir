@@ -19,6 +19,13 @@ export async function buildState(name: string) {
   const cardNames = await getCards();
 
   const deck: string[] = getDeck(name);
+
+  let scroll = 0;
+  window.addEventListener('wheel', (e) => {
+    scroll -= e.deltaY;
+    if (scroll > 0) scroll = 0;
+    cardList.y = 5 + scroll;
+  });
   
   async function refresh() {
     setDeck(name, deck);
@@ -53,11 +60,11 @@ export async function buildState(name: string) {
     top(deckName, 5);
     
     left(cardList, 5);
-    top(cardList, 5);
+    top(cardList, 5 + scroll);
     wrap(cardSprites, { width: app.screen.width - deckList.width - 5, height: app.screen.height }, 5);
   
     right(deckList, app.screen, 5);
-    below(deckName, deckList, 10);
+    below(deckName, deckList, 20);
     vertical(deckSprites, 5);
   }
 
