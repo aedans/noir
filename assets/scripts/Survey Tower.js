@@ -1,7 +1,7 @@
 // @ts-check
 /** @type {import("../../common/card").CardInfo} */
 exports.card = {
-	text: () => "You can see the number of guys your opponent has.",
+	text: () => "You can see the number of agents your opponent has.",
 	type: () => "location",
 	colors: () => [],
 	cost: () => ({ money: 30 }),
@@ -16,7 +16,7 @@ exports.card = {
 	modifiers: {
 		surveying: (card) => ({
 			...card,
-			text: (util, state, player, opponent) => `${card.text(util, state, player, opponent)}\nOpponent's guys: ${state.number.opponentGuys}`
+			text: (util, state, player, opponent) => `${card.text(util, state, player, opponent)}\nOpponent's agents: ${state.number.opponentGuys}`
 		})
 	}
 }

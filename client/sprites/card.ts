@@ -1,7 +1,7 @@
 import { Container, Graphics, Text } from "pixi.js";
 import { CardState, PlayerState } from "../../common/card";
 import { app } from "..";
-import { top, left, right, bottom, interactive } from "../ui";
+import { top, left, right, bottom, interactive, above, center, below } from "../ui";
 import { loadCardInfo, util } from "../card";
 import { text } from "./text";
 
@@ -17,7 +17,7 @@ export function cardHeight() {
 }
 
 export function cardWidth() {
-  return cardHeight() * (1 / 1.4)
+  return cardHeight() * (1 / 1.4);
 }
 
 export async function cardSprite(card: CardState, player: PlayerState, opponent: PlayerState, scale: number = 1) {
@@ -54,19 +54,28 @@ export async function cardSprite(card: CardState, player: PlayerState, opponent:
     wordWrapWidth: width - 10,
   });
 
+  const typeText = text(cardInfo.type(util, card, player, opponent), {
+    fontSize: 14 * scale,
+    fill: 0xffffff,
+  })
+
   sprite.addChild(border);
   sprite.addChild(nameText);
   sprite.addChild(moneyText);
   sprite.addChild(textText);
+  sprite.addChild(typeText);
 
   top(nameText, 5);
   left(nameText, 5);
 
-  top(moneyText, 5)
+  top(moneyText, 5);
   right(moneyText, sprite, 5);
 
-  left(textText, 5)
+  left(textText, 5);
   bottom(textText, sprite, 5);
+
+  left(typeText, 5);
+  below(nameText, typeText, 5);
 
   return sprite;
 }

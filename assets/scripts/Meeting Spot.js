@@ -2,7 +2,7 @@
 /** @type {import("../../common/card").CardInfo} */
 exports.card = {
 	text: (util, card, player, oppoennt) => {
-		let text = "The first guy you play each turn costs $5 less.";
+		let text = "The first agent you play each turn costs $5 less.";
 		if (card.number?.played != null) {
 			text += `\nPlayed: ${card.number.played}`;
 		}

@@ -1,7 +1,7 @@
 // @ts-check
 /** @type {import("../../common/card").CardInfo} */
 exports.card = {
-  text: () => "Each turn: a random guy on your board becomes orange.",
+  text: () => "Each turn: a random agent on your board becomes orange.",
   type: () => "agent",
   colors: () => ["orange"],
   cost: () => ({ money: 50 }),

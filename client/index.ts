@@ -26,26 +26,28 @@ settings.ROUND_PIXELS = true;
 
 const state = new URLSearchParams(window.location.search).get("state") ?? "";
 
-font.load().then(() => {
-  if (state.startsWith("game")) {
-    const matches = state.match(/game\/(.+)/);
-    if (matches == null) {
-      decksState(queueState);
+window.onload = () => {
+  font.load().then(() => {
+    if (state.startsWith("game")) {
+      const matches = state.match(/game\/(.+)/);
+      if (matches == null) {
+        decksState(queueState);
+      } else {
+        queueState(matches[1]);
+      }
+    } else if (state.startsWith("decks")) {
+      decksState();
+    } else if (state.startsWith("build")) {
+      const matches = state.match(/build\/(.+)/);
+      if (matches == null) {
+        buildState(window.prompt("Deck Name") ?? "New Deck");
+      } else {
+        buildState(matches[1]);
+      }
+    } else if (state.startsWith("cards")) {
+      cardsState();
     } else {
-      queueState(matches[1]);
-    }
-  } else if (state.startsWith("decks")) {
-    decksState();
-  } else if (state.startsWith("build")) {
-    const matches = state.match(/build\/(.+)/);
-    if (matches == null) {
-      buildState(window.prompt("Deck Name") ?? "New Deck");
-    } else {
-      buildState(matches[1]);
-    }
-  } else if (state.startsWith("cards")) {
-    cardsState();
-  } else {
-    menuState();
-  }  
-});
+      menuState();
+    }  
+  });
+}
