@@ -1,3 +1,5 @@
+// @ts-check
+/** @type {import("../../common/card").CardInfo} */
 exports.card = {
 	text: () => "This costs $40 less for each location on the board. All cards cost twice as much money.",
 	type: () => "location",

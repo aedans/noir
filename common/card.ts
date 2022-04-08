@@ -1,7 +1,7 @@
 import _ from "lodash";
 
 export type CardColor = "orange" | "blue" | "green" | "purple";
-export type CardType = "guy" | "location" | "operation";
+export type CardType = "agent" | "location" | "operation";
 export type CardZone = "board" | "deck" | "hand";
 
 export type Util = {

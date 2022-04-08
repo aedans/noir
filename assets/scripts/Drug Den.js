@@ -1,3 +1,5 @@
+// @ts-check
+/** @type {import("../../common/card").CardInfo} */
 exports.card = {
 	text: () => "Each turn: destroy a hidden guy in your deck and gain $30. If it's purple, gain $40 instead.",
 	type: () => "location",
@@ -6,7 +8,7 @@ exports.card = {
 	turn: {
 		board: (util, card, player, opponent) => {
 			const guys = player.deck
-				.filter(c => util.getCardInfo(c, player, opponent).type(util, c, player, opponent) == "guy")
+				.filter(c => util.getCardInfo(c, player, opponent).type(util, c, player, opponent) == "agent")
 				.filter(c => !c.revealed);
 			const guy = util.sample(guys);
 			if (guy) {

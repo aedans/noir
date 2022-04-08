@@ -1,6 +1,8 @@
+// @ts-check
+/** @type {import("../../common/card").CardInfo} */
 exports.card = {
 	text: () => "You can see how much money your opponent has.",
-	type: () => "guy",
+	type: () => "agent",
 	colors: () => ["blue"],
 	cost: () => ({ money: 50 }),
 	play: (util, card) => () => card.modifiers.push({ name: "auditing", card: util.cloneDeep(card) }),

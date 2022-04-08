@@ -1,3 +1,5 @@
+// @ts-check
+/** @type {import("../../common/card").CardInfo} */
 exports.card = {
 	text: () => "Additional cost: activate a green guy. Next turn, gain $25.",
 	type: () => "operation",

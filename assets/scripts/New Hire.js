@@ -1,6 +1,8 @@
+// @ts-check
+/** @type {import("../../common/card").CardInfo} */
 exports.card = {
   text: () => "",
-  type: () => "guy",
+  type: () => "agent",
   colors: () => ["purple"],
   cost: () => ({ money: 30 })
 }

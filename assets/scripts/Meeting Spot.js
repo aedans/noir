@@ -1,3 +1,5 @@
+// @ts-check
+/** @type {import("../../common/card").CardInfo} */
 exports.card = {
 	text: (util, card, player, oppoennt) => {
 		let text = "The first guy you play each turn costs $5 less.";
@@ -15,7 +17,7 @@ exports.card = {
 	},
 	played: {
 		board: (util, card, player, opponent) => (played) => {
-			if (player.turn && util.getCardInfo(played, player, opponent).type(util, played, player, opponent) == "guy") {
+			if (player.turn && util.getCardInfo(played, player, opponent).type(util, played, player, opponent) == "agent") {
 				card.number.played++;
 			}
 		}
@@ -27,7 +29,7 @@ exports.card = {
 					...card,
 					cost: (util, state, player, opponent) => {
 						const cost = card.cost(util, state, player, opponent);
-						if (card.type(util, state, player, opponent) == "guy") {
+						if (card.type(util, state, player, opponent) == "agent") {
 							return { ...cost, money: cost.money - 5 };
 						}	else {
 							return cost;

@@ -1,3 +1,5 @@
+// @ts-check
+/** @type {import("../../common/card").CardInfo} */
 exports.card = {
 	text: (util, card) => {
 		let text = "Every other turn: gain a New Hire.";

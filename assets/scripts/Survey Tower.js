@@ -1,3 +1,5 @@
+// @ts-check
+/** @type {import("../../common/card").CardInfo} */
 exports.card = {
 	text: () => "You can see the number of guys your opponent has.",
 	type: () => "location",
@@ -7,7 +9,7 @@ exports.card = {
 	update: {
 		board: (util, card, player, opponent) => {
 			card.number.opponentGuys = opponent.board
-				.filter(c => util.getCardInfo(c, player, opponent).type(util, c, player, opponent) == "guy")
+				.filter(c => util.getCardInfo(c, player, opponent).type(util, c, player, opponent) == "agent")
 				.length;
 		}
 	},
