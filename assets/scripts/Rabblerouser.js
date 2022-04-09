@@ -5,6 +5,7 @@ exports.card = {
   type: () => "agent",
   colors: () => ["orange"],
   cost: () => ({ money: 50 }),
+	rank: () => 3,
   turn: {
     board: (util, card, player, opponent) => {
       const targets = player.board

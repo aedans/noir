@@ -5,6 +5,7 @@ exports.card = {
 	type: () => "location",
 	colors: () => ["purple"],
 	cost: () => ({ money: 75 }),
+	rank: () => 2,
 	turn: {
 		board: (util, card, player, opponent) => {
 			const agents = player.deck

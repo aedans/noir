@@ -5,6 +5,7 @@ exports.card = {
 	type: () => "agent",
 	colors: () => ["green"],
 	cost: () => ({ money: 40 }),
+	rank: () => 1,
 	useCost: () => ({ money: 0 }),
 	use: (util, card, player) => () => {
 		card.revealed = true;

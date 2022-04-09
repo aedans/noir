@@ -5,6 +5,7 @@ exports.card = {
   type: () => "location",
   colors: () => [],
   cost: () => ({ money: 100 }),
+  rank: () => 2,
   turn: {
     board: (util, card, player) => player.money += 20
   }

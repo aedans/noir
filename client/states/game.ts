@@ -2,8 +2,8 @@ import { Graphics } from "pixi.js";
 import { Socket } from "socket.io-client";
 import { app } from "..";
 import { PlayerState } from "../../common/card";
-import { cardSprite, cardWidth } from "../sprites/card";
-import { button as text } from "../sprites/text";
+import { cardHeight, cardSprite, cardWidth } from "../sprites/card";
+import { button } from "../sprites/text";
 import { beginState } from "../state";
 import { above, below, bottom, center, right, top, update, horizontal } from "../ui";
 
@@ -12,22 +12,22 @@ export async function gameState(name: string, socket: Socket) {
 
   const hand = new Graphics();
   hand.lineStyle(1, 0xffffff, 0);
-  hand.drawRect(0, 0, 0, (app.screen.height - 15) / 4);
+  hand.drawRect(0, 0, 0, cardHeight());
 
   const board = new Graphics();
   board.lineStyle(1, 0xffffff, 0);
-  board.drawRect(0, 0, 0, (app.screen.height - 15) / 4);
+  board.drawRect(0, 0, 0, cardHeight());
 
   const opponentDeck = new Graphics();
   opponentDeck.lineStyle(1, 0xffffff, 0);
-  opponentDeck.drawRect(0, 0, 0, (app.screen.height - 15) / 4);
+  opponentDeck.drawRect(0, 0, 0, cardHeight());
 
   const opponentBoard = new Graphics();
   opponentBoard.lineStyle(1, 0xffffff, 0);
-  opponentBoard.drawRect(0, 0, 0, (app.screen.height - 15) / 4);
+  opponentBoard.drawRect(0, 0, 0, cardHeight());
 
-  const end = text("")
-  const money = text("")
+  const end = button("")
+  const money = button("")
 
   end.on('pointerdown', () => {
     socket.emit('action', { type: "end" });
@@ -98,10 +98,10 @@ export async function gameState(name: string, socket: Socket) {
     center(opponentDeck, app.screen);
     center(opponentBoard, app.screen);
 
-    bottom(hand, app.screen);
+    bottom(hand, app.screen, 5);
     above(hand, board, 5);
     
-    top(opponentDeck);
+    top(opponentDeck, 5);
     below(opponentDeck, opponentBoard, 5);
   });
 }

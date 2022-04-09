@@ -11,6 +11,7 @@ exports.card = {
 	type: () => "location",
 	colors: () => [],
 	cost: () => ({ money: 20 }),
+	rank: () => 1,
 	play: (util, card, player, opponent) => () => card.number.played = 0,
 	turn: {
 		board: (util, card, player, opponent) => card.number.played = 0

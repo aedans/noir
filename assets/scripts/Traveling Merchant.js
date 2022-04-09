@@ -5,4 +5,5 @@ exports.card = {
 	type: () => "agent",
 	colors: () => ["green"],
 	cost: () => ({ money: 40 }),
+	rank: () => 1,
 }

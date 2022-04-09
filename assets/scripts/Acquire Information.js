@@ -5,6 +5,7 @@ exports.card = {
 	type: () => "operation",
 	colors: () => ["purple"],
 	cost: () => ({ money: 10 }),
+	rank: () => 2,
 	play: (util, card, player, opponent) => () => {
 		const agents = player.board
 			.filter(c => util.getCardInfo(c, player, opponent).type(util, c, player, opponent) == "agent")

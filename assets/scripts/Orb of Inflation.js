@@ -9,6 +9,7 @@ exports.card = {
 			.filter(c => util.getCardInfo(c, player, opponent).type(util, c, player, opponent) == "location");
 		return { money: Math.max(0, 100 - (40 * locations.length)) };
 	},
+	rank: () => 3,
 	play: (util, card, player, opponent) => () => card.revealed = true,
 	effects: {
 		board: (util, state, player, opponent) => (card) => ({

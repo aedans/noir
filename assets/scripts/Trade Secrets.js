@@ -5,6 +5,7 @@ exports.card = {
 	type: () => "operation",
 	colors: () => ["green"],
 	cost: () => ({ money: 5 }),
+	rank: () => 1,
 	play: (util, state, player, opponent) => {
 		const cards = player.deck
 			.filter(c => util.getCardInfo(c, player, opponent).colors(util, c, player, opponent).includes("green"))

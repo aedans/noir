@@ -5,4 +5,5 @@ exports.card = {
 	type: () => "operation",
 	colors: () => ["orange"],
 	cost: () => ({ money: 0 }),
+	rank: () => 3,
 }

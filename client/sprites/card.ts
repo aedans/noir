@@ -4,6 +4,7 @@ import { app } from "..";
 import { top, left, right, bottom, interactive, above, center, below } from "../ui";
 import { loadCardInfo, util } from "../card";
 import { text } from "./text";
+import { isEqual } from "lodash";
 
 const colorMap = {
   orange: 0xEB7900,
@@ -13,7 +14,7 @@ const colorMap = {
 }
 
 export function cardHeight() {
-  return (app.screen.height - 15) / 4;
+  return (app.screen.height - 25) / 4;
 }
 
 export function cardWidth() {
@@ -59,12 +60,17 @@ export async function cardSprite(card: CardState, player: PlayerState, opponent:
     fill: 0xffffff,
   })
 
+  const todoText = text("TODO", {
+    fontSize: 24 * scale,
+    fill: 0xff0000
+  });
+
   sprite.addChild(border);
   sprite.addChild(nameText);
   sprite.addChild(moneyText);
   sprite.addChild(textText);
   sprite.addChild(typeText);
-
+  
   top(nameText, 5);
   left(nameText, 5);
 
@@ -76,6 +82,12 @@ export async function cardSprite(card: CardState, player: PlayerState, opponent:
 
   left(typeText, 5);
   below(nameText, typeText, 5);
+
+  if (cardInfo.text(util, card, player, opponent) != "" && isEqual(Object.keys(cardInfo).sort(), ["colors", "cost", "rank", "text", "type"])) {
+    sprite.addChild(todoText);
+    center(todoText, sprite);
+    below(typeText, todoText, 50);
+  }
 
   return sprite;
 }

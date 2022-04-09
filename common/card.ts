@@ -2,6 +2,7 @@ import _ from "lodash";
 
 export type CardColor = "orange" | "blue" | "green" | "purple";
 export type CardType = "agent" | "location" | "operation";
+export type CardRank = 1 | 2 | 3;
 export type CardZone = "board" | "deck" | "hand";
 
 export type Util = {
@@ -27,6 +28,7 @@ export type CardInfo = {
   type: CardData<CardType>,
   colors: CardData<CardColor[]>,
   cost: CardData<CardCost>,
+  rank: CardData<CardRank>,
   useCost?: CardData<CardCost>,
   play?: CardData<(() => void) | null>,
   use?: CardData<(() => void) | null>,

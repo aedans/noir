@@ -5,6 +5,7 @@ exports.card = {
 	type: () => "agent",
 	colors: () => ["blue"],
 	cost: () => ({ money: 50 }),
+	rank: () => 2,
 	play: (util, card) => () => card.modifiers.push({ name: "auditing", card: util.cloneDeep(card) }),
 	update: {
 		board: (util, card, player, opponent) => card.number.opponentMoney = opponent.money
