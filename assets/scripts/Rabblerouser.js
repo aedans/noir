@@ -12,7 +12,7 @@ exports.card = {
         .filter(c => util.getCardInfo(c, player, opponent).type(util, c, player, opponent) == "agent")
         .filter(c => !util.getCardInfo(c, player, opponent).colors(util, c, player, opponent).includes("orange"));
       if (targets.length > 0) {
-        util.sample(targets).modifiers.push({ name: "rabbleroused", card: util.cloneDeep(card) });
+        util.sample(targets).modifiers.push({ name: "rabbleroused", card: card.id });
       }
     }
   },

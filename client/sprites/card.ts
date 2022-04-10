@@ -1,7 +1,7 @@
-import { Container, Graphics, Text } from "pixi.js";
+import { Container, Graphics } from "pixi.js";
 import { CardState, PlayerState } from "../../common/card";
 import { app } from "..";
-import { top, left, right, bottom, interactive, above, center, below } from "../ui";
+import { top, left, right, bottom, interactive, center, below } from "../ui";
 import { loadCardInfo, util } from "../card";
 import { text } from "./text";
 import { isEqual } from "lodash";

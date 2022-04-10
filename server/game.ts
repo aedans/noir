@@ -130,18 +130,20 @@ export async function startGame(socket1: Socket, socket2: Socket) {
     if (action.type == "end") {
       turn(opponent, player);
     } else if (action.type == "play") {
-      const index = player.deck.findIndex(x => isEqual(action.card, x));
+      const index = player.deck.findIndex(c => c.id == action.card);
+      const card = player.deck[index];
       if (index >= 0) {
         player.deck.splice(index, 1);
-        const play = playCard(action.card, player, opponent);
+        const play = playCard(card, player, opponent);
         if (play != null) {
           play();
         }
       }
     } else if (action.type == "use") {
-      const index = player.board.findIndex(x => isEqual(action.card, x));
+      const index = player.board.findIndex(c => c.id == action.card);
+      const card = player.deck[index];
       if (index >= 0) {
-        const use = useCard(action.card, player, opponent);
+        const use = useCard(card, player, opponent);
         if (use != null) {
           use();
         }

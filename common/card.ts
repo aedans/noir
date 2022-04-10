@@ -1,4 +1,5 @@
-import _ from "lodash";
+import { isEqual, sample } from "lodash";
+import { v4 as uuidv4 } from 'uuid';
 
 export type CardColor = "orange" | "blue" | "green" | "purple";
 export type CardType = "agent" | "location" | "operation";
@@ -8,9 +9,11 @@ export type CardZone = "board" | "deck" | "hand";
 export type Util = {
   getCardInfo: (card: CardState, player: PlayerState, opponent: PlayerState, base?: boolean) => CardInfo,
   defaultCardState: typeof defaultCardState,
-  sample: typeof _.sample,
-  cloneDeep: typeof _.cloneDeep,
-  isEqual: typeof _.isEqual,
+  sample: typeof sample,
+  isEqual: typeof isEqual,
+  reveal: typeof reveal,
+  activate: typeof activate,
+  destroy: typeof destroy,
 }
 
 export type CardData<A> = (util: Util, card: CardState, player: PlayerState, opponent: PlayerState) => A;
@@ -48,12 +51,13 @@ export type PlayerState = {
 }
 
 export type ModifierState = {
-  card: CardState,
+  card: string,
   name: string,
 }
 
 export type CardState = {
   name: string,
+  id: string,
   revealed: boolean,
   used: boolean,
   modifiers: ModifierState[],
@@ -67,12 +71,13 @@ export type Init = {
 
 export type PlayerAction 
   = { type: "end" }
-  | { type: "play", card: CardState }
-  | { type: "use", card: CardState }
+  | { type: "play", card: string }
+  | { type: "use", card: string }
 
 export function defaultCardState(name: string): CardState {
   return {
     name,
+    id: uuidv4(),
     revealed: false,
     used: true,
     modifiers: [],
@@ -91,10 +96,28 @@ export function defaultPlayerState(): PlayerState {
   };
 }
 
+export function getCardState(id: string, player: PlayerState, opponent: PlayerState) {
+  for (const place of [player.deck, player.board, opponent.deck, opponent.board]) {
+    const result = place.find(c => c.id == id);
+    if (result) return result;
+  }
+  return null;
+}
+
+export function removeCardState(id: string, player: PlayerState, opponent: PlayerState) {
+  for (const place of [player.deck, player.board, opponent.deck, opponent.board]) {
+    const index = place.findIndex(c => c.id == id);
+    if (index >= 0) player.board.splice(index, 1);
+  }
+}
+
 export function updateCardInfo(util: Util, info: CardInfo, state: CardState, player: PlayerState, opponent: PlayerState) {
   for (const modifier of state.modifiers) {
-    const modifiers = util.getCardInfo(modifier.card, player, opponent, true).modifiers ?? {};
-    info = modifiers[modifier.name](info, modifier);
+    const card = getCardState(modifier.card, player, opponent);
+    if (card) {
+      const modifiers = util.getCardInfo(card, player, opponent, true).modifiers ?? {};
+      info = modifiers[modifier.name](info, modifier);  
+    }
   }
 
   for (const zone of ["board", "deck", "hand"] as CardZone[]) {
@@ -108,4 +131,22 @@ export function updateCardInfo(util: Util, info: CardInfo, state: CardState, pla
   }
 
   return info;
+}
+
+export function reveal(cards: CardState[]) {
+  const card = sample(cards.filter(c => !c.revealed));
+  if (card) card.revealed = true;
+}
+
+export function activate(card: CardState) {
+  card.revealed = true;
+  card.used = true;
+}
+
+export function destroy(id: string, player: PlayerState, opponent: PlayerState) {
+  removeCardState(id, player, opponent);
+}
+
+export function defaultUtil(getCardInfo: Util["getCardInfo"]): Util {
+  return { getCardInfo, defaultCardState, sample, isEqual, reveal, activate, destroy };
 }

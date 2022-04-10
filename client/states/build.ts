@@ -1,4 +1,4 @@
-import { Container, Text } from "pixi.js";
+import { Container } from "pixi.js";
 import { app } from "..";
 import { defaultCardState, defaultPlayerState } from "../../common/card";
 import { getCards } from "../card";

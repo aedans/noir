@@ -49,7 +49,7 @@ export async function gameState(name: string, socket: Socket) {
       for (const card of player.hand) {
         const sprite = await cardSprite(card, player, opponent, scale);
         sprite.on('pointerdown', () => {
-          socket.emit('action', { type: "play", card });
+          socket.emit('action', { type: "play", card: card.id });
         });
   
         yield sprite;
@@ -61,7 +61,7 @@ export async function gameState(name: string, socket: Socket) {
       for (const card of player.board) {
         const sprite = await cardSprite(card, player, opponent, scale);
         sprite.on('pointerdown', () => {
-          socket.emit('action', { type: "use", card });
+          socket.emit('action', { type: "use", card: card.id });
         });
 
         yield sprite;
