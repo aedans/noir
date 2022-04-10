@@ -106,6 +106,21 @@ export function defaultPlayerState(): PlayerState {
   };
 }
 
+export function sort(util: Util, cards: CardState[], player: PlayerState, opponent: PlayerState) {
+  cards.sort((a, b) => {
+    const aColors = util.getCardInfo(a, player, opponent).colors(util, a, player, opponent).reduce((a, b) => a + " " + b, "");
+    const bColors = util.getCardInfo(b, player, opponent).colors(util, b, player, opponent).reduce((a, b) => a + " " + b, "");
+    if (aColors != bColors) return aColors < bColors ? -1 : 1;
+    const aCost = util.getCardInfo(a, player, opponent).cost(util, a, player, opponent).money;
+    const bCost = util.getCardInfo(b, player, opponent).cost(util, a, player, opponent).money;
+    if (aCost != bCost) return aCost < bCost ? -1 : 1;
+    const aType = util.getCardInfo(a, player, opponent).type(util, a, player, opponent);
+    const bType = util.getCardInfo(b, player, opponent).type(util, b, player, opponent);
+    if (aType != bType) return aType < bType ? -1 : 1;
+    return a.name < b.name ? -1 : 1;
+  });
+}
+
 export function getCardState(id: string, player: PlayerState, opponent: PlayerState) {
   for (const place of [player.deck, player.board, opponent.deck, opponent.board]) {
     const result = place.find(c => c.id == id);

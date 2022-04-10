@@ -1,4 +1,4 @@
-import { Container, Graphics } from "pixi.js";
+import { Container, Graphics, Sprite } from "pixi.js";
 import { CardState, PlayerState } from "../../common/card";
 import { app } from "..";
 import { top, left, right, bottom, interactive, center, below } from "../ui";
