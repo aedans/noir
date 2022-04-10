@@ -9,6 +9,7 @@ export type CardZone = "board" | "deck" | "hand";
 export type Util = {
   getCardInfo: (card: CardState, player: PlayerState, opponent: PlayerState, base?: boolean) => CardInfo,
   defaultCardState: typeof defaultCardState,
+  chooseTargets: typeof chooseTargets,
   sample: typeof sample,
   isEqual: typeof isEqual,
   reveal: typeof reveal,
@@ -26,15 +27,24 @@ export type CardCost = {
 export type CardEffect = (card: CardInfo) => CardInfo;
 export type CardModifier = (card: CardInfo, modifier: ModifierState) => CardInfo;
 
+export type CardChoice = {
+  targets?: { [name: string]: string[] }
+}
+
+export type CardAction = (choice: CardChoice) => void;
+export type CardChoiceAction = (cc: (choice: CardChoice) => void) => void
+
 export type CardInfo = {
   text: CardData<string>,
   type: CardData<CardType>,
   colors: CardData<CardColor[]>,
   cost: CardData<CardCost>,
-  rank: CardData<CardRank>,
   useCost?: CardData<CardCost>,
-  play?: CardData<(() => void) | null>,
-  use?: CardData<(() => void) | null>,
+  rank: CardData<CardRank>,
+  playChoice?: CardData<CardChoiceAction | null>,
+  useChoice?: CardData<CardChoiceAction | null>,
+  play?: CardData<CardAction | null>,
+  use?: CardData<CardAction | null>,
   played?: { [K in CardZone]?: CardData<(played: CardState) => void> }, 
   update?: { [K in CardZone]?: CardData<void> },
   turn?: { [K in CardZone]?: CardData<void> },
@@ -71,8 +81,8 @@ export type Init = {
 
 export type PlayerAction 
   = { type: "end" }
-  | { type: "play", card: string }
-  | { type: "use", card: string }
+  | { type: "play", card: string, choice: CardChoice }
+  | { type: "use", card: string, choice: CardChoice }
 
 export function defaultCardState(name: string): CardState {
   return {
@@ -107,7 +117,15 @@ export function getCardState(id: string, player: PlayerState, opponent: PlayerSt
 export function removeCardState(id: string, player: PlayerState, opponent: PlayerState) {
   for (const place of [player.deck, player.board, opponent.deck, opponent.board]) {
     const index = place.findIndex(c => c.id == id);
-    if (index >= 0) player.board.splice(index, 1);
+    if (index >= 0) place.splice(index, 1);
+  }
+}
+
+export function chooseTargets<A>(targets: string[], number: number, upto: boolean, cc: (targets: string[] | null) => A): A | void {
+  if (!upto && number > targets.length) {
+    return cc(null);
+  } else {
+    return cc([]);
   }
 }
 
@@ -138,9 +156,12 @@ export function reveal(cards: CardState[]) {
   if (card) card.revealed = true;
 }
 
-export function activate(card: CardState) {
-  card.revealed = true;
-  card.used = true;
+export function activate(id: string, player: PlayerState, opponent: PlayerState) {
+  const state = getCardState(id, player, opponent);
+  if (state) {
+    state.revealed = true;
+    state.used = true;  
+  }
 }
 
 export function destroy(id: string, player: PlayerState, opponent: PlayerState) {
@@ -148,5 +169,5 @@ export function destroy(id: string, player: PlayerState, opponent: PlayerState) 
 }
 
 export function defaultUtil(getCardInfo: Util["getCardInfo"]): Util {
-  return { getCardInfo, defaultCardState, sample, isEqual, reveal, activate, destroy };
+  return { getCardInfo, defaultCardState, chooseTargets, sample, isEqual, reveal, activate, destroy };
 }

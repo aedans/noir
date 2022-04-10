@@ -13,14 +13,12 @@ exports.card = {
 				.filter(c => !c.revealed);
 			const agent = util.sample(agents);
 			if (agent) {
-				const index = player.deck.findIndex(x => util.isEqual(agent, x));
-				if (index >= 0) player.deck.splice(index, 1);
+				util.destroy(agent.id, player, opponent);
 				if (util.getCardInfo(agent, player, opponent).colors(util, agent, player, opponent).includes("purple")) {
 					player.money += 40;
 				} else {
 					player.money += 30;
 				}
-	
 			}
 		}
 	}

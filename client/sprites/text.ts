@@ -1,7 +1,7 @@
 import { ITextStyle, Text, TextStyle } from "pixi.js";
 import { interactive } from "../ui";
 
-export function text(string: string, style: Partial<ITextStyle> | TextStyle) {
+export function text(string: string, style: Partial<ITextStyle> | TextStyle = { fontSize: 20 }) {
   const text = new Text(string, {
     fontFamily: "Oswald",
     fill: 0xffffff,

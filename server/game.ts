@@ -1,7 +1,7 @@
 import { Socket } from "socket.io";
 import { getCardInfo, util } from "./card";
 import { isEqual } from "lodash";
-import { CardCost, CardState, CardType, CardZone, defaultCardState, defaultPlayerState, Init, PlayerAction, PlayerState } from "../common/card";
+import { CardAction, CardCost, CardState, CardType, CardZone, defaultCardState, defaultPlayerState, Init, PlayerAction, PlayerState } from "../common/card";
 
 function init(socket: Socket): Promise<Init> {
   return new Promise((resolve, reject) => {
@@ -55,14 +55,15 @@ function canBeOnBoard(type: CardType) {
   return type != "operation";
 }
 
-function playCard(state: CardState, player: PlayerState, opponent: PlayerState): (() => void) | null {
+function playCard(state: CardState, player: PlayerState, opponent: PlayerState): CardAction | null {
   const info = getCardInfo(state, player, opponent);
   const cost: CardCost = info.cost(util, state, player, opponent);
   const play = (info.play ?? (() => () => {}))(util, state, player, opponent);
   if (play == null) return null;
   if (player.money < cost.money) return null;
-  return () => {
-    play();
+  if ((info.playChoice ?? (() => (cc) => cc({})))(util, state, player, opponent)?.((c) => c) == null) return null;
+  return (choice) => {
+    play(choice);
     
     player.money -= cost.money; 
     if (canBeOnBoard(info.type(util, state, player, opponent))) {
@@ -83,15 +84,15 @@ function playCard(state: CardState, player: PlayerState, opponent: PlayerState):
   };
 }
 
-function useCard(state: CardState, player: PlayerState, opponent: PlayerState): (() => void) | null {
+function useCard(state: CardState, player: PlayerState, opponent: PlayerState): CardAction | null {
   const info = getCardInfo(state, player, opponent);
   const cost: CardCost = (info.useCost ?? (() => ({ money: 0 })))(util, state, player, opponent);
   const use = (info.use ?? (() => () => {}))(util, state, player, opponent);
   if (use == null) return null;
   if (player.money < cost.money) return null;
   if (state.used) return null;
-  return () => {
-    use();
+  return (choice) => {
+    use(choice);
     player.money -= cost.money; 
     state.used = true;
     update(player, opponent);
@@ -136,16 +137,16 @@ export async function startGame(socket1: Socket, socket2: Socket) {
         player.deck.splice(index, 1);
         const play = playCard(card, player, opponent);
         if (play != null) {
-          play();
+          play(action.choice ?? {});
         }
       }
     } else if (action.type == "use") {
       const index = player.board.findIndex(c => c.id == action.card);
-      const card = player.deck[index];
+      const card = player.board[index];
       if (index >= 0) {
         const use = useCard(card, player, opponent);
         if (use != null) {
-          use();
+          use(action.choice ?? {});
         }
       }
     }

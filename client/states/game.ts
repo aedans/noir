@@ -1,11 +1,12 @@
-import { Graphics } from "pixi.js";
+import { Container, Graphics, Sprite } from "pixi.js";
 import { Socket } from "socket.io-client";
 import { app } from "..";
-import { PlayerState } from "../../common/card";
+import { CardState, defaultPlayerState, PlayerState, Util } from "../../common/card";
+import { getCardInfo, util } from "../card";
 import { cardHeight, cardSprite, cardWidth } from "../sprites/card";
-import { button } from "../sprites/text";
+import { button, text } from "../sprites/text";
 import { beginState } from "../state";
-import { above, below, bottom, center, right, top, update, horizontal } from "../ui";
+import { above, below, bottom, center, right, top, update, horizontal, interactive } from "../ui";
 
 export async function gameState(name: string, socket: Socket) {
   beginState(`game/${name}`);
@@ -26,59 +27,68 @@ export async function gameState(name: string, socket: Socket) {
   opponentBoard.lineStyle(1, 0xffffff, 0);
   opponentBoard.drawRect(0, 0, 0, cardHeight());
 
-  const end = button("")
-  const money = button("")
+  const submit = button("");
+  const money = button("");
 
-  end.on('pointerdown', () => {
-    socket.emit('action', { type: "end" });
-  });
+  submit.on('pointerdown', () => onSubmit());
 
   app.stage.addChild(hand);
   app.stage.addChild(board);
   app.stage.addChild(opponentDeck);
   app.stage.addChild(opponentBoard);
-  app.stage.addChild(end);
+  app.stage.addChild(submit);
   app.stage.addChild(money);
 
-  socket.on('state', async (player: PlayerState, opponent: PlayerState) => {
+  let player = defaultPlayerState();
+  let opponent = defaultPlayerState();
+  let onSubmit = () => {}
+
+  async function refresh(
+    onHand: (card: CardState) => void, 
+    onBoard: (card: CardState) => void,
+    onOpponentDeck: (card: CardState) => void, 
+    onOpponentBoard: (card: CardState) => void,
+    onCard: (card: CardState, sprite: Container) => void,
+  ) {
     money.text = "$" + player.money;
-    end.text = player.turn ? "End Turn" : "Opponent's turn";
 
     const handSprites = await update(hand, async function*() {
       const scale = (app.screen.width - cardWidth() / 2) / (player.hand.length * (cardWidth() + 5));
       for (const card of player.hand) {
         const sprite = await cardSprite(card, player, opponent, scale);
-        sprite.on('pointerdown', () => {
-          socket.emit('action', { type: "play", card: card.id });
-        });
-  
+        sprite.on('pointerdown', () => onHand(card));
+        onCard(card, sprite);
         yield sprite;
       }        
     });
     
     const boardSprites = await update(board, async function*() {
-      const scale = (app.screen.width - cardWidth() / 2 - 2 * end.width) / (player.board.length * (cardWidth() + 5));
+      const scale = (app.screen.width - cardWidth() / 2 - 2 * submit.width) / (player.board.length * (cardWidth() + 5));
       for (const card of player.board) {
         const sprite = await cardSprite(card, player, opponent, scale);
-        sprite.on('pointerdown', () => {
-          socket.emit('action', { type: "use", card: card.id });
-        });
-
+        sprite.on('pointerdown', () => onBoard(card));
+        onCard(card, sprite);
         yield sprite;
       }
     });
 
     const opponentDeckSprites = await update(opponentDeck, async function*() {
-      const scale = (app.screen.width - cardWidth() / 2 - 2 * end.width) / (opponent.deck.length * (cardWidth() + 5));
+      const scale = (app.screen.width - cardWidth() / 2 - 2 * submit.width) / (opponent.deck.length * (cardWidth() + 5));
       for (const card of opponent.deck) {
-        yield await cardSprite(card, player, opponent, scale);
+        const sprite = await cardSprite(card, player, opponent, scale);
+        sprite.on('pointerdown', () => onOpponentDeck(card));
+        onCard(card, sprite);
+        yield sprite;
       }
     });
 
     const opponentBoardSprites = await update(opponentBoard, async function*() {
       const scale = (app.screen.width - cardWidth() / 2) / (opponent.board.length * (cardWidth() + 5));
       for (const card of opponent.board) {
-        yield await cardSprite(card, player, opponent, scale);
+        const sprite = await cardSprite(card, player, opponent, scale);
+        sprite.on('pointerdown', () => onOpponentBoard(card));
+        onCard(card, sprite);
+        yield sprite;
       }
     });
 
@@ -87,11 +97,11 @@ export async function gameState(name: string, socket: Socket) {
     horizontal(opponentDeckSprites, 5);
     horizontal(opponentBoardSprites, 5);
 
-    center(end, app.screen);
-    right(end, app.screen);
+    center(submit, app.screen);
+    right(submit, app.screen);
 
     right(money, app.screen);
-    below(end, money);
+    below(submit, money);
 
     center(hand, app.screen);
     center(board, app.screen);
@@ -103,5 +113,64 @@ export async function gameState(name: string, socket: Socket) {
     
     top(opponentDeck, 5);
     below(opponentDeck, opponentBoard, 5);
+  }
+
+  function refreshDefault() {
+    submit.text = player.turn ? "End Turn" : "Opponent's turn";
+    onSubmit = () => socket.emit('action', { type: "end" });
+    refresh(
+      (card) => {
+        (getCardInfo(card, player, opponent).playChoice ?? (() => (cc) => cc({})))(gameUtil, card, player, opponent)?.((choice) => {
+          socket.emit('action', { type: "play", card: card.id, choice });
+        });
+      },
+      (card) => {
+        (getCardInfo(card, player, opponent).useChoice ?? (() => (cc) => cc({})))(gameUtil, card, player, opponent)?.((choice) => {
+          socket.emit('action', { type: "use", card: card.id, choice });
+        });  
+      },
+      (card) => {},
+      (card) => {},
+      (card) => {},
+    );
+  }
+
+  const gameUtil: Util = {
+    ...util,
+    chooseTargets(targets, number, upto, cc) {
+      submit.text = "Cancel";
+      onSubmit = () => refreshDefault();
+
+      function refreshChoose() {
+        refresh(on, on, on, on, (card, sprite) => {
+          if (chosen.includes(card.id)) {
+            interactive(sprite, 1.0);
+          } else if (targets.includes(card.id)) {
+            interactive(sprite, 0.6);
+          } else {
+            interactive(sprite, 0.2);
+          }
+        });
+      }
+
+      const chosen = [];
+      const on = (card: CardState) => {
+        if (targets.includes(card.id)) {
+          chosen.push(card.id);
+          refreshChoose();
+          if (chosen.length == number) {
+            cc(chosen);
+          }
+        }
+      }
+
+      refreshChoose();
+    }
+  }
+
+  socket.on('state', async (newPlayer: PlayerState, newOpponent: PlayerState) => {
+    player = newPlayer;
+    opponent = newOpponent;
+    refreshDefault();
   });
 }

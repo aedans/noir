@@ -8,7 +8,7 @@ exports.card = {
 	rank: () => 1,
 	useCost: () => ({ money: 0 }),
 	use: (util, card, player, opponent) => () => {
-		util.activate(card);
+		util.activate(card.id, player, opponent);
 		util.destroy(card.id, player, opponent);
 		player.money += 60;
 	}

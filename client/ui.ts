@@ -1,8 +1,6 @@
 import { Container } from "pixi.js";
 
-const alphaFactor = .7;
-
-export function interactive(container: Container) {
+export function interactive(container: Container, alphaFactor = .8) {
   container.interactive = true;
   container.alpha = alphaFactor;
 

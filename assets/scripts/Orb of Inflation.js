@@ -7,7 +7,7 @@ exports.card = {
 	cost: (util, card, player, opponent) => {
 		const locations = [...player.board, ...opponent.board.filter(c => c.revealed)]
 			.filter(c => util.getCardInfo(c, player, opponent).type(util, c, player, opponent) == "location");
-		return { money: Math.max(0, 100 - (40 * locations.length)) };
+		return { money: Math.max(0, 200 - (40 * locations.length)) };
 	},
 	rank: () => 3,
 	play: (util, card, player, opponent) => () => card.revealed = true,
