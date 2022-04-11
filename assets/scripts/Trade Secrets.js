@@ -13,9 +13,10 @@ exports.card = {
 			.filter(c => !c.revealed);
 		if (cards.length == 0) return null;
 		return () => {
-			util.reveal(cards);
+			util.revealOne(cards, player, opponent);
+			const opponentCards = opponent.deck.filter(c => util.getCardInfo(c, player, opponent).rank(util, c, player, opponent) <= 2);
 			for (let i = 0; i < 3; i++) {
-				util.reveal(opponent.deck.filter(c => util.getCardInfo(c, player, opponent).rank(util, c, player, opponent) <= 2));
+				util.revealOne(opponentCards, player, opponent);
 			}
 		};
 	}

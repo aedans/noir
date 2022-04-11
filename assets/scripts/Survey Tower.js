@@ -15,9 +15,9 @@ exports.card = {
 		}
 	},
 	modifiers: {
-		surveying: (card) => ({
-			...card,
-			text: (util, state, player, opponent) => `${card.text(util, state, player, opponent)}\nOpponent's agents: ${state.number.opponentGuys}`
+		surveying: (info) => ({
+			...info,
+			text: (util, card, player, opponent) => `${info.text(util, card, player, opponent)}\nOpponent's agents: ${card.number.opponentGuys}`
 		})
 	}
 }

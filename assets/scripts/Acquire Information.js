@@ -11,7 +11,7 @@ exports.card = {
 			.filter(c => util.getCardInfo(c, player, opponent).type(util, c, player, opponent) == "agent")
 			.filter(c => util.getCardInfo(c, player, opponent).colors(util, c, player, opponent).includes("purple"));
 		for (const agent of agents) {
-			util.reveal(opponent.deck);
+			util.revealOne(opponent.deck, player, opponent);
 		}
 	}
 }

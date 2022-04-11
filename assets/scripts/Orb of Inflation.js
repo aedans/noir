@@ -12,10 +12,10 @@ exports.card = {
 	rank: () => 3,
 	play: (util, card, player, opponent) => () => card.revealed = true,
 	effects: {
-		board: (util, state, player, opponent) => (card) => ({
-			...card,
-			cost: (util, state, player, opponent) => {
-				const cost = card.cost(util, state, player, opponent);
+		board: (util, state, player, opponent) => (info) => ({
+			...info,
+			cost: (util, card, player, opponent) => {
+				const cost = info.cost(util, card, player, opponent);
 				return { ...cost, money: cost.money * 2 };
 			}
 		})

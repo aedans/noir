@@ -11,9 +11,9 @@ exports.card = {
 		board: (util, card, player, opponent) => card.number.opponentMoney = opponent.money
 	},
 	modifiers: {
-		auditing: (card) => ({
-			...card,
-			text: (util, state, player, opponent) => `${card.text(util, state, player, opponent)}\nOpponent's money: $${state.number.opponentMoney}`
+		auditing: (info) => ({
+			...info,
+			text: (util, card, player, opponent) => `${info.text(util, card, player, opponent)}\nOpponent's money: $${card.number.opponentMoney}`
 		})
 	}
 }

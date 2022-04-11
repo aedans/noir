@@ -13,6 +13,7 @@ export type Util = {
   sample: typeof sample,
   isEqual: typeof isEqual,
   reveal: typeof reveal,
+  revealOne: typeof revealOne,
   activate: typeof activate,
   destroy: typeof destroy,
 }
@@ -46,6 +47,7 @@ export type CardInfo = {
   play?: CardData<CardAction | null>,
   use?: CardData<CardAction | null>,
   activate?: CardData<void>,
+  reveal?: CardData<void>,
   update?: { [K in CardZone]?: CardData<void> },
   turn?: { [K in CardZone]?: CardData<void> },
   effects?: { [K in CardZone]?: CardData<CardEffect> },
@@ -166,16 +168,28 @@ export function updateCardInfo(util: Util, info: CardInfo, state: CardState, pla
   return info;
 }
 
-export function reveal(cards: CardState[]) {
+export function revealOne(this: Util, cards: CardState[], player: PlayerState, opponent: PlayerState) {
   const card = sample(cards.filter(c => !c.revealed));
-  if (card) card.revealed = true;
+  if (card) this.reveal(card.id, player, opponent);
+}
+
+export function reveal(this: Util, id: string, player: PlayerState, opponent: PlayerState) {
+  const card = getCardState(id, player, opponent);
+  if (card) {
+    card.revealed = true;
+
+    const reveal = this.getCardInfo(card, player, opponent).reveal;
+    if (reveal != null) {
+      reveal(this, card, player, opponent);
+    }
+  }
 }
 
 export function activate(this: Util, id: string, player: PlayerState, opponent: PlayerState) {
   const card = getCardState(id, player, opponent);
   if (card) {
-    card.revealed = true;
-    card.used = true;  
+    card.used = true;
+    this.reveal(id, player, opponent);
     
     const activate = this.getCardInfo(card, player, opponent).activate;
     if (activate != null) {
@@ -189,5 +203,5 @@ export function destroy(id: string, player: PlayerState, opponent: PlayerState) 
 }
 
 export function defaultUtil(getCardInfo: Util["getCardInfo"]): Util {
-  return { getCardInfo, defaultCardState, chooseTargets, sample, isEqual, reveal, activate, destroy };
+  return { getCardInfo, defaultCardState, chooseTargets, sample, isEqual, reveal, revealOne, activate, destroy };
 }

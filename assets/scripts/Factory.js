@@ -22,7 +22,7 @@ exports.card = {
 			.filter(c => !c.revealed);
 		if (cards.length == 0) return null;
 		return (choice) => {
-			util.reveal(cards);
+			util.revealOne(cards, player, opponent);
 			util.activate(choice.targets.activate[0], player, opponent);
 			player.money += 60;
 		}

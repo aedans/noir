@@ -17,26 +17,24 @@ exports.card = {
 		board: (util, card, player, opponent) => card.number.played = 0
 	},
 	effects: {
-		board: (util, state, player, opponent) => {
-			return (card) => ({
-				...card,
-				play: (util, c, player, opponent) => {
-					const play = (card.play ?? (() => () => {}))(util, c, player, opponent);
-					if (play == null) return play;
-					return (choice) => {
-						play(choice);
-						state.number.played++;
-					};
-				},
-				cost: (util, c, player, opponent) => {
-					const cost = card.cost(util, c, player, opponent);
-					if (state.number.played == 0 && player.hand.find(h => h.id == c.id) && card.type(util, c, player, opponent) == "agent") {
-						return { ...cost, money: cost.money - 5 };
-					}	else {
-						return cost;
-					}
+		board: (util, state, player, opponent) =>  (info) => ({
+			...info,
+			play: (util, card, player, opponent) => {
+				const play = (info.play ?? (() => () => {}))(util, card, player, opponent);
+				if (play == null) return play;
+				return (choice) => {
+					play(choice);
+					state.number.played++;
+				};
+			},
+			cost: (util, card, player, opponent) => {
+				const cost = info.cost(util, card, player, opponent);
+				if (state.number.played == 0 && player.hand.find(h => h.id == card.id) && info.type(util, card, player, opponent) == "agent") {
+					return { ...cost, money: cost.money - 5 };
+				}	else {
+					return cost;
 				}
-			});
-		}
+			}
+		})
 	},
 }

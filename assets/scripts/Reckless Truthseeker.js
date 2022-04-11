@@ -7,7 +7,7 @@ exports.card = {
 	cost: () => ({ money: 40}),
 	rank: () => 1,
 	activate: (util, card, player, opponent) => {
-		util.reveal(player.board);
-		util.reveal(opponent.board);
+		util.revealOne(player.board, player, opponent);
+		util.revealOne(opponent.board, player, opponent);
 	}
 }

@@ -18,8 +18,9 @@ exports.card = {
 	},
 	play: (util, card, player, opponent) => (choice) => {
 		util.activate(choice.targets.activate[0], player, opponent);
+		const cards = opponent.deck.filter(c => util.getCardInfo(c, player, opponent).rank(util, c, player, opponent) <= 1);
 		for (let i = 0; i < 3; i++) {
-			util.reveal(opponent.deck.filter(c => util.getCardInfo(c, player, opponent).rank(util, c, player, opponent) <= 1));
+			util.revealOne(cards, player, opponent);
 		}
 	},
 }
