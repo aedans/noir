@@ -12,7 +12,7 @@ exports.card = {
 			reveal: (util, card, player, opponent) => {
 				if (!state.revealed) {
 					card.revealed = false;
-					state.revealed = true;
+					util.reveal(state.id, player, opponent);
 				} else if (info.reveal) {
 					info.reveal(util, card, player, opponent);
 				}
