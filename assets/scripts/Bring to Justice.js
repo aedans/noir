@@ -1,3 +1,5 @@
+// @ts-check
+/** @type {import("../../common/card").CardInfo} */
 exports.card = {
 	text: () => "Additional cost: activate two blue agents. Destroy a rank 1 or 2 agent.",
 	type: () => "operation",
@@ -5,19 +7,19 @@ exports.card = {
 	cost: () => ({ money: 20 }),
 	rank: () => 2,
 	playChoice: (util, card, player, opponent) => (cc) => {
-		const activateTargets = player.board
-			.filter(c => util.getCardInfo(c, player, opponent).colors(util, c, player, opponent).includes("blue"))
-			.filter(c => util.getCardInfo(c, player, opponent).type(util, card, player, opponent) == "agent")
-			.filter(c => c.used == false);
 		const destroyTargets = [...opponent.deck, ...opponent.board]
 			.filter(c => util.getCardInfo(c, player, opponent).type(util, card, player, opponent) == "agent")
 			.filter(c => util.getCardInfo(c, player, opponent).rank(util, card, player, opponent) <= 2)
 			.filter(c => c.revealed == true);
-		return util.chooseTargets(activateTargets.map(c => c.id), 2, false, (activate) => {
-			if (activate == null) return cc(null);
-			return util.chooseTargets(destroyTargets.map(c => c.id), 1, false, (destroy) => {
-				if (destroy == null) return cc(null);
-				return cc({ targets: { activate, destroy } });
+		const activateTargets = player.board
+			.filter(c => util.getCardInfo(c, player, opponent).colors(util, c, player, opponent).includes("blue"))
+			.filter(c => util.getCardInfo(c, player, opponent).type(util, card, player, opponent) == "agent")
+			.filter(c => c.used == false);
+		return util.chooseTargets(destroyTargets.map(c => c.id), 1, false, (destroy) => {
+			if (destroy == null) return cc(null);
+			return util.chooseTargets(activateTargets.map(c => c.id), 2, false, (activate) => {
+				if (activate == null) return cc(null);
+				return cc({ targets: { destroy, activate } });
 			});
 		});
 	},

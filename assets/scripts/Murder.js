@@ -7,18 +7,18 @@ exports.card = {
 	cost: () => ({ money: 30 }),
 	rank: () => 1,
 	playChoice: (util, card, player, opponent) => (cc) => {
+		const destroyTargets = [...opponent.deck, ...opponent.board]
+			.filter(c => util.getCardInfo(c, player, opponent).type(util, card, player, opponent) == "agent")
+			.filter(c => c.revealed == true);
 		const activateTargets = player.board
 			.filter(c => util.getCardInfo(c, player, opponent).colors(util, c, player, opponent).includes("purple"))
 			.filter(c => util.getCardInfo(c, player, opponent).type(util, card, player, opponent) == "agent")
 			.filter(c => c.used == false);
-		const destroyTargets = [...opponent.deck, ...opponent.board]
-			.filter(c => util.getCardInfo(c, player, opponent).type(util, card, player, opponent) == "agent")
-			.filter(c => c.revealed == true);
-		return util.chooseTargets(activateTargets.map(c => c.id), 1, false, (activate) => {
-			if (activate == null) return cc(null);
-			return util.chooseTargets(destroyTargets.map(c => c.id), 1, false, (destroy) => {
-				if (destroy == null) return cc(null);
-				return cc({ targets: { activate, destroy } });
+		return util.chooseTargets(destroyTargets.map(c => c.id), 1, false, (destroy) => {
+			if (destroy == null) return cc(null);
+			return util.chooseTargets(activateTargets.map(c => c.id), 1, false, (activate) => {
+				if (activate == null) return cc(null);
+				return cc({ targets: { destroy, activate } });
 			});
 		});
 	},
