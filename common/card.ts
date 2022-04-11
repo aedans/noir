@@ -45,7 +45,6 @@ export type CardInfo = {
   useChoice?: CardData<CardChoiceAction | null>,
   play?: CardData<CardAction | null>,
   use?: CardData<CardAction | null>,
-  played?: { [K in CardZone]?: CardData<(played: CardState) => void> }, 
   update?: { [K in CardZone]?: CardData<void> },
   turn?: { [K in CardZone]?: CardData<void> },
   effects?: { [K in CardZone]?: CardData<CardEffect> },

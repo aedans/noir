@@ -70,16 +70,6 @@ function playCard(state: CardState, player: PlayerState, opponent: PlayerState):
       player.board.push(state);
     }
 
-    for (const zone of ["board", "deck", "hand"] as CardZone[]) {
-      for (const card of player[zone]) {
-        (getCardInfo(card, player, opponent).played?.[zone]?.(util, card, player, opponent) ?? (() => {}))(state);
-      }
-
-      for (const card of opponent[zone]) {
-        (getCardInfo(card, opponent, player).played?.[zone]?.(util, card, opponent, player) ?? (() => {}))(state);
-      }
-    }
-
     update(player, opponent);
   };
 }

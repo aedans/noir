@@ -16,30 +16,27 @@ exports.card = {
 	turn: {
 		board: (util, card, player, opponent) => card.number.played = 0
 	},
-	played: {
-		board: (util, card, player, opponent) => (played) => {
-			if (player.turn && util.getCardInfo(played, player, opponent).type(util, played, player, opponent) == "agent") {
-				card.number.played++;
-			}
-		}
-	},
 	effects: {
 		board: (util, state, player, opponent) => {
-			if (state.number.played < 1) {
-				return (card) => ({
-					...card,
-					cost: (util, state, player, opponent) => {
-						const cost = card.cost(util, state, player, opponent);
-						if (card.type(util, state, player, opponent) == "agent") {
-							return { ...cost, money: cost.money - 5 };
-						}	else {
-							return cost;
-						}
+			return (card) => ({
+				...card,
+				play: (util, c, player, opponent) => {
+					const play = (card.play ?? (() => () => {}))(util, c, player, opponent);
+					if (play == null) return play;
+					return (choice) => {
+						play(choice);
+						state.number.played++;
+					};
+				},
+				cost: (util, c, player, opponent) => {
+					const cost = card.cost(util, c, player, opponent);
+					if (state.number.played == 0 && player.hand.find(h => h.id == c.id) && card.type(util, c, player, opponent) == "agent") {
+						return { ...cost, money: cost.money - 5 };
+					}	else {
+						return cost;
 					}
-				});
-			} else {
-				return card => card;
-			}
+				}
+			});
 		}
 	},
 }
