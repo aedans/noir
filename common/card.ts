@@ -45,6 +45,7 @@ export type CardInfo = {
   useChoice?: CardData<CardChoiceAction | null>,
   play?: CardData<CardAction | null>,
   use?: CardData<CardAction | null>,
+  activate?: CardData<void>,
   update?: { [K in CardZone]?: CardData<void> },
   turn?: { [K in CardZone]?: CardData<void> },
   effects?: { [K in CardZone]?: CardData<CardEffect> },
@@ -170,11 +171,16 @@ export function reveal(cards: CardState[]) {
   if (card) card.revealed = true;
 }
 
-export function activate(id: string, player: PlayerState, opponent: PlayerState) {
-  const state = getCardState(id, player, opponent);
-  if (state) {
-    state.revealed = true;
-    state.used = true;  
+export function activate(this: Util, id: string, player: PlayerState, opponent: PlayerState) {
+  const card = getCardState(id, player, opponent);
+  if (card) {
+    card.revealed = true;
+    card.used = true;  
+    
+    const activate = this.getCardInfo(card, player, opponent).activate;
+    if (activate != null) {
+      activate(this, card, player, opponent);
+    }
   }
 }
 

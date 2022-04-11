@@ -6,4 +6,7 @@ exports.card = {
 	colors: () => ["green"],
 	cost: () => ({ money: 40 }),
 	rank: () => 1,
+	activate: (util, card, player, opponent) => {
+		player.money += 5;
+	}
 }
