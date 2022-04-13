@@ -46,6 +46,8 @@ export async function buildState(name: string) {
   async function refresh() {
     setDeck(name, deck);
 
+    deckName.text = `${name} (${deck.length}/30)`;
+
     const deckSprites = await update(deckList, async function*() {
       for (const name of deck) {
         const sprite = button(name);
