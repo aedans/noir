@@ -21,8 +21,8 @@ exports.card = {
 		player.board.push(card);
 	},
 	turn: {
-		board: (util, card, player, opppnent) => {
-			util.destroy(card.id, player, opppnent);
+		board: (util, card, player, opponent) => {
+			util.destroy(card.id, player, opponent);
 			player.money += 25;
 		}
 	}

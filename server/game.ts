@@ -1,7 +1,6 @@
 import { Socket } from "socket.io";
 import { getCardInfo, util } from "./card";
-import { isEqual } from "lodash";
-import { CardAction, CardCost, CardState, CardType, CardZone, defaultCardState, defaultPlayerState, Init, PlayerAction, PlayerState } from "../common/card";
+import { CardAction, CardCost, CardState, CardZone, defaultCardState, defaultPlayerState, Init, PlayerAction, PlayerState } from "../common/card";
 
 function init(socket: Socket): Promise<Init> {
   return new Promise((resolve, reject) => {
@@ -30,7 +29,7 @@ function update(player: PlayerState, opponent: PlayerState) {
   }
 
   for (const zone of ["board", "deck", "hand"] as CardZone[]) {
-    for (const card of player[zone]) {
+    for (const card of [...player[zone]]) {
       getCardInfo(card, player, opponent).update?.[zone]?.(util, card, player, opponent);
     }
   }
@@ -43,16 +42,12 @@ function turn(player: PlayerState, opponent: PlayerState) {
   for (const card of player.board) {
     card.used = false;
   }
-  
+
   for (const zone of ["board", "deck", "hand"] as CardZone[]) {
-    for (const card of player[zone]) {
+    for (const card of [...player[zone]]) {
       getCardInfo(card, player, opponent).turn?.[zone]?.(util, card, player, opponent);
     }
   }
-}
-
-function canBeOnBoard(type: CardType) {
-  return type != "operation";
 }
 
 function playCard(state: CardState, player: PlayerState, opponent: PlayerState): CardAction | null {
@@ -66,7 +61,7 @@ function playCard(state: CardState, player: PlayerState, opponent: PlayerState):
     play(choice);
     
     player.money -= cost.money; 
-    if (canBeOnBoard(info.type(util, state, player, opponent))) {
+    if (info.type(util, state, player, opponent) != "operation") {
       player.board.push(state);
     }
 
