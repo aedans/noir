@@ -19,7 +19,7 @@ exports.card = {
 	play: (util, card, player, opponent) => (choice) => {
 		util.activate(choice.targets.activate[0], player, opponent);
 		util.activate(choice.targets.activate[1], player, opponent);
-		util.revealOne(opponent.deck, player, opponent);
-		util.revealOne(opponent.deck, player, opponent);
+		util.revealRandom(opponent.deck, player, opponent);
+		util.revealRandom(opponent.deck, player, opponent);
 	}
 }

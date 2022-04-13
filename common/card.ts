@@ -13,9 +13,10 @@ export type Util = {
   sample: typeof sample,
   isEqual: typeof isEqual,
   reveal: typeof reveal,
-  revealOne: typeof revealOne,
+  revealRandom: typeof revealRandom,
   activate: typeof activate,
   destroy: typeof destroy,
+  destroyRandom: typeof destroyRandom
 }
 
 export type CardData<A> = (util: Util, card: CardState, player: PlayerState, opponent: PlayerState) => A;
@@ -48,6 +49,7 @@ export type CardInfo = {
   use?: CardData<CardAction | null>,
   activate?: CardData<void>,
   reveal?: CardData<void>,
+  destroy?: CardData<void>,
   update?: { [K in CardZone]?: CardData<void> },
   turn?: { [K in CardZone]?: CardData<void> },
   effects?: { [K in CardZone]?: CardData<CardEffect> },
@@ -168,11 +170,6 @@ export function updateCardInfo(util: Util, info: CardInfo, state: CardState, pla
   return info;
 }
 
-export function revealOne(this: Util, cards: CardState[], player: PlayerState, opponent: PlayerState) {
-  const card = sample(cards.filter(c => !c.revealed));
-  if (card) this.reveal(card.id, player, opponent);
-}
-
 export function reveal(this: Util, id: string, player: PlayerState, opponent: PlayerState) {
   const card = getCardState(id, player, opponent);
   if (card) {
@@ -183,6 +180,11 @@ export function reveal(this: Util, id: string, player: PlayerState, opponent: Pl
       reveal(this, card, player, opponent);
     }
   }
+}
+
+export function revealRandom(this: Util, cards: CardState[], player: PlayerState, opponent: PlayerState) {
+  const card = sample(cards.filter(c => !c.revealed));
+  if (card) this.reveal(card.id, player, opponent);
 }
 
 export function activate(this: Util, id: string, player: PlayerState, opponent: PlayerState) {
@@ -202,6 +204,11 @@ export function destroy(id: string, player: PlayerState, opponent: PlayerState) 
   removeCardState(id, player, opponent);
 }
 
+export function destroyRandom(this: Util, cards: CardState[], player: PlayerState, opponent: PlayerState) {
+  const card = sample(cards);
+  if (card) this.destroy(card.id, player, opponent);
+}
+
 export function defaultUtil(getCardInfo: Util["getCardInfo"]): Util {
-  return { getCardInfo, defaultCardState, chooseTargets, sample, isEqual, reveal, revealOne, activate, destroy };
+  return { getCardInfo, defaultCardState, chooseTargets, sample, isEqual, reveal, revealRandom, activate, destroy, destroyRandom };
 }

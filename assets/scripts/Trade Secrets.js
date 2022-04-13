@@ -13,10 +13,10 @@ exports.card = {
 			.filter(c => !c.revealed);
 		if (cards.length == 0) return null;
 		return () => {
-			util.revealOne(cards, player, opponent);
+			util.revealRandom(cards, player, opponent);
 			const opponentCards = opponent.deck.filter(c => util.getCardInfo(c, player, opponent).rank(util, c, player, opponent) <= 2);
 			for (let i = 0; i < 3; i++) {
-				util.revealOne(opponentCards, player, opponent);
+				util.revealRandom(opponentCards, player, opponent);
 			}
 		};
 	}

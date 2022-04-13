@@ -6,7 +6,7 @@ import { getCardInfo, util } from "../card";
 import { cardHeight, cardSprite, cardWidth } from "../sprites/card";
 import { button, text } from "../sprites/text";
 import { beginState } from "../state";
-import { above, below, bottom, center, right, top, update, horizontal, interactive } from "../ui";
+import { above, below, bottom, center, right, top, update, interactive, wrap } from "../ui";
 
 export async function gameState(name: string, socket: Socket) {
   beginState(`game/${name}`);
@@ -41,7 +41,15 @@ export async function gameState(name: string, socket: Socket) {
 
   let player = defaultPlayerState();
   let opponent = defaultPlayerState();
-  let onSubmit = () => {}
+  let onSubmit = () => {};
+
+  function roundScale(scale: number) {
+    if (scale < 0.5) {
+      return 0.5;
+    } else {
+      return scale;
+    }
+  }
 
   async function refresh(
     onHand: (card: CardState) => void, 
@@ -53,7 +61,7 @@ export async function gameState(name: string, socket: Socket) {
     money.text = "$" + player.money;
 
     const handSprites = await update(hand, async function*() {
-      const scale = (app.screen.width - cardWidth() / 2) / (player.hand.length * (cardWidth() + 5));
+      const scale = roundScale((app.screen.width - cardWidth() / 2) / (player.hand.length * (cardWidth() + 5)));
       for (const card of player.hand) {
         const sprite = await cardSprite(card, player, opponent, scale);
         sprite.on('pointerdown', () => onHand(card));
@@ -63,7 +71,7 @@ export async function gameState(name: string, socket: Socket) {
     });
     
     const boardSprites = await update(board, async function*() {
-      const scale = (app.screen.width - cardWidth() / 2 - 2 * submit.width) / (player.board.length * (cardWidth() + 5));
+      const scale = roundScale((app.screen.width - cardWidth() / 2 - 2 * submit.width) / (player.board.length * (cardWidth() + 5)));
       for (const card of player.board) {
         const sprite = await cardSprite(card, player, opponent, scale);
         sprite.on('pointerdown', () => onBoard(card));
@@ -73,7 +81,7 @@ export async function gameState(name: string, socket: Socket) {
     });
 
     const opponentDeckSprites = await update(opponentDeck, async function*() {
-      const scale = (app.screen.width - cardWidth() / 2 - 2 * submit.width) / (opponent.deck.length * (cardWidth() + 5));
+      const scale = roundScale((app.screen.width - cardWidth() / 2 - 2 * submit.width) / (opponent.deck.length * (cardWidth() + 5)));
       for (const card of opponent.deck) {
         const sprite = await cardSprite(card, player, opponent, scale);
         sprite.on('pointerdown', () => onOpponentDeck(card));
@@ -83,7 +91,7 @@ export async function gameState(name: string, socket: Socket) {
     });
 
     const opponentBoardSprites = await update(opponentBoard, async function*() {
-      const scale = (app.screen.width - cardWidth() / 2) / (opponent.board.length * (cardWidth() + 5));
+      const scale = roundScale((app.screen.width - cardWidth() / 2) / (opponent.board.length * (cardWidth() + 5)));
       for (const card of opponent.board) {
         const sprite = await cardSprite(card, player, opponent, scale);
         sprite.on('pointerdown', () => onOpponentBoard(card));
@@ -92,10 +100,10 @@ export async function gameState(name: string, socket: Socket) {
       }
     });
 
-    horizontal(handSprites, 5);
-    horizontal(boardSprites, 5);
-    horizontal(opponentDeckSprites, 5);
-    horizontal(opponentBoardSprites, 5);
+    wrap(handSprites, app.screen, 5);
+    wrap(boardSprites, app.screen, 5);
+    wrap(opponentDeckSprites, app.screen, 5);
+    wrap(opponentBoardSprites, app.screen, 5);
 
     center(submit, app.screen);
     right(submit, app.screen);

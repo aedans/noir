@@ -24,7 +24,7 @@ exports.card = {
 			...info,
 			reveal: (util, card, player, opponent) => {
 				if (player.board.find(c => c.id == card.id)) {
-					util.revealOne(opponent.board, player, opponent);
+					util.revealRandom(opponent.board, player, opponent);
 				}
 			}
 		})
