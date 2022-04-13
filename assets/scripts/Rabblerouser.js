@@ -19,7 +19,6 @@ exports.card = {
   modifiers: {
     rabbleroused: (info) => ({
       ...info,
-      text: (util, card, player, opponent) => info.text(util, card, player, opponent) + "\nRabbleroused.",
       colors: () => ["orange"]
     })
   }

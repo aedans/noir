@@ -12,6 +12,8 @@ export type Util = {
   chooseTargets: typeof chooseTargets,
   sample: typeof sample,
   isEqual: typeof isEqual,
+  getCardState: typeof getCardState,
+  removeCardState: typeof removeCardState,
   reveal: typeof reveal,
   revealRandom: typeof revealRandom,
   activate: typeof activate,
@@ -73,7 +75,7 @@ export type CardState = {
   name: string,
   id: string,
   revealed: boolean,
-  used: boolean,
+  activated: boolean,
   modifiers: ModifierState[],
   number: { [name: string]: number },
   string: { [name: string]: string }
@@ -93,7 +95,7 @@ export function defaultCardState(name: string): CardState {
     name,
     id: uuidv4(),
     revealed: false,
-    used: true,
+    activated: true,
     modifiers: [],
     number: {},
     string: {},
@@ -190,7 +192,7 @@ export function revealRandom(this: Util, cards: CardState[], player: PlayerState
 export function activate(this: Util, id: string, player: PlayerState, opponent: PlayerState) {
   const card = getCardState(id, player, opponent);
   if (card) {
-    card.used = true;
+    card.activated = true;
     this.reveal(id, player, opponent);
     
     const activate = this.getCardInfo(card, player, opponent).activate;
@@ -210,5 +212,5 @@ export function destroyRandom(this: Util, cards: CardState[], player: PlayerStat
 }
 
 export function defaultUtil(getCardInfo: Util["getCardInfo"]): Util {
-  return { getCardInfo, defaultCardState, chooseTargets, sample, isEqual, reveal, revealRandom, activate, destroy, destroyRandom };
+  return { getCardInfo, defaultCardState, chooseTargets, sample, isEqual, getCardState, removeCardState, reveal, revealRandom, activate, destroy, destroyRandom };
 }

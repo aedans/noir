@@ -1,6 +1,6 @@
 import { Socket } from "socket.io";
 import { getCardInfo, util } from "./card";
-import { CardAction, CardCost, CardState, CardZone, defaultCardState, defaultPlayerState, Init, PlayerAction, PlayerState } from "../common/card";
+import { activate, CardAction, CardCost, CardState, CardZone, defaultCardState, defaultPlayerState, Init, PlayerAction, PlayerState } from "../common/card";
 
 function init(socket: Socket): Promise<Init> {
   return new Promise((resolve, reject) => {
@@ -40,7 +40,7 @@ function turn(player: PlayerState, opponent: PlayerState) {
   player.turn = true;
 
   for (const card of player.board) {
-    card.used = false;
+    card.activated = false;
   }
 
   for (const zone of ["board", "deck", "hand"] as CardZone[]) {
@@ -75,11 +75,11 @@ function useCard(state: CardState, player: PlayerState, opponent: PlayerState): 
   const use = (info.use ?? (() => () => {}))(util, state, player, opponent);
   if (use == null) return null;
   if (player.money < cost.money) return null;
-  if (state.used) return null;
+  if (state.activated) return null;
   return (choice) => {
+    util.activate(state.id, player, opponent);
     use(choice);
-    player.money -= cost.money; 
-    state.used = true;
+    player.money -= cost.money;
     update(player, opponent);
   };
 }

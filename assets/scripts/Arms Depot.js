@@ -1,15 +1,13 @@
 // @ts-check
 /** @type {import("../../common/card").CardInfo} */
 exports.card = {
-	text: () => "Additional cost: activate a purple agent. Destroy an agent.",
-	type: () => "operation",
-	colors: () => ["purple"],
-	cost: () => ({ money: 30 }),
-	rank: () => 1,
-	playChoice: (util, card, player, opponent) => (cc) => {
-		const destroyTargets = [...opponent.deck, ...opponent.board]
-			.filter(c => util.getCardInfo(c, player, opponent).type(util, card, player, opponent) == "agent")
-			.filter(c => c.revealed == true);
+	text: () => "Activate this and an agent: destroy a revealed card and refresh this.",
+	type: () => "location",
+	colors: () => [],
+	cost: () => ({ money: 120 }),
+	rank: () => 3,
+	useChoice: (util, card, player, opponent) => (cc) => {
+		const destroyTargets = [...opponent.deck, ...opponent.board].filter(c => c.revealed == true);
 		const activateTargets = player.board
 			.filter(c => util.getCardInfo(c, player, opponent).colors(util, c, player, opponent).includes("purple"))
 			.filter(c => util.getCardInfo(c, player, opponent).type(util, card, player, opponent) == "agent")
@@ -22,8 +20,9 @@ exports.card = {
 			});
 		});
 	},
-	play: (util, card, player, opponent) => (choice) => {
+	use: (util, card, player, opponent) => (choice) => {
 		util.activate(choice.targets.activate[0], player, opponent);
 		util.destroy(choice.targets.destroy[0], player, opponent);
+		card.activated = false;
 	}
 }

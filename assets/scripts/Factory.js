@@ -10,7 +10,7 @@ exports.card = {
 		const activateTargets = player.board
 			.filter(c => util.getCardInfo(c, player, opponent).colors(util, c, player, opponent).includes("green"))
 			.filter(c => util.getCardInfo(c, player, opponent).type(util, card, player, opponent) == "agent")
-			.filter(c => c.used == false);
+			.filter(c => c.activated == false);
 		return util.chooseTargets(activateTargets.map(c => c.id), 1, false, (activate) => {
 			if (activate == null) return cc(null);
 			return cc({ targets: { activate } });
