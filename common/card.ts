@@ -22,7 +22,7 @@ export type CardData<A> = (util: Util, card: CardState, player: PlayerState, opp
 
 export type CardCost = {
   money: number,
-  guys?: { [K in CardColor]?: number },
+  agents?: { [K in CardColor]?: number },
 }
 
 export type CardEffect = (card: CardInfo) => CardInfo;

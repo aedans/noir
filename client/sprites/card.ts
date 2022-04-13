@@ -2,7 +2,7 @@ import { Container, Graphics, Sprite } from "pixi.js";
 import { CardState, PlayerState } from "../../common/card";
 import { app } from "..";
 import { top, left, right, bottom, interactive, center, below } from "../ui";
-import { loadCardInfo, util } from "../card";
+import { getCardInfo, loadCardInfo, util } from "../card";
 import { text } from "./text";
 import { isEqual } from "lodash";
 
@@ -83,7 +83,8 @@ export async function cardSprite(card: CardState, player: PlayerState, opponent:
   left(typeText, 5);
   below(nameText, typeText, 5);
 
-  if (cardInfo.text(util, card, player, opponent) != "" && isEqual(Object.keys(cardInfo).sort(), ["colors", "cost", "rank", "text", "type"])) {
+  const baseCardInfo = getCardInfo(card, player, opponent, true);
+  if (baseCardInfo.text(util, card, player, opponent) != "" && isEqual(Object.keys(baseCardInfo).sort(), ["colors", "cost", "rank", "text", "type"])) {
     sprite.addChild(todoText);
     center(todoText, sprite);
     below(typeText, todoText, 50);

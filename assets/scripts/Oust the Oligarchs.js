@@ -1,10 +1,10 @@
 // @ts-check
 /** @type {import("../../common/card").CardInfo} */
 exports.card = {
-	text: () => "Additional cost: activate five orange agents and reveal all orange agents from your deck. Set each player's money equal to 0.",
+	text: () => "Additional cost: activate five orange agents. Destroy all revealed rank 3 agents you don't control.",
 	type: () => "operation",
 	colors: () => ["orange"],
-	cost: () => ({ money: 0 }),
+	cost: () => ({ money: 20 }),
 	rank: () => 3,
 	playChoice: (util, card, player, opponent) => (cc) => {
 		const activateTargets = player.board
@@ -20,16 +20,13 @@ exports.card = {
 		for (let i = 0; i < 5; i++) {
 			util.activate(choice.targets.activate[i], player, opponent);
 		}
-
-		const agents = player.deck
-			.filter(c => util.getCardInfo(c, player, opponent).colors(util, c, player, opponent).includes("orange"))
-			.filter(c => util.getCardInfo(c, player, opponent).type(util, c, player, opponent) == "agent")
-			.filter(c => !c.revealed);
+		
+		const agents = [...opponent.board, ...opponent.deck]
+			.filter(c => c.revealed)
+			.filter(c => util.getCardInfo(c, player, opponent).rank(util, card, player, opponent) == 3)
+			.filter(c => util.getCardInfo(c, player, opponent).type(util, card, player, opponent) == "agent");
 		for (const agent of agents) {
-			util.reveal(agent.id, player, opponent);
+			util.destroy(agent.id, player, opponent);
 		}
-
-		player.money = 0;
-		opponent.money = 0;
 	}
 }

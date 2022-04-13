@@ -17,8 +17,8 @@ exports.card = {
 		});
 	},
 	play: (util, card, player, opponent) => (choice) => {
-		for (const activate of choice.targets.activate) {
-			util.activate(activate, player, opponent);
+		for (let i = 0; i < 5; i++) {
+			util.activate(choice.targets.activate[i], player, opponent);
 		}
 		
 		const agents = [...opponent.board, ...opponent.deck]
