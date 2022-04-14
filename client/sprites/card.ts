@@ -44,7 +44,7 @@ export async function cardSprite(card: CardState, player: PlayerState, opponent:
     fontSize: 16 * scale
   });
 
-  const moneyText = text((cardInfo.cost(util, card, player, opponent).money ?? "") + "", {
+  const moneyText = text("$" + (cardInfo.cost(util, card, player, opponent).money ?? "") + "", {
     fontSize: 16 * scale
   });
 
@@ -55,7 +55,7 @@ export async function cardSprite(card: CardState, player: PlayerState, opponent:
     wordWrapWidth: width - 10,
   });
 
-  const typeText = text(cardInfo.type(util, card, player, opponent), {
+  const typeText = text(cardInfo.type(util, card, player, opponent) + " - rank " + cardInfo.rank(util, card, player, opponent), {
     fontSize: 14 * scale,
     fill: 0xffffff,
   })
