@@ -1,12 +1,12 @@
-import { Container, Graphics, Sprite } from "pixi.js";
+import { Container, Graphics } from "pixi.js";
 import { Socket } from "socket.io-client";
 import { app } from "..";
-import { CardState, defaultPlayerState, PlayerState, Util } from "../../common/card";
+import { CardState, defaultPlayerState, getCardState, PlayerAction, PlayerState, Util } from "../../common/card";
 import { getCardInfo, util } from "../card";
 import { cardHeight, cardSprite, cardWidth } from "../sprites/card";
 import { button, text } from "../sprites/text";
 import { beginState } from "../state";
-import { above, below, bottom, center, right, top, update, interactive, wrap } from "../ui";
+import { above, below, bottom, center, right, top, update, interactive, wrap, left, vertical } from "../ui";
 
 export async function gameState(name: string, socket: Socket) {
   beginState(`game/${name}`);
@@ -27,20 +27,33 @@ export async function gameState(name: string, socket: Socket) {
   opponentBoard.lineStyle(1, 0xffffff, 0);
   opponentBoard.drawRect(0, 0, 0, cardHeight());
 
+  const history = new Graphics();
+  history.lineStyle(1, 0xffffff, 0);
+  history.drawRect(0, 0, app.screen.height / 2, cardWidth());
+
   const submit = button("");
   const money = button("");
 
   submit.on('pointerdown', () => onSubmit());
 
+  let scroll = 0;
+  window.addEventListener('wheel', (e) => {
+    scroll -= e.deltaY;
+    if (scroll > 0) scroll = 0;
+    history.y = 5 + scroll;
+  });
+
   app.stage.addChild(hand);
   app.stage.addChild(board);
   app.stage.addChild(opponentDeck);
   app.stage.addChild(opponentBoard);
+  app.stage.addChild(history);
   app.stage.addChild(submit);
   app.stage.addChild(money);
 
   let player = defaultPlayerState();
   let opponent = defaultPlayerState();
+  let actions: PlayerAction[] = [];
   let onSubmit = () => {};
 
   function roundScale(scale: number) {
@@ -100,10 +113,26 @@ export async function gameState(name: string, socket: Socket) {
       }
     });
 
+    const historySprites = await update(history, async function *() {
+      for (const action of actions) {
+        if (action.type == "end") {
+          yield button("Turn End");
+        } else if (action.type == "play" || action.type == "use") {
+          const state = getCardState(action.card, player, opponent);
+          if (state) {
+            yield button(state.name);
+          } else {
+            yield button("Hidden");
+          }
+        }
+      }
+    });
+
     wrap(handSprites, app.screen, 5);
     wrap(boardSprites, app.screen, 5);
     wrap(opponentDeckSprites, app.screen, 5);
     wrap(opponentBoardSprites, app.screen, 5);
+    vertical(historySprites, 5);
 
     center(submit, app.screen);
     right(submit, app.screen);
@@ -121,6 +150,9 @@ export async function gameState(name: string, socket: Socket) {
     
     top(opponentDeck, 5);
     below(opponentDeck, opponentBoard, 5);
+
+    top(history, 5 + scroll);
+    left(history, 5);
   }
 
   function refreshDefault() {
@@ -176,9 +208,10 @@ export async function gameState(name: string, socket: Socket) {
     }
   }
 
-  socket.on('state', async (newPlayer: PlayerState, newOpponent: PlayerState) => {
+  socket.on('state', async (newPlayer: PlayerState, newOpponent: PlayerState, newActions: PlayerAction[]) => {
     player = newPlayer;
     opponent = newOpponent;
+    actions = newActions;
     refreshDefault();
   });
 }

@@ -1,6 +1,6 @@
 import { Socket } from "socket.io";
 import { getCardInfo, util } from "./card";
-import { activate, CardAction, CardCost, CardState, CardZone, defaultCardState, defaultPlayerState, Init, PlayerAction, PlayerState } from "../common/card";
+import { CardAction, CardCost, CardState, CardZone, cardZones, defaultCardState, defaultPlayerState, Init, PlayerAction, PlayerState } from "../common/card";
 
 function init(socket: Socket): Promise<Init> {
   return new Promise((resolve, reject) => {
@@ -13,10 +13,11 @@ function init(socket: Socket): Promise<Init> {
 function revealedPlayer(player: PlayerState): PlayerState {
   return {
     money: 0,
-    hand: [],
+    turn: player.turn,
     board: player.board.filter(x => x.revealed),
     deck: player.deck.filter(x => x.revealed),
-    turn: player.turn
+    hand: player.hand.filter(x => x.revealed),
+    graveyard: player.graveyard.filter(x => x.revealed),
   }
 }
 
@@ -28,7 +29,7 @@ function update(player: PlayerState, opponent: PlayerState) {
     }
   }
 
-  for (const zone of ["board", "deck", "hand"] as CardZone[]) {
+  for (const zone of cardZones) {
     for (const card of [...player[zone]]) {
       getCardInfo(card, player, opponent).update?.[zone]?.(util, card, player, opponent);
     }
@@ -43,7 +44,7 @@ function turn(player: PlayerState, opponent: PlayerState) {
     card.activated = false;
   }
 
-  for (const zone of ["board", "deck", "hand"] as CardZone[]) {
+  for (const zone of cardZones) {
     for (const card of [...player[zone]]) {
       getCardInfo(card, player, opponent).turn?.[zone]?.(util, card, player, opponent);
     }
@@ -58,12 +59,16 @@ function playCard(state: CardState, player: PlayerState, opponent: PlayerState):
   if (player.money < cost.money) return null;
   if ((info.playChoice ?? (() => (cc) => cc({})))(util, state, player, opponent)?.((c) => c) == null) return null;
   return (choice) => {
+    if (info.type(util, state, player, opponent) == "operation") {
+      state.revealed = true;
+      player.graveyard.push(state);
+    } else {
+      player.board.push(state);
+    }
+
     play(choice);
     
     player.money -= cost.money; 
-    if (info.type(util, state, player, opponent) != "operation") {
-      player.board.push(state);
-    }
 
     update(player, opponent);
   };
@@ -99,12 +104,14 @@ export async function startGame(socket1: Socket, socket2: Socket) {
   
   player1.turn = true;
 
+  const actions: PlayerAction[] = [];
+
   function doUpdate() {
     update(player1, player2);
     update(player2, player1);
   
-    socket1.emit('state', player1, revealedPlayer(player2));
-    socket2.emit('state', player2, revealedPlayer(player1));
+    socket1.emit('state', player1, revealedPlayer(player2), actions);
+    socket2.emit('state', player2, revealedPlayer(player1), actions);
   }
 
   function onAction(action: PlayerAction, number: number) {
@@ -114,6 +121,7 @@ export async function startGame(socket1: Socket, socket2: Socket) {
     if (!player.turn) return;
 
     if (action.type == "end") {
+      actions.push(action);
       turn(opponent, player);
     } else if (action.type == "play") {
       const index = player.deck.findIndex(c => c.id == action.card);
@@ -122,6 +130,7 @@ export async function startGame(socket1: Socket, socket2: Socket) {
         player.deck.splice(index, 1);
         const play = playCard(card, player, opponent);
         if (play != null) {
+          actions.push(action);
           play(action.choice ?? {});
         }
       }
@@ -131,6 +140,7 @@ export async function startGame(socket1: Socket, socket2: Socket) {
       if (index >= 0) {
         const use = useCard(card, player, opponent);
         if (use != null) {
+          actions.push(action);
           use(action.choice ?? {});
         }
       }
