@@ -1,10 +1,10 @@
 // @ts-check
 /** @type {import("../../common/card").CardInfo} */
 exports.card = {
-	text: () => "Each turn: another revealed agent becomes colorless.",
+	text: () => "Each turn: destroy another revealed agent.",
 	type: () => "agent",
-	colors: () => [],
-	cost: () => ({ money: 60 }),
+	colors: () => ["purple"],
+	cost: () => ({ money: 80 }),
 	rank: () => 3,
 	turn: {
 		board: (util, card, player, opponent) => {
@@ -12,13 +12,7 @@ exports.card = {
 				.filter(c => util.getCardInfo(c, player, opponent).type(util, c, player, opponent) == "agent")
 				.filter(c => c.id != card.id)
 				.filter(c => c.revealed));
-			random.modifiers.push({ name: "colorless", card: card.id });
+			util.destroy(random.id, player, opponent);
 		}
 	},
-	modifiers: {
-		colorless: (info) => ({
-			...info,
-			colors: () => []
-		})
-	}
 }

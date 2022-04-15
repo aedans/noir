@@ -9,7 +9,7 @@ exports.card = {
 	play: (util, state, player, opponent) => {
 		const cards = player.deck
 			.filter(c => util.getCardInfo(c, player, opponent).colors(util, c, player, opponent).includes("green"))
-			.filter(c => c.name != "Trade Secrets")
+			.filter(c => c.id != state.id)
 			.filter(c => !c.revealed);
 		if (cards.length == 0) return null;
 		return () => {
