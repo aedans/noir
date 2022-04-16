@@ -1,10 +1,9 @@
-import { Container, Graphics, Sprite } from "pixi.js";
+import { Container, Graphics } from "pixi.js";
 import { CardState, PlayerState } from "../../common/card";
 import { app } from "..";
 import { top, left, right, bottom, interactive, center, below } from "../ui";
 import { getCardInfo, loadCardInfo, util } from "../card";
 import { text } from "./text";
-import { isEqual } from "lodash";
 
 const colorMap = {
   orange: 0xEB7900,
@@ -19,6 +18,10 @@ export function cardHeight() {
 
 export function cardWidth() {
   return cardHeight() * (1 / 1.4);
+}
+
+function arrayEquals(a: any[], b: any[]) {
+  return a.length == b.length && a.every((val, index) => val == b[index]);
 }
 
 export async function cardSprite(card: CardState, player: PlayerState, opponent: PlayerState, scale: number = 1) {
@@ -84,7 +87,7 @@ export async function cardSprite(card: CardState, player: PlayerState, opponent:
   below(nameText, typeText, 5);
 
   const baseCardInfo = getCardInfo(card, player, opponent, true);
-  if (baseCardInfo.text(util, card, player, opponent) != "" && isEqual(Object.keys(baseCardInfo).sort(), ["colors", "cost", "rank", "text", "type"])) {
+  if (baseCardInfo.text(util, card, player, opponent) != "" && arrayEquals(Object.keys(baseCardInfo).sort(), ["colors", "cost", "rank", "text", "type"])) {
     sprite.addChild(todoText);
     center(todoText, sprite);
     below(typeText, todoText, 50);

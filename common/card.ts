@@ -1,4 +1,3 @@
-import { isEqual, sample } from "lodash";
 import { v4 as uuidv4 } from 'uuid';
 
 export type CardColor = "orange" | "blue" | "green" | "purple";
@@ -11,7 +10,6 @@ export type Util = {
   defaultCardState: typeof defaultCardState,
   chooseTargets: typeof chooseTargets,
   sample: typeof sample,
-  isEqual: typeof isEqual,
   getCardState: typeof getCardState,
   reveal: typeof reveal,
   revealRandom: typeof revealRandom,
@@ -168,6 +166,10 @@ export function updateCardInfo(util: Util, info: CardInfo, state: CardState, pla
   return info;
 }
 
+export function sample<T>(ts: T[]) {
+  return ts[Math.floor(Math.random() * ts.length)];
+}
+
 export function reveal(this: Util, id: string, player: PlayerState, opponent: PlayerState) {
   const card = getCardState(id, player, opponent);
   if (card) {
@@ -217,5 +219,5 @@ export function destroyRandom(this: Util, cards: CardState[], player: PlayerStat
 }
 
 export function defaultUtil(getCardInfo: Util["getCardInfo"]): Util {
-  return { getCardInfo, defaultCardState, chooseTargets, sample, isEqual, getCardState, reveal, revealRandom, activate, destroy, destroyRandom };
+  return { getCardInfo, defaultCardState, chooseTargets, sample, getCardState, reveal, revealRandom, activate, destroy, destroyRandom };
 }
