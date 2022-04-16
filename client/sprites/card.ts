@@ -12,6 +12,10 @@ const colorMap = {
   purple: 0xCD00EB,
 }
 
+export function displayColor(colors: string[]) {
+  return colors.length == 1 ? colorMap[colors[0]] : 0xEBEBEB;
+}
+
 export function cardHeight() {
   return (app.screen.height - 25) / 4;
 }
@@ -35,7 +39,7 @@ export async function cardSprite(card: CardState, player: PlayerState, opponent:
 
   const cardInfo = await loadCardInfo(card, player, opponent);
   const colors = cardInfo.colors(util, card, player, opponent);
-  const borderColor = colors.length == 1 ? colorMap[colors[0]] : 0xEBEBEB;
+  const borderColor = displayColor(colors);
 
   const border = new Graphics();
   border.beginFill(0x000000, 1);

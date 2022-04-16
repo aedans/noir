@@ -3,7 +3,7 @@ import { Socket } from "socket.io-client";
 import { app } from "..";
 import { CardState, defaultPlayerState, getCardState, PlayerAction, PlayerState, Util } from "../../common/card";
 import { getCardInfo, util } from "../card";
-import { cardHeight, cardSprite, cardWidth } from "../sprites/card";
+import { cardHeight, cardSprite, cardWidth, displayColor } from "../sprites/card";
 import { button, text } from "../sprites/text";
 import { beginState } from "../state";
 import { above, below, bottom, center, right, top, update, interactive, wrap, left, vertical } from "../ui";
@@ -120,7 +120,8 @@ export async function gameState(name: string, socket: Socket) {
         } else if (action.type == "play" || action.type == "use") {
           const state = getCardState(action.card, player, opponent);
           if (state) {
-            yield button(state.name);
+            const colors = getCardInfo(state, player, opponent).colors(util, state, player, opponent);
+            yield button(state.name, { fill: displayColor(colors) });
           } else {
             yield button("Hidden");
           }
