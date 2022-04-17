@@ -4,6 +4,7 @@ import { app } from "..";
 import { top, left, right, bottom, interactive, center, below } from "../ui";
 import { getCardInfo, loadCardInfo, util } from "../card";
 import { text } from "./text";
+import { arrayEquals } from "../../common/utils";
 
 const colorMap = {
   orange: 0xEB7900,
@@ -22,10 +23,6 @@ export function cardHeight() {
 
 export function cardWidth() {
   return cardHeight() * (1 / 1.4);
-}
-
-function arrayEquals(a: any[], b: any[]) {
-  return a.length == b.length && a.every((val, index) => val == b[index]);
 }
 
 export async function cardSprite(card: CardState, player: PlayerState, opponent: PlayerState, scale: number = 1) {

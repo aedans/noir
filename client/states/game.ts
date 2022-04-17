@@ -2,6 +2,7 @@ import { Container, Graphics } from "pixi.js";
 import { Socket } from "socket.io-client";
 import { app } from "..";
 import { CardState, defaultPlayerState, getCardState, PlayerAction, PlayerState, StopMessage, Util } from "../../common/card";
+import { arrayEquals } from "../../common/utils";
 import { getCardInfo, util } from "../card";
 import { cardHeight, cardSprite, cardWidth, displayColor } from "../sprites/card";
 import { button, text } from "../sprites/text";
@@ -180,10 +181,15 @@ export async function gameState(name: string, socket: Socket) {
   const gameUtil: Util = {
     ...util,
     chooseTargets(targets, number, upto, cc) {
-      submit.text = "Cancel";
-      onSubmit = () => refreshDefault();
-
       function refreshChoose() {
+        if (upto && chosen.length != 0) {
+          submit.text = "Select";
+          onSubmit = () => cc(chosen);
+        } else {
+          submit.text = "Cancel";
+          onSubmit = () => refreshDefault();
+        }
+
         refresh(on, on, on, on, (card, sprite) => {
           if (chosen.includes(card.id)) {
             interactive(sprite, 1.0);
@@ -195,12 +201,17 @@ export async function gameState(name: string, socket: Socket) {
         });
       }
 
-      const chosen = [];
+      let chosen: string[] = [];
       const on = (card: CardState) => {
         if (targets.includes(card.id)) {
-          chosen.push(card.id);
+          if (chosen.includes(card.id)) {
+            chosen = chosen.filter(c => c != card.id);
+          } else {
+            chosen.push(card.id);
+          }
+
           refreshChoose();
-          if (chosen.length == number) {
+          if (chosen.length == number || arrayEquals(targets.sort(), chosen.sort())) {
             cc(chosen);
           }
         }
