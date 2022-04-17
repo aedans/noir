@@ -7,9 +7,14 @@ exports.card = {
 	cost: () => ({ money: 40 }),
 	rank: () => 1,
 	use: (util, card, player, opponent) => () => {
-		if (!card.revealed) {
-			const cards = opponent.board.filter(c => util.getCardInfo(c, player, opponent).type(util, card, player, opponent) == "location");
+		if (card.string.revealed == "false") {
+			const cards = opponent.board.filter(c => util.getCardInfo(c, player, opponent).type(util, c, player, opponent) == "location");
 			util.revealRandom(cards, player, opponent);
+		}
+	},
+	update: {
+		board: (util, card, player, opponent) => {
+			card.string.revealed = `${card.revealed}`;
 		}
 	}
 }

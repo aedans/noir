@@ -147,7 +147,7 @@ export function chooseTargets<A>(targets: string[], number: number, upto: boolea
   if (!upto && number > targets.length) {
     return cc(null);
   } else {
-    return cc([]);
+    return cc(targets.slice(0, number));
   }
 }
 
