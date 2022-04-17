@@ -86,3 +86,14 @@ export function wrap(containers: Container[], within: { width: number, height: n
     maxHeight = Math.max(maxHeight, container.height);
   }
 }
+
+export function request(message: string, optional?: string) {
+  const response = window.prompt(message);
+  if (response) {
+    return response;
+  } else if (optional) {
+    return optional;
+  } else {
+    return request(message);
+  }
+}

@@ -5,6 +5,7 @@ import { cardsState } from './states/cards';
 import { decksState } from './states/decks';
 import { menuState } from './states/menu';
 import { queueState } from './states/queue';
+import { request } from './ui';
 var FontFaceObserver = require('fontfaceobserver');
 
 const font = new FontFaceObserver("Oswald");
@@ -26,8 +27,8 @@ settings.ROUND_PIXELS = true;
 
 const state = new URLSearchParams(window.location.search).get("state") ?? "";
 
-while (localStorage.getItem("name") == null || localStorage.getItem('name') == "null") {
-  localStorage.setItem("name", window.prompt("Username"));
+if (!localStorage.getItem("name")) {
+  localStorage.setItem("name", request("Username"));
 }
 
 window.onload = () => {
@@ -44,7 +45,7 @@ window.onload = () => {
     } else if (state.startsWith("build")) {
       const matches = state.match(/build\/(.+)/);
       if (matches == null) {
-        buildState(window.prompt("Deck Name") ?? "New Deck");
+        buildState(request("Deck Name", "New Deck"));
       } else {
         buildState(matches[1]);
       }

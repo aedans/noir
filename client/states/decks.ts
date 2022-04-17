@@ -3,7 +3,7 @@ import { app } from "..";
 import { getDecks } from "../decks";
 import { button } from "../sprites/text";
 import { beginState, pushState } from "../state";
-import { above, center, vertical } from "../ui";
+import { above, center, request, vertical } from "../ui";
 import { buildState } from "./build";
 
 export function decksState(cc: (name: string) => void = buildState) {
@@ -13,7 +13,7 @@ export function decksState(cc: (name: string) => void = buildState) {
 
   const create = button("Create Deck");
 
-  create.on('pointerdown', () => pushState(() => decksState(cc), () => buildState(window.prompt("Deck Name") ?? "New Deck")));
+  create.on('pointerdown', () => pushState(() => decksState(cc), () => buildState(request("Deck Name", "New Deck"))));
 
   const sprites = []
   for (const deck of getDecks()) {

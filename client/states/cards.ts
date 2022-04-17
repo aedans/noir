@@ -3,7 +3,7 @@ import { app } from "..";
 import { getCards } from "../card";
 import { button } from "../sprites/text";
 import { beginState } from "../state";
-import { below, center, top, vertical } from "../ui";
+import { below, center, request, top, vertical } from "../ui";
 
 export async function cardsState() {
   beginState('cards');
@@ -21,7 +21,7 @@ export async function cardsState() {
 
   let password: string;
   upload.on('pointerdown', () => {
-    password = window.prompt("Password");
+    password = request("Password", "");
     fileElem.click();
   });
 
