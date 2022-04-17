@@ -2,6 +2,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { sample } from './utils';
 
 export type CardColor = "orange" | "blue" | "green" | "purple";
+export type CardColors = CardColor | "any";
 export type CardType = "agent" | "location" | "operation";
 export type CardRank = 1 | 2 | 3;
 export type CardZone = "board" | "deck" | "hand" | "graveyard";
@@ -23,7 +24,7 @@ export type CardData<A> = (util: Util, card: CardState, player: PlayerState, opp
 
 export type CardCost = {
   money: number,
-  agents?: { [K in CardColor]?: number },
+  agents?: { [K in CardColors]?: number },
 }
 
 export type CardEffect = (card: CardInfo) => CardInfo;
@@ -172,6 +173,30 @@ export function updateCardInfo(util: Util, info: CardInfo, state: CardState, pla
   }
 
   return info;
+}
+
+export function choice(util: Util, card: CardState, player: PlayerState, opponent: PlayerState, cc: (choice: CardChoice | null) => void) {
+  return (util.getCardInfo(card, player, opponent).playChoice ?? (() => (cc) => cc({})))(util, card, player, opponent)?.((choice) => {
+    if (choice == null) return cc(null);
+    if (!choice.targets) choice.targets = {};
+
+    const agents = util.getCardInfo(card, player, opponent).cost(util, card, player, opponent).agents ?? {};
+    return activate(Object.keys(agents) as CardColors[]);
+
+    function activate(colors: CardColors[]): void {
+      if (colors.length == 0) return cc(choice);
+      let activateTargets = player.board
+        .filter(c => util.getCardInfo(c, player, opponent).type(util, card, player, opponent) == "agent")
+        .filter(c => c.activated == false);
+      if (colors[0] != "any")
+        activateTargets = activateTargets.filter(c => util.getCardInfo(c, player, opponent).colors(util, c, player, opponent).includes(colors[0] as CardColor))
+      return util.chooseTargets(activateTargets.map(c => c.id), 1, false, (targets) => {
+        if (targets == null) return cc(null);
+        choice.targets![colors[0]] = targets;
+        return activate(colors.slice(1));
+      });
+    }
+  });
 }
 
 export function reveal(this: Util, id: string, player: PlayerState, opponent: PlayerState) {

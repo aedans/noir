@@ -1,6 +1,6 @@
 import { Socket } from "socket.io";
 import { getCardInfo, util } from "./card";
-import { CardAction, CardCost, CardState, cardZones, defaultCardState, defaultPlayerState, StartMessage, PlayerAction, PlayerState, StopMessage } from "../common/card";
+import { CardAction, CardCost, CardState, cardZones, defaultCardState, defaultPlayerState, StartMessage, PlayerAction, PlayerState, StopMessage, choice, CardColor, CardColors } from "../common/card";
 import { v4 as uuidv4 } from 'uuid';
 
 function start(socket: Socket): Promise<StartMessage> {
@@ -59,7 +59,7 @@ function playCard(state: CardState, player: PlayerState, opponent: PlayerState):
   const play = (info.play ?? (() => () => {}))(util, state, player, opponent);
   if (play == null) return null;
   if (player.money < cost.money) return null;
-  if ((info.playChoice ?? (() => (cc) => cc({})))(util, state, player, opponent)?.((c) => c) == null) return null;
+  if (choice(util, state, player, opponent, c => c) == null) return null;
   return (choice) => {
     if (info.type(util, state, player, opponent) == "operation") {
       state.revealed = true;
@@ -70,7 +70,14 @@ function playCard(state: CardState, player: PlayerState, opponent: PlayerState):
 
     play(choice);
     
-    player.money -= cost.money; 
+    player.money -= cost.money;
+    if (cost.agents) {
+      for (const color of Object.keys(cost.agents) as CardColors[]) {
+        for (let i = 0; i < cost.agents![color]!; i++) {
+          util.activate(choice.targets![color][i], player, opponent);
+        }
+      }
+    }
 
     update(player, opponent);
   };

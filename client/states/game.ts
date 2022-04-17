@@ -1,7 +1,7 @@
 import { Container, Graphics } from "pixi.js";
 import { Socket } from "socket.io-client";
 import { app } from "..";
-import { CardState, defaultPlayerState, getCardState, PlayerAction, PlayerState, StopMessage, Util } from "../../common/card";
+import { CardState, choice, defaultPlayerState, getCardState, PlayerAction, PlayerState, StopMessage, Util } from "../../common/card";
 import { arrayEquals } from "../../common/utils";
 import { getCardInfo, util } from "../card";
 import { cardHeight, cardSprite, cardWidth, displayColor } from "../sprites/card";
@@ -163,12 +163,12 @@ export async function gameState(name: string, socket: Socket) {
     onSubmit = () => socket.emit('action', { type: "end" });
     refresh(
       (card) => {
-        (getCardInfo(card, player, opponent).playChoice ?? (() => (cc) => cc({})))(gameUtil, card, player, opponent)?.((choice) => {
+        choice(gameUtil, card, player, opponent, (choice) => {
           socket.emit('action', { type: "play", card: card.id, choice });
         });
       },
       (card) => {
-        (getCardInfo(card, player, opponent).useChoice ?? (() => (cc) => cc({})))(gameUtil, card, player, opponent)?.((choice) => {
+        choice(gameUtil, card, player, opponent, (choice) => {
           socket.emit('action', { type: "use", card: card.id, choice });
         });  
       },

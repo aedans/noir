@@ -6,24 +6,14 @@ exports.card = {
 	colors: () => ["green"],
 	cost: () => ({ money: 150 }),
 	rank: () => 3,
-	useChoice: (util, card, player, opponent) => (cc) => {
-		const activateTargets = player.board
-			.filter(c => util.getCardInfo(c, player, opponent).colors(util, c, player, opponent).includes("green"))
-			.filter(c => util.getCardInfo(c, player, opponent).type(util, card, player, opponent) == "agent")
-			.filter(c => c.activated == false);
-		return util.chooseTargets(activateTargets.map(c => c.id), 1, false, (activate) => {
-			if (activate == null) return cc(null);
-			return cc({ targets: { activate } });
-		});
-	},
+	useCost: () => ({ money: 0, agents: { any: 1 } }),
 	use: (util, card, player, opponent) => {
 		const cards = player.deck
 			.filter(c => util.getCardInfo(c, player, opponent).colors(util, c, player, opponent).includes("green"))
 			.filter(c => !c.revealed);
 		if (cards.length == 0) return null;
-		return (choice) => {
+		return () => {
 			util.revealRandom(cards, player, opponent);
-			util.activate(choice.targets.activate[0], player, opponent);
 			player.money += 60;
 		}
 	}
