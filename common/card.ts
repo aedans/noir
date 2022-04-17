@@ -1,4 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
+import { sample } from './utils';
 
 export type CardColor = "orange" | "blue" | "green" | "purple";
 export type CardType = "agent" | "location" | "operation";
@@ -171,10 +172,6 @@ export function updateCardInfo(util: Util, info: CardInfo, state: CardState, pla
   }
 
   return info;
-}
-
-export function sample<T>(ts: T[]) {
-  return ts[Math.floor(Math.random() * ts.length)];
 }
 
 export function reveal(this: Util, id: string, player: PlayerState, opponent: PlayerState) {
