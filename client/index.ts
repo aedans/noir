@@ -26,6 +26,10 @@ settings.ROUND_PIXELS = true;
 
 const state = new URLSearchParams(window.location.search).get("state") ?? "";
 
+if (localStorage.getItem("name") == null || localStorage.getItem('name') == "null") {
+  localStorage.setItem("name", window.prompt("Username"));
+}
+
 window.onload = () => {
   font.load().then(() => {
     if (state.startsWith("game")) {

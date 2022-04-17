@@ -1,6 +1,6 @@
 import { io } from "socket.io-client";
 import { app } from "..";
-import { Init } from "../../common/card";
+import { StartMessage } from "../../common/card";
 import { loadCards } from "../card";
 import { getDeck } from "../decks";
 import { button } from "../sprites/text";
@@ -26,11 +26,12 @@ export async function queueState(name: string) {
   });
 
   socket.on('start', () => {
-    const init: Init = {
+    const start: StartMessage = {
+      name: localStorage.getItem("name"),
       deck: getDeck(name)
     };
 
-    socket.emit('init', init);
+    socket.emit('start', start);
 
     gameState(name, socket);
   });

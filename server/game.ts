@@ -1,17 +1,19 @@
 import { Socket } from "socket.io";
 import { getCardInfo, util } from "./card";
-import { CardAction, CardCost, CardState, CardZone, cardZones, defaultCardState, defaultPlayerState, Init, PlayerAction, PlayerState } from "../common/card";
+import { CardAction, CardCost, CardState, cardZones, defaultCardState, defaultPlayerState, StartMessage, PlayerAction, PlayerState, StopMessage } from "../common/card";
+import { v4 as uuidv4 } from 'uuid';
 
-function init(socket: Socket): Promise<Init> {
+function start(socket: Socket): Promise<StartMessage> {
   return new Promise((resolve, reject) => {
-    socket.on('init', (init) => {
-      resolve(init);
+    socket.on('start', (start: StartMessage) => {
+      resolve(start);
     });
   });
 }
 
 function revealedPlayer(player: PlayerState): PlayerState {
   return {
+    id: player.id, 
     money: 0,
     turn: player.turn,
     board: player.board.filter(x => x.revealed),
@@ -89,18 +91,30 @@ function useCard(state: CardState, player: PlayerState, opponent: PlayerState): 
   };
 }
 
+function hasLost(player: PlayerState, opponent: PlayerState) { 
+  return ![...player.deck, ...player.board].some(c => getCardInfo(c, player, opponent).type(util, c, player, opponent) == "agent");
+}
+
 export async function startGame(socket1: Socket, socket2: Socket) {
   socket1.emit('start');
   socket2.emit('start');
 
-  const init1Promise = init(socket1);
-  const init2Promise = init(socket2);
+  const init1Promise = start(socket1);
+  const init2Promise = start(socket2);
 
   const player1 = defaultPlayerState();
   const player2 = defaultPlayerState();
 
   player1.deck = (await init1Promise).deck.map(defaultCardState);
+  player1.id = (await init1Promise).name;
+
   player2.deck = (await init2Promise).deck.map(defaultCardState);
+  player2.id = (await init2Promise).name;
+
+  if (player1.id == player2.id) {
+    player1.id += ` [${uuidv4()}]`;
+    player2.id += ` [${uuidv4()}]`;
+  }
   
   player1.turn = true;
 
@@ -112,6 +126,18 @@ export async function startGame(socket1: Socket, socket2: Socket) {
   
     socket1.emit('state', player1, revealedPlayer(player2), actions);
     socket2.emit('state', player2, revealedPlayer(player1), actions);
+
+    if (hasLost(player1, player2)) {
+      const stop: StopMessage = { winner: player2.id };
+      socket1.emit('stop', stop)
+      socket2.emit('stop', stop)
+    }
+
+    if (hasLost(player2, player1)) {
+      const stop: StopMessage = { winner: player1.id };
+      socket1.emit('stop', stop);
+      socket2.emit('stop', stop);
+    }
   }
 
   function onAction(action: PlayerAction, number: number) {

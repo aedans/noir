@@ -56,6 +56,7 @@ export type CardInfo = {
 }
 
 export type PlayerState = {
+  id: string,
   board: CardState[],
   deck: CardState[],
   hand: CardState[],
@@ -79,8 +80,13 @@ export type CardState = {
   string: { [name: string]: string }
 }
 
-export type Init = {
+export type StartMessage = {
+  name: string,
   deck: string[],
+}
+
+export type StopMessage = {
+  winner: string,
 }
 
 export type PlayerAction 
@@ -104,6 +110,7 @@ export function defaultCardState(name: string): CardState {
 
 export function defaultPlayerState(): PlayerState {
   return {
+    id: uuidv4(),
     money: 100,
     hand: [],
     board: [],

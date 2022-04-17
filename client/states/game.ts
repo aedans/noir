@@ -1,12 +1,13 @@
 import { Container, Graphics } from "pixi.js";
 import { Socket } from "socket.io-client";
 import { app } from "..";
-import { CardState, defaultPlayerState, getCardState, PlayerAction, PlayerState, Util } from "../../common/card";
+import { CardState, defaultPlayerState, getCardState, PlayerAction, PlayerState, StopMessage, Util } from "../../common/card";
 import { getCardInfo, util } from "../card";
 import { cardHeight, cardSprite, cardWidth, displayColor } from "../sprites/card";
 import { button, text } from "../sprites/text";
 import { beginState } from "../state";
 import { above, below, bottom, center, right, top, update, interactive, wrap, left, vertical } from "../ui";
+import { menuState } from "./menu";
 
 export async function gameState(name: string, socket: Socket) {
   beginState(`game/${name}`);
@@ -187,9 +188,9 @@ export async function gameState(name: string, socket: Socket) {
           if (chosen.includes(card.id)) {
             interactive(sprite, 1.0);
           } else if (targets.includes(card.id)) {
-            interactive(sprite, 0.6);
+            interactive(sprite);
           } else {
-            interactive(sprite, 0.2);
+            interactive(sprite, 0.4);
           }
         });
       }
@@ -209,10 +210,20 @@ export async function gameState(name: string, socket: Socket) {
     }
   }
 
-  socket.on('state', async (newPlayer: PlayerState, newOpponent: PlayerState, newActions: PlayerAction[]) => {
+  socket.on('state', (newPlayer: PlayerState, newOpponent: PlayerState, newActions: PlayerAction[]) => {
     player = newPlayer;
     opponent = newOpponent;
     actions = newActions;
     refreshDefault();
+  });
+
+  socket.on('stop', (stop: StopMessage) => {
+    const message = button(`${stop.winner} wins`, { fontSize: 36 });
+    center(message, app.screen);
+    app.stage.addChild(message);
+
+    message.on('pointerdown', () => {
+      menuState();
+    });
   });
 }
