@@ -26,7 +26,7 @@ settings.ROUND_PIXELS = true;
 
 const state = new URLSearchParams(window.location.search).get("state") ?? "";
 
-wh (localStorage.getItem("name") == null || localStorage.getItem('name') == "null") {
+while (localStorage.getItem("name") == null || localStorage.getItem('name') == "null") {
   localStorage.setItem("name", window.prompt("Username"));
 }
 
