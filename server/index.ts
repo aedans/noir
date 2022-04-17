@@ -24,7 +24,7 @@ let players: Socket[] = [];
 io.on('connection', socket => {
   players.push(socket);
 
-  socket.on('disconnect', reason => {
+  socket.on('disconnect', () => {
     players = players.filter(x => x.id != socket.id);
   });
 
