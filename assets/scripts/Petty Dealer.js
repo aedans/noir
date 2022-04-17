@@ -9,7 +9,7 @@ exports.card = {
 	use: (util, card, player, opponent) => () => {
 		if (!card.revealed) {
 			const cards = player.deck
-				.filter(c => util.getCardInfo(c, player, opponent).type(util, card, player, opponent) == "agent")
+				.filter(c => util.getCardInfo(c, player, opponent).type(util, c, player, opponent) == "agent")
 				.filter(c => !c.revealed);
 			util.destroyRandom(cards, player, opponent);
 			for (let i = 0; i < 3; i++) {

@@ -9,8 +9,8 @@ exports.card = {
 	play: (util, card, player, opponent) => () => {
 		const agents = [...opponent.board, ...opponent.deck]
 			.filter(c => c.revealed)
-			.filter(c => util.getCardInfo(c, player, opponent).rank(util, card, player, opponent) == 3)
-			.filter(c => util.getCardInfo(c, player, opponent).type(util, card, player, opponent) == "agent");
+			.filter(c => util.getCardInfo(c, player, opponent).rank(util, c, player, opponent) == 3)
+			.filter(c => util.getCardInfo(c, player, opponent).type(util, c, player, opponent) == "agent");
 		for (const agent of agents) {
 			util.destroy(agent.id, player, opponent);
 		}

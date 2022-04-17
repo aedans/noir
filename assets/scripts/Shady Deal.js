@@ -7,7 +7,7 @@ exports.card = {
 	cost: () => ({ money: 10 }),
 	rank: () => 1,
 	play: (util, card, player, opponent) => () => {
-		const cards = player.deck.filter(c => util.getCardInfo(c, player, opponent).type(util, card, player, opponent) == "agent");
+		const cards = player.deck.filter(c => util.getCardInfo(c, player, opponent).type(util, c, player, opponent) == "agent");
 		util.destroyRandom(cards, player, opponent);
 		player.board.push(card);
 	},

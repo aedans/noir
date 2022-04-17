@@ -10,7 +10,7 @@ exports.card = {
 		const destroyTargets = [...opponent.board].filter(c => c.revealed == true);
 		const activateTargets = player.board
 			.filter(c => util.getCardInfo(c, player, opponent).colors(util, c, player, opponent).includes("orange"))
-			.filter(c => util.getCardInfo(c, player, opponent).type(util, card, player, opponent) == "agent")
+			.filter(c => util.getCardInfo(c, player, opponent).type(util, c, player, opponent) == "agent")
 			.filter(c => c.activated == false);
 		const number = Math.min(activateTargets.length, destroyTargets.length);
 		return util.chooseTargets(destroyTargets.map(c => c.id), number, true, (destroy) => {
