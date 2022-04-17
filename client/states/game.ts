@@ -163,12 +163,14 @@ export async function gameState(name: string, socket: Socket) {
     onSubmit = () => socket.emit('action', { type: "end" });
     refresh(
       (card) => {
-        choice(gameUtil, card, player, opponent, (choice) => {
+        const info = getCardInfo(card, player, opponent);
+        choice(gameUtil, info.playChoice, info.cost(util, card, player, opponent), card, player, opponent, (choice) => {
           socket.emit('action', { type: "play", card: card.id, choice });
         });
       },
       (card) => {
-        choice(gameUtil, card, player, opponent, (choice) => {
+        const info = getCardInfo(card, player, opponent);
+        choice(gameUtil, info.useChoice, info.useCost(util, card, player, opponent), card, player, opponent, (choice) => {
           socket.emit('action', { type: "use", card: card.id, choice });
         });  
       },

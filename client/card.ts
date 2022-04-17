@@ -1,11 +1,11 @@
-import { Util, CardInfo, updateCardInfo, CardState, PlayerState, defaultUtil, sort, defaultCardState, defaultPlayerState } from "../common/card";
+import { Util, CardInfo, updateCardInfo, CardState, PlayerState, defaultUtil } from "../common/card";
 
 export const util: Util = defaultUtil(getCardInfo);
 
 const cards: { [name: string]: CardInfo } = {};
 
 export async function getCards() {
-  const res = await fetch(`http://${window.location.hostname}:${window.location.port}/cards`);
+  const res = await fetch(`${window.location.origin}/cards`);
   const cards: string[] = await res.json();
   return cards;
 }
@@ -19,7 +19,7 @@ export function getCardInfo(card: CardState, player: PlayerState, opponent: Play
 }
 
 async function cardInfo(name: string) {
-  const cardString = await fetch(`http://${window.location.hostname}:${window.location.port}/scripts/${name}.js`).then(x => x.text());
+  const cardString = await fetch(`${window.location.origin}/scripts/${name}.js`).then(x => x.text());
   const cardInfo: { card: CardInfo } = {} as { card: CardInfo };
   new Function("exports", cardString)(cardInfo);
   return cardInfo.card;

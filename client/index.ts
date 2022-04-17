@@ -1,4 +1,5 @@
 import { Application, settings } from 'pixi.js';
+import FontFaceObserver from  'fontfaceobserver';
 import { loadCards } from './card';
 import { buildState } from './states/build';
 import { cardsState } from './states/cards';
@@ -6,7 +7,6 @@ import { decksState } from './states/decks';
 import { menuState } from './states/menu';
 import { queueState } from './states/queue';
 import { request } from './ui';
-var FontFaceObserver = require('fontfaceobserver');
 
 const font = new FontFaceObserver("Oswald");
 

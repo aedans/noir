@@ -28,7 +28,7 @@ export async function cardsState() {
   fileElem.onchange = function () {
     for (const file of fileElem.files) {
       file.text().then(text => {
-        fetch(`http://${window.location.hostname}:${window.location.port}/cards`, {
+        fetch(`${window.location.origin}/cards`, {
           headers: { 'Content-Type': 'application/json' },
           method: "POST",
           body: JSON.stringify({ 
@@ -55,7 +55,7 @@ export async function cardsState() {
 
     sprite.on('pointerdown', () => {
       const aElem = document.createElement("a");
-      aElem.href = `http://${window.location.hostname}:${window.location.port}/download?asset=/scripts/${card}.js`;
+      aElem.href = `https://${window.location.hostname}:${window.location.port}/download?asset=/scripts/${card}.js`;
       aElem.download = `${card}.js`;
       aElem.click();
     })

@@ -1,6 +1,6 @@
 import { Socket } from "socket.io";
 import { getCardInfo, util } from "./card";
-import { CardAction, CardCost, CardState, cardZones, defaultCardState, defaultPlayerState, StartMessage, PlayerAction, PlayerState, StopMessage, choice, CardColor, CardColors } from "../common/card";
+import { CardAction, CardCost, CardState, cardZones, defaultCardState, defaultPlayerState, StartMessage, PlayerAction, PlayerState, StopMessage, choice, CardColor, CardColors, CardChoice } from "../common/card";
 import { v4 as uuidv4 } from 'uuid';
 
 function start(socket: Socket): Promise<StartMessage> {
@@ -53,13 +53,24 @@ function turn(player: PlayerState, opponent: PlayerState) {
   }
 }
 
+function payCost(cost: CardCost, choice: CardChoice, player: PlayerState, opponent: PlayerState) {
+  player.money -= cost.money;
+  if (cost.agents) {
+    for (const color of Object.keys(cost.agents) as CardColors[]) {
+      for (let i = 0; i < cost.agents![color]!; i++) {
+        util.activate(choice.targets![color][i], player, opponent);
+      }
+    }
+  }
+}
+
 function playCard(state: CardState, player: PlayerState, opponent: PlayerState): CardAction | null {
   const info = getCardInfo(state, player, opponent);
   const cost: CardCost = info.cost(util, state, player, opponent);
   const play = (info.play ?? (() => () => {}))(util, state, player, opponent);
   if (play == null) return null;
   if (player.money < cost.money) return null;
-  if (choice(util, state, player, opponent, c => c) == null) return null;
+  if (choice(util, info.playChoice, cost, state, player, opponent, c => c) == null) return null;
   return (choice) => {
     if (info.type(util, state, player, opponent) == "operation") {
       state.revealed = true;
@@ -69,16 +80,7 @@ function playCard(state: CardState, player: PlayerState, opponent: PlayerState):
     }
 
     play(choice);
-    
-    player.money -= cost.money;
-    if (cost.agents) {
-      for (const color of Object.keys(cost.agents) as CardColors[]) {
-        for (let i = 0; i < cost.agents![color]!; i++) {
-          util.activate(choice.targets![color][i], player, opponent);
-        }
-      }
-    }
-
+    payCost(cost, choice, player, opponent);
     update(player, opponent);
   };
 }
@@ -90,10 +92,11 @@ function useCard(state: CardState, player: PlayerState, opponent: PlayerState): 
   if (use == null) return null;
   if (player.money < cost.money) return null;
   if (state.activated) return null;
+  if (choice(util, info.useChoice, cost, state, player, opponent, c => c) == null) return null;
   return (choice) => {
     util.activate(state.id, player, opponent);
     use(choice);
-    player.money -= cost.money;
+    payCost(cost, choice, player, opponent);
     update(player, opponent);
   };
 }

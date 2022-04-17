@@ -175,18 +175,18 @@ export function updateCardInfo(util: Util, info: CardInfo, state: CardState, pla
   return info;
 }
 
-export function choice(util: Util, card: CardState, player: PlayerState, opponent: PlayerState, cc: (choice: CardChoice | null) => void) {
-  return (util.getCardInfo(card, player, opponent).playChoice ?? (() => (cc) => cc({})))(util, card, player, opponent)?.((choice) => {
+export function choice(util: Util, choose: CardData<CardChoiceAction | null> | undefined, cost: CardCost | undefined, card: CardState, player: PlayerState, opponent: PlayerState, cc: (choice: CardChoice | null) => void) {
+  return (choose ?? (() => (cc) => cc({})))(util, card, player, opponent)?.((choice) => {
     if (choice == null) return cc(null);
     if (!choice.targets) choice.targets = {};
 
-    const agents = util.getCardInfo(card, player, opponent).cost(util, card, player, opponent).agents ?? {};
+    const agents = cost?.agents ?? {};
     return activate(Object.keys(agents) as CardColors[]);
 
     function activate(colors: CardColors[]): void {
       if (colors.length == 0) return cc(choice);
       let activateTargets = player.board
-        .filter(c => util.getCardInfo(c, player, opponent).type(util, card, player, opponent) == "agent")
+        .filter(c => util.getCardInfo(c, player, opponent).type(util, c, player, opponent) == "agent")
         .filter(c => c.activated == false);
       if (colors[0] != "any")
         activateTargets = activateTargets.filter(c => util.getCardInfo(c, player, opponent).colors(util, c, player, opponent).includes(colors[0] as CardColor))

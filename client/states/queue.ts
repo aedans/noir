@@ -19,7 +19,7 @@ export async function queueState(name: string) {
 
   await loadCards();
 
-  const socket = io(`http://${window.location.hostname}:${window.location.port}`);
+  const socket = io(`${window.location.origin}`);
 
   window.addEventListener('popstate', () => {
     socket.close();
