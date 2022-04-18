@@ -76,6 +76,12 @@ export async function cardSprite(card: CardState, player: PlayerState, opponent:
   top(moneyText, 5);
   right(moneyText, sprite, 5);
 
+  if (nameText.x + nameText.width + 5 > moneyText.x) {
+    center(nameText, sprite);
+    top(nameText, 5);
+    below(nameText, moneyText, 5);
+  }
+
   left(textText, 5);
   bottom(textText, sprite, 5);
 

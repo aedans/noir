@@ -1,11 +1,14 @@
 // @ts-check
 /** @type {import("../../common/card").CardInfo} */
 exports.card = {
-	text: () => "Each turn: a revealed agent on your board becomes hidden.",
+	text: () => "When you play this, hide it. Each turn: a revealed agent on your board becomes hidden.",
 	type: () => "location",
 	colors: () => [],
 	cost: () => ({ money: 50}),
 	rank: () => 3,
+	play: (util, card, player, opponent) => () => {
+		card.revealed = false;
+	},
 	turn: {
 		board: (util, card, player, opponent) => {
 			const cards = player.board
