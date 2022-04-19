@@ -137,10 +137,12 @@ export function sort(util: Util, cards: CardState[], player: PlayerState, oppone
   });
 }
 
-export function getCardState(id: string, player: PlayerState, opponent: PlayerState) {
-  for (const place of [player.deck, player.board, player.graveyard, opponent.deck, opponent.board, opponent.graveyard]) {
-    const result = place.find(c => c.id == id);
-    if (result) return result;
+export function getCardState(id: string, p1: PlayerState, p2: PlayerState) {
+  for (const player of [p1, p2]) {
+    for (const zone of cardZones) {
+      const result = player[zone].find(c => c.id == id);
+      if (result) return result;
+    }
   }
   return null;
 }
@@ -168,7 +170,7 @@ export function updateCardInfo(util: Util, info: CardInfo, state: CardState, pla
     }
 
     for (const card of opponent[zone]) {
-      info = (util.getCardInfo(card, opponent, player, true).effects?.[zone]?.(util, card, player, opponent) ?? (x => x))(info);
+      info = (util.getCardInfo(card, opponent, player, true).effects?.[zone]?.(util, card, opponent, player) ?? (x => x))(info);
     }
   }
 
@@ -199,14 +201,18 @@ export function choice(util: Util, choose: CardData<CardChoiceAction | null> | u
   });
 }
 
-export function reveal(this: Util, id: string, player: PlayerState, opponent: PlayerState) {
-  const card = getCardState(id, player, opponent);
-  if (card) {
-    card.revealed = true;
-
-    const reveal = this.getCardInfo(card, player, opponent).reveal;
-    if (reveal != null) {
-      reveal(this, card, player, opponent);
+export function reveal(this: Util, id: string, p1: PlayerState, p2: PlayerState) {
+  for (const [player, opponent] of [[p1, p2], [p2, p1]]) {
+    for (const zone of cardZones) {
+      const card = player[zone].find(c => c.id == id);
+      if (card) {
+        card.revealed = true;
+    
+        const reveal = this.getCardInfo(card, player, opponent).reveal;
+        if (reveal != null) {
+          reveal(this, card, player, opponent);
+        }
+      }
     }
   }
 }
@@ -216,27 +222,36 @@ export function revealRandom(this: Util, cards: CardState[], player: PlayerState
   if (card) this.reveal(card.id, player, opponent);
 }
 
-export function activate(this: Util, id: string, player: PlayerState, opponent: PlayerState) {
-  const card = getCardState(id, player, opponent);
-  if (card) {
-    card.activated = true;
-    this.reveal(id, player, opponent);
-    
-    const activate = this.getCardInfo(card, player, opponent).activate;
-    if (activate != null) {
-      activate(this, card, player, opponent);
+export function activate(this: Util, id: string, p1: PlayerState, p2: PlayerState) {
+  for (const [player, opponent] of [[p1, p2], [p2, p1]]) {
+    for (const zone of cardZones) {
+      const card = player[zone].find(c => c.id == id);
+      if (card) {
+        card.activated = true;
+        this.reveal(id, player, opponent);
+        
+        const activate = this.getCardInfo(card, player, opponent).activate;
+        if (activate != null) {
+          activate(this, card, player, opponent);
+        }
+      }
     }
   }
 }
 
-export function destroy(id: string, player: PlayerState, opponent: PlayerState) {
-  for (const p of [player, opponent]) {
-    for (const place of [p.board, p.deck]) {
-      const index = place.findIndex(c => c.id == id);
+export function destroy(this: Util, id: string, p1: PlayerState, p2: PlayerState) {
+  for (const [player, opponent] of [[p1, p2], [p2, p1]]) {
+    for (const zone of cardZones) {
+      const index = player[zone].findIndex(c => c.id == id);
       if (index >= 0) {
-        const state = place[index];
-        place.splice(index, 1);
-        p.graveyard.push(state);
+        const state = player[zone][index];
+        player[zone].splice(index, 1);
+        player.graveyard.push(state);
+
+        const destroy = this.getCardInfo(state, player, opponent).destroy;
+        if (destroy != null) {
+          destroy(this, state, player, opponent);
+        }
       }
     }
   }
