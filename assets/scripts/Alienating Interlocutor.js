@@ -4,7 +4,7 @@ exports.card = {
 	text: () => "Each turn: another revealed agent becomes colorless.",
 	type: () => "agent",
 	colors: () => [],
-	cost: () => ({ money: 60 }),
+	cost: () => ({ money: 50 }),
 	rank: () => 3,
 	turn: {
 		board: (util, card, player, opponent) => {

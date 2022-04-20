@@ -9,7 +9,7 @@ exports.card = {
 	play: (util, card) => () => card.modifiers.push({ name: "surveying", card: card.id }),
 	update: {
 		board: (util, card, player, opponent) => {
-			card.number.opponentGuys = opponent.board
+			card.number.opponentAgents = opponent.board
 				.filter(c => util.getCardInfo(c, player, opponent).type(util, c, player, opponent) == "agent")
 				.length;
 		}
@@ -17,7 +17,7 @@ exports.card = {
 	modifiers: {
 		surveying: (info) => ({
 			...info,
-			text: (util, card, player, opponent) => `${info.text(util, card, player, opponent)}\nOpponent's agents: ${card.number.opponentGuys}`
+			text: (util, card, player, opponent) => `${info.text(util, card, player, opponent)}\nOpponent's agents: ${card.number.opponentAgents}`
 		})
 	}
 }

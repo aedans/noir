@@ -1,15 +1,16 @@
 // @ts-check
 /** @type {import("../../common/card").CardInfo} */
 exports.card = {
-	text: () => "The first agent you play each turn costs $5 less.",
-	type: () => "location",
-	colors: () => [],
-	cost: () => ({ money: 20 }),
-	rank: () => 1,
-	play: (util, card, player, opponent) => () => card.number.played = 0,
+	text: () => "Whenever this is activated, your next agent this turn costs $10 less",
+	type: () => "agent",
+	colors: () => ["orange"],
+	cost: () => ({ money: 45 }),
+	rank: () => 2,
+	play: (util, card, player, opponent) => () => card.number.played = 1,
 	turn: {
-		board: (util, card, player, opponent) => card.number.played = 0
+		board: (util, card, player, opponent) => card.number.played = 1
 	},
+	activate: (util, card, player, opponent) => card.number.played = 0,
 	effects: {
 		board: (util, state, player, opponent) =>  (info) => ({
 			...info,
@@ -24,7 +25,7 @@ exports.card = {
 			cost: (util, card, player, opponent) => {
 				const cost = info.cost(util, card, player, opponent);
 				if (state.number.played == 0 && player.hand.find(h => h.id == card.id) && info.type(util, card, player, opponent) == "agent") {
-					return { ...cost, money: cost.money - 5 };
+					return { ...cost, money: cost.money - 10 };
 				}	else {
 					return cost;
 				}

@@ -4,7 +4,7 @@ exports.card = {
 	text: () => "Additonal cost: activate an orange agent. Whenever an agent on your board is revealed, reveal a hidden card on your opponent's board.",
 	type: () => "agent",
 	colors: () => ["orange"],
-	cost: () => ({ money: 70, agents: { orange: 1 } }),
+	cost: () => ({ money: 60, agents: { orange: 1 } }),
 	rank: () => 3,
 	effects: {
 		board: (util, card, player, opponent) => (info) => ({

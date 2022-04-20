@@ -1,7 +1,7 @@
 // @ts-check
 /** @type {import("../../common/card").CardInfo} */
 exports.card = {
-	text: () => "If this is in your deck and a rank 3 guy in your deck would be revealed, reveal this instead.",
+	text: () => "If this is in your deck and a rank 3 agent in your deck would be revealed, reveal this instead.",
 	type: () => "agent",
 	colors: () => ["blue"],
 	cost: () => ({ money: 40 }),

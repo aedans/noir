@@ -79,7 +79,9 @@ export type CardState = {
   activated: boolean,
   modifiers: ModifierState[],
   number: { [name: string]: number },
-  string: { [name: string]: string }
+  numbers: { [name: string]: number[] },
+  string: { [name: string]: string },
+  strings: { [name: string]: string[] }
 }
 
 export type StartMessage = {
@@ -106,7 +108,9 @@ export function defaultCardState(name: string): CardState {
     activated: true,
     modifiers: [],
     number: {},
+    numbers: {},
     string: {},
+    strings: {},
   };
 }
 
@@ -217,9 +221,9 @@ export function reveal(this: Util, id: string, p1: PlayerState, p2: PlayerState)
   }
 }
 
-export function revealRandom(this: Util, cards: CardState[], player: PlayerState, opponent: PlayerState) {
+export function revealRandom(this: Util, cards: CardState[], p1: PlayerState, p2: PlayerState) {
   const card = sample(cards.filter(c => !c.revealed));
-  if (card) this.reveal(card.id, player, opponent);
+  if (card) this.reveal(card.id, p1, p2);
 }
 
 export function activate(this: Util, id: string, p1: PlayerState, p2: PlayerState) {
@@ -257,9 +261,9 @@ export function destroy(this: Util, id: string, p1: PlayerState, p2: PlayerState
   }
 }
 
-export function destroyRandom(this: Util, cards: CardState[], player: PlayerState, opponent: PlayerState) {
+export function destroyRandom(this: Util, cards: CardState[], p1: PlayerState, p2: PlayerState) {
   const card = sample(cards);
-  if (card) this.destroy(card.id, player, opponent);
+  if (card) this.destroy(card.id, p1, p2);
 }
 
 export function defaultUtil(getCardInfo: Util["getCardInfo"]): Util {

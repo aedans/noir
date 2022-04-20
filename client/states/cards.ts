@@ -55,7 +55,7 @@ export async function cardsState() {
 
     sprite.on('pointerdown', () => {
       const aElem = document.createElement("a");
-      aElem.href = `https://${window.location.hostname}:${window.location.port}/download?asset=/scripts/${card}.js`;
+      aElem.href = `http://${window.location.hostname}:${window.location.port}/download?asset=/scripts/${card}.js`;
       aElem.download = `${card}.js`;
       aElem.click();
     })

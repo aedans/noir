@@ -2,7 +2,7 @@
 /** @type {import("../../common/card").CardInfo} */
 exports.card = {
 	text: () => "Additional cost: activate a blue agent. Reveal two cards on your opponent's board.",
-	type: () => "agent",
+	type: () => "operation",
 	colors: () => ["blue"],
 	cost: () => ({ money: 10, agents: { blue: 1 } }),
 	rank: () => 1,
