@@ -4,8 +4,9 @@ exports.card = {
 	text: () => "Activate this and a blue agent: destroy one of your opponent's operations. Gain $10.",
 	type: () => "location",
 	colors: () => ["blue"],
-	cost: () => ({ money: 40, agents: { blue: 1 } }),
+	cost: () => ({ money: 40 }),
 	rank: () => 2,
+	useCost: () => ({ money: 0, agents: { blue: 1 } }), 
 	useChoice: (util, card, player, opponent) => (cc) => {
 		const destroyTargets = [...opponent.deck, ...opponent.board]
 			.filter(c => util.getCardInfo(c, player, opponent).type(util, c, player, opponent) == "operation")

@@ -1,10 +1,10 @@
 // @ts-check
 /** @type {import("../../common/card").CardInfo} */
 exports.card = {
-	text: () => "In three turns, gain $60",
+	text: () => "Additional cost: activate a green agent. In three turns, gain $60",
 	type: () => "operation",
 	colors: () => ["green"],
-	cost: () => ({ money: 15 }),
+	cost: () => ({ money: 15, agents: { green: 1 } }),
 	rank: () => 1,
 	play: (util, card, player, opponent) => () => {
 		card.number.turns = 0;

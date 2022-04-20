@@ -10,7 +10,7 @@ exports.card = {
 		board: (util, card, you, opponent) => (info) => ({
 			...info,
 			destroy: (util, card, player, opponent) => {
-				info.destroy(util, card, player, opponent);
+				(info.destroy ?? (() => {}))(util, card, player, opponent);
 				if (you.turn) {
 					you.money += 20;
 				}

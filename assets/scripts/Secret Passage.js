@@ -4,7 +4,7 @@ exports.card = {
 	text: () => "When you play this, hide it. Each turn: a revealed agent on your board becomes hidden.",
 	type: () => "location",
 	colors: () => [],
-	cost: () => ({ money: 50}),
+	cost: () => ({ money: 50 }),
 	rank: () => 3,
 	play: (util, card, player, opponent) => () => {
 		card.revealed = false;

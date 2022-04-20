@@ -7,17 +7,14 @@ exports.card = {
 	cost: () => ({ money: 30 }),
 	rank: () => 2,
 	effects: {
-		board: (util, card, player, opponent) => (info) => ({
+		board: (util, card, you, opponent) => (info) => ({
 			...info,
 			cost: (util, card, player, opponent) => {
-				const c = info.cost(util, card, player, opponent);
-				if (util.getCardInfo(card, player, opponent).type(util, card, player, opponent) != "location") {
-					return c;
+				const cost = info.cost(util, card, player, opponent);
+				if (you.turn && util.getCardInfo(card, player, opponent).type(util, card, player, opponent) == "location") {
+					return { ...cost, money: Math.max(5, cost.money - 10) };
 				} else {
-					return { 
-						...c,
-						money: Math.max(5, c.money)
-					};
+					return cost;
 				}
 			}
 		})
