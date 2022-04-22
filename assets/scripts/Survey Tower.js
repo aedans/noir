@@ -7,8 +7,8 @@ exports.card = {
 	cost: () => ({ money: 30 }),
 	rank: () => 1,
 	play: (util, card) => () => card.modifiers.push({ name: "surveying", card: card.id }),
-	update: {
-		board: (util, card, player, opponent) => {
+	update: (util, card, player, opponent) => {
+		if (player.board.find(c => c.id == card.id)) {
 			card.number.opponentAgents = opponent.board
 				.filter(c => util.getCardInfo(c, player, opponent).type(util, c, player, opponent) == "agent")
 				.length;

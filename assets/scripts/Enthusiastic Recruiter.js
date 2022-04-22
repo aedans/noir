@@ -7,9 +7,7 @@ exports.card = {
 	cost: () => ({ money: 45 }),
 	rank: () => 2,
 	play: (util, card, player, opponent) => () => card.number.played = 1,
-	turn: {
-		board: (util, card, player, opponent) => card.number.played = 1
-	},
+	turn: (util, card, player, opponent) => card.number.played = 1,
 	activate: (util, card, player, opponent) => card.number.played = 0,
 	effects: {
 		board: (util, state, player, opponent) =>  (info) => ({

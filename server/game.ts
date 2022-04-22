@@ -33,7 +33,7 @@ function update(player: PlayerState, opponent: PlayerState) {
 
   for (const zone of cardZones) {
     for (const card of [...player[zone]]) {
-      getCardInfo(card, player, opponent).update?.[zone]?.(util, card, player, opponent);
+      getCardInfo(card, player, opponent).update?.(util, card, player, opponent);
     }
   }
 }
@@ -46,10 +46,8 @@ function turn(player: PlayerState, opponent: PlayerState) {
     card.activated = false;
   }
 
-  for (const zone of cardZones) {
-    for (const card of [...player[zone]]) {
-      getCardInfo(card, player, opponent).turn?.[zone]?.(util, card, player, opponent);
-    }
+  for (const card of [...player.board]) {
+    getCardInfo(card, player, opponent).turn?.(util, card, player, opponent);
   }
 }
 

@@ -51,8 +51,8 @@ export type CardInfo = {
   activate?: CardData<void>,
   reveal?: CardData<void>,
   destroy?: CardData<void>,
-  update?: { [K in CardZone]?: CardData<void> },
-  turn?: { [K in CardZone]?: CardData<void> },
+  update?: CardData<void>,
+  turn?: CardData<void>,
   effects?: { [K in CardZone]?: CardData<CardEffect> },
   modifiers?: { [name: string]: CardModifier },
 }

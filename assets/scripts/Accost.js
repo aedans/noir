@@ -19,21 +19,15 @@ exports.card = {
 		card.strings.accost = choice.targets.accost;
 		player.board.push(card);
 	},
-	turn: { 
-		board: (util, card, player, opponent) => {
-			util.destroy(card.id, player, opponent);
-		},
-	},
+	turn: (util, card, player, opponent) => util.destroy(card.id, player, opponent),
 	effects: {
 		board: (util, state, player, opponent) => (info) => ({
 			...info,
-			update: {
-				board: (util, card, player, opponent) => {
-					if (state.strings.accost.includes(card.id)) {
-						card.activated = true;
-					}
+			update: (util, card, player, opponent) => {
+				if (state.strings.accost.includes(card.id)) {
+					card.activated = true;
 				}
-			} 
+			}
 		})
 	}
 }

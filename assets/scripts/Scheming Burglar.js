@@ -9,17 +9,15 @@ exports.card = {
 	play: (util, card, player, opponent) => () => {
 		card.number.turns = 0;
 	},
-	turn: {
-		board: (util, card, player, opponent) => {
-			card.number.turns++;
-			if (card.number.turns == 2) {
-				if (opponent.money < 50) {
-					player.money += opponent.money;
-					opponent.money = 0;
-				} else {
-					opponent.money -= 50;
-					player.money += 50;
-				}
+	turn: (util, card, player, opponent) => {
+		card.number.turns++;
+		if (card.number.turns == 2) {
+			if (opponent.money < 50) {
+				player.money += opponent.money;
+				opponent.money = 0;
+			} else {
+				opponent.money -= 50;
+				player.money += 50;
 			}
 		}
 	}

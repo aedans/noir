@@ -6,7 +6,5 @@ exports.card = {
   colors: () => [],
   cost: () => ({ money: 100 }),
   rank: () => 2,
-  turn: {
-    board: (util, card, player) => player.money += 20
-  }
+  turn: (util, card, player) => player.money += 20
 }

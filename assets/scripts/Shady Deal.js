@@ -11,11 +11,8 @@ exports.card = {
 		util.destroyRandom(cards, player, opponent);
 		player.board.push(card);
 	},
-	
-	turn: {
-		board: (util, card, player, opppnent) => {
-			util.destroy(card.id, player, opppnent);
-			player.money += 40;
-		}
+	turn: (util, card, player, opppnent) => {
+		util.destroy(card.id, player, opppnent);
+		player.money += 40;
 	}
 }

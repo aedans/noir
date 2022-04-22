@@ -9,10 +9,8 @@ exports.card = {
 	play: (util, card, player, opponent) => () => {
 		player.board.push(card);
 	},
-	turn: {
-		board: (util, card, player, opponent) => {
-			util.destroy(card.id, player, opponent);
-			player.money += 25;
-		}
+	turn: (util, card, player, opponent) => {
+		util.destroy(card.id, player, opponent);
+		player.money += 25;
 	}
 }

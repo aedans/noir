@@ -12,9 +12,7 @@ exports.card = {
 			util.revealRandom(cards, player, opponent);
 		}
 	},
-	update: {
-		board: (util, card, player, opponent) => {
-			card.string.revealed = `${card.revealed}`;
-		}
+	update: (util, card, player, opponent) => {
+		card.string.revealed = `${card.revealed}`;
 	}
 }

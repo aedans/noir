@@ -6,9 +6,5 @@ exports.card = {
 	colors: () => [],
 	cost: () => ({ money: 90 }),
 	rank: () => 2,
-	turn: {
-		board: (util, card, player, opponent) => {
-			player.deck.push(util.defaultCardState("Random Citizen"));
-		}
-	}
+	turn: (util, card, player, opponent) => player.deck.push(util.defaultCardState("Random Citizen"))
 }
