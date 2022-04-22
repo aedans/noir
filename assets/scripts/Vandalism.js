@@ -7,13 +7,8 @@ exports.card = {
 	cost: () => ({ money: 35 }),
 	rank: () => 2,
 	playChoice: (util, card, player, opponent) => (cc) => {
-		const destroyTargets = [...opponent.deck, ...opponent.board]
-			.filter(c => util.getCardInfo(c, player, opponent).type(util, c, player, opponent) == "location")
-			.filter(c => c.revealed == true);
-		const activateTargets = player.board
-			.filter(c => util.getCardInfo(c, player, opponent).colors(util, c, player, opponent).includes("orange"))
-			.filter(c => util.getCardInfo(c, player, opponent).type(util, c, player, opponent) == "agent")
-			.filter(c => c.activated == false);
+		const destroyTargets = util.filter([...opponent.deck, ...opponent.board], "revealed location", player, opponent);
+		const activateTargets = util.filter(player.board, "refreshed orange agent", player, opponent);
 		destroyTargets.sort((a, b) => {
 			const aRank = util.getCardInfo(a, player, opponent).rank(util, a, player, opponent);
 			const bRank = util.getCardInfo(b, player, opponent).rank(util, b, player, opponent);

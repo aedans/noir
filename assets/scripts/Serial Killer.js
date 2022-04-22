@@ -7,10 +7,8 @@ exports.card = {
 	cost: () => ({ money: 80 }),
 	rank: () => 3,
 	turn: (util, card, player, opponent) => {
-		const random = util.sample([...player.deck, ...player.board, ...opponent.deck, ...opponent.board]
-			.filter(c => util.getCardInfo(c, player, opponent).type(util, c, player, opponent) == "agent")
-			.filter(c => c.id != card.id)
-			.filter(c => c.revealed));
+		const random = util.sample(util.filter([...player.deck, ...player.board, ...opponent.deck, ...opponent.board], "revealed agent", player, opponent)
+			.filter(c => c.id != card.id));
 		util.destroy(random.id, player, opponent);
 	},
 }

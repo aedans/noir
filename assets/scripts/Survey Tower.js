@@ -9,9 +9,7 @@ exports.card = {
 	play: (util, card) => () => card.modifiers.push({ name: "surveying", card: card.id }),
 	update: (util, card, player, opponent) => {
 		if (player.board.find(c => c.id == card.id)) {
-			card.number.opponentAgents = opponent.board
-				.filter(c => util.getCardInfo(c, player, opponent).type(util, c, player, opponent) == "agent")
-				.length;
+			card.number.opponentAgents = util.filter(opponent.board, "agent", player, opponent).length;
 		}
 	},
 	modifiers: {

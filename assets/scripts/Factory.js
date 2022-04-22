@@ -8,9 +8,7 @@ exports.card = {
 	rank: () => 3,
 	useCost: () => ({ money: 0, agents: { any: 1 } }),
 	use: (util, card, player, opponent) => {
-		const cards = player.deck
-			.filter(c => util.getCardInfo(c, player, opponent).colors(util, c, player, opponent).includes("green"))
-			.filter(c => !c.revealed);
+		const cards = util.filter(player.deck, "hidden green", player, opponent);
 		if (cards.length == 0) return null;
 		return () => {
 			util.revealRandom(cards, player, opponent);

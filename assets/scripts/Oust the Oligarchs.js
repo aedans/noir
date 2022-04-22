@@ -7,10 +7,7 @@ exports.card = {
 	cost: () => ({ money: 20, agents: { orange: 5 } }),
 	rank: () => 3,
 	play: (util, card, player, opponent) => () => {
-		const agents = [...opponent.board, ...opponent.deck]
-			.filter(c => c.revealed)
-			.filter(c => util.getCardInfo(c, player, opponent).rank(util, c, player, opponent) == 3)
-			.filter(c => util.getCardInfo(c, player, opponent).type(util, c, player, opponent) == "agent");
+		const agents = util.filter([...opponent.board, ...opponent.deck], "revealed rank/3 agent", player, opponent);
 		for (const agent of agents) {
 			util.destroy(agent.id, player, opponent);
 		}

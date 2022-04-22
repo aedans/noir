@@ -7,8 +7,6 @@ exports.card = {
 	cost: () => ({ money: 60 }),
 	rank: () => 3,
 	reveal: (util, card, player, opponent) => {
-		player.money += player.board
-			.filter(c => util.getCardInfo(c, player, opponent).type(util, c, player, opponent) == "location")
-			.length * 10;
+		player.money += util.filter(player.board, "location", player, opponent).length * 10;
 	}
 }

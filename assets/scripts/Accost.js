@@ -7,9 +7,7 @@ exports.card = {
 	cost: () => ({ money: 5 }),
 	rank: () => 1,
 	playChoice: (util, card, player, opponent) => (cc) => {
-		const accostTargets = [...opponent.board]
-			.filter(c => util.getCardInfo(c, player, opponent).type(util, c, player, opponent) == "agent")
-			.filter(c => c.revealed == true);
+		const accostTargets = util.filter(opponent.board, "revealed agent", player, opponent);
 		return util.chooseTargets(accostTargets.map(c => c.id), 3, true, (accost) => {
 			if (accost == null) return cc(null);
 			return cc({ targets: { accost } });

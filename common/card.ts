@@ -13,6 +13,7 @@ export type Util = {
   chooseTargets: typeof chooseTargets,
   sample: typeof sample,
   getCardState: typeof getCardState,
+  filter: typeof filter,
   reveal: typeof reveal,
   revealRandom: typeof revealRandom,
   activate: typeof activate,
@@ -191,9 +192,7 @@ export function choice(util: Util, choose: CardData<CardChoiceAction | null> | u
 
     function activate(colors: CardColors[]): void {
       if (colors.length == 0) return cc(choice);
-      let activateTargets = player.board
-        .filter(c => util.getCardInfo(c, player, opponent).type(util, c, player, opponent) == "agent")
-        .filter(c => c.activated == false);
+      let activateTargets = util.filter(player.board, "refreshed agent", player, opponent);
       if (colors[0] != "any")
         activateTargets = activateTargets.filter(c => util.getCardInfo(c, player, opponent).colors(util, c, player, opponent).includes(colors[0] as CardColor))
       return util.chooseTargets(activateTargets.map(c => c.id), 1, false, (targets) => {
@@ -203,6 +202,34 @@ export function choice(util: Util, choose: CardData<CardChoiceAction | null> | u
       });
     }
   });
+}
+
+export function filter(this: Util, cards: CardState[], string: string, player: PlayerState, opponent: PlayerState) {
+  for (const filter of string.split(' ')) {
+    let f: (c: CardState) => boolean = c => true;
+    if (["orange", "blue", "green", "purple"].includes(filter)) {
+      f = c => this.getCardInfo(c, player, opponent).colors(this, c, player, opponent).includes(filter as CardColor);
+    } else if (["agent", "location", "operation"].includes(filter)) {
+      f = c => this.getCardInfo(c, player, opponent).type(this, c, player, opponent) == filter;
+    } else if (filter == "revealed") {
+      f = c => c.revealed;
+    } else if (filter == "hidden") {
+      f = c => !c.revealed;
+    } else if (filter == "activated") {
+      f = c => c.activated;
+    } else if (filter == "refreshed") {
+      f = c => !c.activated;
+    } else if (filter.startsWith("rank/")) {
+      const ranks = filter.split('/').slice(1).map(r => +r);
+      f = c => ranks.includes(this.getCardInfo(c, player, opponent).rank(this, c, player, opponent))
+    } else {
+      throw Error(`Invalid filter "${filter}"`);
+    }
+
+    cards = cards.filter(f);
+  }
+
+  return cards;
 }
 
 export function reveal(this: Util, id: string, p1: PlayerState, p2: PlayerState) {
@@ -267,5 +294,5 @@ export function destroyRandom(this: Util, cards: CardState[], p1: PlayerState, p
 }
 
 export function defaultUtil(getCardInfo: Util["getCardInfo"]): Util {
-  return { getCardInfo, defaultCardState, chooseTargets, sample, getCardState, reveal, revealRandom, activate, destroy, destroyRandom };
+  return { getCardInfo, defaultCardState, chooseTargets, sample, getCardState, filter, reveal, revealRandom, activate, destroy, destroyRandom };
 }

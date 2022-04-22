@@ -7,9 +7,7 @@ exports.card = {
 	cost: () => ({ money: 200 }),
 	rank: () => 3,
 	play: (util, card, player, opponent) => {
-		const cards = player.deck
-			.filter(c => util.getCardInfo(c, player, opponent).colors(util, c, player, opponent).includes("purple"))
-			.filter(c => c.id != card.id)
+		const cards = util.filter(player.deck, "purple", player, opponent).filter(c => c.id != card.id)
 		if (cards.length == 0) return null;
 		return () => {
 			util.destroy(util.sample(cards).id, player, opponent);

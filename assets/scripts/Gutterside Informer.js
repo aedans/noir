@@ -7,7 +7,7 @@ exports.card = {
 	cost: () => ({ money: 50 }),
 	rank: () => 2,
 	turn: (util, card, player, opponent) => {
-		const cards = [...opponent.deck.filter(x => !x.revealed)];
+		const cards = [...util.filter(opponent.deck, "hidden", player, opponent)];
 		cards.sort((a, b) => {
 			const aCost = util.getCardInfo(a, player, opponent).cost(util, a, player, opponent).money;
 			const bCost = util.getCardInfo(b, player, opponent).cost(util, b, player, opponent).money;

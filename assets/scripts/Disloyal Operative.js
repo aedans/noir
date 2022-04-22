@@ -7,6 +7,6 @@ exports.card = {
 	cost: () => ({ money: 20 }),
 	rank: () => 1,
 	destroy: (util, card, player, opponent) => {
-		util.destroyRandom(player.deck.filter(c => util.getCardInfo(c, player, opponent).type(util, c, player, opponent) == "agent"), player, opponent);
+		util.destroyRandom(util.filter(player.deck, "agent", player, opponent), player, opponent);
 	}
 }

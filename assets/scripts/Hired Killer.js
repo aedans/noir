@@ -8,10 +8,8 @@ exports.card = {
 	rank: () => 2,
 	useChoice: (util, card, player, opponent) => (cc) => {
 		const maxRank = player.money / 20;
-		const destroyTargets = [...opponent.deck, ...opponent.board]
-			.filter(c => util.getCardInfo(c, player, opponent).type(util, c, player, opponent) == "agent")
-			.filter(c => util.getCardInfo(c, player, opponent).rank(util, c, player, opponent) < maxRank)
-			.filter(c => c.revealed == true);
+		const destroyTargets = util.filter([...opponent.deck, ...opponent.board], "revealed agent", player, opponent)
+			.filter(c => util.getCardInfo(c, player, opponent).rank(util, c, player, opponent) < maxRank);
 		destroyTargets.sort((a, b) => {
 			const aRank = util.getCardInfo(a, player, opponent).rank(util, a, player, opponent);
 			const bRank = util.getCardInfo(b, player, opponent).rank(util, b, player, opponent);

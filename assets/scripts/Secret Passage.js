@@ -10,9 +10,7 @@ exports.card = {
 		card.revealed = false;
 	},
 	turn: (util, card, player, opponent) => {
-		const cards = player.board
-			.filter(c => util.getCardInfo(c, player, opponent).type(util, c, player, opponent) == "agent")
-			.filter(c => c.revealed);
+		const cards = util.filter(player.board, "revealed agent", player, opponent);
 		if (cards.length > 0) {
 			util.sample(cards).revealed = false;
 		}

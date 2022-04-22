@@ -7,7 +7,7 @@ exports.card = {
 	cost: () => ({ money: 30, agents: { green: 1 } }),
 	rank: () => 1,
 	play: (util, card, player, opponent) => () => {
-		for (const location of player.board.filter(c => util.getCardInfo(c, player, opponent).type(util, c, player, opponent) == "location")) {
+		for (const location of util.filter(player.board, "location", player, opponent)) {
 			util.revealRandom(opponent.deck, player, opponent);
 		}
 	}

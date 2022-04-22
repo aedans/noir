@@ -7,10 +7,7 @@ exports.card = {
 	cost: () => ({ money: 0, agents: { orange: 5 } }),
 	rank: () => 3,
 	play: (util, card, player, opponent) => () => {
-		const agents = player.deck
-			.filter(c => util.getCardInfo(c, player, opponent).colors(util, c, player, opponent).includes("orange"))
-			.filter(c => util.getCardInfo(c, player, opponent).type(util, c, player, opponent) == "agent")
-			.filter(c => !c.revealed);
+		const agents = util.filter(player.deck, "orange agent", player, opponent);
 		for (const agent of agents) {
 			util.reveal(agent.id, player, opponent);
 		}

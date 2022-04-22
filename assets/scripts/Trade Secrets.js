@@ -7,14 +7,11 @@ exports.card = {
 	cost: () => ({ money: 5 }),
 	rank: () => 1,
 	play: (util, state, player, opponent) => {
-		const cards = player.deck
-			.filter(c => util.getCardInfo(c, player, opponent).colors(util, c, player, opponent).includes("green"))
-			.filter(c => c.id != state.id)
-			.filter(c => !c.revealed);
+		const cards = util.filter(player.deck, "hidden green", player, opponent).filter(c => c.id != state.id)
 		if (cards.length == 0) return null;
 		return () => {
 			util.revealRandom(cards, player, opponent);
-			const opponentCards = opponent.deck.filter(c => util.getCardInfo(c, player, opponent).rank(util, c, player, opponent) <= 2);
+			const opponentCards = util.filter(opponent.deck, "rank/1/2", player, opponent);
 			for (let i = 0; i < 3; i++) {
 				util.revealRandom(opponentCards, player, opponent);
 			}

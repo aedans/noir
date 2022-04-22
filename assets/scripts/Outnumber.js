@@ -7,8 +7,8 @@ exports.card = {
 	cost: () => ({ money: 10, agents: { orange: 1 } }),
 	rank: () => 1,
 	play: (util, card, player, opponent) => () => {
-		const playerAgents = player.board.filter(c => util.getCardInfo(c, player, opponent).type(util, c, player, opponent) == "agent").length;
-		const opponentAgents = opponent.board.filter(c => util.getCardInfo(c, player, opponent).type(util, c, player, opponent) == "agent").length;
+		const playerAgents = util.filter(player.board, "agent", player, opponent).length;
+		const opponentAgents = util.filter(opponent.board, "agent", player, opponent).length;
 		if (playerAgents < opponentAgents) {
 			for (let i = 0; i < opponentAgents - playerAgents; i++) {
 				util.revealRandom(opponent.deck, player, opponent);

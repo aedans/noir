@@ -8,10 +8,7 @@ exports.card = {
 	rank: () => 1,
 	use: (util, card, player, opponent) => () => {
 		if (!card.revealed) {
-			player.money += player.board
-				.filter(c => util.getCardInfo(c, player, opponent).colors(util, c, player, opponent).includes("green"))
-				.filter(c => util.getCardInfo(c, player, opponent).type(util, c, player, opponent) == "agent")
-				.length * 10;
+			player.money += util.filter(player.board, "green agent", player, opponent).length * 10;
 		}
 	}
 }

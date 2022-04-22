@@ -5,10 +5,7 @@ exports.card = {
 	type: () => "agent",
 	colors: () => ["orange"],
 	cost: (util, card, player, opponent) => {
-		const cards = player.board
-			.filter(c => util.getCardInfo(c, player, opponent).colors(util, c, player, opponent).includes("orange"))
-			.filter(c => util.getCardInfo(c, player, opponent).type(util, c, player, opponent) == "agent")
-			.filter(c => c.revealed);
+		const cards = util.filter(player.board, "revealed orange agent", player, opponent);
 		return { money: Math.max(0, 40 - 5 * cards.length) };
 	},
 	rank: () => 1,

@@ -7,6 +7,6 @@ exports.card = {
 	cost: () => ({ money: 45 }),
 	rank: () => 2,
 	reveal: (util, card, player, opponent) => {
-		player.money += 5 * opponent.board.filter(c => c.revealed).length;
+		player.money += 5 * util.filter(opponent.board, "revealed", player, opponent).length;
 	}
 }

@@ -7,9 +7,7 @@ exports.card = {
 	cost: () => ({ money: 80, agents: { green: 1 } }),
 	rank: () => 2,
 	playChoice: (util, card, player, opponent) => (cc) => {
-		const stealTargets = [...opponent.deck, ...opponent.board]
-			.filter(c => util.getCardInfo(c, player, opponent).type(util, c, player, opponent) == "agent")
-			.filter(c => c.revealed == true);
+		const stealTargets = util.filter([...opponent.deck, ...opponent.board], "revealed agent", player, opponent);
 		return util.chooseTargets(stealTargets.map(c => c.id), 1, false, (steal) => {
 			if (steal == null) return cc(null);
 			return cc({ targets: { steal } });

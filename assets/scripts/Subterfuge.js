@@ -7,18 +7,14 @@ exports.card = {
 	cost: () => ({ money: 10 }),
 	rank: () => 1,
 	playChoice: (util, card, player, opponent) => (cc) => {
-		const destroyTargets = [...opponent.deck, ...opponent.board]
-			.filter(c => util.getCardInfo(c, player, opponent).type(util, c, player, opponent) == "operation")
-			.filter(c => c.revealed == true);
+		const destroyTargets = util.filter([...opponent.deck, ...opponent.board], "revealed operation", player, opponent);
 		return util.chooseTargets(destroyTargets.map(c => c.id), 1, false, (destroy) => {
 			if (destroy == null) return cc(null);
 			return cc({ targets: { destroy } });
 		});
 	},
 	play: (util, card, player, opponent) => {
-		const cards = player.deck
-			.filter(c => util.getCardInfo(c, player, opponent).type(util, c, player, opponent) == "agent")
-			.filter(c => util.getCardInfo(c, player, opponent).colors(util, c, player, opponent).includes("purple"));
+		const cards = util.filter(player.deck, "purple agent", player, opponent);
 		if (cards.length == 0) return null;
 		return (choice) => {
 			util.destroyRandom(cards, player, opponent);

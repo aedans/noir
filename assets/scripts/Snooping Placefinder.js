@@ -8,7 +8,7 @@ exports.card = {
 	rank: () => 1,
 	use: (util, card, player, opponent) => () => {
 		if (card.string.revealed == "false") {
-			const cards = opponent.board.filter(c => util.getCardInfo(c, player, opponent).type(util, c, player, opponent) == "location");
+			const cards = util.filter(opponent.board, "location", player, opponent);
 			util.revealRandom(cards, player, opponent);
 		}
 	},
