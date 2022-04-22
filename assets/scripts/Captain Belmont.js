@@ -1,7 +1,5 @@
-// @ts-check
-/** @type {import("../../common/card").CardInfo} */
 exports.card = {
-	text: () => "The first time an opponent's card is destroyed on your turn, gain $15.",
+	text: () => "The first time an opponent's card is destroyed on each of your turn, gain $15.",
 	type: () => "agent",
 	colors: () => ["blue"],
 	cost: () => ({ money: 60 }),

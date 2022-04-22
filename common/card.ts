@@ -209,7 +209,7 @@ export function reveal(this: Util, id: string, p1: PlayerState, p2: PlayerState)
   for (const [player, opponent] of [[p1, p2], [p2, p1]]) {
     for (const zone of cardZones) {
       const card = player[zone].find(c => c.id == id);
-      if (card) {
+      if (card && !card.revealed) {
         card.revealed = true;
     
         const reveal = this.getCardInfo(card, player, opponent).reveal;
