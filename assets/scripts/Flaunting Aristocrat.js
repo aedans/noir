@@ -5,5 +5,11 @@ exports.card = {
 	type: () => "agent",
 	colors: () => ["green"],
 	cost: () => ({ money: 80}),
-	rank: () => 2
+	rank: () => 2,
+	turn: (util, card, player, opponent) => {
+		if (player.money > 50) {
+			util.revealRandom(opponent.deck, player, opponent);
+			util.revealRandom(opponent.deck, player, opponent);
+		}
+	}
 }

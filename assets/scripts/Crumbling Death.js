@@ -5,5 +5,10 @@ exports.card = {
 	type: () => "operation",
 	colors: () => [],
 	cost: () => ({ money: 110 }),
-	rank: () => 3
+	rank: () => 3,
+	play: (util, card, player, opponent) => () => {
+		for (let i = 0; i < 4; i++) {
+			util.destroyRandom([...player.board, ...opponent.board], player, opponent);
+		}
+	}
 }
