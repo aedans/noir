@@ -172,7 +172,7 @@ export async function gameState(name: string, socket: Socket) {
         const info = getCardInfo(card, player, opponent);
         choice(gameUtil, info.useChoice, info.useCost(util, card, player, opponent), card, player, opponent, (choice) => {
           socket.emit('action', { type: "use", card: card.id, choice });
-        });  
+        });    
       },
       (card) => {},
       (card) => {},

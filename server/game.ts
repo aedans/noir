@@ -70,11 +70,8 @@ function playCard(state: CardState, player: PlayerState, opponent: PlayerState):
   if (player.money < cost.money) return null;
   if (choice(util, info.playChoice, cost, state, player, opponent, c => c) == null) return null;
   return (choice) => {
-    if (info.type(util, state, player, opponent) != "agent") {
-      state.revealed = true;
-    }
-
     if (info.type(util, state, player, opponent) == "operation") {
+      state.revealed = true;
       player.graveyard.push(state);
     } else {
       player.board.push(state);

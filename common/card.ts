@@ -186,7 +186,7 @@ export function choice(util: Util, choose: CardData<CardChoiceAction | null> | u
   return (choose ?? (() => (cc) => cc({})))(util, card, player, opponent)?.((choice) => {
     if (choice == null) return cc(null);
     if (!choice.targets) choice.targets = {};
-
+    
     const agents = cost?.agents ?? {};
     return activate(Object.keys(agents) as CardColors[]);
 
@@ -195,7 +195,7 @@ export function choice(util: Util, choose: CardData<CardChoiceAction | null> | u
       let activateTargets = util.filter(player.board, "refreshed agent", player, opponent);
       if (colors[0] != "any")
         activateTargets = activateTargets.filter(c => util.getCardInfo(c, player, opponent).colors(util, c, player, opponent).includes(colors[0] as CardColor))
-      return util.chooseTargets(activateTargets.map(c => c.id), 1, false, (targets) => {
+      return util.chooseTargets(activateTargets.map(c => c.id), cost!.agents![colors[0]]!, false, (targets) => {
         if (targets == null) return cc(null);
         choice.targets![colors[0]] = targets;
         return activate(colors.slice(1));
