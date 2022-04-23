@@ -11,7 +11,7 @@ exports.card = {
 			...info,
 			destroy: (util, card, player, opponent) => {
 				(info.destroy ?? (() => {}))(util, card, player, opponent);
-				if (you.turn) {
+				if (you.turn && you.deck.find(c => c.id == card.id) != null) {
 					you.money += 20;
 				}
 			}

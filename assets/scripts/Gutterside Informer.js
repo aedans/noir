@@ -14,6 +14,7 @@ exports.card = {
 			return aCost - bCost;
 		});
 		if (cards.length > 0) {
+			util.reveal(card.id, player, opponent);
 			util.reveal(cards[0].id, player, opponent);
 		}
 	}

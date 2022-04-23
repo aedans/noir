@@ -1,7 +1,7 @@
 // @ts-check
 /** @type {import("../../common/card").CardInfo} */
 exports.card = {
-	text: () => "Activate this: if it was hidden, destroy a hidden agent in your deck and reveal three cards in your opponent's deck.",
+	text: () => "Activate this: if it was hidden, destroy a hidden agent in your deck and reveal three cards on your opponent's board.",
 	type: () => "agent",
 	colors: () => ["purple"],
 	cost: () => ({ money: 40 }),
@@ -11,7 +11,7 @@ exports.card = {
 			const cards = util.filter(player.deck, "hidden agent", player, opponent);
 			util.destroyRandom(cards, player, opponent);
 			for (let i = 0; i < 3; i++) {
-				util.revealRandom(opponent.deck, player, opponent);
+				util.revealRandom(opponent.board, player, opponent);
 			}
 		}
 	}

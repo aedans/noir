@@ -1,12 +1,13 @@
 // @ts-check
 /** @type {import("../../common/card").CardInfo} */
 exports.card = {
-	text: () => "Each turn: destroy a hidden agent in your deck and gain $30. If it's purple, gain $40 instead.",
+	text: () => "Activate this: destroy a hidden agent in your deck and gain $30. If it's purple, gain $40 instead.",
 	type: () => "location",
 	colors: () => ["purple"],
 	cost: () => ({ money: 75 }),
 	rank: () => 2,
-	turn: (util, card, player, opponent) => {
+	useCost: () => ({ money: 0 }),
+	use: (util, card, player, opponent) => () => {
 		const agent = util.sample(util.filter(player.deck, "hidden agent", player, opponent));
 		if (agent) {
 			util.destroy(agent.id, player, opponent);
