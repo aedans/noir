@@ -24,16 +24,17 @@ function revealedPlayer(player: PlayerState): PlayerState {
 }
 
 function update(player: PlayerState, opponent: PlayerState) {
-  player.hand = [];
-  for (const state of player.deck) {
-    if (playCard(state, player, opponent) != null) {
-      player.hand.push(state);
-    }
-  }
-
   for (const zone of cardZones) {
     for (const card of [...player[zone]]) {
       getCardInfo(card, player, opponent).update?.(util, card, player, opponent);
+    }
+  }
+
+  player.hand = [];
+
+  for (const state of player.deck) {
+    if (playCard(state, player, opponent) != null) {
+      player.hand.push(state);
     }
   }
 }
@@ -41,6 +42,8 @@ function update(player: PlayerState, opponent: PlayerState) {
 function turn(player: PlayerState, opponent: PlayerState) {
   opponent.turn = false;
   player.turn = true;
+
+  player.money += 10;
 
   for (const card of player.board) {
     card.activated = false;

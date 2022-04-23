@@ -10,13 +10,11 @@ exports.card = {
 		card.number.turns = 0;
 		player.board.push(card);
 	},
-	turn: {
-		board: (util, card, player, opponent) => {
-			card.number.turns++;
-			if (card.number.turns == 3) {
-				player.money += 60;
-				util.destroy(card.id, player, opponent);
-			}
+	turn: (util, card, player, opponent) => {
+		card.number.turns++;
+		if (card.number.turns == 3) {
+			player.money += 60;
+			util.destroy(card.id, player, opponent);
 		}
 	}
 }

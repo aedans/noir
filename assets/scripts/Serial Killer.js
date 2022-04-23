@@ -9,6 +9,8 @@ exports.card = {
 	turn: (util, card, player, opponent) => {
 		const random = util.sample(util.filter([...player.deck, ...player.board, ...opponent.deck, ...opponent.board], "revealed agent", player, opponent)
 			.filter(c => c.id != card.id));
-		util.destroy(random.id, player, opponent);
+		if (random) {
+			util.destroy(random.id, player, opponent);
+		}
 	},
 }

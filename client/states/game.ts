@@ -118,7 +118,7 @@ export async function gameState(name: string, socket: Socket) {
     const historySprites = await update(history, async function *() {
       for (const action of actions) {
         if (action.type == "end") {
-          yield button("Turn End");
+          yield button("----------");
         } else if (action.type == "play" || action.type == "use") {
           const state = getCardState(action.card, player, opponent);
           if (state) {

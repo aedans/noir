@@ -20,15 +20,13 @@ exports.card = {
 				if (play == null) return play;
 				return (choice) => {
 					play(choice);
-					if (you.id == player.id) {
-						state.number.played++;
-					}
+					state.number.played++;
 				};
 			},
 			cost: (util, card, player, opponent) => {
 				const cost = info.cost(util, card, player, opponent);
-				if (state.number.played == 0 && player.hand.find(h => h.id == card.id)) {
-					return { ...cost, money: cost.money - 10 };
+				if (you.turn && player.id == you.id && state.number.played == 0) {
+					return { ...cost, money: Math.max(0, cost.money - 10) };
 				}	else {
 					return cost;
 				}

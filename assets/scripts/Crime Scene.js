@@ -10,7 +10,7 @@ exports.card = {
 		board: (util, card, player, opponent) => (info) => ({
 			...info,
 			play: (util, card, player, opponent) => {
-				const play = info.play(util, card, player, opponent);
+				const play = (info.play ?? (() => () => {}))(util, card, player, opponent);
 				if (play == null) return null;
 				return (choice) => {
 					play(choice);

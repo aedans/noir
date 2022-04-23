@@ -21,10 +21,10 @@ exports.card = {
 			},
 			cost: (util, card, player, opponent) => {
 				const cost = info.cost(util, card, player, opponent);
-				if (state.number.played == 0 && player.hand.find(h => h.id == card.id) && 
+				if (state.number.played == 0&& 
 						util.getCardInfo(card, player, opponent).type(util, card, player, opponent) == "agent" &&
 						util.getCardInfo(card, player, opponent).rank(util, card, player, opponent) == 3) {
-					return { ...cost, money: cost.money - 20 };
+					return { ...cost, money: Math.max(0, cost.money - 20) };
 				}	else {
 					return cost;
 				}

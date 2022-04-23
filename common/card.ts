@@ -118,7 +118,7 @@ export function defaultCardState(name: string): CardState {
 export function defaultPlayerState(): PlayerState {
   return {
     id: uuidv4(),
-    money: 100,
+    money: 50,
     hand: [],
     board: [],
     deck: [],

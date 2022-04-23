@@ -9,7 +9,7 @@ exports.card = {
 	play: (util, card, player, opponent) => () => card.number.played = 0,
 	turn: (util, card, player, opponent) => card.number.played = 0,
 	effects: {
-		board: (util, state, player, opponent) =>  (info) => ({
+		board: (util, state, you, opponent) => (info) => ({
 			...info,
 			play: (util, card, player, opponent) => {
 				const play = (info.play ?? (() => () => {}))(util, card, player, opponent);
@@ -21,8 +21,8 @@ exports.card = {
 			},
 			cost: (util, card, player, opponent) => {
 				const cost = info.cost(util, card, player, opponent);
-				if (state.number.played == 0 && player.hand.find(h => h.id == card.id) && info.type(util, card, player, opponent) == "agent") {
-					return { ...cost, money: cost.money - 5 };
+				if (you.turn && player.id == you.id && state.number.played == 0 && info.type(util, card, player, opponent) == "agent") {
+					return { ...cost, money: Math.max(0, cost.money - 5) };
 				}	else {
 					return cost;
 				}
