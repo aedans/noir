@@ -3,5 +3,6 @@ export function arrayEquals(a: any[], b: any[]) {
 }
 
 export function sample<T>(ts: T[]) {
-  return ts[Math.floor(Math.random() * ts.length)];
+  if (ts.length == 0) return null;
+  else return ts[Math.floor(Math.random() * ts.length)];
 }

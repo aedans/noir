@@ -9,13 +9,13 @@ exports.card = {
 	play: (util, card, player, opponent) => () => {
 		const playerAgents = util.filter(player.board, "agent", player, opponent).length;
 		const opponentAgents = util.filter(opponent.board, "agent", player, opponent).length;
-		if (playerAgents > opponentAgents) {
+		if (playerAgents < opponentAgents) {
 			for (let i = 0; i < opponentAgents - playerAgents; i++) {
-				util.revealRandom(opponent.deck, player, opponent);
-			}
-		} else if (opponentAgents > playerAgents) {
-			for (let i = 0; i < playerAgents - opponentAgents; i++) {
 				util.revealRandom(player.deck, player, opponent);
+			}
+		} else if (opponentAgents < playerAgents) {
+			for (let i = 0; i < playerAgents - opponentAgents; i++) {
+				util.revealRandom(opponent.deck, player, opponent);
 			}
 		}
 	}

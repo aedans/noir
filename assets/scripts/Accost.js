@@ -4,7 +4,7 @@ exports.card = {
 	text: () => "Additional cost: activate a blue agent. Up to three of your opponent's agents cannot be activated next turn.",
 	type: () => "operation",
 	colors: () => ["blue"],
-	cost: () => ({ money: 5 }),
+	cost: () => ({ money: 5, agents: { blue: 1 } }),
 	rank: () => 1,
 	playChoice: (util, card, player, opponent) => (cc) => {
 		const accostTargets = util.filter(opponent.board, "revealed agent", player, opponent);

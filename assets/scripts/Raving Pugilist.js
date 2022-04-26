@@ -11,10 +11,11 @@ exports.card = {
 		if (card.number.played > 0) {
 			card.number.played = 0;
 			util.destroyRandom(util.filter([...opponent.board, ...opponent.deck], "revealed agent", player, opponent), player, opponent);
+			util.reveal(card.id, player, opponent);
 		}
 	},
 	effects: {
-		board: (util, state, you, opponent) =>  (info) => ({
+		board: (util, state, you, opponent) => (info) => ({
 			...info,
 			play: (util, card, player, opponent) => {
 				const play = (info.play ?? (() => () => {}))(util, card, player, opponent);

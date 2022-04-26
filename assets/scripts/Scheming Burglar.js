@@ -12,6 +12,7 @@ exports.card = {
 	turn: (util, card, player, opponent) => {
 		card.number.turns++;
 		if (card.number.turns == 2) {
+			card.revealed = true;
 			if (opponent.money < 50) {
 				player.money += opponent.money;
 				opponent.money = 0;

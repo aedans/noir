@@ -10,7 +10,7 @@ exports.card = {
 		return { money: Math.max(0, 160 - (20 * locations.length)) };
 	},
 	rank: () => 3,
-	play: (util, card, player, opponent) => () => card.revealed = true,
+	play: (util, card, player, opponent) => () => util.reveal(card.id, player, opponent),
 	effects: {
 		board: (util, state, player, opponent) => (info) => ({
 			...info,

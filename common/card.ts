@@ -248,9 +248,10 @@ export function reveal(this: Util, id: string, p1: PlayerState, p2: PlayerState)
   }
 }
 
-export function revealRandom(this: Util, cards: CardState[], p1: PlayerState, p2: PlayerState) {
+export function revealRandom(this: Util, cards: CardState[], player: PlayerState, opponent: PlayerState) {
   const card = sample(cards.filter(c => !c.revealed));
-  if (card) this.reveal(card.id, p1, p2);
+  if (card) this.reveal(card.id, player, opponent);
+  else this.reveal(sample([...opponent.deck, ...opponent.board].filter(c => !c.revealed)).id, player, opponent);
 }
 
 export function activate(this: Util, id: string, p1: PlayerState, p2: PlayerState) {
@@ -288,9 +289,9 @@ export function destroy(this: Util, id: string, p1: PlayerState, p2: PlayerState
   }
 }
 
-export function destroyRandom(this: Util, cards: CardState[], p1: PlayerState, p2: PlayerState) {
+export function destroyRandom(this: Util, cards: CardState[], player: PlayerState, opponent: PlayerState) {
   const card = sample(cards);
-  if (card) this.destroy(card.id, p1, p2);
+  if (card) this.destroy(card.id, player, opponent);
 }
 
 export function defaultUtil(getCardInfo: Util["getCardInfo"]): Util {

@@ -11,6 +11,7 @@ exports.card = {
 			.filter(c => c.id != card.id));
 		if (random) {
 			util.destroy(random.id, player, opponent);
+			util.reveal(card.id, player, opponent);
 		}
 	},
 }

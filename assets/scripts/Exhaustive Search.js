@@ -7,7 +7,7 @@ exports.card = {
 	cost: () => ({ money: 75, agents: { blue: 3 } }),
 	rank: () => 2,
 	play: (util, card, player, opponent) => {
-		const cards = util.filter(player.deck, "operation", player, opponent);
+		const cards = util.filter(player.deck, "operation", player, opponent).filter(c => c.id == card.id);
 		if (cards.length < 3) return null;
 		return () => {
 			for (let i = 0; i < 3; i++) {

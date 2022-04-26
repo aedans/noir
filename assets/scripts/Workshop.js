@@ -22,7 +22,7 @@ exports.card = {
 			cost: (util, card, player, opponent) => {
 				const cost = info.cost(util, card, player, opponent);
 				if (you.turn && player.id == you.id && state.number.played == 0) {
-					return { ...cost, money: Math.max(0, cost.money - 20) };
+					return { ...cost, money: Math.max(0, cost.money - 15) };
 				}	else {
 					return cost;
 				}
