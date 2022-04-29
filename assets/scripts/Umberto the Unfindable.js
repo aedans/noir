@@ -8,10 +8,13 @@ exports.card = {
 	rank: () => 3,
 	reveal: (util, card, player, opponent) => {
 		if (player.deck.find(c => c.id == card.id)) {
-			const cards = util.filter(player.deck, "hidden", player, opponent);
+			const cards = util.filter(player.deck, "hidden", player, opponent)
+				.filter(c => c.id != card.id);
 			util.destroyRandom(cards, player, opponent);
 			util.destroyRandom(cards, player, opponent);
-			card.revealed = false;
+			if (cards.length >= 2) {
+				card.revealed = false;
+			} 
 		}
 	}
 }

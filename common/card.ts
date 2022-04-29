@@ -192,7 +192,8 @@ export function choice(util: Util, choose: CardData<CardChoiceAction | null> | u
 
     function activate(colors: CardColors[]): void {
       if (colors.length == 0) return cc(choice);
-      let activateTargets = util.filter(player.board, "refreshed agent", player, opponent);
+      let activateTargets = util.filter(player.board, "refreshed agent", player, opponent)
+        .filter(c => c.id != card.id);
       if (colors[0] != "any")
         activateTargets = activateTargets.filter(c => util.getCardInfo(c, player, opponent).colors(util, c, player, opponent).includes(colors[0] as CardColor))
       return util.chooseTargets(activateTargets.map(c => c.id), cost!.agents![colors[0]]!, false, (targets) => {
@@ -249,9 +250,15 @@ export function reveal(this: Util, id: string, p1: PlayerState, p2: PlayerState)
 }
 
 export function revealRandom(this: Util, cards: CardState[], player: PlayerState, opponent: PlayerState) {
-  const card = sample(cards.filter(c => !c.revealed));
-  if (card) this.reveal(card.id, player, opponent);
-  else this.reveal(sample([...opponent.deck, ...opponent.board].filter(c => !c.revealed)).id, player, opponent);
+  let card = sample(cards.filter(c => !c.revealed));
+  if (card) {
+    this.reveal(card.id, player, opponent);
+    return;
+  }
+  card = sample([...opponent.deck, ...opponent.board].filter(c => !c.revealed));
+  if (card) {
+    this.reveal(card.id, player, opponent);
+  }
 }
 
 export function activate(this: Util, id: string, p1: PlayerState, p2: PlayerState) {
