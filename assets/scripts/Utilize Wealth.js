@@ -1,7 +1,7 @@
 // @ts-check
 /** @type {import("../../common/card").CardInfo} */
 exports.card = {
-	text: () => "Additional cost: reveal two hidden green cards in your deck. Destroy ten cards.",
+	text: () => "Additional cost: reveal two hidden green cards in your deck. Remove ten cards.",
 	type: () => "operation",
 	colors: () => ["green"],
 	cost: () => ({ money: 250 }),

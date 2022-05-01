@@ -1,10 +1,10 @@
 // @ts-check
 /** @type {import("../../common/card").CardInfo} */
 exports.card = {
-	text: () => "Additional cost: activate five blue agents. Destroy all revealed rank 1 agents you don't control.",
+	text: () => "Additional cost: activate three blue agents. Remove all revealed rank 1 agents you don't control.",
 	type: () => "operation",
 	colors: () => ["blue"],
-	cost: () => ({ money: 40, agents: { blue: 5 } }),
+	cost: () => ({ money: 30, agents: { blue: 3 } }),
 	rank: () => 3,
 	play: (util, card, player, opponent) => (choice) => {
 		const agents = util.filter([...opponent.board, ...opponent.deck], "revealed rank/1 agent", player, opponent);

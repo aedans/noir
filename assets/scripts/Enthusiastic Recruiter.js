@@ -1,7 +1,7 @@
 // @ts-check
 /** @type {import("../../common/card").CardInfo} */
 exports.card = {
-	text: () => "Whenever this is activated, your next agent this turn costs $10 less",
+	text: () => "Whenever this is activated, your next agent this turn costs $15 less",
 	type: () => "agent",
 	colors: () => ["orange"],
 	cost: () => ({ money: 45 }),

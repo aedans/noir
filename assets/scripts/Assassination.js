@@ -1,7 +1,7 @@
 // @ts-check
 /** @type {import("../../common/card").CardInfo} */
 exports.card = {
-	text: () => "Additional cost: activate an agent. Destroy an agent.",
+	text: () => "Additional cost: activate an agent. Remove an agent.",
 	type: () => "operation",
 	colors: () => [],
 	cost: () => ({ money: 50, agents: { any: 1 } }),

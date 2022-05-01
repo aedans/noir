@@ -1,11 +1,11 @@
 // @ts-check
 /** @type {import("../../common/card").CardInfo} */
 exports.card = {
-	text: () => "Whenever a purple agent in your deck is destroyed, put a hidden Random Citizen into your deck.",
+	text: () => "Whenever a purple agent in your deck is removed, put a hidden Random Citizen into your deck.",
 	type: () => "agent",
 	colors: () => ["purple"],
 	cost: () => ({ money: 65 }),
-	rank: () => 3,
+	rank: () => 2,
 	effects: {
 		board: (util, card, player, opponent) => (info) => ({
 			...info,

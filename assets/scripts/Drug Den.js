@@ -1,7 +1,7 @@
 // @ts-check
 /** @type {import("../../common/card").CardInfo} */
 exports.card = {
-	text: () => "Activate this: destroy a hidden agent in your deck and gain $30. If it's purple, gain $40 instead.",
+	text: () => "Activate this: remove a hidden agent in your deck and gain $30. If it's purple, gain $40 instead.",
 	type: () => "location",
 	colors: () => ["purple"],
 	cost: () => ({ money: 75 }),

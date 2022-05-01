@@ -1,11 +1,11 @@
 // @ts-check
 /** @type {import("../../common/card").CardInfo} */
 exports.card = {
-	text: () => "Additional cost: activate a blue agent. Destroy up to three operations",
+	text: () => "Additional cost: activate a blue agent. Remove up to three operations",
 	type: () => "operation",
 	colors: () => ["blue"],
 	cost: () => ({ money: 25, agents: { blue: 1 } }),
-	rank: () => 2,
+	rank: () => 1,
 	playChoice: (util, card, player, opponent) => (cc) => {
 		const destroyTargets = util.filter([...opponent.deck, ...opponent.board], "revealed operation", player, opponent);
 		return util.chooseTargets(destroyTargets.map(c => c.id), 3, true, (destroy) => {

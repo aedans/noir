@@ -1,7 +1,7 @@
 // @ts-check
 /** @type {import("../../common/card").CardInfo} */
 exports.card = {
-	text: () => "Activate this: if it was hidden, destroy a hidden agent in your deck and reveal three cards on your opponent's board.",
+	text: () => "Activate this: if it was hidden, remove a hidden agent in your deck and reveal three cards on your opponent's board.",
 	type: () => "agent",
 	colors: () => ["purple"],
 	cost: () => ({ money: 40 }),

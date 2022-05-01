@@ -1,9 +1,9 @@
 exports.card = {
-	text: () => "The first time an opponent's card is destroyed on each of your turn, gain $15.",
+	text: () => "The first time an opponent's card is removed on each of your turn, gain $15.",
 	type: () => "agent",
 	colors: () => ["blue"],
 	cost: () => ({ money: 60 }),
-	rank: () => 3,
+	rank: () => 2,
 	play: (util, card, player, opponent) => () => card.number.destroyed = 0,
 	turn: (util, card, player, opponent) => card.number.destroyed = 0,
 	effects: {

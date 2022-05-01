@@ -4,7 +4,7 @@ exports.card = {
 	text: () => "The first agent you play each turn costs $5 less.",
 	type: () => "location",
 	colors: () => [],
-	cost: () => ({ money: 20 }),
+	cost: () => ({ money: 15 }),
 	rank: () => 1,
 	play: (util, card, player, opponent) => () => card.number.played = 0,
 	turn: (util, card, player, opponent) => card.number.played = 0,

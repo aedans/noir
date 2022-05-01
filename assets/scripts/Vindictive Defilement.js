@@ -4,7 +4,7 @@ exports.card = {
 	text: () => "Additional cost: activate two purple agents. Destroy a location and destroy agents in your deck equal to its rank.",
 	type: () => "operation",
 	colors: () => ["purple"],
-	cost: () => ({ money: 45, agents: { purple: 2 } }),
+	cost: () => ({ money: 25, agents: { purple: 2 } }),
 	rank: () => 2,
 	playChoice: (util, card, player, opponent) => (cc) => {
 		const destroyTargets = util.filter([...opponent.deck, ...opponent.board], "revealed location", player, opponent);

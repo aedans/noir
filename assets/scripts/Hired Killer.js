@@ -1,10 +1,10 @@
 // @ts-check
 /** @type {import("../../common/card").CardInfo} */
 exports.card = {
-	text: () => "Pay $20 times the rank of the target, activate this: destroy an agent.",
+	text: () => "Pay $20 times the rank of the target, activate this: remove an agent.",
 	type: () => "agent",
 	colors: () => ["purple"],
-	cost: () => ({ money: 55}),
+	cost: () => ({ money: 55 }),
 	rank: () => 2,
 	useChoice: (util, card, player, opponent) => (cc) => {
 		const maxRank = player.money / 20;

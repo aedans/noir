@@ -1,10 +1,10 @@
 // @ts-check
 /** @type {import("../../common/card").CardInfo} */
 exports.card = {
-	text: () => "Activate this: destroy one of your opponent's operations.",
+	text: () => "Activate this: remove one of your opponent's operations.",
 	type: () => "agent",
 	colors: () => ["blue"],
-	cost: () => ({ money: 95 }),
+	cost: () => ({ money: 80 }),
 	rank: () => 3,
 	useChoice: (util, card, player, opponent) => (cc) => {
 		const destroyTargets = util.filter([...opponent.deck, ...opponent.board], "revealed operation", player, opponent);

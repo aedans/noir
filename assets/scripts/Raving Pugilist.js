@@ -1,7 +1,7 @@
 // @ts-check
 /** @type {import("../../common/card").CardInfo} */
 exports.card = {
-	text: () => "Each turn, if you played an agent last turn, destroy one of your opponent's revealed agents.",
+	text: () => "Each turn, if you played an agent last turn, remove one of your opponent's revealed agents.",
 	type: () => "agent",
 	colors: () => ["orange"],
 	cost: () => ({ money: 55 }),

@@ -4,8 +4,8 @@ exports.card = {
 	text: () => "The first location you play each turn costs $15 less.",
 	type: () => "location",
 	colors: () => [],
-	cost: () => ({ money: 30 }),
-	rank: () => 2,
+	cost: () => ({ money: 35 }),
+	rank: () => 1,
 	play: (util, card, player, opponent) => () => card.number.played = 1,
 	turn: (util, card, player, opponent) => card.number.played = 0,
 	effects: {

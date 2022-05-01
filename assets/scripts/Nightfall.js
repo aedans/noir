@@ -1,10 +1,10 @@
 // @ts-check
 /** @type {import("../../common/card").CardInfo} */
 exports.card = {
-	text: () => "Additional cost: destroy a purple card in your deck. All cards become hidden.",
+	text: () => "Additional cost: remove a purple card in your deck. All cards become hidden.",
 	type: () => "operation",
 	colors: () => ["purple"],
-	cost: () => ({ money: 200 }),
+	cost: () => ({ money: 175 }),
 	rank: () => 3,
 	play: (util, card, player, opponent) => {
 		const cards = util.filter(player.deck, "purple", player, opponent).filter(c => c.id != card.id)

@@ -1,7 +1,7 @@
 // @ts-check
 /** @type {import("../../common/card").CardInfo} */
 exports.card = {
-	text: () => "Additional cost: activate three blue agents and destroy three operations in your deck. Reveal eight agents from your opponent's deck.",
+	text: () => "Additional cost: activate three blue agents and remove three operations in your deck. Reveal eight agents from your opponent's deck.",
 	type: () => "operation",
 	colors: () => ["blue"],
 	cost: () => ({ money: 75, agents: { blue: 3 } }),
