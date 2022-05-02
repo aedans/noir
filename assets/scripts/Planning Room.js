@@ -14,7 +14,7 @@ exports.card = {
 			cost: (util, card, player, opponent) => {
 				const cost = info.cost(util, card, player, opponent);
 				if (you.turn && player.id == you.id && card.number.operations++ == 0 && util.getCardInfo(card, player, opponent).type(util, card, player, opponent) == "operation") {
-					return { ...cost, money: Math.max(5, cost.money - 10) };
+					return { ...cost, money: Math.max(0, cost.money - 10) };
 				} else {
 					return cost;
 				}

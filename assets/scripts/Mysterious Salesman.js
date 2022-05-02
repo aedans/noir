@@ -1,7 +1,7 @@
 // @ts-check
 /** @type {import("../../common/card").CardInfo} */
 exports.card = {
-	text: () => "Activate this, pay $40: either reveal four random cards of your opponent or destroy two random revealed cards of your opponent, chosen at random.",
+	text: () => "Activate this, pay $40: either reveal four random cards of your opponent or remove two random revealed cards of your opponent, chosen at random.",
 	type: () => "agent",
 	colors: () => [],
 	cost: () => ({ money: 60 }),
