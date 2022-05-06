@@ -249,15 +249,16 @@ export function reveal(this: Util, id: string, p1: PlayerState, p2: PlayerState)
   }
 }
 
-export function revealRandom(this: Util, cards: CardState[], player: PlayerState, opponent: PlayerState) {
-  let card = sample(cards.filter(c => !c.revealed));
+export function revealRandom(this: Util, cards: CardState[], player: PlayerState, opponent: PlayerState, friendly: boolean = true) {
+  const card = sample(cards.filter(c => !c.revealed));
   if (card) {
     this.reveal(card.id, player, opponent);
-    return;
-  }
-  card = sample([...opponent.deck, ...opponent.board].filter(c => !c.revealed));
-  if (card) {
-    this.reveal(card.id, player, opponent);
+  } else {
+    const cards = friendly ? [...opponent.deck, ...opponent.board] : [...player.deck, ...player.board];
+    const card = sample(cards.filter(c => !c.revealed));
+    if (card) {
+      this.reveal(card.id, player, opponent);
+    }
   }
 }
 
