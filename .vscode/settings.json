@@ -4,5 +4,6 @@
     ".vscode{,/**}",
     ".parcel-cache{,/**}"
   ],
-  "appService.deploySubpath": "."
+  "appService.deploySubpath": ".",
+  "appService.defaultWebAppToDeploy": "/subscriptions/c3759904-c2b0-4975-90f4-ff3b078e60c5/resourceGroups/noirccg_group/providers/Microsoft.Web/sites/noirccg"
 }
