@@ -8,7 +8,9 @@ exports.card = {
 	rank: () => 3,
 	turn: (util, card, player, opponent) => {
 		const state = util.sample(util.filter(player.deck, "agent", player, opponent));
-		player.board.push(state);
-		util.destroy(state.id, player, opponent);
+		if (state) {
+			util.destroy(state.id, player, opponent);
+			player.board.push({ ...state, revealed: true });
+		}
 	}
 }
