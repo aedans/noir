@@ -9,7 +9,7 @@ exports.card = {
 	turn: (util, card, player, opponent) => {
 		const state = util.sample(util.filter(player.deck, "agent", player, opponent));
 		if (state) {
-			util.destroy(state.id, player, opponent);
+			util.remove(state.id, player, opponent);
 			player.board.push({ ...state, revealed: true });
 		}
 	}

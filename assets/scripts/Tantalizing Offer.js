@@ -15,7 +15,7 @@ exports.card = {
 	},
 	play: (util, card, player, opponent) => (choice) => {
 		const card = util.getCardState(choice.targets.steal[0], player, opponent);
-		util.destroy(card.id, player, opponent);
+		util.remove(card.id, player, opponent);
 		player.board.push({ ...card, revealed: true });
 	}
 }

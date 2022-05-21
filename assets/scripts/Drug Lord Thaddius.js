@@ -9,8 +9,8 @@ exports.card = {
 	effects: {
 		board: (util, card, you, opponent) => (info) => ({
 			...info,
-			destroy: (util, card, player, opponent) => {
-				(info.destroy ?? (() => {}))(util, card, player, opponent);
+			remove: (util, card, player, opponent) => {
+				(info.remove ?? (() => {}))(util, card, player, opponent);
 				if (you.turn && you.graveyard.find(c => c.id == card.id) != null && util.getCardInfo(card, player, opponent).type(util, card, player, opponent) == "agent") {
 					you.money += 20;
 				}

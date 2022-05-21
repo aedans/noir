@@ -9,7 +9,7 @@ exports.card = {
 	useCost: () => ({ money: 0, agents: { purple: 1 } }),
 	use: (util, card, player, opponent) => () => {
 		const card = util.sample(opponent.deck);
-		util.destroy(card.id, player, opponent);
+		util.remove(card.id, player, opponent);
 		player.deck.push({ ...card, revealed: true });
 	}
 }

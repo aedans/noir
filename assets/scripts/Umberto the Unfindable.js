@@ -10,8 +10,8 @@ exports.card = {
 		if (player.deck.find(c => c.id == card.id)) {
 			const cards = util.filter(player.deck, "hidden", player, opponent)
 				.filter(c => c.id != card.id);
-			util.destroyRandom(cards, player, opponent);
-			util.destroyRandom(cards, player, opponent);
+			util.removeRandom(cards, player, opponent);
+			util.removeRandom(cards, player, opponent);
 			if (cards.length >= 2) {
 				card.revealed = false;
 			} 

@@ -9,8 +9,8 @@ exports.card = {
 	effects: {
 		board: (util, card, player, opponent) => (info) => ({
 			...info,
-			destroy: (util, card, player, opponent) => {
-				(info.destroy ?? (() => {}))(util, card, player, opponent);
+			remove: (util, card, player, opponent) => {
+				(info.remove ?? (() => {}))(util, card, player, opponent);
 				if (player.deck.find(c => c.id == card.id) != null && util.getCardInfo(card, player, opponent).colors(util, card, player, opponent).includes("purple")) {
 					player.deck.push(util.defaultCardState("Random Citizen"));
 				}

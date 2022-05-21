@@ -10,7 +10,7 @@ exports.card = {
 	turn: (util, card, player, opponent) => {
 		if (card.number.played > 0) {
 			card.number.played = 0;
-			util.destroyRandom(util.filter([...opponent.board, ...opponent.deck], "revealed agent", player, opponent), player, opponent);
+			util.removeRandom(util.filter([...opponent.board, ...opponent.deck], "revealed agent", player, opponent), player, opponent);
 			util.reveal(card.id, player, opponent);
 		}
 	},

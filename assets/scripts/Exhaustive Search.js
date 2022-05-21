@@ -11,7 +11,7 @@ exports.card = {
 		if (cards.length < 3) return null;
 		return () => {
 			for (let i = 0; i < 3; i++) {
-				util.destroyRandom(cards, player, opponent);
+				util.removeRandom(cards, player, opponent);
 			}
 
 			for (let i = 0; i < 8; i++) {

@@ -10,7 +10,7 @@ exports.card = {
 	use: (util, card, player, opponent) => () => {
 		const agent = util.sample(util.filter(player.deck, "hidden agent", player, opponent));
 		if (agent) {
-			util.destroy(agent.id, player, opponent);
+			util.remove(agent.id, player, opponent);
 			if (util.getCardInfo(agent, player, opponent).colors(util, agent, player, opponent).includes("purple")) {
 				player.money += 40;
 			} else {

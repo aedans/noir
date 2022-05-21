@@ -6,9 +6,9 @@ exports.card = {
 	colors: () => ["purple"],
 	cost: () => ({ money: 20 }),
 	rank: () => 1,
-	destroy: (util, card, player, opponent) => {
+	remove: (util, card, player, opponent) => {
 		if (player.board.find(c => c.id == card.id) != null) {
-			util.destroyRandom(util.filter(player.deck, "agent", player, opponent), player, opponent);
+			util.removeRandom(util.filter(player.deck, "agent", player, opponent), player, opponent);
 		}
 	}
 }

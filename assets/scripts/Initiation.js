@@ -23,7 +23,7 @@ exports.card = {
 			state.modifiers.push({ name: "purple", card: card.id });
 		}
 
-		util.destroy(card.id, player, opponent);
+		util.remove(card.id, player, opponent);
 	},
 	modifiers: {
 		purple: (info) => ({

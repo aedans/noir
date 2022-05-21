@@ -7,10 +7,10 @@ exports.card = {
 	cost: () => ({ money: 250 }),
 	rank: () => 3,
 	playChoice: (util, card, player, opponent) => (cc) => {
-		const destroyTargets = util.filter([...opponent.deck, ...opponent.board], "revealed", player, opponent);
-		return util.chooseTargets(destroyTargets.map(c => c.id), 10, true, (destroy) => {
-			if (destroy == null) return cc(null);
-			return cc({ targets: { destroy } });
+		const removeTargets = util.filter([...opponent.deck, ...opponent.board], "revealed", player, opponent);
+		return util.chooseTargets(removeTargets.map(c => c.id), 10, true, (remove) => {
+			if (remove == null) return cc(null);
+			return cc({ targets: { remove } });
 		});
 	},
 	play: (util, card, player, opponent) => {
@@ -19,8 +19,8 @@ exports.card = {
 		return (choice) => {
 			util.revealRandom(cards, player, opponent);
 			util.revealRandom(cards, player, opponent);
-			for (let i = 0; i < 10 && i < choice.targets.destroy.length; i++) {
-				util.destroy(choice.targets.destroy[i], player, opponent);
+			for (let i = 0; i < 10 && i < choice.targets.remove.length; i++) {
+				util.remove(choice.targets.remove[i], player, opponent);
 			}
 		}
 	}

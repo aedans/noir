@@ -16,7 +16,7 @@ exports.card = {
 			},
 			() => {
 				for (let i = 0; i < 2; i++) {
-					util.destroyRandom(util.filter([...opponent.deck, ...opponent.board], "revealed", player, opponent), player, opponent);
+					util.removeRandom(util.filter([...opponent.deck, ...opponent.board], "revealed", player, opponent), player, opponent);
 				}
 			}
 		])();

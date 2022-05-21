@@ -10,7 +10,7 @@ exports.card = {
 		const cards = util.filter(player.deck, "purple", player, opponent).filter(c => c.id != card.id)
 		if (cards.length == 0) return null;
 		return () => {
-			util.destroy(util.sample(cards).id, player, opponent);
+			util.remove(util.sample(cards).id, player, opponent);
 			for (const card of [...player.deck, ...player.board, ...opponent.deck, ...opponent.board]) {
 				card.revealed = false;
 			}

@@ -8,7 +8,7 @@ exports.card = {
 	rank: () => 3,
 	play: (util, card, player, opponent) => () => {
 		for (let i = 0; i < 4; i++) {
-			util.destroyRandom(util.filter([...player.board, ...opponent.board], "revealed", player, opponent), player, opponent);
+			util.removeRandom(util.filter([...player.board, ...opponent.board], "revealed", player, opponent), player, opponent);
 		}
 	}
 }

@@ -14,7 +14,7 @@ exports.card = {
 		card.number.turns++;
 		if (card.number.turns == 3) {
 			player.money += 60;
-			util.destroy(card.id, player, opponent);
+			util.remove(card.id, player, opponent);
 		}
 	}
 }

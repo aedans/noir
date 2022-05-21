@@ -17,8 +17,8 @@ export type Util = {
   reveal: typeof reveal,
   revealRandom: typeof revealRandom,
   activate: typeof activate,
-  destroy: typeof destroy,
-  destroyRandom: typeof destroyRandom
+  remove: typeof remove,
+  removeRandom: typeof removeRandom
 }
 
 export type CardData<A> = (util: Util, card: CardState, player: PlayerState, opponent: PlayerState) => A;
@@ -51,7 +51,7 @@ export type CardInfo = {
   use?: CardData<CardAction | null>,
   activate?: CardData<void>,
   reveal?: CardData<void>,
-  destroy?: CardData<void>,
+  remove?: CardData<void>,
   update?: CardData<void>,
   turn?: CardData<void>,
   effects?: { [K in CardZone]?: CardData<CardEffect> },
@@ -279,7 +279,7 @@ export function activate(this: Util, id: string, p1: PlayerState, p2: PlayerStat
   }
 }
 
-export function destroy(this: Util, id: string, p1: PlayerState, p2: PlayerState) {
+export function remove(this: Util, id: string, p1: PlayerState, p2: PlayerState) {
   for (const [player, opponent] of [[p1, p2], [p2, p1]]) {
     for (const zone of cardZones.filter(c => c != "graveyard")) {
       const index = player[zone].findIndex(c => c.id == id);
@@ -288,20 +288,20 @@ export function destroy(this: Util, id: string, p1: PlayerState, p2: PlayerState
         player[zone].splice(index, 1);
         player.graveyard.push(state);
 
-        const destroy = this.getCardInfo(state, player, opponent).destroy;
-        if (destroy != null) {
-          destroy(this, state, player, opponent);
+        const remove = this.getCardInfo(state, player, opponent).remove;
+        if (remove != null) {
+          remove(this, state, player, opponent);
         }
       }
     }
   }
 }
 
-export function destroyRandom(this: Util, cards: CardState[], player: PlayerState, opponent: PlayerState) {
+export function removeRandom(this: Util, cards: CardState[], player: PlayerState, opponent: PlayerState) {
   const card = sample(cards);
-  if (card) this.destroy(card.id, player, opponent);
+  if (card) this.remove(card.id, player, opponent);
 }
 
 export function defaultUtil(getCardInfo: Util["getCardInfo"]): Util {
-  return { getCardInfo, defaultCardState, chooseTargets, sample, getCardState, filter, reveal, revealRandom, activate, destroy, destroyRandom };
+  return { getCardInfo, defaultCardState, chooseTargets, sample, getCardState, filter, reveal, revealRandom, activate, remove, removeRandom };
 }

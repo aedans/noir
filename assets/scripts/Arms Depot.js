@@ -8,14 +8,14 @@ exports.card = {
 	rank: () => 3,
 	useCost: () => ({ money: 0, agents: { any: 2 } }),
 	useChoice: (util, card, player, opponent) => (cc) => {
-		const destroyTargets = [...opponent.deck, ...opponent.board].filter(c => c.revealed == true);
-		return util.chooseTargets(destroyTargets.map(c => c.id), 1, false, (destroy) => {
-			if (destroy == null) return cc(null);
-			return cc({ targets: { destroy } });
+		const removeTargets = [...opponent.deck, ...opponent.board].filter(c => c.revealed == true);
+		return util.chooseTargets(removeTargets.map(c => c.id), 1, false, (remove) => {
+			if (remove == null) return cc(null);
+			return cc({ targets: { remove } });
 		});
 	},
 	use: (util, card, player, opponent) => (choice) => {
-		util.destroy(choice.targets.destroy[0], player, opponent);
+		util.remove(choice.targets.remove[0], player, opponent);
 		card.activated = false;
 	}
 }
