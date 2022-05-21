@@ -281,7 +281,7 @@ export function activate(this: Util, id: string, p1: PlayerState, p2: PlayerStat
 
 export function destroy(this: Util, id: string, p1: PlayerState, p2: PlayerState) {
   for (const [player, opponent] of [[p1, p2], [p2, p1]]) {
-    for (const zone of cardZones) {
+    for (const zone of cardZones.filter(c => c != "graveyard")) {
       const index = player[zone].findIndex(c => c.id == id);
       if (index >= 0) {
         const state = player[zone][index];

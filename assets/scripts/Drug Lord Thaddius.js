@@ -11,7 +11,7 @@ exports.card = {
 			...info,
 			destroy: (util, card, player, opponent) => {
 				(info.destroy ?? (() => {}))(util, card, player, opponent);
-				if (you.turn && you.graveyard.find(c => c.id == card.id) != null) {
+				if (you.turn && you.graveyard.find(c => c.id == card.id) != null && util.getCardInfo(card, player, opponent).type(util, card, player, opponent) == "agent") {
 					you.money += 20;
 				}
 			}
