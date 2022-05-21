@@ -16,7 +16,9 @@ exports.card = {
 				if (play == null) return play;
 				return (choice) => {
 					play(choice);
-					state.number.played++;
+					if (info.type(util, card, player, opponent) == "agent") {
+						state.number.played++;
+					}
 				};
 			},
 			cost: (util, card, player, opponent) => {
