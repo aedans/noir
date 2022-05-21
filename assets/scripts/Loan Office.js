@@ -6,10 +6,7 @@ exports.card = {
 	colors: () => [],
 	cost: () => ({ money: 20 }),
 	rank: () => 2,
-	play: (util, card, player, opponent) => () => {
-		card.number.turn = 0;
-		player.money += 40;
-	},
+	play: (util, card, player, opponent) => () => card.number.turn = 0,
 	turn: (util, card, player, opponent) => {
 		card.number.turn++;
 		if (card.number.turn == 1) {
