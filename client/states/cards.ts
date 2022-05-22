@@ -49,7 +49,7 @@ export async function cardsState() {
     cards.y = 5 + scroll;
   });
 
-  const sprites: Sprite[] = [];
+  const sprites: Container[] = [];
   for (const card of await getCards()) {
     const sprite = button(card);
 

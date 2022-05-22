@@ -52,9 +52,7 @@ export async function buildState(name: string) {
       for (const card of deck) {
         const info = getCardInfo(card, defaultPlayerState(), defaultPlayerState());
         const colors = info.colors(util, card, defaultPlayerState(), defaultPlayerState());
-        const sprite = button(card.name, {
-          fill: displayColor(colors)
-        });
+        const sprite = button(card.name, { tint: displayColor(colors) });
 
         sprite.on('pointerdown', () => {
           deck.splice(deck.findIndex(x => x.id == card.id), 1);

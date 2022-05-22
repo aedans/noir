@@ -123,7 +123,7 @@ export async function gameState(name: string, socket: Socket) {
           const state = getCardState(action.card, player, opponent);
           if (state) {
             const colors = getCardInfo(state, player, opponent).colors(util, state, player, opponent);
-            yield button(state.name, { fill: displayColor(colors) });
+            yield button(state.name, { tint: displayColor(colors) });
           } else {
             yield button("Hidden");
           }

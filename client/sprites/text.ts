@@ -13,7 +13,11 @@ export function text(string: string, style: Partial<IBitmapTextStyle> = {}) {
 
   const container = new Container()
   container.addChild(text)
-  return container;
+  Object.assign(container, {
+    set text(string: string) { text.text = string; },
+    get text(): string { return text.text; }
+  })
+  return container as (Container & { text: string });
 }
 
 export function button(string: string, style: Partial<IBitmapTextStyle> = {}) {
