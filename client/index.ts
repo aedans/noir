@@ -1,4 +1,4 @@
-import { Application, settings } from 'pixi.js';
+import { Application, BitmapFont, SCALE_MODES, settings } from 'pixi.js';
 import FontFaceObserver from  'fontfaceobserver';
 import { loadCards } from './card';
 import { buildState } from './states/build';
@@ -7,8 +7,6 @@ import { decksState } from './states/decks';
 import { menuState } from './states/menu';
 import { queueState } from './states/queue';
 import { request } from './ui';
-
-const font = new FontFaceObserver("Oswald");
 
 loadCards();
 
@@ -32,27 +30,30 @@ if (!localStorage.getItem("name")) {
 }
 
 window.onload = () => {
-  font.load().then(() => {
-    if (state.startsWith("game")) {
-      const matches = state.match(/game\/(.+)/);
-      if (matches == null) {
-        decksState(queueState);
+  app.loader
+    .add('Oswald', './Oswald.fnt')
+    .load(() => {
+      if (state.startsWith("game")) {
+        const matches = state.match(/game\/(.+)/);
+        if (matches == null) {
+          decksState(queueState);
+        } else {
+          queueState(matches[1]);
+        }
+      } else if (state.startsWith("decks")) {
+        decksState();
+      } else if (state.startsWith("build")) {
+        const matches = state.match(/build\/(.+)/);
+        if (matches == null) {
+          buildState(request("Deck Name", "New Deck"));
+        } else {
+          buildState(matches[1]);
+        }
+      } else if (state.startsWith("cards")) {
+        cardsState();
       } else {
-        queueState(matches[1]);
-      }
-    } else if (state.startsWith("decks")) {
-      decksState();
-    } else if (state.startsWith("build")) {
-      const matches = state.match(/build\/(.+)/);
-      if (matches == null) {
-        buildState(request("Deck Name", "New Deck"));
-      } else {
-        buildState(matches[1]);
-      }
-    } else if (state.startsWith("cards")) {
-      cardsState();
-    } else {
-      menuState();
-    }  
-  });
+        menuState();
+      }  
+
+    })
 }

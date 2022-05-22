@@ -25,9 +25,7 @@ export function cardWidth() {
   return cardHeight() * (1 / 1.4);
 }
 
-export async function cardSprite(card: CardState, player: PlayerState, opponent: PlayerState, scale: number = 1) {
-  if (scale > 1) scale = 1;
-  
+export async function cardSprite(card: CardState, player: PlayerState, opponent: PlayerState, scale: number = 1) {  
   const height = scale * cardHeight();
   const width = scale * cardWidth();
 
@@ -54,14 +52,13 @@ export async function cardSprite(card: CardState, player: PlayerState, opponent:
 
   const textText = text(cardInfo.text(util, card, player, opponent), {
     fontSize: 14 * scale,
-    fill: 0xffffff,
-    wordWrap: true,
-    wordWrapWidth: width - 10,
+    tint: 0xffffff,
+    maxWidth: width - 10,
   });
 
   const typeText = text(cardInfo.type(util, card, player, opponent) + " - rank " + cardInfo.rank(util, card, player, opponent), {
     fontSize: 14 * scale,
-    fill: 0xffffff,
+    tint: 0xffffff,
   })
 
   sprite.addChild(border);
@@ -92,7 +89,7 @@ export async function cardSprite(card: CardState, player: PlayerState, opponent:
   if (baseCardInfo.text(util, card, player, opponent) != "" && arrayEquals(Object.keys(baseCardInfo).sort(), ["colors", "cost", "rank", "text", "type"])) {
     const todoText = text("TODO", {
       fontSize: 24 * scale,
-      fill: 0xff0000
+      tint: 0xff0000
     });
     sprite.addChild(todoText);
     center(todoText, sprite);
@@ -100,7 +97,7 @@ export async function cardSprite(card: CardState, player: PlayerState, opponent:
   } else if (card.revealed) {
     const revealedText = text("Revealed", {
       fontSize: 16 * scale,
-      fill: 0xffffff
+      tint: 0xffffff
     });
     sprite.addChild(revealedText);
     center(revealedText, sprite);
