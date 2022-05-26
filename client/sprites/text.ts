@@ -1,23 +1,30 @@
-import { BitmapText, Container, IBitmapTextStyle } from "pixi.js";
+import { BitmapText, Bounds, Container, IBitmapTextStyle, Rectangle } from "pixi.js";
 import { interactive } from "../ui";
+
+class CustomBitmapText extends BitmapText {
+  style: Partial<IBitmapTextStyle>;
+
+  constructor(text: string, style?: Partial<IBitmapTextStyle>) {
+    super(text, style);
+    this.style = style;
+  }
+
+  get y(): number {
+    return super.y + this.style.fontSize / 2;
+  }
+
+  set y(value: number) {
+    super.y = value - this.style.fontSize / 2
+  }
+}
 
 export function text(string: string, style: Partial<IBitmapTextStyle> = {}) {
   if (!style.fontSize) style.fontSize = 20;
 
-  const text = new BitmapText(string, {
+  return new CustomBitmapText(string, {
     fontName: "Oswald",
     ...style
   });
-  
-  text.y -= style.fontSize / 2;
-
-  const container = new Container()
-  container.addChild(text)
-  Object.assign(container, {
-    set text(string: string) { text.text = string; },
-    get text(): string { return text.text; }
-  })
-  return container as (Container & { text: string });
 }
 
 export function button(string: string, style: Partial<IBitmapTextStyle> = {}) {
