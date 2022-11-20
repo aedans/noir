@@ -36,8 +36,7 @@ window.addEventListener('popstate', () => {
 export let currentStateInstance: StateInstance<any>;
 export let light = 1;
 
-export const flickerFrames = [1, .9, .8, .3, .1, .3, .4, .3, .9, .7, .8, .9, .2, .1, .2, .7, .2, .1, 0];
-export const unflickerFrames = [0, .2, .4, .6, .8, 1];
+export const flickerFrames = [0, .2, .4, .6, .8, 1];
 
 function relightStateInstance(instance: StateInstance<any>) {
   const source = { x: app.screen.width / 2, y: -app.screen.height / 2 };
@@ -49,7 +48,7 @@ function relightStateInstance(instance: StateInstance<any>) {
 }
 
 async function enterStateInstance(instance: StateInstance<any>) {
-  for (const frame of unflickerFrames) {
+  for (const frame of flickerFrames) {
     light = frame;
     relightStateInstance(instance);
     await animateTime(1, () => {});
@@ -60,7 +59,7 @@ async function enterStateInstance(instance: StateInstance<any>) {
 }
 
 async function exitStateInstance(instance: StateInstance<any>) {
-  for (const frame of [...unflickerFrames].reverse()) {
+  for (const frame of [...flickerFrames].reverse()) {
     light = frame;
     relightStateInstance(instance);
     await animateTime(1, () => {});

@@ -11,7 +11,8 @@ export type Entity = DisplayObject & {
 
 export function dropShadow() {
   const filter = new DropShadowFilter({
-    alpha: 1
+    alpha: 1,
+    blur: 0,
   });
   filter.enabled = false;
   return Object.assign(filter, {
@@ -22,7 +23,6 @@ export function dropShadow() {
       filter.rotation = Math.atan2(y, x) * (180 / Math.PI);
       filter.enabled = this.depth > 0;
       filter.distance = Math.ceil(this.depth * (Math.sqrt(x*x + y*y) / 100));
-      filter.blur = Math.ceil(filter.distance / 50);
     }
   });
 }

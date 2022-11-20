@@ -9,14 +9,11 @@ export async function loadCards() {
   }
 }
 
-export async function getCardInfo(name: string) {
+export async function getCardInfo(name: string): Promise<CardInfo> {
   if (!cards[name]) cards[name] = await cardInfo(name);
   return cards[name];
 }
 
-async function cardInfo(name: string) {
-  const cardString = await fetch(`${window.location.origin}/scripts/${name}.js`).then(x => x.text());
-  const cardInfo: { card: CardInfo } = {} as { card: CardInfo };
-  new Function("exports", cardString)(cardInfo);
-  return cardInfo.card;
+async function cardInfo(name: string): Promise<CardInfo> {
+  return await fetch(`${window.location.origin}/cards/${name}.json`).then(x => x.json());
 }

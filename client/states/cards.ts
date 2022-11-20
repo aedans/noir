@@ -70,18 +70,7 @@ export async function createCard(name: string, deck: Deck, zone: string, index: 
   nameText.anchor.set(.5, .5);
   nameText.position.set(cardSprite.width / 2 - nameText.width / 2 - 10, -cardSprite.height / 2 + 10);
 
-  // const imageSprite = toEntity(Sprite.from(await loadImage("images/" + name + ".png")), false);
-  // imageSprite.anchor.set(.5, .5);
-  // imageSprite.scale.set((cardSprite.width - 10) / imageSprite.width)
-  // imageSprite.position.set(0, -cardSprite.height / 2 + imageSprite.height / 2 + 5);
-
-  const textBox = toEntity(new Graphics());
-  textBox.beginFill(0x0, .75);
-  textBox.drawRect(0, 0, cardSprite.width - 10, cardSprite.height / 3);
-  textBox.pivot.set(textBox.width / 2, textBox.height / 2);
-  textBox.position.set(0, cardSprite.height * .33);
-  
-  const textText = new CustomBitmapText((await getCardInfo(name) as any).text(null, null, null, null), {
+  const textText = new CustomBitmapText((await getCardInfo(name)).text, {
     fontName: "Oswald",
     fontSize: 14,
     tint: 0xffffff,
@@ -96,7 +85,7 @@ export async function createCard(name: string, deck: Deck, zone: string, index: 
   textText.position.set(0, cardSprite.height * .33 - 10);
 
   const card = entityContainer(new Container3d());
-  card.addChild(cardSprite, costBox, nameText, textBox, textText);
+  card.addChild(cardSprite, costBox, nameText, textText);
   card.interactive = true;
   card.x = targetResolution.width / 2;
   card.y = targetResolution.height / 2;

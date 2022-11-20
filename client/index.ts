@@ -1,8 +1,9 @@
-import { Camera3d } from "pixi-projection";
-import { addStats } from "pixi-stats";
-import { Application, Loader, Ticker, UPDATE_PRIORITY } from "pixi.js";
-import ButtonEntity from "./ButtonEntity";
-import ResizeManager from "./ResizeManager";
+import { Camera3d } from 'pixi-projection';
+import { addStats } from 'pixi-stats';
+import { Application, Ticker, UPDATE_PRIORITY } from 'pixi.js';
+import { entityContainer } from './entity';
+import { currentStateInstance, enterState, getState, updateStateInstance } from './state';
+import { onResize, onTick } from './ui';
 
 export const app = new Application({
   resizeTo: window,
@@ -11,22 +12,29 @@ export const app = new Application({
   autoDensity: true,
 });
 
+document.body.style.overflow = "hidden";
+document.body.style.margin = "0";
+document.body.style.padding = "0";
 document.body.appendChild(app.view);
 
-export const camera = new Camera3d();
+export const camera = entityContainer(new Camera3d());
 camera.sortableChildren = true;
+
 app.stage.addChild(camera);
 
 const stats = addStats(document, app);
 (stats as any).stats.showPanel(1);
 Ticker.shared.add(stats.update, stats, UPDATE_PRIORITY.UTILITY);
 
-export const resizeManager = new ResizeManager();
-
-Loader.shared.add("Oswald", "./Oswald.fnt").load(() => {
-  app.stage.addChild(
-    new ButtonEntity("Test", () => {}, {
-      y: 100,
-    })
-  );
-});
+window.onload = () => {  
+  app.loader
+    .add('Oswald', './Oswald.fnt')
+    .load(() => {
+      onTick((time: number) => {
+        updateStateInstance(currentStateInstance, time);
+        onResize();
+      });
+      let params = new URLSearchParams(window.location.search);
+      enterState(getState(params.get("name")!), {});
+    });
+}

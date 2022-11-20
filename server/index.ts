@@ -19,7 +19,7 @@ app.use(express.static('assets'));
 app.use(express.json())
 
 app.get('/cards', (req, res) => {
-  let cards = fs.readdirSync("./assets/scripts").map(file => file.substring(0, file.lastIndexOf('.')));
+  let cards = fs.readdirSync("./assets/cards").map(file => file.substring(0, file.lastIndexOf('.')));
   res.send(cards);
 });
 
