@@ -1,59 +1,32 @@
-import { Application, BitmapFont, SCALE_MODES, settings } from 'pixi.js';
-import FontFaceObserver from  'fontfaceobserver';
-import { loadCards } from './card';
-import { buildState } from './states/build';
-import { cardsState } from './states/cards';
-import { decksState } from './states/decks';
-import { menuState } from './states/menu';
-import { queueState } from './states/queue';
-import { request } from './ui';
+import { Camera3d } from "pixi-projection";
+import { addStats } from "pixi-stats";
+import { Application, Loader, Ticker, UPDATE_PRIORITY } from "pixi.js";
+import ButtonEntity from "./ButtonEntity";
+import ResizeManager from "./ResizeManager";
 
-loadCards();
-
-export const app = new Application({ 
-  width: window.innerWidth,
-  height: window.innerHeight,
-  resizeTo: window
+export const app = new Application({
+  resizeTo: window,
+  resolution: window.devicePixelRatio || 1,
+  antialias: true,
+  autoDensity: true,
 });
 
-document.body.style.overflow = "hidden";
-document.body.style.margin = "0";
-document.body.style.padding = "0";
 document.body.appendChild(app.view);
 
-settings.ROUND_PIXELS = true;
+export const camera = new Camera3d();
+camera.sortableChildren = true;
+app.stage.addChild(camera);
 
-const state = new URLSearchParams(window.location.search).get("state") ?? "";
+const stats = addStats(document, app);
+(stats as any).stats.showPanel(1);
+Ticker.shared.add(stats.update, stats, UPDATE_PRIORITY.UTILITY);
 
-if (!localStorage.getItem("name")) {
-  localStorage.setItem("name", request("Username"));
-}
+export const resizeManager = new ResizeManager();
 
-window.onload = () => {
-  app.loader
-    .add('Oswald', './Oswald.fnt')
-    .load(() => {
-      if (state.startsWith("game")) {
-        const matches = state.match(/game\/(.+)/);
-        if (matches == null) {
-          decksState(queueState);
-        } else {
-          queueState(matches[1]);
-        }
-      } else if (state.startsWith("decks")) {
-        decksState();
-      } else if (state.startsWith("build")) {
-        const matches = state.match(/build\/(.+)/);
-        if (matches == null) {
-          buildState(request("Deck Name", "New Deck"));
-        } else {
-          buildState(matches[1]);
-        }
-      } else if (state.startsWith("cards")) {
-        cardsState();
-      } else {
-        menuState();
-      }  
-
+Loader.shared.add("Oswald", "./Oswald.fnt").load(() => {
+  app.stage.addChild(
+    new ButtonEntity("Test", () => {}, {
+      y: 100,
     })
-}
+  );
+});

@@ -1,0 +1,10 @@
+{
+  "text": "Remove an agent.",
+  "type": "operation",
+  "cost": {
+    "money": 50,
+    "agents": {
+      "any": 1
+    }
+  }
+}
