@@ -5,8 +5,8 @@ import { Camera3d } from "pixi-projection";
 export type CameraProps = {};
 
 export let targetResolution = {
-  width: 4096 ,
-  height:  2160,
+  width: 4096,
+  height: 2160,
 };
 
 export function onResize(camera: Camera3d) {

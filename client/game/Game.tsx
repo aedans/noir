@@ -5,6 +5,8 @@ import Card, { CardProps } from "../Card";
 import { animateTo } from "../animation";
 import Board from "./Board";
 import Hand from "./Hand";
+import Rectangle from "../Rectangle";
+import { targetResolution } from "../Camera";
 
 export type GameCardStates = { [id: string]: { x: number; y: number } };
 
@@ -50,6 +52,7 @@ export default function Game() {
 
   return (
     <Container>
+      <Rectangle fill={0x202020} width={targetResolution.width} height={targetResolution.height} />
       <Board cards={cards} />
       <Hand cards={cards} />
     </Container>
