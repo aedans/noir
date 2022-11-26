@@ -1,4 +1,10 @@
-import { Container, CustomPIXIComponent, CustomPIXIComponentBehavior, DisplayObjectProps, PixiElement } from "react-pixi-fiber";
+import {
+  Container,
+  CustomPIXIComponent,
+  CustomPIXIComponentBehavior,
+  DisplayObjectProps,
+  PixiElement,
+} from "react-pixi-fiber";
 import * as PIXI from "pixi.js";
 import React from "react";
 
