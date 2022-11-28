@@ -39,12 +39,12 @@ export const initialState: GameState = {
     {
       hand: [
         {
-          id: "a",
-          name: "Crisp Fiver",
-        },
-        {
           id: "b",
           name: "Random Citizen",
+        },
+        {
+          id: "a",
+          name: "Crisp Fiver",
         },
       ],
       board: [],

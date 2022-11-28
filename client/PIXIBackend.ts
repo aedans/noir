@@ -1,6 +1,6 @@
 import { BackendFactory, DragDropManager } from "dnd-core";
 import { IDisplayObject3d } from "pixi-projection";
-import { DisplayObject, Ticker } from "pixi.js";
+import { DisplayObject, Point, Ticker } from "pixi.js";
 import { animateTo } from "./animation";
 
 type Identifier = string | symbol;
@@ -25,13 +25,13 @@ const PIXIBackend: BackendFactory = (manager: DragDropManager) => {
       (node as any).convertTo3d();
       let ddx = 0;
       let ddy = 0;
-      let init: { x: number; y: number } | null = null;
+      let init: Point | null = null;
 
       function mouseDownListener(e: any) {
         if (currentObject == null) {
           currentObject = node;
           manager.getActions().beginDrag([sourceId]);
-          init = { x: node.position.x, y: node.position.y };
+          init = node.getGlobalPosition();
         }
       }
 

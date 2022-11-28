@@ -1,4 +1,4 @@
-import { Ticker } from "pixi.js";
+import { DisplayObject, Ticker } from "pixi.js";
 
 export function lerp(v0: number, v1: number, t: number) {
   return v0 * (1 - t) + v1 * t;
@@ -34,12 +34,14 @@ export function animateTime(length: number, f: (time: number) => void): Promise<
   });
 }
 
-export function animateTo(object: { x: number; y: number }, position: { x: number; y: number }): Promise<void> {
-  const dx = position.x - object.x;
-  const dy = position.y - object.y;
+export function animateTo(object: Pick<DisplayObject, "getGlobalPosition" | "transform" | "parent">, position: { x: number; y: number }): Promise<void> {
+  const dx = position.x - object.getGlobalPosition().x;
+  const dy = position.y - object.getGlobalPosition().y;
   if (dx == 0 && dy == 0) return Promise.resolve();
   return animateTime(Math.ceil(Math.sqrt(dx * dx + dy * dy) / 50), (time) => {
-    object.x = lerp(object.x, position.x, time);
-    object.y = lerp(object.y, position.y, time);
+    object.transform.position.copyFrom(object.parent.toLocal({ 
+      x: lerp(object.getGlobalPosition().x, position.x, time),
+      y: lerp(object.getGlobalPosition().y, position.y, time),
+    }));
   });
 }
