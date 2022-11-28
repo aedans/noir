@@ -46,6 +46,10 @@ export const initialState: GameState = {
           id: "a",
           name: "Crisp Fiver",
         },
+        {
+          id: "c",
+          name: "Umberto the Unfindable"
+        }
       ],
       board: [],
       graveyard: [],

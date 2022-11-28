@@ -1,4 +1,4 @@
-import { DisplayObject, Graphics, Ticker } from "pixi.js";
+import { Graphics, Ticker } from "pixi.js";
 import React, {
   MutableRefObject,
   Ref,
@@ -69,5 +69,5 @@ export const GameCard = React.forwardRef(function GameCard(props: CardProps, ref
     };
   });
 
-  return <Card {...props} ref={componentRef} />;
+  return <Card scale={1 / 4} {...props} ref={componentRef} />;
 });

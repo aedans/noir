@@ -16,7 +16,7 @@ export default React.forwardRef(function Card(props: CardProps, ref: Ref<Contain
   return (
     <Container {...props} ref={ref}>
       <Rectangle fill={0xffffff} width={cardWidth} height={cardHeight} />
-      <Text text={props.state.name} style={{ fontSize: cardHeight / 10, tint: 0 }} />
+      <Text anchor={[.5, 0]} x={cardWidth / 2} y={50} text={props.state.name} style={{ fontSize: 168, tint: 0 }} />
     </Container>
   );
 });

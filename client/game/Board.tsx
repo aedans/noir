@@ -26,7 +26,7 @@ export default function Board() {
 
   let x = 0;
   for (const card of cards) {
-    cardNodes.push(<GameCard scale={1 / 4} state={card} key={card.id} x={x} />);
+    cardNodes.push(<GameCard state={card} key={card.id} x={x} />);
     x += cardWidth / 4 + 10;
   }
 

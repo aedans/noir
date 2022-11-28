@@ -26,7 +26,7 @@ const HandCard = React.forwardRef(function HandCard(props: CardProps, ref: Ref<C
     }
   }
 
-  return <GameCard {...props} ref={ref} scale={1 / 4} interactive pointerdown={pointerdown} />;
+  return <GameCard {...props} ref={ref} interactive pointerdown={pointerdown} />;
 });
 
 export default function Hand() {
