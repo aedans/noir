@@ -17,7 +17,7 @@ export type PlayerZone = {
   player: PlayerId;
 };
 
-export function currentPlayer(game: GameState): PlayerId {
+export function currentPlayer(game: { turn: number }): PlayerId {
   return game.turn % 2 == 0 ? 0 as const : 1 as const;
 }
 

@@ -30,6 +30,8 @@ export class UnitPlayer implements Player {
   send() {}
 
   receive(): Promise<PlayerAction> {
-    return Promise.resolve({ type: "end" });
+    return new Promise((resolve, reject) => {
+      setTimeout(() => resolve({ type: "end" }), 1000);
+    });
   }
 }

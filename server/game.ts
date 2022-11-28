@@ -4,7 +4,7 @@ import { getCardInfo } from "./card";
 
 function* playCard(id: string, game: GameState) {
   const player = currentPlayer(game);
-  const card = game.players[player].hand.find(c => c.id == id);
+  const card = game.players[player].hand.find((c) => c.id == id);
   if (!card) {
     throw `Card ${id} is not in hand`;
   }
@@ -15,13 +15,13 @@ function* playCard(id: string, game: GameState) {
       id: id,
       from: { player, zone: "hand" },
       to: { player, zone: "graveyard" },
-    });  
+    });
   } else {
     yield moveCard({
       id: id,
       from: { player, zone: "hand" },
       to: { player, zone: "board" },
-    });  
+    });
   }
 }
 
