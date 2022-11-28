@@ -22,7 +22,7 @@ const HandCard = React.forwardRef(function HandCard(props: CardProps, ref: Ref<C
 
   function pointerdown(e: InteractionEvent) {
     if (isTurn) {
-      drag({ current: e.target })
+      drag({ current: e.target });
     }
   }
 
@@ -41,5 +41,9 @@ export default function Hand() {
     x += cardWidth / 4 + 10;
   }
 
-  return <Container y={targetResolution.height * (3 / 4)}>{nodes}</Container>;
+  return (
+    <Container x={(targetResolution.width - x) / 2} y={targetResolution.height * (3 / 4)}>
+      {nodes}
+    </Container>
+  );
 }

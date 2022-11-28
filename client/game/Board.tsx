@@ -31,15 +31,16 @@ export default function Board() {
   }
 
   return (
-    <Container>
+    <>
       <Rectangle
         innerRef={(current) => drop({ current })}
-        fill={0x202020}
         width={targetResolution.width}
         height={cardHeight * (3 / 4)}
         visible={false}
       />
-      <Container y={cardHeight / 2}>{cardNodes}</Container>
-    </Container>
+      <Container x={(targetResolution.width - x) / 2} y={cardHeight / 2}>
+        {cardNodes}
+      </Container>
+    </>
   );
 }
