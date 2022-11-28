@@ -6,9 +6,9 @@ import {
   PixiElement,
 } from "react-pixi-fiber";
 import * as PIXI from "pixi.js";
-import React from "react";
+import React, { Ref } from "react";
 
-export type RectangleProps = DisplayObjectProps<PIXI.Container> & { innerRef?: PixiElement<Container>["ref"] } & {
+export type RectangleProps = DisplayObjectProps<PIXI.Container> & {
   width: number;
   height: number;
   fill?: number;
@@ -27,10 +27,10 @@ export const behavior: CustomPIXIComponentBehavior<PIXI.Graphics, RectangleProps
 
 const CustomRectangle = CustomPIXIComponent(behavior, "Rectangle");
 
-export default function Rectangle(props: RectangleProps) {
+export default React.forwardRef(function Rectangle(props: RectangleProps, ref: Ref<Container>) {
   return (
-    <Container {...props} ref={props.innerRef}>
-      <CustomRectangle {...props}></CustomRectangle>
+    <Container {...props} ref={ref}>
+      <CustomRectangle {...props} />
     </Container>
   );
-}
+});

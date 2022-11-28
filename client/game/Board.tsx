@@ -33,7 +33,7 @@ export default function Board() {
   return (
     <>
       <Rectangle
-        innerRef={(current) => drop({ current })}
+        ref={(current) => drop({ current })}
         width={targetResolution.width}
         height={cardHeight * (3 / 4)}
         visible={false}

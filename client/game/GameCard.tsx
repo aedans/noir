@@ -1,4 +1,4 @@
-import { Ticker } from "pixi.js";
+import { DisplayObject, Graphics, Ticker } from "pixi.js";
 import React, {
   MutableRefObject,
   Ref,
@@ -10,9 +10,10 @@ import React, {
 } from "react";
 import { Container } from "react-pixi-fiber";
 import { findCard } from "../../common/gameSlice";
-import { animateTo } from "../animation";
-import Card, { CardProps } from "../Card";
+import { animateTime, animateTo } from "../animation";
+import Card, { cardHeight, CardProps, cardWidth } from "../Card";
 import { useClientSelector } from "../store";
+import { CameraContext } from "../Camera";
 
 export type GameCardStates = { [id: string]: { x: number; y: number } };
 
@@ -20,6 +21,7 @@ export const GameCardContext = React.createContext(undefined as unknown) as Cont
 
 export const GameCard = React.forwardRef(function GameCard(props: CardProps, ref: Ref<Container>) {
   const cards = useContext(GameCardContext);
+  const camera = useContext(CameraContext);
   const game = useClientSelector((state) => state.game);
   const componentRef = React.useRef() as MutableRefObject<Required<Container>>;
 
@@ -46,12 +48,25 @@ export const GameCard = React.forwardRef(function GameCard(props: CardProps, ref
       animateTo(componentRef.current, nextPosition);
     }
 
-    // return () => {
-    //   const { zone } = findCard(props.state.id, game);
-    //   if (zone == "graveyard") {
+    return () => {
+      const { zone } = findCard(props.state.id, game);
+      if (zone == "graveyard") {
+        const graphics = new Graphics();
+        graphics.clear();
+        graphics.beginFill(0xffffff);
+        graphics.drawRect(0, 0, cardWidth / 4, cardHeight / 4);
+        graphics.endFill();
+        graphics.transform.position.copyFrom(camera.current.toLocal(componentRef.current.getGlobalPosition()));
+        camera.current.addChild(graphics);
 
-    //   }
-    // }
+        graphics.pivot.set(graphics.width / 2, graphics.height / 2);
+        graphics.x += graphics.width / 2;
+        graphics.y += graphics.height / 2;
+        animateTime(5, (time) => {
+          graphics.scale.set(1 - time);
+        });
+      }
+    };
   });
 
   return <Card {...props} ref={componentRef} />;
