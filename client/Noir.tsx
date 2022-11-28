@@ -12,6 +12,7 @@ export default function Noir() {
     width: window.screen.width,
     height: window.screen.height,
     resolution: window.devicePixelRatio,
+    autoDensity: true,
   };
 
   return (
