@@ -1,15 +1,15 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { TypedUseSelectorHook, useDispatch, useSelector } from "react-redux";
-import gameReducer from "./game/gameSlice";
+import { gameSlice } from "../common/gameSlice";
 
 export const store = configureStore({
   reducer: {
-    game: gameReducer,
+    game: gameSlice.reducer,
   },
 });
 
-export type NoirState = ReturnType<typeof store.getState>;
-export type NoirDispatch = typeof store.dispatch;
+export type ClientState = ReturnType<typeof store.getState>;
+export type ClientDispatch = typeof store.dispatch;
 
-export const useNoirDispatch: () => NoirDispatch = useDispatch;
-export const useNoirSelector: TypedUseSelectorHook<NoirState> = useSelector;
+export const useClientDispatch: () => ClientDispatch = useDispatch;
+export const useClientSelector: TypedUseSelectorHook<ClientState> = useSelector;

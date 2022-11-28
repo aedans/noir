@@ -20,10 +20,14 @@ export function onTick(fn: (time: number) => boolean | void) {
 export function animateTime(length: number, f: (time: number) => void): Promise<void> {
   return new Promise((resolve, reject) => {
     onTick((time) => {
-      f(time / length);
-      if (time >= length) {
-        f(1);
-        resolve();
+      try {
+        f(time / length);
+        if (time >= length) {
+          f(1);
+          resolve();
+          return true;
+        }
+      } catch (e) {
         return true;
       }
     });

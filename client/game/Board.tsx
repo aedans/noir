@@ -1,26 +1,23 @@
-import React, { createRef, MutableRefObject, ReactNode, Ref } from "react";
+import React, { ReactNode, useContext } from "react";
 import { Container } from "react-pixi-fiber";
 import { cardHeight, cardWidth } from "../Card";
 import { useDrop } from "react-dnd";
 import Rectangle from "../Rectangle";
 import { targetResolution } from "../Camera";
-import { useNoirDispatch, useNoirSelector } from "../store";
+import { useClientSelector } from "../store";
 import { CardState } from "../../common/card";
-import { playCard } from "./gameSlice";
-import { GameCard, GameCardStates } from "./Game";
+import { PlayerContext, SocketContext } from "./Game";
+import { GameCard } from "./GameCard";
 
-export type BoardProps = {
-  cards: MutableRefObject<GameCardStates>;
-};
-
-export default function Board(props: BoardProps) {
-  const cards = useNoirSelector((state) => state.game.board);
-  const dispatch = useNoirDispatch();
+export default function Board() {
+  const socket = useContext(SocketContext);
+  const player = useContext(PlayerContext);
+  const cards = useClientSelector((state) => state.game.players[player].board);
 
   const [{}, drop] = useDrop(() => ({
     accept: "card",
     drop: (state: CardState) => {
-      dispatch(playCard(state.id));
+      socket.current.emit("action", { type: "play", id: state.id });
     },
     collect: () => ({}),
   }));
@@ -29,7 +26,7 @@ export default function Board(props: BoardProps) {
 
   let x = 0;
   for (const card of cards) {
-    cardNodes.push(<GameCard cards={props.cards} scale={1 / 4} state={card} key={card.id} x={x} />);
+    cardNodes.push(<GameCard scale={1 / 4} state={card} key={card.id} x={x} />);
     x += cardWidth / 4 + 10;
   }
 
