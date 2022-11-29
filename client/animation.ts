@@ -41,7 +41,7 @@ export function animateTo(
   const dx = position.x - object.getGlobalPosition().x;
   const dy = position.y - object.getGlobalPosition().y;
   if (dx == 0 && dy == 0) return Promise.resolve();
-  return animateTime(Math.ceil(Math.sqrt(dx * dx + dy * dy) / 50), (time) => {
+  return animateTime(Math.ceil(Math.sqrt(dx * dx + dy * dy) / 20), (time) => {
     object.transform.position.copyFrom(
       object.parent.toLocal({
         x: lerp(object.getGlobalPosition().x, position.x, time),

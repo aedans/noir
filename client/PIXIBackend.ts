@@ -26,12 +26,21 @@ const PIXIBackend: BackendFactory = (manager: DragDropManager) => {
       let ddx = 0;
       let ddy = 0;
       let init: Point | null = null;
+      let initIndex: number | null = null;
 
       function mouseDownListener(e: any) {
         if (currentObject == null) {
           currentObject = node;
-          manager.getActions().beginDrag([sourceId]);
           init = node.getGlobalPosition();
+          initIndex = node.zIndex;
+          node.zIndex = 100;
+          node.parent.sortChildren();
+          manager.getActions().beginDrag([sourceId]);
+
+          const globalX = e.data.global.x - node.getBounds().width / 2;
+          const globalY = e.data.global.y - node.getBounds().height / 2;
+
+          animateTo(node, { x: globalX, y: globalY });
         }
       }
 
@@ -63,6 +72,11 @@ const PIXIBackend: BackendFactory = (manager: DragDropManager) => {
             animateTo(node, init);
           }
 
+          if (initIndex) {
+            node.zIndex = initIndex;
+            node.parent.sortChildren();
+          }
+
           manager.getActions().endDrag();
         }
       }
@@ -75,8 +89,11 @@ const PIXIBackend: BackendFactory = (manager: DragDropManager) => {
           ddx = ddy = 0;
         }
 
-        node.euler.yaw = ddx / 500;
-        node.euler.pitch = ddy / 500;
+        ddx = Math.max(-50, Math.min(ddx, 50));
+        ddy = Math.max(-50, Math.min(ddy, 50))
+
+        node.euler.yaw = ddx / 100;
+        node.euler.pitch = -ddy / 100;
       }
 
       node.addListener("mousedown", mouseDownListener);

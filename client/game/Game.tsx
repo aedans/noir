@@ -33,7 +33,7 @@ export default function Game() {
     <SocketContext.Provider value={socket}>
       <GameCardContext.Provider value={cards}>
         <PlayerContext.Provider value={0}>
-          <Container>
+          <Container sortableChildren={true}>
             <Rectangle fill={0x202020} width={targetResolution.width} height={targetResolution.height} />
             <EndTurn />
             <Board />

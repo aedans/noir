@@ -35,14 +35,17 @@ export default function Hand() {
 
   const nodes: FunctionComponentElement<{ ref: RefObject<DisplayObject> }>[] = [];
 
-  let x = 0;
+  let i = 0;
   for (const card of cards) {
-    nodes.push(<HandCard state={card} key={card.id} ref={createRef()} x={x} />);
-    x += cardWidth / 4 + 10;
+    nodes.push(<HandCard zIndex={20 + i} state={card} key={card.id} ref={createRef()} x={i * (cardWidth / 4 + 10)} />);
+    i++;
   }
 
+  let x = (targetResolution.width - i * (cardWidth / 4 + 10)) / 2;
+  let y = targetResolution.height * (3 / 4);
+
   return (
-    <Container x={(targetResolution.width - x) / 2} y={targetResolution.height * (3 / 4)}>
+    <Container x={x} y={y}>
       {nodes}
     </Container>
   );
