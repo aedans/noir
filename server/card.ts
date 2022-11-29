@@ -5,15 +5,14 @@ import {
   runCardInfoComputation,
 } from "../common/card";
 import { GameState } from "../common/gameSlice";
-import fs from "fs";
 
 const cards: { [name: string]: PartialCardInfoComputation } = {};
 
 export function getPartialCardInfoComputation(card: { name: string }): PartialCardInfoComputation {
   if (!cards[card.name]) {
-    cards[card.name] = JSON.parse(fs.readFileSync(`./public/cards/${card.name}.json`, "utf-8"));
+    cards[card.name] = require(`../public/cards/${card.name}.js`).card;
   }
-
+  
   return cards[card.name];
 }
 
