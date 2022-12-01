@@ -38,7 +38,7 @@ export const GameCard = React.forwardRef(function GameCard(props: CardProps, ref
     return () => {
       Ticker.shared.remove(onTick);
     };
-  });
+  }, []);
 
   useLayoutEffect(() => {
     const prevPosition = cards.current[props.state.id];

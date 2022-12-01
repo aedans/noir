@@ -27,7 +27,7 @@ export default function Game() {
     return () => {
       socket.current.close();
     };
-  });
+  }, []);
 
   return (
     <SocketContext.Provider value={socket}>
