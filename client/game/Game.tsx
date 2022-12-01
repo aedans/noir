@@ -18,11 +18,13 @@ export default function Game() {
   const dispatch = useClientDispatch();
 
   useEffect(() => {
-    socket.current = io(":8080");
+    const url = window.location.toString().replace(/[0-9]{4}/g, "8080");
 
-    socket.current.emit("queue");
+    socket.current = io(url);
 
     socket.current.on("action", (action) => dispatch(action));
+
+    socket.current.emit("queue");
 
     return () => {
       socket.current.close();

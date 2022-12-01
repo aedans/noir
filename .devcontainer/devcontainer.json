@@ -1,0 +1,12 @@
+{
+	"name": "Node.js & TypeScript",
+	"image": "mcr.microsoft.com/devcontainers/typescript-node:16-bullseye",
+	"portsAttributes": {
+		"5173": {
+			"label": "client"
+		},
+		"8080": {
+			"label": "server"
+		}
+	}
+}
