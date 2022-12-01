@@ -2,7 +2,7 @@ import { DisplayObject, InteractionEvent } from "pixi.js";
 import React, { createRef, FunctionComponentElement, Ref, RefObject, useContext } from "react";
 import { useDrag } from "react-dnd";
 import { Container } from "react-pixi-fiber";
-import { currentPlayer } from "../../common/gameSlice";
+import { currentPlayer } from "../../common/util";
 import { targetResolution } from "../Camera";
 import { CardProps, cardWidth } from "../Card";
 import { useClientSelector } from "../store";

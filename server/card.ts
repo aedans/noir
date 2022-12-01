@@ -1,10 +1,6 @@
-import {
-  CardState,
-  defaultCardInfoComputation,
-  PartialCardInfoComputation,
-  runCardInfoComputation,
-} from "../common/card";
+import { CardState, PartialCardInfoComputation, runPartialCardInfoComputation } from "../common/card";
 import { GameState } from "../common/gameSlice";
+import util from "../common/util";
 
 const cards: { [name: string]: PartialCardInfoComputation } = {};
 
@@ -12,12 +8,10 @@ export function getPartialCardInfoComputation(card: { name: string }): PartialCa
   if (!cards[card.name]) {
     cards[card.name] = require(`../public/cards/${card.name}.js`).card;
   }
-  
+
   return cards[card.name];
 }
 
-export function getCardInfo(card: CardState, game: GameState) {
-  const partial = getPartialCardInfoComputation(card);
-  const required = defaultCardInfoComputation(partial);
-  return runCardInfoComputation(required, card, game);
+export function getCardInfo(game: GameState, card: CardState) {
+  return runPartialCardInfoComputation(getPartialCardInfoComputation(card), util, game, card);
 }

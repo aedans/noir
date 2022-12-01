@@ -3,6 +3,6 @@
 exports.card = {
   type: "agent",
   cost: {
-    money: 20
+    money: 30
   }
 }

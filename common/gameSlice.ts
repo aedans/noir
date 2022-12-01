@@ -1,5 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { CardState } from "./card";
+import { v4 as uuidv4 } from "uuid";
 
 export const zones = ["hand", "board", "graveyard"] as const;
 export type Zone = typeof zones[number];
@@ -17,30 +18,13 @@ export type PlayerZone = {
   player: PlayerId;
 };
 
-export function currentPlayer(game: { turn: number }): PlayerId {
-  return game.turn % 2 == 0 ? 0 as const : 1 as const;
-}
-
-export function findCard(id: string, game: GameState): PlayerZone {
-  for (const player of [0, 1] as const) {
-    for (const zone of zones) {
-      const card = game.players[player][zone].find((c) => c.id == id);
-      if (card) {
-        return { player, zone };
-      }
-    }
-  }
-
-  throw new Error(`Card ${id} does not exist`);
-}
-
 export const initialState: GameState = {
   players: [
     {
       hand: [
         {
           id: "b",
-          name: "Random Citizen",
+          name: "Lawman Academy",
         },
         {
           id: "a",
@@ -69,6 +53,10 @@ export type MoveCardAction = {
   to: PlayerZone;
 };
 
+export type CreateCardAction = PlayerZone & {
+  name: string,
+}
+
 export const gameSlice = createSlice({
   name: "game",
   initialState,
@@ -85,7 +73,13 @@ export const gameSlice = createSlice({
         state.players[to.player][to.zone].push(card);
       }
     },
+    createCard: (state, action: PayloadAction<CreateCardAction>) => {
+      state.players[action.payload.player][action.payload.zone].push({
+        id: uuidv4(),
+        name: action.payload.name
+      });
+    }
   },
 });
 
-export const { endTurn, moveCard } = gameSlice.actions;
+export const { endTurn, moveCard, createCard } = gameSlice.actions;

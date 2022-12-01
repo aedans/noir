@@ -1,6 +1,6 @@
-import { DeepPartial } from "redux";
-import { DeepComputation } from "./computation";
+import { Action } from "redux";
 import { GameState } from "./gameSlice";
+import { Util } from "./util";
 
 export type CardState = {
   id: string;
@@ -20,33 +20,45 @@ export type CardInfo = {
   text: string;
   cost: CardCost;
   type: CardType;
+  turn: Iterable<Action>;
 };
 
-export type PartialCardInfo = DeepPartial<CardInfo>;
-export type CardInfoComputation = { [K in keyof CardInfo]: DeepComputation<CardInfo[K]> };
-export type PartialCardInfoComputation = { [K in keyof PartialCardInfo]: DeepComputation<PartialCardInfo[K]> };
+export type PartialCardInfoComputation = { [K in keyof CardInfo]?: DeepPartialComputation<CardInfo[K]> } & {
+  turn?: Computation<Iterable<Action>>,
+};
 
-export function defaultCardInfoComputation(partial: PartialCardInfoComputation): CardInfoComputation {
-  const agents: CardCost["agents"] = {
-    orange: partial.cost?.agents?.orange ?? 0,
-    blue: partial.cost?.agents?.blue ?? 0,
-    green: partial.cost?.agents?.green ?? 0,
-    purple: partial.cost?.agents?.purple ?? 0,
-    any: partial.cost?.agents?.any ?? 0,
-  };
+export type Computation<T> = T extends Function ? never : T | ((util: Util, game: GameState, card: CardState) => T);
 
-  const cost: CardCost = {
-    money: partial.cost?.money ?? 0,
-    agents,
-  };
+export type DeepPartialComputation<T> = {
+  [K in keyof T]?: T[K] extends object ? DeepPartialComputation<T[K]> : Computation<T[K]>;
+};
+
+export function runPartialCardInfoComputation(computation: PartialCardInfoComputation, util: Util, game: GameState, card: CardState): CardInfo {
+  function runComputation<T>(c: Computation<T>): T {
+    if (typeof c == "function") {
+      return c(util, game, card);
+    } else {
+      return c as T;
+    }
+  }
+
+  const agents: CardCost["agents"] = Object.assign({
+    orange: 0,
+    blue: 0,
+    green: 0,
+    purple: 0,
+    any: 0,
+  }, runComputation(computation.cost?.agents ?? {}));
+
+  const cost: CardCost = Object.assign({
+    money: 0,
+    agents
+  }, runComputation(computation.cost ?? {}));
 
   return {
-    text: partial.text ?? "",
+    text: runComputation(computation.text ?? ""),
     cost,
-    type: partial.type ?? "operation",
+    type: runComputation(computation.type ?? "operation"),
+    turn: runComputation(computation.turn ?? []),
   };
-}
-
-export function runCardInfoComputation(computation: CardInfoComputation, card: CardState, game: GameState): CardInfo {
-  return computation;
 }

@@ -5,7 +5,7 @@ import Rectangle from "../Rectangle";
 import { targetResolution } from "../Camera";
 import { PlayerContext, SocketContext } from "./Game";
 import { useClientSelector } from "../store";
-import { currentPlayer } from "../../common/gameSlice";
+import { currentPlayer } from "../../common/util";
 
 export function EndTurn() {
   const socket = useContext(SocketContext);

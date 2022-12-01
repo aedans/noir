@@ -9,11 +9,11 @@ import React, {
   useContext,
 } from "react";
 import { Container } from "react-pixi-fiber";
-import { findCard } from "../../common/gameSlice";
 import { animateTime, animateTo } from "../animation";
 import Card, { cardHeight, CardProps, cardWidth } from "../Card";
 import { useClientSelector } from "../store";
 import { CameraContext } from "../Camera";
+import { findCard } from "../../common/util";
 
 export type GameCardStates = { [id: string]: { x: number; y: number } };
 
@@ -49,7 +49,7 @@ export const GameCard = React.forwardRef(function GameCard(props: CardProps, ref
     }
 
     return () => {
-      const { zone } = findCard(props.state.id, game);
+      const { zone } = findCard(game, props.state);
       if (zone == "graveyard") {
         const graphics = new Graphics();
         graphics.clear();

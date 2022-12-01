@@ -1,6 +1,17 @@
 import Player, { PlayerAction } from "./Player";
-import { currentPlayer, endTurn, gameSlice, GameState, initialState, moveCard } from "../common/gameSlice";
+import { endTurn, gameSlice, GameState, initialState, moveCard, zones } from "../common/gameSlice";
 import { getCardInfo } from "./card";
+import { currentPlayer } from "../common/util";
+
+function* beginTurn(game: GameState) {
+  const player = currentPlayer(game);
+
+  for (const zone of zones) {
+    for (const card of game.players[player][zone]) {
+      yield* getCardInfo(game, card).turn;
+    }
+  }
+}
 
 function* playCard(id: string, game: GameState) {
   const player = currentPlayer(game);
@@ -9,7 +20,7 @@ function* playCard(id: string, game: GameState) {
     throw `Card ${id} is not in hand`;
   }
 
-  const info = getCardInfo(card, game);
+  const info = getCardInfo(game, card);
   if (info.type == "operation") {
     yield moveCard({
       id: id,
@@ -28,6 +39,7 @@ function* playCard(id: string, game: GameState) {
 function* doAction(action: PlayerAction, game: GameState) {
   if (action.type == "end") {
     yield endTurn();
+    yield* beginTurn(game);
   } else if (action.type == "play") {
     yield* playCard(action.id, game);
   }
