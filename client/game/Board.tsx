@@ -7,7 +7,7 @@ import { targetResolution } from "../Camera";
 import { useClientSelector } from "../store";
 import { CardState } from "../../common/card";
 import { PlayerContext, SocketContext } from "./Game";
-import { GameCard } from "./GameCard";
+import GameCard from "./GameCard";
 
 export default function Board() {
   const socket = useContext(SocketContext);

@@ -19,7 +19,7 @@ export type GameCardStates = { [id: string]: { x: number; y: number } };
 
 export const GameCardContext = React.createContext(undefined as unknown) as Context<MutableRefObject<GameCardStates>>;
 
-export const GameCard = React.forwardRef(function GameCard(props: CardProps, ref: Ref<Container>) {
+const GameCard = React.forwardRef(function GameCard(props: CardProps, ref: Ref<Container>) {
   const cards = useContext(GameCardContext);
   const camera = useContext(CameraContext);
   const game = useClientSelector((state) => state.game);
@@ -71,3 +71,5 @@ export const GameCard = React.forwardRef(function GameCard(props: CardProps, ref
 
   return <Card scale={1 / 4} {...props} ref={componentRef} />;
 });
+
+export default GameCard;

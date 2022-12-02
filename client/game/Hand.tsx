@@ -7,7 +7,7 @@ import { targetResolution } from "../Camera";
 import { CardProps, cardWidth } from "../Card";
 import { useClientSelector } from "../store";
 import { PlayerContext } from "./Game";
-import { GameCard } from "./GameCard";
+import GameCard from "./GameCard";
 
 const HandCard = React.forwardRef(function HandCard(props: CardProps, ref: Ref<Container>) {
   const turn = useClientSelector((state) => state.game.turn);

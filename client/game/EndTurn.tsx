@@ -7,7 +7,7 @@ import { PlayerContext, SocketContext } from "./Game";
 import { useClientSelector } from "../store";
 import { currentPlayer } from "../../common/util";
 
-export function EndTurn() {
+export default function EndTurn() {
   const socket = useContext(SocketContext);
   const player = useContext(PlayerContext);
   const turn = useClientSelector((state) => state.game.turn);

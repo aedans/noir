@@ -7,7 +7,7 @@ import { targetResolution } from "../Camera";
 import { io, Socket } from "socket.io-client";
 import { GameCardContext, GameCardStates } from "./GameCard";
 import { useClientDispatch } from "../store";
-import { EndTurn } from "./EndTurn";
+import EndTurn from "./EndTurn";
 
 export const SocketContext = React.createContext(undefined as unknown) as Context<MutableRefObject<Socket>>;
 export const PlayerContext = React.createContext(0);
