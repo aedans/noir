@@ -18,7 +18,7 @@ export default function Game() {
   const dispatch = useClientDispatch();
 
   useEffect(() => {
-    const url = window.location.toString().replace(/[0-9]{4}/g, "8080");
+    const url = window.location.toString().replace(/5173/g, "8080");
 
     socket.current = io(url);
 
