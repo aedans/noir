@@ -5,11 +5,11 @@ export function currentPlayer(game: { turn: number }) {
 }
 
 export function cardOwner(game: GameState, card: { id: string }) {
-  return findCard(game, card).player;
+  return findCard(game, card)!.player;
 }
 
 export function isInZone(game: GameState, card: { id: string }, zone: Zone) {
-  return findCard(game, card).zone == zone;
+  return findCard(game, card)?.zone == zone;
 }
 
 export function findCard(game: GameState, card: { id: string }) {
@@ -22,7 +22,7 @@ export function findCard(game: GameState, card: { id: string }) {
     }
   }
 
-  throw new Error(`Card ${card.id} does not exist`);
+  return null;
 }
 
 const defaultUtil = {

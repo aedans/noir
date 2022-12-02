@@ -38,9 +38,7 @@ const PIXIBackend: BackendFactory = (manager: DragDropManager) => {
           node.parent.sortChildren();
           manager.getActions().beginDrag([sourceId]);
 
-          const globalX = e.data.global.x - node.getBounds().width / 2;
-          const globalY = e.data.global.y - node.getBounds().height / 2;
-          const pos = node.parent.toLocal({ x: globalX, y: globalY });
+          const pos = node.parent.toLocal(e.data.global);
 
           gsap.killTweensOf(node);
           tween = gsap.to(node, {
@@ -54,13 +52,11 @@ const PIXIBackend: BackendFactory = (manager: DragDropManager) => {
       function mouseMoveListener(e: MouseEvent) {
         if (currentObject == node) {
           gsap.killTweensOf(node);
-          const globalX = e.x - node.getBounds().width / 2;
-          const globalY = e.y - node.getBounds().height / 2;
-          ddx += globalX - node.getGlobalPosition().x;
-          ddy += globalY - node.getGlobalPosition().y;
+          ddx += e.x - node.getGlobalPosition().x;
+          ddy += e.y - node.getGlobalPosition().y;
 
           if (manager.getMonitor().isDragging()) {
-            node.position.copyFrom(node.parent.toLocal({ x: globalX, y: globalY }));
+            node.position.copyFrom(node.parent.toLocal(e));
           }
 
           const matchingTargetIds = Object.keys(targetObjects).filter((key) =>
