@@ -7,6 +7,7 @@
     "@pixi/graphics-smooth": "0.0.29",
     "@reduxjs/toolkit": "^1.9.0",
     "express": "^4.17.3",
+    "gsap": "^3.11.3",
     "pixi-projection": "^0.4.4",
     "pixi-stats": "^1.0.7",
     "pixi.js": "^6.5.8",

@@ -1,7 +1,7 @@
 import { BackendFactory, DragDropManager } from "dnd-core";
 import { IDisplayObject3d } from "pixi-projection";
 import { DisplayObject, Point, Ticker } from "pixi.js";
-import { animateTo } from "./animation";
+import gsap from "gsap";
 
 type Identifier = string | symbol;
 type DisplayObject3d = DisplayObject & IDisplayObject3d;
@@ -27,11 +27,12 @@ const PIXIBackend: BackendFactory = (manager: DragDropManager) => {
       let ddy = 0;
       let init: Point | null = null;
       let initIndex: number | null = null;
+      let tween: gsap.core.Tween | null = null;
 
       function mouseDownListener(e: any) {
         if (currentObject == null) {
           currentObject = node;
-          init = node.getGlobalPosition();
+          if (!tween?.isActive()) init = node.getGlobalPosition();
           initIndex = node.zIndex;
           node.zIndex = 100;
           node.parent.sortChildren();
@@ -39,13 +40,20 @@ const PIXIBackend: BackendFactory = (manager: DragDropManager) => {
 
           const globalX = e.data.global.x - node.getBounds().width / 2;
           const globalY = e.data.global.y - node.getBounds().height / 2;
+          const pos = node.parent.toLocal({ x: globalX, y: globalY });
 
-          animateTo(node, { x: globalX, y: globalY });
+          gsap.killTweensOf(node);
+          tween = gsap.to(node, {
+            duration: .1,
+            x: pos.x,
+            y: pos.y
+          });
         }
       }
 
       function mouseMoveListener(e: MouseEvent) {
         if (currentObject == node) {
+          gsap.killTweensOf(node);
           const globalX = e.x - node.getBounds().width / 2;
           const globalY = e.y - node.getBounds().height / 2;
           ddx += globalX - node.getGlobalPosition().x;
@@ -69,7 +77,13 @@ const PIXIBackend: BackendFactory = (manager: DragDropManager) => {
           manager.getActions().drop();
 
           if (!manager.getMonitor().didDrop() && init) {
-            animateTo(node, init);
+            const pos = node.parent.toLocal(init);
+            gsap.killTweensOf(node);
+            tween = gsap.to(node, {
+              duration: .1,
+              x: pos.x,
+              y: pos.y
+            });
           }
 
           if (initIndex) {

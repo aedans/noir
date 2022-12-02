@@ -5,15 +5,15 @@ import Hand from "./Hand";
 import Rectangle from "../Rectangle";
 import { targetResolution } from "../Camera";
 import { io, Socket } from "socket.io-client";
-import { GameCardContext, GameCardStates } from "./GameCard";
 import { useClientDispatch } from "../store";
 import EndTurn from "./EndTurn";
+import { MoveAnimationContext, MoveAnimationState } from "../MoveAnimation";
 
 export const SocketContext = React.createContext(undefined as unknown) as Context<MutableRefObject<Socket>>;
 export const PlayerContext = React.createContext(0);
 
 export default function Game() {
-  const cards = React.useRef({} as GameCardStates);
+  const cards = React.useRef({} as MoveAnimationState);
   const socket = React.useRef() as MutableRefObject<Socket>;
   const dispatch = useClientDispatch();
 
@@ -33,7 +33,7 @@ export default function Game() {
 
   return (
     <SocketContext.Provider value={socket}>
-      <GameCardContext.Provider value={cards}>
+      <MoveAnimationContext.Provider value={cards}>
         <PlayerContext.Provider value={0}>
           <Container sortableChildren={true}>
             <Rectangle fill={0x202020} width={targetResolution.width} height={targetResolution.height} />
@@ -42,7 +42,7 @@ export default function Game() {
             <Hand />
           </Container>
         </PlayerContext.Provider>
-      </GameCardContext.Provider>
+      </MoveAnimationContext.Provider>
     </SocketContext.Provider>
   );
 }
