@@ -37,9 +37,9 @@ export default function Game() {
         <PlayerContext.Provider value={0}>
           <Container sortableChildren={true}>
             <Rectangle fill={0x202020} width={targetResolution.width} height={targetResolution.height} />
-            <EndTurn />
             <Board />
             <Hand />
+            <EndTurn />
           </Container>
         </PlayerContext.Provider>
       </MoveAnimationContext.Provider>
