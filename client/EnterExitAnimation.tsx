@@ -6,12 +6,12 @@ export type EnterExitAnimationState<T> = { [id: string]: T };
 
 export type EnterExitAnimationStatus = "entering" | "exiting" | "none";
 
-export type EnterExitAnimationProviderProps<T extends { id: string }> = {
+export type EnterExitAnimatorProps<T extends { id: string }> = {
   elements: T[];
   children: (state: T, status: EnterExitAnimationStatus, index: number | null) => JSX.Element;
 };
 
-export function EnterExitAnimator<T extends { id: string }>(props: EnterExitAnimationProviderProps<T>) {
+export function EnterExitAnimator<T extends { id: string }>(props: EnterExitAnimatorProps<T>) {
   const ref = React.useRef({} as EnterExitAnimationState<T>);
 
   let unusedStates = { ...ref.current };
