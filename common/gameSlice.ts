@@ -5,8 +5,10 @@ import { v4 as uuidv4 } from "uuid";
 export const zones = ["deck", "board", "graveyard"] as const;
 export type Zone = typeof zones[number];
 
-export type PlayerState = { [zone in Zone]: CardState[] };
 export type PlayerId = 0 | 1;
+export type PlayerState = { [zone in Zone]: CardState[] } & {
+  money: number;
+};
 
 export type GameState = {
   players: [PlayerState, PlayerState];
@@ -21,11 +23,13 @@ export type PlayerZone = {
 export const initialState: GameState = {
   players: [
     {
+      money: 0,
       deck: [],
       board: [],
       graveyard: [],
     },
     {
+      money: 0,
       deck: [],
       board: [],
       graveyard: [],
@@ -46,9 +50,14 @@ export type CreateCardAction = PlayerZone & {
 };
 
 export type SetPropAction = {
-  card: { id: string },
-  name: string,
-  value: any,
+  card: { id: string };
+  name: string;
+  value: any;
+};
+
+export type AddMoneyAction = {
+  player: PlayerId,
+  money: number,
 }
 
 export function findCard(game: GameState, card: { id: string }) {
@@ -100,6 +109,9 @@ export const gameSlice = createSlice({
       updateCard(state, action.payload.card, (card) => {
         card.props[action.payload.name] = action.payload.value;
       });
+    },
+    addMoney: (state, action: PayloadAction<AddMoneyAction>) => {
+      state.players[action.payload.player].money += action.payload.money;
     }
   },
 });

@@ -22,6 +22,7 @@ function* playCard(id: string, game: GameState) {
   }
 
   const info = getCardInfo(game, card);
+  yield* info.play;
   if (info.type == "operation") {
     yield moveCard({
       id: id,

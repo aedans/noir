@@ -21,10 +21,12 @@ export type CardInfo = {
   text: string;
   cost: CardCost;
   type: CardType;
+  play: Iterable<Action>;
   turn: Iterable<Action>;
 };
 
 export type PartialCardInfoComputation = { [K in keyof CardInfo]?: DeepPartialComputation<CardInfo[K]> } & {
+  play?: Computation<Iterable<Action>>,
   turn?: Computation<Iterable<Action>>,
 };
 
@@ -60,6 +62,7 @@ export function runPartialCardInfoComputation(computation: PartialCardInfoComput
     text: runComputation(computation.text ?? ""),
     cost,
     type: runComputation(computation.type ?? "operation"),
+    play: runComputation(computation.play ?? []),
     turn: runComputation(computation.turn ?? []),
   };
 }

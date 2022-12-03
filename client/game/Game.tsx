@@ -10,6 +10,7 @@ import EndTurn from "./EndTurn";
 import { MoveAnimationContext, MoveAnimationState } from "../MoveAnimation";
 import { useSearchParams } from "react-router-dom";
 import { reset } from "../../common/gameSlice";
+import Resources from "./Resources";
 
 export const SocketContext = React.createContext(undefined as unknown) as Context<MutableRefObject<Socket>>;
 export const PlayerContext = React.createContext(0);
@@ -49,6 +50,7 @@ export default function Game() {
             <Rectangle fill={0x202020} width={targetResolution.width} height={targetResolution.height} />
             <Board />
             <Hand />
+            <Resources />
             <EndTurn />
           </Container>
         </PlayerContext.Provider>
