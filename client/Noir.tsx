@@ -6,6 +6,10 @@ import Camera from "./Camera";
 import { Provider } from "react-redux";
 import { store } from "./store";
 import Game from "./game/Game";
+import { BrowserRouter } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
+import Menu from "./menu/Menu";
+import Play from "./play/Play";
 
 export default function Noir() {
   const options = {
@@ -20,7 +24,13 @@ export default function Noir() {
       <Camera>
         <Provider store={store}>
           <DndProvider backend={PIXIBackend}>
-            <Game />
+            <BrowserRouter>
+              <Routes>
+                <Route path="/game" element={<Game />} />
+                <Route path="/play" element={<Play />} />
+                <Route path="/" element={<Menu />} />
+              </Routes>
+            </BrowserRouter>
           </DndProvider>
         </Provider>
       </Camera>

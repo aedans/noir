@@ -1,7 +1,8 @@
 import Player, { PlayerAction } from "./Player";
-import { endTurn, gameSlice, GameState, initialState, moveCard, zones } from "../common/gameSlice";
+import { createCard, endTurn, gameSlice, GameState, initialState, moveCard, zones } from "../common/gameSlice";
 import { getCardInfo } from "./card";
 import { currentPlayer } from "../common/util";
+import { v4 as uuidv4 } from "uuid";
 
 function* beginTurn(game: GameState) {
   const player = currentPlayer(game);
@@ -15,22 +16,22 @@ function* beginTurn(game: GameState) {
 
 function* playCard(id: string, game: GameState) {
   const player = currentPlayer(game);
-  const card = game.players[player].hand.find((c) => c.id == id);
+  const card = game.players[player].deck.find((c) => c.id == id);
   if (!card) {
-    throw `Card ${id} is not in hand`;
+    throw `Card ${id} is not in deck`;
   }
 
   const info = getCardInfo(game, card);
   if (info.type == "operation") {
     yield moveCard({
       id: id,
-      from: { player, zone: "hand" },
+      from: { player, zone: "deck" },
       to: { player, zone: "graveyard" },
     });
   } else {
     yield moveCard({
       id: id,
-      from: { player, zone: "hand" },
+      from: { player, zone: "deck" },
       to: { player, zone: "board" },
     });
   }
@@ -47,6 +48,22 @@ function* doAction(action: PlayerAction, game: GameState) {
 
 export async function createGame(players: [Player, Player]) {
   let state = initialState;
+
+  for (const player of [0, 1] as const) {
+    const init = await players[player].init();
+
+    for (const card of init.deck.cards) {
+      const action = createCard({
+        id: uuidv4(),
+        name: card,
+        player,
+        zone: "deck",
+      });
+
+      state = gameSlice.reducer(state, action);
+      players.forEach((player) => player.send(action));
+    }
+  }
 
   while (true) {
     const player = currentPlayer(state);

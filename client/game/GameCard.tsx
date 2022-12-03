@@ -29,7 +29,7 @@ const GameCard = React.forwardRef(function GameCard(props: GameCardProps, ref: R
     }
   });
 
-  const doesExist = ["hand", "board"].includes(findCard(game, props.state)?.zone ?? "");
+  const doesExist = ["deck", "board"].includes(findCard(game, props.state)?.zone ?? "");
   const hasExisted = props.state.id in move.current;
   const shouldAnimate = (!hasExisted && doesExist) || !doesExist;
 

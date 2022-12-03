@@ -32,7 +32,7 @@ const HandCard = React.forwardRef(function HandCard(props: GameCardProps, ref: R
 
 export default function Hand() {
   const player = useContext(PlayerContext);
-  const cards = useClientSelector((state) => state.game.players[player].hand);
+  const cards = useClientSelector((state) => state.game.players[player].deck);
 
   let x = (targetResolution.width - cards.length * (gameCardWidth + 10)) / 2 + gameCardWidth / 2;
   let y = targetResolution.height * (3 / 4) + gameCardHeight / 2;

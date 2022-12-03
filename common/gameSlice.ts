@@ -2,7 +2,7 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { CardState } from "./card";
 import { v4 as uuidv4 } from "uuid";
 
-export const zones = ["hand", "board", "graveyard"] as const;
+export const zones = ["deck", "board", "graveyard"] as const;
 export type Zone = typeof zones[number];
 
 export type PlayerState = { [zone in Zone]: CardState[] };
@@ -21,25 +21,12 @@ export type PlayerZone = {
 export const initialState: GameState = {
   players: [
     {
-      hand: [
-        {
-          id: "b",
-          name: "Lawman Academy",
-        },
-        {
-          id: "a",
-          name: "Crisp Fiver",
-        },
-        {
-          id: "c",
-          name: "Umberto the Unfindable"
-        }
-      ],
+      deck: [],
       board: [],
       graveyard: [],
     },
     {
-      hand: [],
+      deck: [],
       board: [],
       graveyard: [],
     },
@@ -54,13 +41,15 @@ export type MoveCardAction = {
 };
 
 export type CreateCardAction = PlayerZone & {
-  name: string,
-}
+  id?: string;
+  name: string;
+};
 
 export const gameSlice = createSlice({
   name: "game",
   initialState,
   reducers: {
+    reset: () => initialState,
     endTurn: (state) => {
       state.turn++;
     },
@@ -75,11 +64,11 @@ export const gameSlice = createSlice({
     },
     createCard: (state, action: PayloadAction<CreateCardAction>) => {
       state.players[action.payload.player][action.payload.zone].push({
-        id: uuidv4(),
-        name: action.payload.name
+        id: action.payload.id ?? uuidv4(),
+        name: action.payload.name,
       });
-    }
+    },
   },
 });
 
-export const { endTurn, moveCard, createCard } = gameSlice.actions;
+export const { reset, endTurn, moveCard, createCard } = gameSlice.actions;

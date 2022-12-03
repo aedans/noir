@@ -5,20 +5,24 @@ import Hand from "./Hand";
 import Rectangle from "../Rectangle";
 import { targetResolution } from "../Camera";
 import { io, Socket } from "socket.io-client";
-import { useClientDispatch } from "../store";
+import { useClientDispatch, useClientSelector } from "../store";
 import EndTurn from "./EndTurn";
 import { MoveAnimationContext, MoveAnimationState } from "../MoveAnimation";
+import { useSearchParams } from "react-router-dom";
+import { reset } from "../../common/gameSlice";
 
 export const SocketContext = React.createContext(undefined as unknown) as Context<MutableRefObject<Socket>>;
 export const PlayerContext = React.createContext(0);
 
 export default function Game() {
+  const [searchParams] = useSearchParams();
   const cards = React.useRef({} as MoveAnimationState);
   const socket = React.useRef() as MutableRefObject<Socket>;
+  const decks = useClientSelector((state) => state.decks);
   const dispatch = useClientDispatch();
 
   useEffect(() => {
-    const url = window.location.toString().replace(/5173/g, "8080");
+    const url = window.location.origin.toString().replace(/5173/g, "8080");
 
     socket.current = io(url);
 
@@ -26,8 +30,14 @@ export default function Game() {
 
     socket.current.emit("queue");
 
+    socket.current.emit("init", {
+      deck: decks[searchParams.get("deck")!],
+    });
+
     return () => {
       socket.current.close();
+
+      dispatch(reset());
     };
   }, []);
 
