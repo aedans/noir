@@ -5,6 +5,7 @@ import { Util } from "./util";
 export type CardState = {
   id: string;
   name: string;
+  props: any;
 };
 
 export type CardColor = "orange" | "blue" | "green" | "purple";

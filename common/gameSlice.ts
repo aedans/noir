@@ -45,6 +45,33 @@ export type CreateCardAction = PlayerZone & {
   name: string;
 };
 
+export type SetPropAction = {
+  card: { id: string },
+  name: string,
+  value: any,
+}
+
+export function findCard(game: GameState, card: { id: string }) {
+  for (const player of [0, 1] as const) {
+    for (const zone of zones) {
+      const index = game.players[player][zone].findIndex((c) => c.id == card.id);
+      if (index >= 0) {
+        return { player, zone, index };
+      }
+    }
+  }
+
+  return null;
+}
+
+export function updateCard(game: GameState, card: { id: string }, f: (card: CardState) => void) {
+  const info = findCard(game, card);
+  if (info) {
+    const { player, zone, index } = info;
+    f(game.players[player][zone][index]);
+  }
+}
+
 export const gameSlice = createSlice({
   name: "game",
   initialState,
@@ -66,9 +93,15 @@ export const gameSlice = createSlice({
       state.players[action.payload.player][action.payload.zone].push({
         id: action.payload.id ?? uuidv4(),
         name: action.payload.name,
+        props: {},
       });
     },
+    setProp: (state, action: PayloadAction<SetPropAction>) => {
+      updateCard(state, action.payload.card, (card) => {
+        card.props[action.payload.name] = action.payload.value;
+      });
+    }
   },
 });
 
-export const { reset, endTurn, moveCard, createCard } = gameSlice.actions;
+export const { reset, endTurn, moveCard, createCard, setProp } = gameSlice.actions;

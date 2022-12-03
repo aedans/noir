@@ -1,6 +1,6 @@
 import React, { MutableRefObject, Ref, useContext, useImperativeHandle, useLayoutEffect } from "react";
 import { Container } from "react-pixi-fiber";
-import { findCard } from "../../common/util";
+import { findCard } from "../../common/gameSlice";
 import Card, { cardHeight, CardProps, cardWidth } from "../Card";
 import EnterExitAnimation, { EnterExitAnimationStatus } from "../EnterExitAnimation";
 import MoveAnimation, { MoveAnimationContext } from "../MoveAnimation";

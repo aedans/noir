@@ -5,11 +5,21 @@ exports.card = {
   type: "location",
   turn: function* (util, game, card) {
     if (util.isInZone(game, card, "board")) {
-      yield util.createCard({
-        name: "Civic Servant",
-        player: util.cardOwner(game, card),
-        zone: "board"
+      const turns = card.props.turns ?? 0;
+      
+      yield util.setProp({
+        card,
+        name: "turns",
+        value: (turns + 1) % 2,
       });
+  
+      if (turns == 0) {
+        yield util.createCard({
+          name: "Civic Servant",
+          player: util.cardOwner(game, card),
+          zone: "board"
+        });
+      }
     }
   }
 }
