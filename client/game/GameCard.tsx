@@ -34,7 +34,7 @@ const GameCard = React.forwardRef(function GameCard(props: GameCardProps, ref: R
   const shouldAnimate = (!hasExisted && doesExist) || !doesExist;
 
   return (
-    <EnterExitAnimation duration={shouldAnimate ? 0.1 : 0} status={props.status} componentRef={componentRef}>
+    <EnterExitAnimation duration={shouldAnimate ? 100 : 0} status={props.status} componentRef={componentRef}>
       <MoveAnimation doesExist={doesExist} id={props.state.id} componentRef={componentRef}>
         <Card scale={gameCardScale} {...props} ref={componentRef} />
       </MoveAnimation>

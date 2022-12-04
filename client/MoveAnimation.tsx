@@ -1,7 +1,7 @@
+import anime, { AnimeInstance } from "animejs";
 import { Ticker } from "pixi.js";
 import React, { MutableRefObject, ReactNode, useContext, useEffect, useLayoutEffect } from "react";
 import { Container } from "react-pixi-fiber";
-import gsap from "gsap";
 
 export type MoveAnimationState = { [id: string]: { x: number; y: number } };
 
@@ -31,14 +31,17 @@ export default function MoveAnimation(props: MoveAnimationProps) {
   }, []);
 
   useLayoutEffect(() => {
-    const prevPosition = state.current[props.id];
-    if (prevPosition && props.doesExist) {
-      const pos = props.componentRef.current.parent.toLocal(prevPosition);
-      gsap.killTweensOf(props.componentRef.current);
-      gsap.from(props.componentRef.current.transform.position, {
-        duration: 0.1,
-        x: pos.x,
-        y: pos.y,
+    const prev = state.current[props.id];
+    const container = props.componentRef.current;
+    if (prev && props.doesExist) {
+      const pos = { ...container.transform.position };
+      container.position = container.parent.toLocal(prev);
+      anime({
+        targets: container.transform.position,
+        duration: 100,
+        easing: "linear",
+        x: pos._x,
+        y: pos._y,
       });
     }
   });

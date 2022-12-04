@@ -1,7 +1,7 @@
+import anime, { AnimeInstance } from "animejs";
 import { BackendFactory, DragDropManager } from "dnd-core";
 import { IDisplayObject3d } from "pixi-projection";
 import { DisplayObject, Point, Ticker } from "pixi.js";
-import gsap from "gsap";
 
 type Identifier = string | symbol;
 type DisplayObject3d = DisplayObject & IDisplayObject3d;
@@ -27,12 +27,12 @@ const PIXIBackend: BackendFactory = (manager: DragDropManager) => {
       let ddy = 0;
       let init: Point | null = null;
       let initIndex: number | null = null;
-      let tween: gsap.core.Tween | null = null;
+      let instance: AnimeInstance | null = null;
 
       function mouseDownListener(e: any) {
         if (currentObject == null) {
           currentObject = node;
-          if (!tween?.isActive()) init = node.getGlobalPosition();
+          if (!instance?.finished) init = node.getGlobalPosition();
           initIndex = node.zIndex;
           node.zIndex = 100;
           node.parent.sortChildren();
@@ -40,9 +40,10 @@ const PIXIBackend: BackendFactory = (manager: DragDropManager) => {
 
           const pos = node.parent.toLocal(e.data.global);
 
-          gsap.killTweensOf(node);
-          tween = gsap.to(node, {
-            duration: 0.1,
+          instance = anime({
+            targets: node.transform.position,
+            duration: 100,
+            easing: "linear",
             x: pos.x,
             y: pos.y,
           });
@@ -51,7 +52,7 @@ const PIXIBackend: BackendFactory = (manager: DragDropManager) => {
 
       function mouseMoveListener(e: MouseEvent) {
         if (currentObject == node) {
-          gsap.killTweensOf(node);
+          anime.remove(node.transform.position);
           ddx += e.x - node.getGlobalPosition().x;
           ddy += e.y - node.getGlobalPosition().y;
 
@@ -74,9 +75,10 @@ const PIXIBackend: BackendFactory = (manager: DragDropManager) => {
 
           if (!manager.getMonitor().didDrop() && init) {
             const pos = node.parent.toLocal(init);
-            gsap.killTweensOf(node);
-            tween = gsap.to(node, {
-              duration: 0.1,
+            anime({
+              targets: node.transform.position,
+              duration: 100,
+              easing: "linear",
               x: pos.x,
               y: pos.y,
             });

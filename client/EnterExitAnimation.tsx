@@ -1,6 +1,6 @@
+import anime from "animejs";
 import React, { MutableRefObject, ReactNode, useLayoutEffect } from "react";
 import { Container } from "react-pixi-fiber";
-import gsap from "gsap";
 
 export type EnterExitAnimationState<T> = { [id: string]: T };
 
@@ -35,7 +35,7 @@ export type EnterExitAnimationProps = {
   componentRef: MutableRefObject<Required<Container>>;
   children: ReactNode;
   status: EnterExitAnimationStatus;
-  duration: number,
+  duration: number;
 };
 
 export default function EnterExitAnimation(props: EnterExitAnimationProps) {
@@ -43,21 +43,27 @@ export default function EnterExitAnimation(props: EnterExitAnimationProps) {
     const container = props.componentRef.current;
 
     if (props.status == "entering") {
-      gsap.from(container.transform.scale, {
+      const scale = { ...container.transform.scale };
+      container.scale = { x: 0, y: 0 };
+      anime({
+        targets: container.transform.scale,
         duration: props.duration,
-        x: 0,
-        y: 0,
+        easing: "linear",
+        x: scale._x,
+        y: scale._y,
       });
     }
-  
+
     if (props.status == "exiting") {
-      gsap.to(container.transform.scale, {
+      anime({
+        targets: container.transform.scale,
         duration: props.duration,
+        easing: "linear",
         x: 0,
         y: 0,
       });
     }
-  })
+  });
 
   return <>{props.children}</>;
 }

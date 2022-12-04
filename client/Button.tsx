@@ -1,7 +1,7 @@
 import React, { MutableRefObject } from "react";
 import Text, { TextProps } from "./Text";
-import gsap from "gsap";
 import { BitmapText } from "react-pixi-fiber";
+import anime from "animejs";
 
 export type ButtonProps = TextProps;
 
@@ -15,15 +15,19 @@ export default function Button(props: ButtonProps) {
       anchor={{ x: 0.5, y: 0.5 }}
       interactive
       mouseover={() => {
-        gsap.to(ref.current.scale, {
-          duration: 0.1,
+        anime({
+          targets: ref.current.scale,
+          duration: 100,
+          easing: "linear",
           x: 1.25,
           y: 1.25,
         });
       }}
       mouseout={() => {
-        gsap.to(ref.current.scale, {
-          duration: 0.1,
+        anime({
+          targets: ref.current.scale,
+          duration: 100,
+          easing: "linear",
           x: 1,
           y: 1,
         });
