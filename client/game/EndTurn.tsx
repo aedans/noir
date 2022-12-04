@@ -25,7 +25,7 @@ export default function EndTurn() {
   return (
     <Container visible={isTurn} x={x} y={y} interactive pointerdown={pointerdown}>
       <Rectangle fill={0xffffff} width={width} height={height} />
-      <Text x={40} y={5} text={"End Turn"} style={{ fontSize: 100, tint: 0x000000 }} />
+      <Text x={40} y={10} text={"End Turn"} style={{ fontSize: 100, tint: 0x000000 }} />
     </Container>
   );
 }

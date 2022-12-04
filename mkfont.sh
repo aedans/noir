@@ -1,2 +1,2 @@
 #!/bin/bash
-msdf-bmfont ./assets/Oswald.ttf -o ./assets/Oswald --smart-size --font-size 224 --field-type msdf -r 32
+msdf-bmfont ./public/Oswald.ttf -o ./public/Oswald --smart-size --font-size 32 --field-type msdf -r 4
