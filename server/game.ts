@@ -3,6 +3,7 @@ import { createCard, endTurn, gameSlice, GameState, initialState, moveCard, zone
 import { getCardInfo } from "./card";
 import { currentPlayer } from "../common/util";
 import { v4 as uuidv4 } from "uuid";
+import { AnyAction } from "redux";
 
 function* beginTurn(game: GameState) {
   const player = currentPlayer(game);
@@ -52,6 +53,7 @@ export async function createGame(players: [Player, Player]) {
 
   for (const player of [0, 1] as const) {
     const init = await players[player].init();
+    const actions: AnyAction[] = [];
 
     for (const card of init.deck.cards) {
       const action = createCard({
@@ -62,8 +64,10 @@ export async function createGame(players: [Player, Player]) {
       });
 
       state = gameSlice.reducer(state, action);
-      players.forEach((player) => player.send(action));
+      actions.push(action);
     }
+
+    players.forEach((player) => player.send(actions));
   }
 
   while (true) {
@@ -71,10 +75,12 @@ export async function createGame(players: [Player, Player]) {
     const playerAction = await players[player].receive();
 
     try {
-      for (const action of doAction(playerAction, state)) {
+      const actions = [...doAction(playerAction, state)];
+      for (const action of actions) {
         state = gameSlice.reducer(state, action);
-        players.forEach((player) => player.send(action));
       }
+      
+      players.forEach((player) => player.send(actions));
     } catch (e) {
       console.error(e);
     }

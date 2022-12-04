@@ -10,7 +10,7 @@ export type PlayerAction = { type: "end" } | { type: "play"; id: string } | { ty
 
 export default interface Player {
   init(): Promise<PlayerInit>;
-  send(action: AnyAction): void;
+  send(actions: AnyAction[]): void;
   receive(): Promise<PlayerAction>;
 }
 
@@ -27,8 +27,8 @@ export class SocketPlayer implements Player {
     });
   }
 
-  send(action: AnyAction) {
-    this.socket.emit("action", action);
+  send(actions: AnyAction[]) {
+    this.socket.emit("actions", actions);
   }
 
   receive(): Promise<PlayerAction> {
