@@ -1,9 +1,9 @@
 // @ts-check
 /** @type {import("../../common/card").PartialCardInfoComputation} */
-exports.card = {
+exports.card = (util, game, card) => ({
   text: "Every other turn: gain a Civil Servant.",
   type: "location",
-  turn: function* (util, game, card) {
+  turn: function* () {
     if (util.isInZone(game, card, "board")) {
       const turns = card.props.turns ?? 0;
       
@@ -22,4 +22,4 @@ exports.card = {
       }
     }
   }
-}
+})

@@ -9,7 +9,7 @@ function* beginTurn(game: GameState) {
 
   for (const zone of zones) {
     for (const card of game.players[player][zone]) {
-      yield* getCardInfo(game, card).turn;
+      yield* getCardInfo(game, card).turn();
     }
   }
 }
@@ -22,7 +22,7 @@ function* playCard(id: string, game: GameState) {
   }
 
   const info = getCardInfo(game, card);
-  yield* info.play;
+  yield* info.play();
   if (info.type == "operation") {
     yield moveCard({
       id: id,

@@ -1,4 +1,4 @@
-import { Action } from "redux";
+import { Action, DeepPartial } from "redux";
 import { GameState } from "./gameSlice";
 import { Util } from "./util";
 
@@ -21,48 +21,51 @@ export type CardInfo = {
   text: string;
   cost: CardCost;
   type: CardType;
-  play: Iterable<Action>;
-  turn: Iterable<Action>;
+  play: () => Iterable<Action>;
+  turn: () => Iterable<Action>;
 };
 
-export type PartialCardInfoComputation = { [K in keyof CardInfo]?: DeepPartialComputation<CardInfo[K]> } & {
-  play?: Computation<Iterable<Action>>,
-  turn?: Computation<Iterable<Action>>,
+export type PartialCardInfoComputation = (
+  util: Util,
+  game: GameState,
+  card: CardState
+) => { [K in keyof CardInfo]?: DeepPartial<CardInfo[K]> } & {
+  play?: () => Iterable<Action>;
+  turn?: () => Iterable<Action>;
 };
 
-export type Computation<T> = T extends Function ? never : T | ((util: Util, game: GameState, card: CardState) => T);
+export function runPartialCardInfoComputation(
+  computation: PartialCardInfoComputation,
+  util: Util,
+  game: GameState,
+  card: CardState
+): CardInfo {
+  const partial = computation(util, game, card);
 
-export type DeepPartialComputation<T> = {
-  [K in keyof T]?: T[K] extends object ? DeepPartialComputation<T[K]> : Computation<T[K]>;
-};
+  const agents: CardCost["agents"] = Object.assign(
+    {
+      orange: 0,
+      blue: 0,
+      green: 0,
+      purple: 0,
+      any: 0,
+    },
+    partial.cost?.agents ?? {}
+  );
 
-export function runPartialCardInfoComputation(computation: PartialCardInfoComputation, util: Util, game: GameState, card: CardState): CardInfo {
-  function runComputation<T>(c: Computation<T>): T {
-    if (typeof c == "function") {
-      return c(util, game, card);
-    } else {
-      return c as T;
-    }
-  }
-
-  const agents: CardCost["agents"] = Object.assign({
-    orange: 0,
-    blue: 0,
-    green: 0,
-    purple: 0,
-    any: 0,
-  }, runComputation(computation.cost?.agents ?? {}));
-
-  const cost: CardCost = Object.assign({
-    money: 0,
-    agents
-  }, runComputation(computation.cost ?? {}));
+  const cost: CardCost = Object.assign(
+    {
+      money: 0,
+      agents,
+    },
+    partial.cost ?? {}
+  );
 
   return {
-    text: runComputation(computation.text ?? ""),
+    text: partial.text ?? "",
     cost,
-    type: runComputation(computation.type ?? "operation"),
-    play: runComputation(computation.play ?? []),
-    turn: runComputation(computation.turn ?? []),
+    type: partial.type ?? "operation",
+    play: partial.play ?? (() => []),
+    turn: partial.turn ?? (() => []),
   };
 }
