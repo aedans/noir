@@ -1,5 +1,5 @@
 import anime from "animejs";
-import React, { MutableRefObject, ReactNode, useLayoutEffect } from "react";
+import React, { MutableRefObject, ReactNode, useLayoutEffect, useRef } from "react";
 import { Container } from "react-pixi-fiber";
 
 export type EnterExitAnimationState<T> = { [id: string]: T };
@@ -39,18 +39,22 @@ export type EnterExitAnimationProps = {
 };
 
 export default function EnterExitAnimation(props: EnterExitAnimationProps) {
+  const scale = useRef() as MutableRefObject<{ _x: number; _y: number }>;
+
   useLayoutEffect(() => {
     const container = props.componentRef.current;
+    if (!scale.current) {
+      scale.current = { ...container.transform.scale };
+    }
 
     if (props.status == "entering") {
-      const scale = { ...container.transform.scale };
       container.scale = { x: 0, y: 0 };
       anime({
         targets: container.transform.scale,
         duration: props.duration,
         easing: "linear",
-        x: scale._x,
-        y: scale._y,
+        x: scale.current._x,
+        y: scale.current._y,
       });
     }
 
