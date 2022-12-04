@@ -11,14 +11,14 @@ export default function Menu() {
     <Container x={targetResolution.width / 2} y={targetResolution.height / 2}>
       <Button
         text="Play"
-        onClick={() => {
+        pointerdown={() => {
           navigate("/play");
         }}
       />
       <Button
         text="Decks"
         y={200}
-        onClick={() => {
+        pointerdown={() => {
           navigate("/decks");
         }}
       />

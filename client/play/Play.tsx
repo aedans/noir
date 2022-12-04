@@ -18,7 +18,7 @@ export default function Play() {
         text={name}
         key={name}
         y={y}
-        onClick={() => {
+        pointerdown={() => {
           navigate(`/game?deck=${name}`);
         }}
       />

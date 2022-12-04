@@ -3,9 +3,7 @@ import Text, { TextProps } from "./Text";
 import gsap from "gsap";
 import { BitmapText } from "react-pixi-fiber";
 
-export type ButtonProps = TextProps & {
-  onClick: () => void;
-};
+export type ButtonProps = TextProps;
 
 export default function Button(props: ButtonProps) {
   const ref = React.useRef() as MutableRefObject<BitmapText>;
@@ -16,7 +14,6 @@ export default function Button(props: ButtonProps) {
       ref={ref}
       anchor={{ x: 0.5, y: 0.5 }}
       interactive
-      pointerdown={props.onClick}
       mouseover={() => {
         gsap.to(ref.current.scale, {
           duration: 0.1,
