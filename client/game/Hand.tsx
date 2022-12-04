@@ -1,10 +1,9 @@
 import { InteractionEvent } from "pixi.js";
-import React, { createRef, Ref, useContext } from "react";
+import React, { Ref, useContext } from "react";
 import { useDrag } from "react-dnd";
 import { Container } from "react-pixi-fiber";
 import { currentPlayer } from "../../common/util";
 import { targetResolution } from "../Camera";
-import { cardWidth } from "../Card";
 import { EnterExitAnimator } from "../EnterExitAnimation";
 import { useClientSelector } from "../store";
 import { PlayerContext } from "./Game";
@@ -41,9 +40,16 @@ export default function Hand() {
     <EnterExitAnimator elements={cards}>
       {(state, status, i) =>
         i != null ? (
-          <HandCard zIndex={20 + i} state={state} status={status} key={state.id} x={x + i * (gameCardWidth + 10)} y={y} />
+          <HandCard
+            zIndex={20 + i}
+            state={state}
+            status={status}
+            key={state.id}
+            x={x + i * (gameCardWidth + 10)}
+            y={y}
+          />
         ) : (
-          <HandCard useLastPos={true} state={state} status={status} key={state.id} ref={createRef()} />
+          <HandCard useLastPos={true} state={state} status={status} key={state.id} />
         )
       }
     </EnterExitAnimator>

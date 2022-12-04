@@ -11,8 +11,7 @@ import { MoveAnimationContext, MoveAnimationState } from "../MoveAnimation";
 import { useSearchParams } from "react-router-dom";
 import { reset } from "../../common/gameSlice";
 import Resources from "./Resources";
-import { batch } from "react-redux";
-import Card from "../Card";
+import { batchActions } from 'redux-batched-actions';
 
 export const SocketContext = React.createContext(undefined as unknown) as Context<MutableRefObject<Socket>>;
 export const PlayerContext = React.createContext(0);
@@ -29,12 +28,12 @@ export default function Game() {
 
     socket.current = io(url);
 
-    socket.current.on("actions", (actions) => {
-      batch(() => {
-        for (const action of actions) {
-          dispatch(action);
-        }
-      })
+    socket.current.on("actions", (actions, name) => {
+      if (actions.length == 1) {
+        dispatch(actions[0]);
+      } else if (actions.length >= 1) {
+        dispatch(batchActions(actions, name));
+      }
     });
 
     socket.current.emit("queue");

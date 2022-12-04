@@ -67,7 +67,7 @@ export async function createGame(players: [Player, Player]) {
       actions.push(action);
     }
 
-    players.forEach((player) => player.send(actions));
+    players.forEach((player) => player.send(actions, "game/init"));
   }
 
   while (true) {
@@ -79,8 +79,8 @@ export async function createGame(players: [Player, Player]) {
       for (const action of actions) {
         state = gameSlice.reducer(state, action);
       }
-      
-      players.forEach((player) => player.send(actions));
+
+      players.forEach((player) => player.send(actions, `game/${playerAction.type}Action`));
     } catch (e) {
       console.error(e);
     }

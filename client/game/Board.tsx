@@ -1,6 +1,5 @@
-import React, { createRef, ReactNode, useContext } from "react";
-import { Container } from "react-pixi-fiber";
-import { cardHeight, cardWidth } from "../Card";
+import React, { createRef, useContext } from "react";
+import { cardHeight } from "../Card";
 import { useDrop } from "react-dnd";
 import Rectangle from "../Rectangle";
 import { targetResolution } from "../Camera";
@@ -37,7 +36,7 @@ export default function Board() {
       <EnterExitAnimator elements={cards}>
         {(state, status, i) =>
           i != null ? (
-            <GameCard state={state} status={status} key={state.id} x={x + i * (gameCardWidth + 10)} y={y} />
+            <GameCard zIndex={i} state={state} status={status} key={state.id} x={x + i * (gameCardWidth + 10)} y={y} />
           ) : (
             <GameCard useLastPos={true} state={state} status={status} key={state.id} ref={createRef()} />
           )

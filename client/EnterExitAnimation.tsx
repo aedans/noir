@@ -36,16 +36,12 @@ export type EnterExitAnimationProps = {
   children: ReactNode;
   status: EnterExitAnimationStatus;
   duration: number;
+  scale: number;
 };
 
 export default function EnterExitAnimation(props: EnterExitAnimationProps) {
-  const scale = useRef() as MutableRefObject<{ _x: number; _y: number }>;
-
   useLayoutEffect(() => {
     const container = props.componentRef.current;
-    if (!scale.current) {
-      scale.current = { ...container.transform.scale };
-    }
 
     if (props.status == "entering") {
       container.scale = { x: 0, y: 0 };
@@ -53,8 +49,8 @@ export default function EnterExitAnimation(props: EnterExitAnimationProps) {
         targets: container.transform.scale,
         duration: props.duration,
         easing: "linear",
-        x: scale.current._x,
-        y: scale.current._y,
+        x: props.scale,
+        y: props.scale,
       });
     }
 

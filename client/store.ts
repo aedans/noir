@@ -2,10 +2,11 @@ import { configureStore } from "@reduxjs/toolkit";
 import { TypedUseSelectorHook, useDispatch, useSelector } from "react-redux";
 import { gameSlice } from "../common/gameSlice";
 import { decksSlice } from "../common/decksSlice";
+import { enableBatching } from 'redux-batched-actions';
 
 export const store = configureStore({
   reducer: {
-    game: gameSlice.reducer,
+    game: enableBatching(gameSlice.reducer),
     decks: decksSlice.reducer,
   },
 });

@@ -12,6 +12,8 @@ export type MoveAnimationProps = {
   componentRef: MutableRefObject<Required<Container>>;
   children: ReactNode;
   doesExist: boolean;
+  x?: number,
+  y?: number,
 };
 
 export default function MoveAnimation(props: MoveAnimationProps) {
@@ -19,7 +21,7 @@ export default function MoveAnimation(props: MoveAnimationProps) {
 
   useEffect(() => {
     function onTick() {
-      if (props.componentRef.current && props.doesExist) {
+      if (props.componentRef.current) {
         state.current[props.id] = props.componentRef.current.getGlobalPosition();
       }
     }
@@ -34,14 +36,13 @@ export default function MoveAnimation(props: MoveAnimationProps) {
     const prev = state.current[props.id];
     const container = props.componentRef.current;
     if (prev && props.doesExist) {
-      const pos = { ...container.transform.position };
       container.position = container.parent.toLocal(prev);
       anime({
         targets: container.transform.position,
         duration: 100,
         easing: "linear",
-        x: pos._x,
-        y: pos._y,
+        x: props.x ?? 0,
+        y: props.y ?? 0,
       });
     }
   });

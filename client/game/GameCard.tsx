@@ -22,21 +22,23 @@ const GameCard = React.forwardRef(function GameCard(props: GameCardProps, ref: R
 
   useImperativeHandle(ref, () => componentRef.current);
 
-  useLayoutEffect(() => {
-    const prevPosition = move.current[props.state.id];
-    if (props.useLastPos && prevPosition && componentRef.current) {
-      componentRef.current.transform.position.copyFrom(componentRef.current.parent.toLocal(prevPosition));
-    }
-  });
-
   const doesExist = ["deck", "board"].includes(findCard(game, props.state)?.zone ?? "");
   const hasExisted = props.state.id in move.current;
   const shouldAnimate = (!hasExisted && doesExist) || !doesExist;
 
+  let x = props.x;
+  let y = props.y;
+
+  if (props.useLastPos && props.state.id in move.current && componentRef.current) {
+    const prevPosition = componentRef.current.parent.toLocal(move.current[props.state.id]);
+    x = prevPosition.x;
+    y = prevPosition.y;
+  }
+
   return (
-    <EnterExitAnimation duration={shouldAnimate ? 100 : 0} status={props.status} componentRef={componentRef}>
-      <MoveAnimation doesExist={doesExist} id={props.state.id} componentRef={componentRef}>
-        <Card scale={gameCardScale} {...props} ref={componentRef} />
+    <EnterExitAnimation duration={shouldAnimate ? 100 : 0} status={props.status} scale={gameCardScale} componentRef={componentRef}>
+      <MoveAnimation doesExist={doesExist} id={props.state.id} x={x} y={y} componentRef={componentRef}>
+        <Card scale={gameCardScale} {...props} x={x} y={y} ref={componentRef} />
       </MoveAnimation>
     </EnterExitAnimation>
   );
