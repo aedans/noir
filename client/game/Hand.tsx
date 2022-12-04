@@ -34,20 +34,18 @@ export default function Hand() {
   const player = useContext(PlayerContext);
   const cards = useClientSelector((state) => state.game.players[player].deck);
 
-  let x = (targetResolution.width - cards.length * (gameCardWidth + 10)) / 2 + gameCardWidth / 2;
-  let y = targetResolution.height * (3 / 4) + gameCardHeight / 2;
+  const x = (targetResolution.width - cards.length * (gameCardWidth + 10)) / 2 + gameCardWidth / 2;
+  const y = targetResolution.height * (3 / 4) + gameCardHeight / 2;
 
   return (
-    <Container x={x} y={y}>
-      <EnterExitAnimator elements={cards}>
-        {(state, status, i) =>
-          i != null ? (
-            <HandCard zIndex={20 + i} state={state} status={status} key={state.id} x={i * (gameCardWidth + 10)} />
-          ) : (
-            <HandCard useLastPos={true} state={state} status={status} key={state.id} ref={createRef()} />
-          )
-        }
-      </EnterExitAnimator>
-    </Container>
+    <EnterExitAnimator elements={cards}>
+      {(state, status, i) =>
+        i != null ? (
+          <HandCard zIndex={20 + i} state={state} status={status} key={state.id} x={x + i * (gameCardWidth + 10)} y={y} />
+        ) : (
+          <HandCard useLastPos={true} state={state} status={status} key={state.id} ref={createRef()} />
+        )
+      }
+    </EnterExitAnimator>
   );
 }

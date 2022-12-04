@@ -21,7 +21,7 @@ export default React.forwardRef(function Card(props: CardProps, ref: Ref<Contain
   });
 
   return (
-    <Container pivot={{ x: cardWidth / 2, y: cardHeight / 2 }} filters={[dropShadowFilter]} {...props} ref={ref}>
+    <Container pivot={[cardWidth / 2, cardHeight / 2]} filters={[dropShadowFilter]} {...props} ref={ref}>
       <Rectangle fill={0xffffff} width={cardWidth} height={cardHeight} />
       <Text anchor={[0.5, 0]} x={cardWidth / 2} y={50} text={props.state.name} style={{ fontSize: 168, tint: 0 }} />
     </Container>

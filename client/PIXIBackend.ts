@@ -42,9 +42,9 @@ const PIXIBackend: BackendFactory = (manager: DragDropManager) => {
 
           gsap.killTweensOf(node);
           tween = gsap.to(node, {
-            duration: .1,
+            duration: 0.1,
             x: pos.x,
-            y: pos.y
+            y: pos.y,
           });
         }
       }
@@ -76,9 +76,9 @@ const PIXIBackend: BackendFactory = (manager: DragDropManager) => {
             const pos = node.parent.toLocal(init);
             gsap.killTweensOf(node);
             tween = gsap.to(node, {
-              duration: .1,
+              duration: 0.1,
               x: pos.x,
-              y: pos.y
+              y: pos.y,
             });
           }
 
@@ -100,7 +100,7 @@ const PIXIBackend: BackendFactory = (manager: DragDropManager) => {
         }
 
         ddx = Math.max(-50, Math.min(ddx, 50));
-        ddy = Math.max(-50, Math.min(ddy, 50))
+        ddy = Math.max(-50, Math.min(ddy, 50));
 
         node.euler.yaw = ddx / 100;
         node.euler.pitch = -ddy / 100;

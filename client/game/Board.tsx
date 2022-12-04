@@ -23,8 +23,8 @@ export default function Board() {
     collect: () => ({}),
   }));
 
-  let x = (targetResolution.width - cards.length * (gameCardWidth + 10)) / 2 + gameCardWidth / 2;
-  let y = targetResolution.height * (2 / 4) + gameCardHeight / 2;
+  const x = (targetResolution.width - cards.length * (gameCardWidth + 10)) / 2 + gameCardWidth / 2;
+  const y = targetResolution.height * (2 / 4) + gameCardHeight / 2;
 
   return (
     <>
@@ -34,17 +34,15 @@ export default function Board() {
         height={cardHeight * (3 / 4)}
         visible={false}
       />
-      <Container x={x} y={y}>
-        <EnterExitAnimator elements={cards}>
-          {(state, status, i) =>
-            i != null ? (
-              <GameCard state={state} status={status} key={state.id} x={i * (gameCardWidth + 10)} />
-            ) : (
-              <GameCard useLastPos={true} state={state} status={status} key={state.id} ref={createRef()} />
-            )
-          }
-        </EnterExitAnimator>
-      </Container>
+      <EnterExitAnimator elements={cards}>
+        {(state, status, i) =>
+          i != null ? (
+            <GameCard state={state} status={status} key={state.id} x={x + i * (gameCardWidth + 10)} y={y} />
+          ) : (
+            <GameCard useLastPos={true} state={state} status={status} key={state.id} ref={createRef()} />
+          )
+        }
+      </EnterExitAnimator>
     </>
   );
 }

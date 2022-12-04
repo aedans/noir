@@ -36,7 +36,7 @@ export default function MoveAnimation(props: MoveAnimationProps) {
       const pos = props.componentRef.current.parent.toLocal(prevPosition);
       gsap.killTweensOf(props.componentRef.current);
       gsap.from(props.componentRef.current.transform.position, {
-        duration: .1,
+        duration: 0.1,
         x: pos.x,
         y: pos.y,
       });
