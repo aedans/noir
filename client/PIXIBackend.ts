@@ -48,15 +48,19 @@ const PIXIBackend: BackendFactory = (manager: DragDropManager) => {
           ddx += e.x - node.getGlobalPosition().x;
           ddy += e.y - node.getGlobalPosition().y;
 
+          const pos = node.parent.toLocal(e);
           if (manager.getMonitor().isDragging()) {
-            node.position.copyFrom(node.parent.toLocal(e));
+            node.position.copyFrom(pos);
           }
 
           const matchingTargetIds = Object.keys(targetObjects).filter((key) =>
             targetObjects[key].getBounds().contains(e.x, e.y)
           );
 
-          manager.getActions().hover(matchingTargetIds);
+          manager.getActions().hover(matchingTargetIds, {
+            clientOffset: pos,
+            getSourceClientOffset: () => null,
+          });
         }
       }
 

@@ -29,7 +29,7 @@ const HandCard = React.forwardRef(function HandCard(props: GameCardProps, ref: R
     item: props.state,
     collect: (monitor) => ({
       isDragging: monitor.isDragging(),
-      position: monitor.getClientOffset(),
+      position: cardInfo.targets ? monitor.getInitialClientOffset() : monitor.getClientOffset(),
     }),
   }), []);
 
