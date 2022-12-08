@@ -11,7 +11,8 @@ import { MoveAnimationContext, MoveAnimationState } from "../MoveAnimation";
 import { useSearchParams } from "react-router-dom";
 import { reset } from "../../common/gameSlice";
 import Resources from "./Resources";
-import { batchActions } from 'redux-batched-actions';
+import { batchActions } from "redux-batched-actions";
+import { loadCardsFromAction } from "../cards";
 
 export const SocketContext = React.createContext(undefined as unknown) as Context<MutableRefObject<Socket>>;
 export const PlayerContext = React.createContext(0);
@@ -28,7 +29,11 @@ export default function Game() {
 
     socket.current = io(url);
 
-    socket.current.on("actions", (actions, name) => {
+    socket.current.on("actions", async (actions, name) => {
+      for (const action of actions) {
+        await loadCardsFromAction(action);
+      }
+
       if (actions.length == 1) {
         dispatch(actions[0]);
       } else if (actions.length >= 1) {

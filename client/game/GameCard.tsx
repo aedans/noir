@@ -1,10 +1,13 @@
-import React, { MutableRefObject, Ref, useContext, useImperativeHandle, useLayoutEffect } from "react";
+import React, { MutableRefObject, Ref, useContext, useEffect, useImperativeHandle, useRef } from "react";
+import { useDrop } from "react-dnd";
 import { Container } from "react-pixi-fiber";
+import { CardState } from "../../common/card";
 import { findCard } from "../../common/gameSlice";
 import Card, { cardHeight, CardProps, cardWidth } from "../Card";
 import EnterExitAnimation, { EnterExitAnimationStatus } from "../EnterExitAnimation";
 import MoveAnimation, { MoveAnimationContext } from "../MoveAnimation";
 import { useClientSelector } from "../store";
+import { SocketContext } from "./Game";
 
 export const gameCardScale = 1 / 4;
 export const gameCardWidth = cardWidth * gameCardScale;
@@ -16,11 +19,24 @@ export type GameCardProps = CardProps & {
 };
 
 const GameCard = React.forwardRef(function GameCard(props: GameCardProps, ref: Ref<Container>) {
+  const socket = useContext(SocketContext);
   const move = useContext(MoveAnimationContext);
   const game = useClientSelector((state) => state.game);
-  const componentRef = React.useRef() as MutableRefObject<Required<Container>>;
+  const componentRef = useRef() as MutableRefObject<Required<Container>>;
 
   useImperativeHandle(ref, () => componentRef.current);
+
+  const [{}, drop] = useDrop(() => ({
+    accept: "target",
+    drop: (state: CardState) => {
+      socket.current.emit("action", { type: "play", id: state.id, target: { id: props.state.id } });
+    },
+    collect: () => ({}),
+  }));
+
+  useEffect(() => {
+    drop(componentRef);
+  });
 
   const doesExist = ["deck", "board"].includes(findCard(game, props.state)?.zone ?? "");
   const hasExisted = props.state.id in move.current;
@@ -36,8 +52,13 @@ const GameCard = React.forwardRef(function GameCard(props: GameCardProps, ref: R
   }
 
   return (
-    <EnterExitAnimation duration={shouldAnimate ? 100 : 0} status={props.status} scale={gameCardScale} componentRef={componentRef}>
-      <MoveAnimation doesExist={doesExist} id={props.state.id} x={x} y={y} componentRef={componentRef}>
+    <EnterExitAnimation
+      duration={shouldAnimate ? 100 : 0}
+      status={props.status}
+      scale={gameCardScale}
+      componentRef={componentRef}
+    >
+      <MoveAnimation id={props.state.id} x={x} y={y} componentRef={componentRef}>
         <Card scale={gameCardScale} {...props} x={x} y={y} ref={componentRef} />
       </MoveAnimation>
     </EnterExitAnimation>

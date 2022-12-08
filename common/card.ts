@@ -21,7 +21,8 @@ export type CardInfo = {
   text: string;
   cost: CardCost;
   type: CardType;
-  play: () => Iterable<Action>;
+  targets?: () => Target[];
+  play: (target: Target) => Iterable<Action>;
   turn: () => Iterable<Action>;
 };
 
@@ -30,9 +31,12 @@ export type PartialCardInfoComputation = (
   game: GameState,
   card: CardState
 ) => { [K in keyof CardInfo]?: DeepPartial<CardInfo[K]> } & {
-  play?: () => Iterable<Action>;
+  targets?: () => Target[];
+  play?: (target: Target) => Iterable<Action>;
   turn?: () => Iterable<Action>;
 };
+
+export type Target = { id: string };
 
 export function runPartialCardInfoComputation(
   computation: PartialCardInfoComputation,
@@ -65,6 +69,7 @@ export function runPartialCardInfoComputation(
     text: partial.text ?? "",
     cost,
     type: partial.type ?? "operation",
+    targets: partial.targets,
     play: partial.play ?? (() => []),
     turn: partial.turn ?? (() => []),
   };

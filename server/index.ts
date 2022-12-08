@@ -16,6 +16,7 @@ const io = new Server(server, {
 
 app.use(cors());
 app.use(express.static("dist"));
+app.use(express.static("public"));
 app.use(express.json());
 
 app.get("/*", (req, res) => {
@@ -24,7 +25,11 @@ app.get("/*", (req, res) => {
 
 io.on("connection", (socket) => {
   socket.on("queue", () => {
-    createGame([new SocketPlayer(socket), new UnitPlayer()]);
+    try {
+      createGame([new SocketPlayer(socket), new UnitPlayer()]);
+    } catch (e) {
+      console.error(e);
+    }
   });
 });
 

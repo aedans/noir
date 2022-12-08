@@ -1,18 +1,19 @@
 import anime from "animejs";
 import React, { MutableRefObject, ReactNode, useLayoutEffect, useRef } from "react";
 import { Container } from "react-pixi-fiber";
+import { Target } from "../common/card";
 
 export type EnterExitAnimationState<T> = { [id: string]: T };
 
 export type EnterExitAnimationStatus = "entering" | "exiting" | "none";
 
-export type EnterExitAnimatorProps<T extends { id: string }> = {
+export type EnterExitAnimatorProps<T extends Target> = {
   elements: T[];
   children: (state: T, status: EnterExitAnimationStatus, index: number | null) => JSX.Element;
 };
 
-export function EnterExitAnimator<T extends { id: string }>(props: EnterExitAnimatorProps<T>) {
-  const ref = React.useRef({} as EnterExitAnimationState<T>);
+export function EnterExitAnimator<T extends Target>(props: EnterExitAnimatorProps<T>) {
+  const ref = useRef({} as EnterExitAnimationState<T>);
 
   let unusedStates = { ...ref.current };
   let i = 0;

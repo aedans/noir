@@ -1,12 +1,13 @@
 import { AnyAction } from "redux";
 import { Socket } from "socket.io";
+import { Target } from "../common/card";
 import { Deck } from "../common/decksSlice";
 
 export type PlayerInit = {
   deck: Deck;
 };
 
-export type PlayerAction = { type: "end" } | { type: "play"; id: string } | { type: "use"; id: string };
+export type PlayerAction = { type: "end" } | { type: "play"; id: string; target?: Target };
 
 export default interface Player {
   init(): Promise<PlayerInit>;

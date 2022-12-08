@@ -11,9 +11,8 @@ export type MoveAnimationProps = {
   id: string;
   componentRef: MutableRefObject<Required<Container>>;
   children: ReactNode;
-  doesExist: boolean;
-  x?: number,
-  y?: number,
+  x?: number;
+  y?: number;
 };
 
 export default function MoveAnimation(props: MoveAnimationProps) {
@@ -32,18 +31,26 @@ export default function MoveAnimation(props: MoveAnimationProps) {
     };
   }, []);
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     const prev = state.current[props.id];
     const container = props.componentRef.current;
-    if (prev && props.doesExist) {
-      container.position = container.parent.toLocal(prev);
+    if (prev) {
       anime({
         targets: container.transform.position,
-        duration: 100,
-        easing: "linear",
+        duration: 300,
+        delay: 50,
+        easing: "easeOutExpo",
         x: props.x ?? 0,
         y: props.y ?? 0,
       });
+    }
+  });
+
+  useLayoutEffect(() => {
+    const prev = state.current[props.id];
+    const container = props.componentRef.current;
+    if (prev) {
+      container.position = container.parent.toLocal(prev);
     }
   });
 

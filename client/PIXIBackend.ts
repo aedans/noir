@@ -1,7 +1,7 @@
-import anime, { AnimeInstance } from "animejs";
+import anime from "animejs";
 import { BackendFactory, DragDropManager } from "dnd-core";
 import { IDisplayObject3d } from "pixi-projection";
-import { DisplayObject, Point, Ticker } from "pixi.js";
+import { DisplayObject, Ticker } from "pixi.js";
 
 type Identifier = string | symbol;
 type DisplayObject3d = DisplayObject & IDisplayObject3d;
@@ -25,27 +25,19 @@ const PIXIBackend: BackendFactory = (manager: DragDropManager) => {
       (node as any).convertTo3d();
       let ddx = 0;
       let ddy = 0;
-      let init: Point | null = null;
       let initIndex: number | null = null;
-      let instance: AnimeInstance | null = null;
 
       function mouseDownListener(e: any) {
         if (currentObject == null) {
           currentObject = node;
-          if (!instance?.finished) init = node.getGlobalPosition();
           initIndex = node.zIndex;
           node.zIndex = 100;
           node.parent.sortChildren();
-          manager.getActions().beginDrag([sourceId]);
 
           const pos = node.parent.toLocal(e.data.global);
-
-          instance = anime({
-            targets: node.transform.position,
-            duration: 100,
-            easing: "linear",
-            x: pos.x,
-            y: pos.y,
+          manager.getActions().beginDrag([sourceId], {
+            clientOffset: pos,
+            getSourceClientOffset: () => null,
           });
         }
       }
@@ -72,17 +64,6 @@ const PIXIBackend: BackendFactory = (manager: DragDropManager) => {
         if (currentObject == node) {
           currentObject = null;
           manager.getActions().drop();
-
-          if (!manager.getMonitor().didDrop() && init) {
-            const pos = node.parent.toLocal(init);
-            anime({
-              targets: node.transform.position,
-              duration: 100,
-              easing: "linear",
-              x: pos.x,
-              y: pos.y,
-            });
-          }
 
           if (initIndex) {
             node.zIndex = initIndex;

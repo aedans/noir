@@ -1,32 +1,79 @@
-import { InteractionEvent } from "pixi.js";
-import React, { Ref, useContext } from "react";
+import React, { MutableRefObject, Ref, useContext, useEffect, useImperativeHandle, useRef, useState } from "react";
 import { useDrag } from "react-dnd";
 import { Container } from "react-pixi-fiber";
-import { currentPlayer } from "../../common/util";
+import { CardInfo } from "../../common/card";
 import { targetResolution } from "../Camera";
 import { EnterExitAnimator } from "../EnterExitAnimation";
 import { useClientSelector } from "../store";
 import { PlayerContext } from "./Game";
 import GameCard, { gameCardHeight, GameCardProps, gameCardWidth } from "./GameCard";
+import { getCardInfo } from "../cards";
+import Rectangle from "../Rectangle";
 
 const HandCard = React.forwardRef(function HandCard(props: GameCardProps, ref: Ref<Container>) {
-  const turn = useClientSelector((state) => state.game.turn);
-  const player = useContext(PlayerContext);
-  const isTurn = currentPlayer({ turn }) == player;
+  const game = useClientSelector((state) => state.game);
+  const cardRef = useRef() as MutableRefObject<Required<Container>>;
+  const targetRef = useRef() as MutableRefObject<Required<Container>>;
+  const cardInfo = getCardInfo(game, props.state);
 
-  const [{}, drag] = useDrag(() => ({
-    type: "card",
-    item: props.state,
-    collect: () => ({}),
-  }));
+  useImperativeHandle(ref, () => cardRef.current);
 
-  function pointerdown(e: InteractionEvent) {
-    if (isTurn) {
-      drag({ current: e.target });
+  useEffect(() => {
+    if (cardRef.current) {
+      drag(cardInfo.targets ? targetRef : cardRef);
     }
-  }
+  });
 
-  return <GameCard {...props} ref={ref} interactive pointerdown={pointerdown} />;
+  const [{ isDragging, position }, drag] = useDrag(() => ({
+    type: cardInfo.targets ? "target" : "card",
+    item: props.state,
+    collect: (monitor) => ({
+      isDragging: monitor.isDragging(),
+      position: monitor.getClientOffset(),
+    }),
+  }), []);
+
+  const x = isDragging ? position?.x : props.x;
+  const y = isDragging ? position?.y : props.y;
+
+  const card = <GameCard {...props} x={x} y={y} ref={cardRef} interactive />;
+
+  if (cardInfo.targets) {
+    const target = isDragging ? (
+      <Rectangle
+        pivot={[100, 100]}
+        zIndex={100}
+        x={x}
+        y={y}
+        width={200}
+        height={200}
+        fill={0xff0000}
+        ref={targetRef}
+        alpha={1}
+        interactive
+      />
+    ) : (
+      <Rectangle
+        pivot={[gameCardWidth / 2, gameCardHeight / 2]}
+        zIndex={100}
+        x={x}
+        y={y}
+        width={gameCardWidth}
+        height={gameCardHeight}
+        ref={targetRef}
+        alpha={0}
+        interactive
+      />
+    );
+    return (
+      <>
+        {card}
+        {target}
+      </>
+    );
+  } else {
+    return card;
+  }
 });
 
 export default function Hand() {

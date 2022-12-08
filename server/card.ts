@@ -2,6 +2,11 @@ import { CardState, PartialCardInfoComputation, runPartialCardInfoComputation } 
 import { GameState } from "../common/gameSlice";
 import util from "../common/util";
 
+const defaultUtil = {
+  ...util,
+  getCardInfo,
+};
+
 const cards: { [name: string]: PartialCardInfoComputation } = {};
 
 export function getPartialCardInfoComputation(card: { name: string }): PartialCardInfoComputation {
@@ -13,5 +18,5 @@ export function getPartialCardInfoComputation(card: { name: string }): PartialCa
 }
 
 export function getCardInfo(game: GameState, card: CardState) {
-  return runPartialCardInfoComputation(getPartialCardInfoComputation(card), util, game, card);
+  return runPartialCardInfoComputation(getPartialCardInfoComputation(card), defaultUtil, game, card);
 }

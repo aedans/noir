@@ -1,6 +1,6 @@
-import { AnyAction, createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { CardState } from "./card";
-import { v4 as uuidv4 } from "uuid";
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { CardState, Target } from "./card";
+import { v4 as uuid } from "uuid";
 
 export const zones = ["deck", "board", "graveyard"] as const;
 export type Zone = typeof zones[number];
@@ -45,22 +45,26 @@ export type MoveCardAction = {
 };
 
 export type CreateCardAction = PlayerZone & {
-  id?: string;
+  id: string,
   name: string;
 };
 
+export type RemoveCardAction = {
+  card: Target;
+};
+
 export type SetPropAction = {
-  card: { id: string };
+  card: Target;
   name: string;
   value: any;
 };
 
 export type AddMoneyAction = {
-  player: PlayerId,
-  money: number,
-}
+  player: PlayerId;
+  money: number;
+};
 
-export function findCard(game: GameState, card: { id: string }) {
+export function findCard(game: GameState, card: Target) {
   for (const player of [0, 1] as const) {
     for (const zone of zones) {
       const index = game.players[player][zone].findIndex((c) => c.id == card.id);
@@ -71,14 +75,6 @@ export function findCard(game: GameState, card: { id: string }) {
   }
 
   return null;
-}
-
-export function updateCard(game: GameState, card: { id: string }, f: (card: CardState) => void) {
-  const info = findCard(game, card);
-  if (info) {
-    const { player, zone, index } = info;
-    f(game.players[player][zone][index]);
-  }
 }
 
 export const gameSlice = createSlice({
@@ -100,19 +96,28 @@ export const gameSlice = createSlice({
     },
     createCard: (state, action: PayloadAction<CreateCardAction>) => {
       state.players[action.payload.player][action.payload.zone].push({
-        id: action.payload.id ?? uuidv4(),
+        id: action.payload.id,
         name: action.payload.name,
         props: {},
       });
     },
+    removeCard: (state, action: PayloadAction<RemoveCardAction>) => {
+      const info = findCard(state, action.payload.card);
+      if (info) {
+        const { player, zone, index } = info;
+        state.players[player][zone].splice(index, 1);
+      }
+    },
     setProp: (state, action: PayloadAction<SetPropAction>) => {
-      updateCard(state, action.payload.card, (card) => {
-        card.props[action.payload.name] = action.payload.value;
-      });
+      const info = findCard(state, action.payload.card);
+      if (info) {
+        const { player, zone, index } = info;
+        state.players[player][zone][index].props[action.payload.name] = action.payload.value;
+      }
     },
     addMoney: (state, action: PayloadAction<AddMoneyAction>) => {
       state.players[action.payload.player].money += action.payload.money;
-    }
+    },
   },
 });
 
