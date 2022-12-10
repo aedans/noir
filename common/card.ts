@@ -8,9 +8,12 @@ export type CardState = {
   props: any;
 };
 
-export type CardColor = "orange" | "blue" | "green" | "purple";
+export const cardColors = ["orange", "blue", "green", "purple"] as const;
+export const cardTypes = ["agent", "location", "operation"] as const;
+
+export type CardColor = typeof cardColors[number];
+export type CardType = typeof cardTypes[number];
 export type CardColorFilter = CardColor | "any";
-export type CardType = "agent" | "location" | "operation";
 
 export type CardCost = {
   money: number;

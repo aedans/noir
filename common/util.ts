@@ -42,7 +42,7 @@ export function filter(this: Util, game: GameState, filter: Filter) {
   return cards;
 }
 
-const defaultUtil = {
+const util = {
   ...gameSlice.actions,
   uuid,
   opponent,
@@ -52,8 +52,8 @@ const defaultUtil = {
   filter,
 };
 
-export type Util = typeof defaultUtil & {
+export type Util = typeof util & {
   getCardInfo: (game: GameState, card: CardState) => CardInfo,
 };
 
-export default defaultUtil;
+export default util;

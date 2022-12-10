@@ -1,6 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { CardState, Target } from "./card";
-import { v4 as uuid } from "uuid";
 
 export const zones = ["deck", "board", "graveyard"] as const;
 export type Zone = typeof zones[number];

@@ -12,7 +12,7 @@ export default function Play() {
 
   let y = 0;
   let buttons: ReactNode[] = [];
-  for (const [name, deck] of Object.entries(decks)) {
+  for (const name of Object.keys(decks)) {
     buttons.push(
       <Button
         text={name}
@@ -27,5 +27,9 @@ export default function Play() {
     y += 200;
   }
 
-  return <Container x={targetResolution.width / 2} y={targetResolution.height / 2}>{buttons}</Container>;
+  return (
+    <Container x={targetResolution.width / 2} y={targetResolution.height / 2}>
+      {buttons}
+    </Container>
+  );
 }
