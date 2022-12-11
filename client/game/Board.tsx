@@ -36,7 +36,7 @@ export default function Board() {
       <EnterExitAnimator elements={cards}>
         {(state, status, i) =>
           i != null ? (
-            <GameCard zIndex={i} state={state} status={status} key={state.id} x={x + i * (gameCardWidth + 10)} y={y} />
+            <GameCard state={state} status={status} key={state.id} x={x + i * (gameCardWidth + 10)} y={y} />
           ) : (
             <GameCard useLastPos={true} state={state} status={status} key={state.id} ref={createRef()} />
           )

@@ -9,7 +9,7 @@ import MoveAnimation, { MoveAnimationContext } from "../MoveAnimation";
 import { useClientSelector } from "../store";
 import { SocketContext } from "./Game";
 
-export const gameCardScale = 1 / 4;
+export const gameCardScale = 1 / 4.05;
 export const gameCardWidth = cardWidth * gameCardScale;
 export const gameCardHeight = cardHeight * gameCardScale;
 

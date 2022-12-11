@@ -9,13 +9,14 @@ import { useClientDispatch, useClientSelector } from "../store";
 import EndTurn from "./EndTurn";
 import { MoveAnimationContext, MoveAnimationState } from "../MoveAnimation";
 import { useSearchParams } from "react-router-dom";
-import { reset } from "../../common/gameSlice";
+import { PlayerId, reset } from "../../common/gameSlice";
 import Resources from "./Resources";
 import { batchActions } from "redux-batched-actions";
 import { loadCardsFromAction } from "../cards";
+import OpponentBoard from "./OpponentBoard";
 
 export const SocketContext = React.createContext(undefined as unknown) as Context<MutableRefObject<Socket>>;
-export const PlayerContext = React.createContext(0);
+export const PlayerContext = React.createContext(0 as PlayerId);
 
 export default function Game() {
   const [searchParams] = useSearchParams();
@@ -60,6 +61,7 @@ export default function Game() {
         <PlayerContext.Provider value={0}>
           <Container sortableChildren={true}>
             <Rectangle fill={0x202020} width={targetResolution.width} height={targetResolution.height} />
+            <OpponentBoard />
             <Board />
             <Hand />
             <Resources />

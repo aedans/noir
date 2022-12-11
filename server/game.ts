@@ -3,10 +3,10 @@ import { createCard, endTurn, gameSlice, GameState, initialState, moveCard, zone
 import { getCardInfo } from "./card";
 import { currentPlayer } from "../common/util";
 import { v4 as uuid } from "uuid";
-import { AnyAction } from "redux";
+import { Action } from "redux";
 import { Target } from "../common/card";
 
-function* beginTurn(game: GameState) {
+function* beginTurn(game: GameState): Generator<Action, void, GameState> {
   const player = currentPlayer(game);
 
   for (const zone of zones) {
@@ -16,7 +16,7 @@ function* beginTurn(game: GameState) {
   }
 }
 
-function* playCard(id: string, target: Target | undefined, game: GameState) {
+function* playCard(id: string, target: Target | undefined, game: GameState): Generator<Action, void, GameState> {
   const player = currentPlayer(game);
   const card = game.players[player].deck.find((c) => c.id == id);
   if (!card) {
@@ -52,9 +52,9 @@ function* playCard(id: string, target: Target | undefined, game: GameState) {
   }
 }
 
-function* doAction(action: PlayerAction, game: GameState) {
+function* doAction(action: PlayerAction, game: GameState): Generator<Action, void, GameState> {
   if (action.type == "end") {
-    yield endTurn();
+    game = yield endTurn();
     yield* beginTurn(game);
   } else if (action.type == "play") {
     yield* playCard(action.id, action.target, game);
@@ -66,7 +66,7 @@ export async function createGame(players: [Player, Player]) {
 
   for (const player of [0, 1] as const) {
     const init = await players[player].init();
-    const actions: AnyAction[] = [];
+    const actions: Action[] = [];
 
     for (const card of init.deck.cards) {
       const action = createCard({
@@ -88,9 +88,13 @@ export async function createGame(players: [Player, Player]) {
     const playerAction = await players[player].receive();
 
     try {
-      const actions = [...doAction(playerAction, state)];
-      for (const action of actions) {
-        state = gameSlice.reducer(state, action);
+      const generator = doAction(playerAction, state);
+      let actions: Action[] = [];
+      let next = generator.next(state);
+      while (!next.done) {
+        state = gameSlice.reducer(state, next.value)
+        actions.push(next.value);
+        next = generator.next(state);
       }
 
       players.forEach((player) => player.send(actions, `game/${playerAction.type}Action`));
