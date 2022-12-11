@@ -1,7 +1,6 @@
-import React, { MutableRefObject, Ref, useContext, useEffect, useImperativeHandle, useRef, useState } from "react";
+import React, { MutableRefObject, Ref, useContext, useEffect, useImperativeHandle, useRef } from "react";
 import { useDrag } from "react-dnd";
 import { Container } from "react-pixi-fiber";
-import { CardInfo } from "../../common/card";
 import { targetResolution } from "../Camera";
 import { EnterExitAnimator } from "../EnterExitAnimation";
 import { useClientSelector } from "../store";

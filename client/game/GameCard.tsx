@@ -29,7 +29,7 @@ const GameCard = React.forwardRef(function GameCard(props: GameCardProps, ref: R
   const [{}, drop] = useDrop(() => ({
     accept: "target",
     drop: (state: CardState) => {
-      socket.current.emit("action", { type: "play", id: state.id, target: { id: props.state.id } });
+      socket.emit("action", { type: "play", id: state.id, target: { id: props.state.id } });
     },
     collect: () => ({}),
   }));

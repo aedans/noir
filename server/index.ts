@@ -2,8 +2,7 @@ import cors from "cors";
 import express from "express";
 import http from "http";
 import { Server } from "socket.io";
-import { createGame } from "./game";
-import { UnitPlayer, SocketPlayer } from "./Player";
+import { queues } from "./Queue";
 
 const app = express();
 const port = 8080;
@@ -24,9 +23,9 @@ app.get("/*", (req, res) => {
 });
 
 io.on("connection", (socket) => {
-  socket.on("queue", () => {
+  socket.on("queue", (queue) => {
     try {
-      createGame([new SocketPlayer(socket), new UnitPlayer()]);
+      queues[queue].push(socket);
     } catch (e) {
       console.error(e);
     }

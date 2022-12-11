@@ -65,7 +65,7 @@ export async function createGame(players: [Player, Player]) {
   let state = initialState;
 
   for (const player of [0, 1] as const) {
-    const init = await players[player].init();
+    const init = await players[player].init(player);
     const actions: Action[] = [];
 
     for (const card of init.deck.cards) {

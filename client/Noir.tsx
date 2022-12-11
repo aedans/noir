@@ -11,6 +11,7 @@ import { Routes, Route } from "react-router-dom";
 import Menu from "./menu/Menu";
 import Play from "./play/Play";
 
+
 export default function Noir() {
   const options = {
     width: window.screen.width,
@@ -26,8 +27,8 @@ export default function Noir() {
           <DndProvider backend={PIXIBackend}>
             <BrowserRouter>
               <Routes>
-                <Route path="/game" element={<Game />} />
                 <Route path="/play" element={<Play />} />
+                <Route path="/game" element={<Game />} />
                 <Route path="/" element={<Menu />} />
               </Routes>
             </BrowserRouter>

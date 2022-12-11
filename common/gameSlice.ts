@@ -30,11 +30,7 @@ export const initialState: GameState = {
     {
       money: 0,
       deck: [],
-      board: [{
-        name: "Lawman Academy",
-        id: "a",
-        props: {},
-      }],
+      board: [],
       graveyard: [],
     },
   ],

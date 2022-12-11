@@ -1,10 +1,9 @@
-import React, { Context, MutableRefObject, useEffect } from "react";
+import React, { Context, useContext, useEffect, useRef, useState } from "react";
 import { Container } from "react-pixi-fiber";
 import Board from "./Board";
 import Hand from "./Hand";
 import Rectangle from "../Rectangle";
 import { targetResolution } from "../Camera";
-import { io, Socket } from "socket.io-client";
 import { useClientDispatch, useClientSelector } from "../store";
 import EndTurn from "./EndTurn";
 import { MoveAnimationContext, MoveAnimationState } from "../MoveAnimation";
@@ -14,23 +13,26 @@ import Resources from "./Resources";
 import { batchActions } from "redux-batched-actions";
 import { loadCardsFromAction } from "../cards";
 import OpponentBoard from "./OpponentBoard";
+import { io, Socket } from "socket.io-client";
+import Button from "../Button";
 
-export const SocketContext = React.createContext(undefined as unknown) as Context<MutableRefObject<Socket>>;
+export const SocketContext = React.createContext(null as unknown) as Context<Socket>;
 export const PlayerContext = React.createContext(0 as PlayerId);
 
 export default function Game() {
   const [searchParams] = useSearchParams();
-  const cards = React.useRef({} as MoveAnimationState);
-  const socket = React.useRef() as MutableRefObject<Socket>;
+  const [player, setPlayer] = useState(null as PlayerId | null);
+  const [socket, setSocket] = useState(null as Socket | null);
+  const cards = useRef({} as MoveAnimationState);
   const decks = useClientSelector((state) => state.decks);
   const dispatch = useClientDispatch();
 
   useEffect(() => {
     const url = window.location.origin.toString().replace(/5173/g, "8080");
 
-    socket.current = io(url);
+    const socket = io(url);
 
-    socket.current.on("actions", async (actions, name) => {
+    socket.on("actions", async (actions, name) => {
       for (const action of actions) {
         await loadCardsFromAction(action);
       }
@@ -42,23 +44,32 @@ export default function Game() {
       }
     });
 
-    socket.current.emit("queue");
+    socket.on("init", (player) => {
+      setPlayer(player);
 
-    socket.current.emit("init", {
-      deck: decks[searchParams.get("deck")!],
+      socket.emit("init", {
+        deck: decks[searchParams.get("deck")!],
+      });
     });
 
-    return () => {
-      socket.current.close();
+    setSocket(socket);
 
+    socket.emit("queue", "unranked");
+
+    return () => {
+      socket?.close();
       dispatch(reset());
     };
   }, []);
 
+  if (player == null || socket == null) {
+    return <Button text={"Waiting for player"} x={targetResolution.width / 2} y={targetResolution.height / 2} />;
+  }
+
   return (
     <SocketContext.Provider value={socket}>
       <MoveAnimationContext.Provider value={cards}>
-        <PlayerContext.Provider value={0}>
+        <PlayerContext.Provider value={player}>
           <Container sortableChildren={true}>
             <Rectangle fill={0x202020} width={targetResolution.width} height={targetResolution.height} />
             <OpponentBoard />

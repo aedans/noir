@@ -17,7 +17,7 @@ export default function Board() {
   const [{}, drop] = useDrop(() => ({
     accept: "card",
     drop: (state: CardState) => {
-      socket.current.emit("action", { type: "play", id: state.id });
+      socket.emit("action", { type: "play", id: state.id });
     },
     collect: () => ({}),
   }));

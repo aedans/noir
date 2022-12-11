@@ -19,7 +19,7 @@ export default function EndTurn() {
   const isTurn = currentPlayer({ turn }) == player;
 
   function pointerdown() {
-    socket.current.emit("action", { type: "end" });
+    socket.emit("action", { type: "end" });
   }
 
   return (
