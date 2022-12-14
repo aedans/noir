@@ -15,6 +15,7 @@ import { loadCardsFromAction } from "../cards";
 import OpponentBoard from "./OpponentBoard";
 import { io, Socket } from "socket.io-client";
 import Button from "../Button";
+import OpponentHand from "./OpponentHand";
 
 export const SocketContext = React.createContext(null as unknown) as Context<Socket>;
 export const PlayerContext = React.createContext(0 as PlayerId);
@@ -72,6 +73,7 @@ export default function Game() {
         <PlayerContext.Provider value={player}>
           <Container sortableChildren={true}>
             <Rectangle fill={0x202020} width={targetResolution.width} height={targetResolution.height} />
+            <OpponentHand />
             <OpponentBoard />
             <Board />
             <Hand />
