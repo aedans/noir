@@ -2,7 +2,6 @@ import Player, { PlayerAction } from "./Player";
 import { createCard, endTurn, gameSlice, GameState, initialState, moveCard, zones } from "../common/gameSlice";
 import { getCardInfo } from "./card";
 import { currentPlayer } from "../common/util";
-import { v4 as uuid } from "uuid";
 import { Action } from "redux";
 import { Target } from "../common/card";
 
@@ -39,14 +38,12 @@ function* playCard(id: string, target: Target | undefined, game: GameState): Gen
 
   if (info.type == "operation") {
     yield moveCard({
-      id: id,
-      from: { player, zone: "deck" },
+      card: { id },
       to: { player, zone: "graveyard" },
     });
   } else {
     yield moveCard({
-      id: id,
-      from: { player, zone: "deck" },
+      card: { id },
       to: { player, zone: "board" },
     });
   }
@@ -70,7 +67,6 @@ export async function createGame(players: [Player, Player]) {
 
     for (const card of init.deck.cards) {
       const action = createCard({
-        id: uuid(),
         name: card,
         player,
         zone: "deck",

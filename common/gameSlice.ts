@@ -10,6 +10,7 @@ export type PlayerState = { [zone in Zone]: CardState[] } & {
 };
 
 export type GameState = {
+  id: number,
   players: [PlayerState, PlayerState];
   turn: number;
 };
@@ -20,6 +21,7 @@ export type PlayerZone = {
 };
 
 export const initialState: GameState = {
+  id: 0,
   players: [
     {
       money: 0,
@@ -38,13 +40,11 @@ export const initialState: GameState = {
 };
 
 export type MoveCardAction = {
-  id: string;
-  from: PlayerZone;
+  card: Target;
   to: PlayerZone;
 };
 
 export type CreateCardAction = PlayerZone & {
-  id: string,
   name: string;
 };
 
@@ -85,20 +85,21 @@ export const gameSlice = createSlice({
       state.turn++;
     },
     moveCard: (state, action: PayloadAction<MoveCardAction>) => {
-      const { from, to } = action.payload;
-      const card = state.players[from.player][from.zone].find((c) => c.id == action.payload.id);
+      const { card, to } = action.payload;
+      const from = findCard(state, card);
 
-      if (card) {
-        state.players[from.player][from.zone] = state.players[from.player][from.zone].filter((c) => c.id != card.id);
-        state.players[to.player][to.zone].push(card);
+      if (from) {
+        state.players[to.player][to.zone].push(state.players[from.player][from.zone][from.index]);
+        state.players[from.player][from.zone].splice(from.index, 1);
       }
     },
     createCard: (state, action: PayloadAction<CreateCardAction>) => {
       state.players[action.payload.player][action.payload.zone].push({
-        id: action.payload.id,
+        id: state.id.toString(),
         name: action.payload.name,
         props: {},
       });
+      state.id++;
     },
     removeCard: (state, action: PayloadAction<RemoveCardAction>) => {
       const info = findCard(state, action.payload.card);

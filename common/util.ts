@@ -1,6 +1,5 @@
 import { CardInfo, CardState, CardType, Target } from "./card";
 import { findCard, gameSlice, GameState, PlayerId, Zone, zones } from "./gameSlice";
-import { v4 as uuid } from "uuid";
 
 export function opponent(player: PlayerId) {
   return player == 0 ? 1 : 0;
@@ -44,7 +43,6 @@ export function filter(this: Util, game: GameState, filter: Filter) {
 
 const util = {
   ...gameSlice.actions,
-  uuid,
   opponent,
   currentPlayer,
   cardOwner,
