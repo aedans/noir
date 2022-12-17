@@ -7,7 +7,7 @@ import { PlayerContext } from "./Game";
 
 export default function Resources() {
   const player = useContext(PlayerContext);
-  const money = useClientSelector((state) => state.game.players[player].money);
+  const money = useClientSelector((state) => state.game.current.players[player].money);
 
   const width = 400;
   const height = 100;

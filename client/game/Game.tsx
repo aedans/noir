@@ -8,7 +8,7 @@ import { useClientDispatch, useClientSelector } from "../store";
 import EndTurn from "./EndTurn";
 import { MoveAnimationContext, MoveAnimationState } from "../MoveAnimation";
 import { useSearchParams } from "react-router-dom";
-import { PlayerId, reset } from "../../common/gameSlice";
+import { PlayerId } from "../../common/gameSlice";
 import Resources from "./Resources";
 import { batchActions } from "redux-batched-actions";
 import { loadCardsFromAction } from "../cards";
@@ -16,6 +16,7 @@ import OpponentBoard from "./OpponentBoard";
 import { io, Socket } from "socket.io-client";
 import Button from "../Button";
 import OpponentHand from "./OpponentHand";
+import { reset } from "../../common/historySlice";
 
 export const SocketContext = React.createContext(null as unknown) as Context<Socket>;
 export const PlayerContext = React.createContext(0 as PlayerId);
@@ -38,11 +39,7 @@ export default function Game() {
         await loadCardsFromAction(action);
       }
 
-      if (actions.length == 1) {
-        dispatch(actions[0]);
-      } else if (actions.length >= 1) {
-        dispatch(batchActions(actions, name));
-      }
+      dispatch(batchActions(actions, name));
     });
 
     socket.on("init", (player) => {

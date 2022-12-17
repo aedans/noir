@@ -21,7 +21,7 @@ export type GameCardProps = CardProps & {
 const GameCard = React.forwardRef(function GameCard(props: GameCardProps, ref: Ref<Container>) {
   const socket = useContext(SocketContext);
   const move = useContext(MoveAnimationContext);
-  const game = useClientSelector((state) => state.game);
+  const game = useClientSelector((state) => state.game.current);
   const componentRef = useRef() as MutableRefObject<Required<Container>>;
 
   useImperativeHandle(ref, () => componentRef.current);

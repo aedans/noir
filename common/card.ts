@@ -1,10 +1,11 @@
-import { Action, DeepPartial } from "redux";
-import { GameState } from "./gameSlice";
+import { DeepPartial } from "redux";
+import { GameAction, GameState } from "./gameSlice";
 import { Util } from "./util";
 
 export type CardState = {
   id: string;
   name: string;
+  hidden: boolean;
   props: any;
 };
 
@@ -25,8 +26,8 @@ export type CardInfo = {
   cost: CardCost;
   type: CardType;
   targets?: () => Target[];
-  play: (target: Target) => Generator<Action, void, GameState>;
-  turn: () => Generator<Action, void, GameState>;
+  play: (target: Target) => Generator<GameAction, void, GameState>;
+  turn: () => Generator<GameAction, void, GameState>;
 };
 
 export type PartialCardInfoComputation = (
@@ -35,8 +36,8 @@ export type PartialCardInfoComputation = (
   card: CardState
 ) => { [K in keyof CardInfo]?: DeepPartial<CardInfo[K]> } & {
   targets?: () => Target[];
-  play?: (target: Target) => Generator<Action, void, GameState>;
-  turn?: () => Generator<Action, void, GameState>;
+  play?: (target: Target) => Generator<GameAction, void, GameState>;
+  turn?: () => Generator<GameAction, void, GameState>;
 };
 
 export type Target = { id: string };

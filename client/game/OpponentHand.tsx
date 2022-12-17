@@ -8,7 +8,7 @@ import GameCard, { gameCardHeight, gameCardWidth } from "./GameCard";
 
 export default function OpponentHand() {
   const player = useContext(PlayerContext);
-  const cards = useClientSelector((state) => state.game.players[opponent(player)].deck);
+  const cards = useClientSelector((state) => state.game.current.players[opponent(player)].deck);
 
   const x = (targetResolution.width - cards.length * (gameCardWidth + 10)) / 2 + gameCardWidth / 2;
   const y = gameCardHeight / 2;

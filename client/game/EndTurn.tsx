@@ -10,7 +10,7 @@ import { currentPlayer } from "../../common/util";
 export default function EndTurn() {
   const socket = useContext(SocketContext);
   const player = useContext(PlayerContext);
-  const turn = useClientSelector((state) => state.game.turn);
+  const turn = useClientSelector((state) => state.game.current.turn);
 
   const width = 400;
   const height = 100;

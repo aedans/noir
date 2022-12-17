@@ -15,6 +15,7 @@ exports.card = (util, game, card) => ({
   
       if (turns == 0) {
         yield util.createCard({
+          card: util.cid(),
           name: "Civic Servant",
           player: util.cardOwner(game, card),
           zone: "board"

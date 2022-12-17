@@ -10,7 +10,7 @@ import { getCardInfo } from "../cards";
 import Rectangle from "../Rectangle";
 
 const HandCard = React.forwardRef(function HandCard(props: GameCardProps, ref: Ref<Container>) {
-  const game = useClientSelector((state) => state.game);
+  const game = useClientSelector((state) => state.game.current);
   const cardRef = useRef() as MutableRefObject<Required<Container>>;
   const targetRef = useRef() as MutableRefObject<Required<Container>>;
   const cardInfo = getCardInfo(game, props.state);
@@ -77,7 +77,7 @@ const HandCard = React.forwardRef(function HandCard(props: GameCardProps, ref: R
 
 export default function Hand() {
   const player = useContext(PlayerContext);
-  const cards = useClientSelector((state) => state.game.players[player].deck);
+  const cards = useClientSelector((state) => state.game.current.players[player].deck);
 
   const x = (targetResolution.width - cards.length * (gameCardWidth + 10)) / 2 + gameCardWidth / 2;
   const y = targetResolution.height * (3 / 4) + gameCardHeight / 2;

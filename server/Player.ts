@@ -1,8 +1,8 @@
-import { AnyAction } from "redux";
 import { Socket } from "socket.io";
 import { Target } from "../common/card";
 import { Deck } from "../common/decksSlice";
 import { PlayerId } from "../common/gameSlice";
+import { HistoryAction } from "../common/historySlice";
 
 export type PlayerInit = {
   deck: Deck;
@@ -12,7 +12,7 @@ export type PlayerAction = { type: "end" } | { type: "play"; id: string; target?
 
 export default interface Player {
   init(player: PlayerId): Promise<PlayerInit>;
-  send(actions: AnyAction[], name: string): void;
+  send(actions: HistoryAction[], name: string): void;
   receive(): Promise<PlayerAction>;
 }
 
@@ -30,7 +30,7 @@ export class SocketPlayer implements Player {
     });
   }
 
-  send(actions: AnyAction[], name: string) {
+  send(actions: HistoryAction[], name: string) {
     this.socket.emit("actions", actions, name);
   }
 

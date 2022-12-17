@@ -12,7 +12,7 @@ import { EnterExitAnimator } from "../EnterExitAnimation";
 export default function Board() {
   const socket = useContext(SocketContext);
   const player = useContext(PlayerContext);
-  const cards = useClientSelector((state) => state.game.players[player].board);
+  const cards = useClientSelector((state) => state.game.current.players[player].board);
 
   const [{}, drop] = useDrop(() => ({
     accept: "card",
