@@ -7,7 +7,8 @@ import { useClientSelector } from "../store";
 import { PlayerContext } from "./Game";
 import GameCard, { gameCardHeight, GameCardProps, gameCardWidth } from "./GameCard";
 import { getCardInfo } from "../cards";
-import Rectangle from "../Rectangle";
+import Reticle from "./Reticle";
+import { getCardColor } from "../Card";
 
 const HandCard = React.forwardRef(function HandCard(props: GameCardProps, ref: Ref<Container>) {
   const game = useClientSelector((state) => state.game.current);
@@ -23,14 +24,17 @@ const HandCard = React.forwardRef(function HandCard(props: GameCardProps, ref: R
     }
   });
 
-  const [{ isDragging, position }, drag] = useDrag(() => ({
-    type: cardInfo.targets ? "target" : "card",
-    item: props.state,
-    collect: (monitor) => ({
-      isDragging: monitor.isDragging(),
-      position: cardInfo.targets ? monitor.getInitialClientOffset() : monitor.getClientOffset(),
+  const [{ isDragging, position }, drag] = useDrag(
+    () => ({
+      type: cardInfo.targets ? "target" : "card",
+      item: props.state,
+      collect: (monitor) => ({
+        isDragging: monitor.isDragging(),
+        position: cardInfo.targets ? monitor.getInitialClientOffset() : monitor.getClientOffset(),
+      }),
     }),
-  }), []);
+    []
+  );
 
   const x = isDragging ? position?.x : props.x;
   const y = isDragging ? position?.y : props.y;
@@ -38,32 +42,7 @@ const HandCard = React.forwardRef(function HandCard(props: GameCardProps, ref: R
   const card = <GameCard {...props} x={x} y={y} ref={cardRef} interactive />;
 
   if (cardInfo.targets) {
-    const target = isDragging ? (
-      <Rectangle
-        pivot={[100, 100]}
-        zIndex={100}
-        x={x}
-        y={y}
-        width={200}
-        height={200}
-        fill={0xff0000}
-        ref={targetRef}
-        alpha={1}
-        interactive
-      />
-    ) : (
-      <Rectangle
-        pivot={[gameCardWidth / 2, gameCardHeight / 2]}
-        zIndex={100}
-        x={x}
-        y={y}
-        width={gameCardWidth}
-        height={gameCardHeight}
-        ref={targetRef}
-        alpha={0}
-        interactive
-      />
-    );
+    const target = <Reticle x={x} y={y} ref={targetRef} isDragging={isDragging} color={getCardColor(cardInfo)} />;
     return (
       <>
         {card}

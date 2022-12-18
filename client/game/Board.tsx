@@ -29,6 +29,7 @@ const BoardCard = React.forwardRef(function HandCard(props: GameCardProps, ref: 
   const shouldGlow = props.state.prepared && cardInfo.hasActivateEffect && currentPlayer(game) == player;
   const filter = new GlowFilter({
     color: getCardColor(cardInfo),
+    quality: 1,
   });
 
   return <GameCard {...props} filters={shouldGlow ? [filter] : []} ref={cardRef} interactive pointerdown={pointerdown} />;
