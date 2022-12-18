@@ -1,13 +1,38 @@
-import React, { createRef, useContext } from "react";
-import { cardHeight } from "../Card";
+import React, { createRef, MutableRefObject, Ref, useContext, useImperativeHandle, useRef } from "react";
+import { cardHeight, getCardColor } from "../Card";
 import { useDrop } from "react-dnd";
 import Rectangle from "../Rectangle";
 import { targetResolution } from "../Camera";
 import { useClientSelector } from "../store";
 import { CardState } from "../../common/card";
 import { PlayerContext, SocketContext } from "./Game";
-import GameCard, { gameCardHeight, gameCardWidth } from "./GameCard";
+import GameCard, { gameCardHeight, GameCardProps, gameCardWidth } from "./GameCard";
 import { EnterExitAnimator } from "../EnterExitAnimation";
+import { Container } from "react-pixi-fiber";
+import { GlowFilter } from "@pixi/filter-glow";
+import { currentPlayer } from "../../common/util";
+import { getCardInfo } from "../cards";
+
+const BoardCard = React.forwardRef(function HandCard(props: GameCardProps, ref: Ref<Container>) {
+  const socket = useContext(SocketContext);
+  const player = useContext(PlayerContext);
+  const game = useClientSelector((state) => state.game.current);
+  const cardRef = useRef() as MutableRefObject<Required<Container>>;
+  const cardInfo = getCardInfo(game, props.state);
+
+  useImperativeHandle(ref, () => cardRef.current);
+
+  function pointerdown() {
+    socket.emit("action", { type: "do", id: props.state.id });
+  }
+
+  const shouldGlow = props.state.prepared && cardInfo.hasActivateEffect && currentPlayer(game) == player;
+  const filter = new GlowFilter({
+    color: getCardColor(cardInfo),
+  });
+
+  return <GameCard {...props} filters={shouldGlow ? [filter] : []} ref={cardRef} interactive pointerdown={pointerdown} />;
+});
 
 export default function Board() {
   const socket = useContext(SocketContext);
@@ -17,7 +42,7 @@ export default function Board() {
   const [{}, drop] = useDrop(() => ({
     accept: "card",
     drop: (state: CardState) => {
-      socket.emit("action", { type: "play", id: state.id });
+      socket.emit("action", { type: "do", id: state.id });
     },
     collect: () => ({}),
   }));
@@ -36,9 +61,9 @@ export default function Board() {
       <EnterExitAnimator elements={cards}>
         {(state, status, i) =>
           i != null ? (
-            <GameCard state={state} status={status} key={state.id} x={x + i * (gameCardWidth + 10)} y={y} />
+            <BoardCard state={state} status={status} key={state.id} x={x + i * (gameCardWidth + 10)} y={y} />
           ) : (
-            <GameCard useLastPos={true} state={state} status={status} key={state.id} ref={createRef()} />
+            <BoardCard useLastPos={true} state={state} status={status} key={state.id} ref={createRef()} />
           )
         }
       </EnterExitAnimator>

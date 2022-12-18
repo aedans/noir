@@ -43,8 +43,7 @@ export type GameParams = { card?: Target } & (
   | {}
   | MoveCardParams
   | CreateCardParams
-  | RemoveCardParams
-  | RevealCardParams
+  | TargetCardParams
   | SetPropParams
   | AddMoneyParams
 );
@@ -59,11 +58,7 @@ export type CreateCardParams = PlayerZone & {
   name: string;
 };
 
-export type RemoveCardParams = {
-  card: Target;
-};
-
-export type RevealCardParams = {
+export type TargetCardParams = {
   card: Target;
 };
 
@@ -100,6 +95,13 @@ export function getCard(game: GameState, card: Target) {
   }
 }
 
+export function updateCard(game: GameState, card: Target, f: (card: CardState) => void) {
+  const state = getCard(game, card);
+  if (state) {
+    f(state);
+  }
+}
+
 export const gameSlice = createSlice({
   name: "game",
   initialState: initialGameState,
@@ -121,29 +123,28 @@ export const gameSlice = createSlice({
         id: action.payload.card.id,
         name: action.payload.name,
         hidden: true,
+        prepared: true,
         props: {},
       });
     },
-    removeCard: (state, action: PayloadAction<RemoveCardParams>) => {
+    removeCard: (state, action: PayloadAction<TargetCardParams>) => {
       const info = findCard(state, action.payload.card);
       if (info) {
         const { player, zone, index } = info;
         state.players[player][zone].splice(index, 1);
       }
     },
-    revealCard: (state, action: PayloadAction<RevealCardParams>) => {
-      const info = findCard(state, action.payload.card);
-      if (info) {
-        const { player, zone, index } = info;
-        state.players[player][zone][index].hidden = false;
-      }
+    revealCard: (state, action: PayloadAction<TargetCardParams>) => {
+      updateCard(state, action.payload.card, (card) => (card.hidden = true));
+    },
+    prepareCard: (state, action: PayloadAction<TargetCardParams>) => {
+      updateCard(state, action.payload.card, (card) => (card.prepared = true));
+    },
+    exhaustCard: (state, action: PayloadAction<TargetCardParams>) => {
+      updateCard(state, action.payload.card, (card) => (card.prepared = false));
     },
     setProp: (state, action: PayloadAction<SetPropParams>) => {
-      const info = findCard(state, action.payload.card);
-      if (info) {
-        const { player, zone, index } = info;
-        state.players[player][zone][index].props[action.payload.name] = action.payload.value;
-      }
+      updateCard(state, action.payload.card, (card) => (card.props[action.payload.name] = action.payload.value));
     },
     addMoney: (state, action: PayloadAction<AddMoneyParams>) => {
       state.players[action.payload.player].money += action.payload.money;
@@ -151,4 +152,4 @@ export const gameSlice = createSlice({
   },
 });
 
-export const { endTurn, moveCard, createCard, setProp } = gameSlice.actions;
+export const { endTurn, moveCard, createCard, removeCard, revealCard, prepareCard, exhaustCard, setProp, addMoney } = gameSlice.actions;

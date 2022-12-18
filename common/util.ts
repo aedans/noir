@@ -53,7 +53,7 @@ export function random<T>(ts: T[]) {
 export function randoms<T>(ts: T[], number: number) {
   const tss = [...ts];
   const result: T[] = [];
-  for (let i = 0; i < number; i++) {
+  for (let i = 0; i < number && tss.length > 0; i++) {
     result.push(tss.splice(Math.floor(Math.random() * tss.length), 1)[0]);
   }
   return result;

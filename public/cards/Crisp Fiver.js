@@ -7,6 +7,6 @@ exports.card = (util, game, card) => ({
     yield util.addMoney({
       player: util.cardOwner(game, card),
       money: 5,
-    })
+    });
   }
 });

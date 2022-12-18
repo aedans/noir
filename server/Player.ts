@@ -8,7 +8,7 @@ export type PlayerInit = {
   deck: Deck;
 };
 
-export type PlayerAction = { type: "end" } | { type: "play"; id: string; target?: Target };
+export type PlayerAction = { type: "end" } | { type: "do"; id: string; target?: Target };
 
 export default interface Player {
   init(player: PlayerId): Promise<PlayerInit>;

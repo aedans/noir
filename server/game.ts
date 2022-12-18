@@ -2,6 +2,8 @@ import Player, { PlayerAction } from "./Player";
 import {
   createCard,
   endTurn,
+  exhaustCard,
+  findCard,
   GameAction,
   gameSlice,
   GameState,
@@ -9,64 +11,100 @@ import {
   initialGameState,
   moveCard,
   PlayerId,
-  zones,
+  prepareCard,
 } from "../common/gameSlice";
 import { getCardInfo } from "./card";
 import util, { currentPlayer } from "../common/util";
-import { Target } from "../common/card";
+import { CardState, Target } from "../common/card";
 import { setAction, setHidden } from "../common/historySlice";
 
 function* doEndTurn(game: GameState): Generator<GameAction, void, GameState> {
   const player = currentPlayer(game);
 
-  for (const zone of zones) {
-    for (const card of game.players[player][zone]) {
-      yield* getCardInfo(game, card).turn();
+  for (const card of game.players[player].board) {
+    if (!card.prepared) {
+      yield prepareCard({ card });
     }
+
+    yield* getCardInfo(game, card).turn();
   }
 
-  yield endTurn({});
+  game = yield endTurn({});
 }
 
-function* playCard(id: string, target: Target | undefined, game: GameState): Generator<GameAction, void, GameState> {
-  const player = currentPlayer(game);
-  const card = game.players[player].deck.find((c) => c.id == id);
-  if (!card) {
-    throw `Card ${id} is not in deck`;
-  }
-
-  const info = getCardInfo(game, card);
-
-  if (info.targets) {
+function validateTargets(card: CardState, targets: (() => Target[]) | undefined, target: Target | undefined) {
+  if (targets) {
     if (!target) {
-      throw `Card ${id} requires a target`;
+      throw `Card ${card.id} requires a target`;
     }
 
-    if (!info.targets().find((t) => t.id == target.id)) {
-      throw `Card ${target.id} is not a valid target for ${id}`;
+    if (!targets().find((t) => t.id == target.id)) {
+      throw `Card ${target.id} is not a valid target for ${card.id}`;
     }
   }
+}
+
+function* playCard(
+  game: GameState,
+  card: CardState,
+  target: Target | undefined
+): Generator<GameAction, void, GameState> {
+  const player = currentPlayer(game);
+  const info = getCardInfo(game, card);
+  validateTargets(card, info.targets, target);
 
   yield* info.play(target!);
 
   if (info.type == "operation") {
     yield moveCard({
-      card: { id },
+      card,
       to: { player, zone: "graveyard" },
     });
   } else {
     yield moveCard({
-      card: { id },
+      card,
       to: { player, zone: "board" },
     });
   }
 }
 
-function* doAction(action: PlayerAction, game: GameState): Generator<GameAction, void, GameState> {
+function* useCard(
+  game: GameState,
+  card: CardState,
+  target: Target | undefined
+): Generator<GameAction, void, GameState> {
+  if (!card.prepared) {
+    throw `Card ${card.id} is not prepared`;
+  }
+
+  const info = getCardInfo(game, card);
+  validateTargets(card, info.activateTargets, target);
+
+  yield exhaustCard({ card });
+  yield* info.activate(target!);
+}
+
+function* doCard(game: GameState, id: string, target: Target | undefined): Generator<GameAction, void, GameState> {
+  const info = findCard(game, { id });
+  if (info) {
+    const { player, zone, index } = info;
+    if (currentPlayer(game) != player) {
+      throw `Card ${id} is not owned by ${currentPlayer(game)}`;
+    }
+
+    if (zone == "deck") {
+      yield* playCard(game, game.players[player][zone][index], target);
+    } else if (zone == "board") {
+      yield* useCard(game, game.players[player][zone][index], target);
+    }
+  }
+}
+
+function* doAction(game: GameState, action: PlayerAction): Generator<GameAction, void, GameState> {
   if (action.type == "end") {
     yield* doEndTurn(game);
-  } else if (action.type == "play") {
-    yield* playCard(action.id, action.target, game);
+  } else if (action.type == "do") {
+    yield* doCard(game, action.id, action.target);
   }
 }
 
@@ -80,10 +118,8 @@ export async function createGame(players: [Player, Player]) {
 
     for (const player of [0, 1] as const) {
       function hide(action: GameAction, i: number) {
-        if (action.payload.card) {
-          return player != source && getCard(state, action.payload.card)?.hidden
-            ? setHidden({ card: { id: action.payload.card.id }, index: length + i })
-            : setAction({ action, index: length + i });
+        if (action.payload.card && player != source && getCard(state, action.payload.card)?.hidden) {
+          return setHidden({ card: { id: action.payload.card.id }, index: length + i });
         } else {
           return setAction({ action, index: length + i });
         }
@@ -128,7 +164,7 @@ export async function createGame(players: [Player, Player]) {
     const playerAction = await players[player].receive();
 
     try {
-      const generator = doAction(playerAction, state);
+      const generator = doAction(state, playerAction);
       let actions: GameAction[] = [];
       let next = generator.next(state);
       while (!next.done) {

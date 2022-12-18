@@ -6,6 +6,7 @@ export type CardState = {
   id: string;
   name: string;
   hidden: boolean;
+  prepared: boolean;
   props: any;
 };
 
@@ -23,11 +24,15 @@ export type CardCost = {
 
 export type CardInfo = {
   text: string;
-  cost: CardCost;
   type: CardType;
   colors: CardColor[];
+  cost: CardCost;
   targets?: () => Target[];
   play: (target: Target) => Generator<GameAction, void, GameState>;
+  activateCost: CardCost;
+  activateTargets?: () => Target[];
+  activate: (target: Target) => Generator<GameAction, void, GameState>;
+  hasActivateEffect: boolean;
   turn: () => Generator<GameAction, void, GameState>;
 };
 
@@ -39,6 +44,9 @@ export type PartialCardInfoComputation = (
   colors?: CardColor[];
   targets?: () => Target[];
   play?: (target: Target) => Generator<GameAction, void, GameState>;
+  activateTargets?: () => Target[];
+  activate?: (target: Target) => Generator<GameAction, void, GameState>;
+  hasActivateEffect?: boolean;
   turn?: () => Generator<GameAction, void, GameState>;
 };
 
@@ -59,14 +67,26 @@ export function runPartialCardInfoComputation(
     },
     partial.cost ?? {}
   );
+  
+  const activateCost: CardCost = Object.assign(
+    {
+      money: 0,
+      agents: 0,
+    },
+    partial.activateCost ?? {}
+  );
 
   return {
     text: partial.text ?? "",
-    cost,
     type: partial.type ?? "operation",
     colors: partial.colors ?? [],
+    cost,
     targets: partial.targets,
-    play: partial.play ?? (function* () {}),
-    turn: partial.turn ?? (function* () {}),
+    play: partial.play ?? function* () {},
+    activateCost,
+    activateTargets: partial.activateTargets,
+    activate: partial.activate ?? function* () {},
+    hasActivateEffect: partial.hasActivateEffect ?? partial.activate != undefined,
+    turn: partial.turn ?? function* () {},
   };
 }
