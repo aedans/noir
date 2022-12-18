@@ -3,9 +3,7 @@
 exports.card = (util, game, card) => ({
   text: "Remove an agent.",
   type: "operation",
-  cost: {
-    money: 50,
-  },
+  cost: { money: 50 },
   targets: () => util.filter(game, {
     types: ["agent"],
   }),

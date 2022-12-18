@@ -52,7 +52,7 @@ export default function Game() {
 
     setSocket(socket);
 
-    socket.emit("queue", "unranked");
+    socket.emit("queue", "practice");
 
     return () => {
       socket?.close();

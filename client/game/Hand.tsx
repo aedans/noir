@@ -78,9 +78,10 @@ const HandCard = React.forwardRef(function HandCard(props: GameCardProps, ref: R
 export default function Hand() {
   const player = useContext(PlayerContext);
   const cards = useClientSelector((state) => state.game.current.players[player].deck);
+  const offset = gameCardWidth - 20;
 
-  const x = (targetResolution.width - cards.length * (gameCardWidth + 10)) / 2 + gameCardWidth / 2;
-  const y = targetResolution.height * (3 / 4) + gameCardHeight / 2;
+  const x = (targetResolution.width - cards.length * offset) / 2 + gameCardWidth / 2;
+  const y = targetResolution.height * (3 / 4) + gameCardHeight / 2 + 20;
 
   return (
     <EnterExitAnimator elements={cards}>
@@ -91,8 +92,9 @@ export default function Hand() {
             state={state}
             status={status}
             key={state.id}
-            x={x + i * (gameCardWidth + 10)}
-            y={y}
+            x={x + i * offset}
+            y={y + Math.abs((i - (cards.length - 1) / 2.0) * 10)}
+            angle={(i - (cards.length - 1) / 2.0) * 1}
           />
         ) : (
           <HandCard useLastPos={true} state={state} status={status} key={state.id} />

@@ -18,13 +18,14 @@ export type CardColorFilter = CardColor | "any";
 
 export type CardCost = {
   money: number;
-  agents: { [color in CardColorFilter]: number };
+  agents: number;
 };
 
 export type CardInfo = {
   text: string;
   cost: CardCost;
   type: CardType;
+  colors: CardColor[];
   targets?: () => Target[];
   play: (target: Target) => Generator<GameAction, void, GameState>;
   turn: () => Generator<GameAction, void, GameState>;
@@ -35,6 +36,7 @@ export type PartialCardInfoComputation = (
   game: GameState,
   card: CardState
 ) => { [K in keyof CardInfo]?: DeepPartial<CardInfo[K]> } & {
+  colors?: CardColor[];
   targets?: () => Target[];
   play?: (target: Target) => Generator<GameAction, void, GameState>;
   turn?: () => Generator<GameAction, void, GameState>;
@@ -50,21 +52,10 @@ export function runPartialCardInfoComputation(
 ): CardInfo {
   const partial = computation(util, game, card);
 
-  const agents: CardCost["agents"] = Object.assign(
-    {
-      orange: 0,
-      blue: 0,
-      green: 0,
-      purple: 0,
-      any: 0,
-    },
-    partial.cost?.agents ?? {}
-  );
-
   const cost: CardCost = Object.assign(
     {
       money: 0,
-      agents,
+      agents: 0,
     },
     partial.cost ?? {}
   );
@@ -73,6 +64,7 @@ export function runPartialCardInfoComputation(
     text: partial.text ?? "",
     cost,
     type: partial.type ?? "operation",
+    colors: partial.colors ?? [],
     targets: partial.targets,
     play: partial.play ?? (function* () {}),
     turn: partial.turn ?? (function* () {}),

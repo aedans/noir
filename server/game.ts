@@ -16,7 +16,7 @@ import util, { currentPlayer } from "../common/util";
 import { Target } from "../common/card";
 import { setAction, setHidden } from "../common/historySlice";
 
-function* beginTurn(game: GameState): Generator<GameAction, void, GameState> {
+function* doEndTurn(game: GameState): Generator<GameAction, void, GameState> {
   const player = currentPlayer(game);
 
   for (const zone of zones) {
@@ -24,6 +24,8 @@ function* beginTurn(game: GameState): Generator<GameAction, void, GameState> {
       yield* getCardInfo(game, card).turn();
     }
   }
+
+  yield endTurn({});
 }
 
 function* playCard(id: string, target: Target | undefined, game: GameState): Generator<GameAction, void, GameState> {
@@ -62,8 +64,7 @@ function* playCard(id: string, target: Target | undefined, game: GameState): Gen
 
 function* doAction(action: PlayerAction, game: GameState): Generator<GameAction, void, GameState> {
   if (action.type == "end") {
-    game = yield endTurn({});
-    yield* beginTurn(game);
+    yield* doEndTurn(game);
   } else if (action.type == "play") {
     yield* playCard(action.id, action.target, game);
   }
