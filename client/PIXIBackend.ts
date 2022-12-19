@@ -4,7 +4,7 @@ import { IDisplayObject3d } from "pixi-projection";
 import { DisplayObject, Ticker } from "pixi.js";
 
 type Identifier = string | symbol;
-type DisplayObject3d = DisplayObject & IDisplayObject3d;
+type DisplayObject3d = DisplayObject & Partial<IDisplayObject3d>
 
 const PIXIBackend: BackendFactory = (manager: DragDropManager) => {
   let currentObject: DisplayObject3d | null = null;
@@ -22,7 +22,6 @@ const PIXIBackend: BackendFactory = (manager: DragDropManager) => {
       };
     },
     connectDragSource: (sourceId: Identifier, node: DisplayObject3d) => {
-      (node as any).convertTo3d();
       let ddx = 0;
       let ddy = 0;
       let initIndex: number | null = null;
@@ -89,8 +88,10 @@ const PIXIBackend: BackendFactory = (manager: DragDropManager) => {
         ddx = Math.max(-50, Math.min(ddx, 50));
         ddy = Math.max(-50, Math.min(ddy, 50));
 
-        node.euler.yaw = ddx / 100;
-        node.euler.pitch = -ddy / 100;
+        if (node.euler) {
+          node.euler.yaw = ddx / 100;
+          node.euler.pitch = -ddy / 100;
+        }
       }
 
       node.addListener("mousedown", mouseDownListener);

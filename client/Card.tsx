@@ -1,4 +1,4 @@
-import React, { Ref } from "react";
+import React, { MutableRefObject, Ref, useEffect, useImperativeHandle, useRef } from "react";
 import { Container, PixiElement, Sprite } from "react-pixi-fiber";
 import Rectangle from "./Rectangle";
 import { targetResolution } from "./Camera";
@@ -31,6 +31,13 @@ export type CardProps = PixiElement<Container> & {
 export default React.forwardRef(function Card(props: CardProps, ref: Ref<Container>) {
   const game = useClientSelector((state) => state.game.current);
   const cardInfo = getCardInfo(game, props.state);
+  const containerRef = useRef() as MutableRefObject<Required<Container>>;
+
+  useImperativeHandle(ref, () => containerRef.current);
+
+  useEffect(() => {
+    (containerRef.current as any).convertTo3d?.();
+  })
 
   const dropShadowFilter = new DropShadowFilter({
     alpha: 0.5,
@@ -50,7 +57,7 @@ export default React.forwardRef(function Card(props: CardProps, ref: Ref<Contain
   }
 
   return (
-    <Container pivot={[cardWidth / 2, cardHeight / 2]} {...props} filters={currentFilters} ref={ref}>
+    <Container pivot={[cardWidth / 2, cardHeight / 2]} {...props} filters={currentFilters} ref={containerRef}>
       <Rectangle fill={getCardColor(cardInfo)} width={cardWidth - 100} height={cardHeight - 100} x={50} y={50} />
       <Sprite texture={Texture.from("border.png")} />
       <Text
