@@ -1,4 +1,4 @@
-import React, { createRef, useContext } from "react";
+import React, { useContext } from "react";
 import { opponent } from "../../common/util";
 import { targetResolution } from "../Camera";
 import { EnterExitAnimator } from "../EnterExitAnimation";
@@ -19,7 +19,7 @@ export default function OpponentHand() {
         i != null ? (
           <GameCard state={state} status={status} key={state.id} x={x + i * (gameCardWidth + 10)} y={y} />
         ) : (
-          <GameCard useLastPos={true} state={state} status={status} key={state.id} ref={createRef()} />
+          <GameCard useLastPos={true} state={state} status={status} key={state.id}/>
         )
       }
     </EnterExitAnimator>

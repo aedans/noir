@@ -102,6 +102,15 @@ export function updateCard(game: GameState, card: Target, f: (card: CardState) =
   }
 }
 
+export function defaultCardState(name: string, id: string): CardState {
+  return {
+    id, name,
+    hidden: true,
+    prepared: true,
+    props: {},
+  };
+}
+
 export const gameSlice = createSlice({
   name: "game",
   initialState: initialGameState,
@@ -119,13 +128,7 @@ export const gameSlice = createSlice({
       }
     },
     createCard: (state, action: PayloadAction<CreateCardParams>) => {
-      state.players[action.payload.player][action.payload.zone].push({
-        id: action.payload.card.id,
-        name: action.payload.name,
-        hidden: true,
-        prepared: true,
-        props: {},
-      });
+      state.players[action.payload.player][action.payload.zone].push(defaultCardState(action.payload.name, action.payload.card.id));
     },
     removeCard: (state, action: PayloadAction<TargetCardParams>) => {
       const info = findCard(state, action.payload.card);

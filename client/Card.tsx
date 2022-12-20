@@ -6,7 +6,7 @@ import { CardInfo, CardState } from "../common/card";
 import Text from "./Text";
 import { DropShadowFilter } from "@pixi/filter-drop-shadow";
 import { Filter, filters, Texture } from "pixi.js";
-import { getCardInfo } from "./cards";
+import { getCardInfo, useCardInfo } from "./cards";
 import { useClientSelector } from "./store";
 
 export const cardHeight = targetResolution.height;
@@ -30,14 +30,14 @@ export type CardProps = PixiElement<Container> & {
 
 export default React.forwardRef(function Card(props: CardProps, ref: Ref<Container>) {
   const game = useClientSelector((state) => state.game.current);
-  const cardInfo = getCardInfo(game, props.state);
+  const cardInfo = useCardInfo(game, props.state);
   const containerRef = useRef() as MutableRefObject<Required<Container>>;
 
   useImperativeHandle(ref, () => containerRef.current);
 
   useEffect(() => {
     (containerRef.current as any).convertTo3d?.();
-  })
+  });
 
   const dropShadowFilter = new DropShadowFilter({
     alpha: 0.5,
@@ -48,7 +48,7 @@ export default React.forwardRef(function Card(props: CardProps, ref: Ref<Contain
   const dimFilter = new filters.ColorMatrixFilter();
   if (!props.state.prepared) {
     dimFilter.greyscale(0, true);
-    dimFilter.alpha = .5;
+    dimFilter.alpha = 0.5;
   }
 
   const currentFilters: Filter[] = [dimFilter, dropShadowFilter];

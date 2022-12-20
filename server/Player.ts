@@ -43,7 +43,7 @@ export class SocketPlayer implements Player {
 
 export class UnitPlayer implements Player {
   init(): Promise<PlayerInit> {
-    return Promise.resolve({ deck: { cards: [] } });
+    return Promise.resolve({ deck: { cards: {} } });
   }
 
   send() {}

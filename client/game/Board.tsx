@@ -1,4 +1,4 @@
-import React, { createRef, MutableRefObject, Ref, useContext, useImperativeHandle, useRef } from "react";
+import React, { MutableRefObject, Ref, useContext, useImperativeHandle, useRef } from "react";
 import { cardHeight, getCardColor } from "../Card";
 import { useDrop } from "react-dnd";
 import Rectangle from "../Rectangle";
@@ -64,7 +64,7 @@ export default function Board() {
           i != null ? (
             <BoardCard state={state} status={status} key={state.id} x={x + i * (gameCardWidth + 10)} y={y} />
           ) : (
-            <BoardCard useLastPos={true} state={state} status={status} key={state.id} ref={createRef()} />
+            <BoardCard useLastPos={true} state={state} status={status} key={state.id}  />
           )
         }
       </EnterExitAnimator>

@@ -1,5 +1,5 @@
 import anime from "animejs";
-import React, { MutableRefObject, ReactNode, useLayoutEffect, useRef } from "react";
+import React, { MutableRefObject, ReactElement, ReactNode, useLayoutEffect, useRef } from "react";
 import { Container } from "react-pixi-fiber";
 import { Target } from "../common/card";
 
@@ -9,7 +9,7 @@ export type EnterExitAnimationStatus = "entering" | "exiting" | "none";
 
 export type EnterExitAnimatorProps<T extends Target> = {
   elements: T[];
-  children: (state: T, status: EnterExitAnimationStatus, index: number | null) => JSX.Element;
+  children: (state: T, status: EnterExitAnimationStatus, index: number | null) => ReactElement;
 };
 
 export function EnterExitAnimator<T extends Target>(props: EnterExitAnimatorProps<T>) {

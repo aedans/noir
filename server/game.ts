@@ -144,16 +144,18 @@ export async function createGame(players: [Player, Player]) {
     const init = await players[player].init(player);
     const actions: GameAction[] = [];
 
-    for (const card of init.deck.cards) {
-      const action = createCard({
-        card: util.cid(),
-        name: card,
-        player,
-        zone: "deck",
-      });
+    for (const [name, number] of Object.entries(init.deck.cards)) {
+      for (let i = 0; i < number; i++) {
+        const action = createCard({
+          card: util.cid(),
+          name,
+          player,
+          zone: "deck",
+        });
 
-      state = gameSlice.reducer(state, action);
-      actions.push(action);
+        state = gameSlice.reducer(state, action);
+        actions.push(action);
+      }
     }
 
     sendActions(actions, player, `player${player}/init`);
