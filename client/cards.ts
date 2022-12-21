@@ -25,16 +25,6 @@ async function getPartialCardInfoComputation(card: { name: string }) {
   }
 }
 
-export async function loadCardsFromAction(action: AnyAction) {
-  if (action.type == "game/createCard") {
-    await loadCard({ name: action.payload.name });
-  }
-
-  if (action.type == "history/setAction") {
-    await loadCardsFromAction(action.payload.action);
-  }
-}
-
 export async function loadCard(card: { name: string }) {
   if (!(card.name in cards)) {
     cards[card.name] = await getPartialCardInfoComputation(card);

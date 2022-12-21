@@ -6,7 +6,7 @@ import { EnterExitAnimator } from "../EnterExitAnimation";
 import { useClientSelector } from "../store";
 import { PlayerContext } from "./Game";
 import GameCard, { gameCardHeight, GameCardProps, gameCardWidth } from "./GameCard";
-import { getCardInfo } from "../cards";
+import { useCardInfo } from "../cards";
 import Reticle from "./Reticle";
 import { getCardColor } from "../Card";
 
@@ -14,7 +14,7 @@ const HandCard = React.forwardRef(function HandCard(props: GameCardProps, ref: R
   const game = useClientSelector((state) => state.game.current);
   const cardRef = useRef() as MutableRefObject<Required<Container>>;
   const targetRef = useRef() as MutableRefObject<Required<Container>>;
-  const cardInfo = getCardInfo(game, props.state);
+  const cardInfo = useCardInfo(game, props.state);
 
   useImperativeHandle(ref, () => cardRef.current);
 

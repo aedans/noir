@@ -11,14 +11,14 @@ import { EnterExitAnimator } from "../EnterExitAnimation";
 import { Container } from "react-pixi-fiber";
 import { GlowFilter } from "@pixi/filter-glow";
 import { currentPlayer } from "../../common/util";
-import { getCardInfo } from "../cards";
+import { useCardInfo } from "../cards";
 
 const BoardCard = React.forwardRef(function HandCard(props: GameCardProps, ref: Ref<Container>) {
   const socket = useContext(SocketContext);
   const player = useContext(PlayerContext);
   const game = useClientSelector((state) => state.game.current);
   const cardRef = useRef() as MutableRefObject<Required<Container>>;
-  const cardInfo = getCardInfo(game, props.state);
+  const cardInfo = useCardInfo(game, props.state);
 
   useImperativeHandle(ref, () => cardRef.current);
 
