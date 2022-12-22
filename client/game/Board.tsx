@@ -27,7 +27,7 @@ const BoardCard = React.forwardRef(function HandCard(props: GameCardProps, ref: 
   }
 
   const shouldGlow =
-    props.state.prepared &&
+    !props.state.exhausted &&
     cardInfo.hasActivateEffect &&
     currentPlayer(game) == player &&
     defaultUtil.canPayCost(game, player, cardInfo.colors, cardInfo.activateCost);

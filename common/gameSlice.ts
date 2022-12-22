@@ -106,7 +106,7 @@ export function defaultCardState(name: string, id: string): CardState {
   return {
     id, name,
     hidden: true,
-    prepared: true,
+    exhausted: false,
     props: {},
   };
 }
@@ -140,11 +140,11 @@ export const gameSlice = createSlice({
     revealCard: (state, action: PayloadAction<TargetCardParams>) => {
       updateCard(state, action.payload.card, (card) => (card.hidden = true));
     },
-    prepareCard: (state, action: PayloadAction<TargetCardParams>) => {
-      updateCard(state, action.payload.card, (card) => (card.prepared = true));
+    refreshCard: (state, action: PayloadAction<TargetCardParams>) => {
+      updateCard(state, action.payload.card, (card) => (card.exhausted = false));
     },
     exhaustCard: (state, action: PayloadAction<TargetCardParams>) => {
-      updateCard(state, action.payload.card, (card) => (card.prepared = false));
+      updateCard(state, action.payload.card, (card) => (card.exhausted = true));
     },
     setProp: (state, action: PayloadAction<SetPropParams>) => {
       updateCard(state, action.payload.card, (card) => (card.props[action.payload.name] = action.payload.value));
@@ -155,4 +155,4 @@ export const gameSlice = createSlice({
   },
 });
 
-export const { endTurn, moveCard, addCard, removeCard, revealCard, prepareCard, exhaustCard, setProp, addMoney } = gameSlice.actions;
+export const { endTurn, moveCard, addCard, removeCard, revealCard, refreshCard, exhaustCard, setProp, addMoney } = gameSlice.actions;

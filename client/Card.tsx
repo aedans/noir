@@ -46,7 +46,7 @@ export default React.forwardRef(function Card(props: CardProps, ref: Ref<Contain
   });
 
   const dimFilter = new filters.ColorMatrixFilter();
-  if (!props.state.prepared) {
+  if (props.state.exhausted) {
     dimFilter.greyscale(0, true);
     dimFilter.alpha = 0.5;
   }

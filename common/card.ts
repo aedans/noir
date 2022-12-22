@@ -6,7 +6,7 @@ export type CardState = {
   id: string;
   name: string;
   hidden: boolean;
-  prepared: boolean;
+  exhausted: boolean;
   props: any;
 };
 

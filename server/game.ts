@@ -12,7 +12,7 @@ import {
   initialGameState,
   moveCard,
   PlayerId,
-  prepareCard,
+  refreshCard,
 } from "../common/gameSlice";
 import { defaultUtil, getCardInfo } from "./card";
 import util, { currentPlayer } from "../common/util";
@@ -24,8 +24,8 @@ function* doEndTurn(game: GameState): Generator<GameAction, void, GameState> {
   yield addMoney({ player, money: 2 });
 
   for (const card of game.players[player].board) {
-    if (!card.prepared) {
-      yield prepareCard({ card });
+    if (card.exhausted) {
+      yield refreshCard({ card });
     }
 
     yield* getCardInfo(game, card).turn();
@@ -103,8 +103,8 @@ function* activateCard(
   card: CardState,
   target: Target | undefined
 ): Generator<GameAction, void, GameState> {
-  if (!card.prepared) {
-    throw `Card ${card.id} is not prepared`;
+  if (card.exhausted) {
+    throw `Card ${card.id} is exhausted`;
   }
 
   const info = getCardInfo(game, card);
