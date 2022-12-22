@@ -32,8 +32,13 @@ export async function loadCard(card: { name: string }) {
   }
 }
 
-export function getCardInfo(game: GameState, card: CardState) {
-  return runPartialCardInfoComputation(cards[card.name], defaultUtil, game, card);
+export function getCardInfo(game: GameState, card: CardState, base = false) {
+  let info = runPartialCardInfoComputation(cards[card.name], defaultUtil, game, card);
+  if (!base) {
+    info = defaultUtil.updateCardInfo(game, card, info);
+  }
+
+  return info;
 }
 
 export async function getCards() {

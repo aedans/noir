@@ -1,5 +1,5 @@
-import { CardColor, CardCost, CardInfo, CardState, CardType, Target } from "./card";
-import { findCard, gameSlice, GameState, PlayerId, Zone, zones } from "./gameSlice";
+import { CardColor, CardCost, CardInfo, CardKeyword, CardModifier, CardState, CardType, Target } from "./card";
+import { findCard, gameSlice, GameState, getCard, PlayerId, Zone, zones } from "./gameSlice";
 import { v4 as uuid } from "uuid";
 
 export function opponent(player: PlayerId) {
@@ -58,6 +58,24 @@ export function canPayCost(this: Util, game: GameState, player: PlayerId, colors
   return game.players[player].money >= cost.money && agents.length >= cost.agents;
 }
 
+export function updateCardInfo(this: Util, game: GameState, state: CardState, info: CardInfo) {
+  for (const modifier of state.modifiers) {
+    const card = getCard(game, modifier.card);
+    if (card) {
+      const modifiers = this.getCardInfo(game, card, true).modifiers ?? {};
+      info = { ...info, ...modifiers[modifier.name](info, modifier) };  
+    }
+  }
+
+  return info;
+}
+
+export function keywordModifier(keyword: CardKeyword): CardModifier {
+  return (info, card) => ({
+    keywords: [...info.keywords, keyword],
+  });
+}
+
 export function cid() {
   return { id: uuid() };
 }
@@ -83,13 +101,15 @@ const util = {
   isInZone,
   filter,
   canPayCost,
+  updateCardInfo,
+  keywordModifier,
   cid,
   random,
   randoms,
 };
 
 export type Util = typeof util & {
-  getCardInfo: (game: GameState, card: CardState) => CardInfo;
+  getCardInfo: (game: GameState, card: CardState, base?: boolean) => CardInfo;
 };
 
 export default util;

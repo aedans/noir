@@ -2,19 +2,27 @@ import { DeepPartial } from "redux";
 import { GameAction, GameState } from "./gameSlice";
 import { Util } from "./util";
 
+export type ModifierState = {
+  card: Target;
+  name: string;
+};
+
 export type CardState = {
   id: string;
   name: string;
   hidden: boolean;
   exhausted: boolean;
   props: any;
+  modifiers: ModifierState[];
 };
 
 export const cardColors = ["orange", "blue", "green", "purple"] as const;
 export const cardTypes = ["agent", "location", "operation"] as const;
+export const cardKeywords = ["disloyal", "protected", "vip"] as const;
 
 export type CardColor = typeof cardColors[number];
 export type CardType = typeof cardTypes[number];
+export type CardKeyword = typeof cardKeywords[number];
 export type CardColorFilter = CardColor | "any";
 
 export type CardCost = {
@@ -22,19 +30,26 @@ export type CardCost = {
   agents: number;
 };
 
+export type CardAction = () => Generator<GameAction, void, GameState>;
+export type CardTargetAction = (target: Target) => Generator<GameAction, void, GameState>;
+export type CardModifier = (card: CardInfo, modifier: ModifierState) => Partial<CardInfo>;
+export type CardTargets = () => Target[];
+
 export type CardInfo = {
   text: string;
   type: CardType;
   colors: CardColor[];
   cost: CardCost;
-  targets?: () => Target[];
-  play: (target: Target) => Generator<GameAction, void, GameState>;
+  keywords: CardKeyword[];
+  targets?: CardTargets;
+  play: CardTargetAction;
   activateCost: CardCost;
-  activateTargets?: () => Target[];
-  activate: (target: Target) => Generator<GameAction, void, GameState>;
+  activateTargets?: CardTargets;
+  activate: CardTargetAction;
   hasActivateEffect: boolean;
   activationPriority: number;
-  turn: () => Generator<GameAction, void, GameState>;
+  turn: CardAction;
+  modifiers: { [name: string]: CardModifier };
 };
 
 export type PartialCardInfoComputation = (
@@ -43,12 +58,14 @@ export type PartialCardInfoComputation = (
   card: CardState
 ) => { [K in keyof CardInfo]?: DeepPartial<CardInfo[K]> } & {
   colors?: CardColor[];
-  targets?: () => Target[];
-  play?: (target: Target) => Generator<GameAction, void, GameState>;
-  activateTargets?: () => Target[];
-  activate?: (target: Target) => Generator<GameAction, void, GameState>;
+  keywords?: CardKeyword[];
+  targets?: CardTargets;
+  play?: CardTargetAction;
+  activateTargets?: CardTargets;
+  activate?: CardTargetAction;
   hasActivateEffect?: boolean;
-  turn?: () => Generator<GameAction, void, GameState>;
+  turn?: CardAction;
+  modifiers?: { [name: string]: CardModifier };
 };
 
 export type Target = { id: string };
@@ -68,7 +85,7 @@ export function runPartialCardInfoComputation(
     },
     partial.cost ?? {}
   );
-  
+
   const activateCost: CardCost = Object.assign(
     {
       money: 0,
@@ -82,6 +99,7 @@ export function runPartialCardInfoComputation(
     type: partial.type ?? "operation",
     colors: partial.colors ?? [],
     cost,
+    keywords: partial.keywords ?? [],
     targets: partial.targets,
     play: partial.play ?? function* () {},
     activateCost,
@@ -90,5 +108,6 @@ export function runPartialCardInfoComputation(
     hasActivateEffect: partial.hasActivateEffect ?? partial.activate != undefined,
     activationPriority: 0,
     turn: partial.turn ?? function* () {},
+    modifiers: partial.modifiers ?? {},
   };
 }

@@ -17,6 +17,11 @@ export function getPartialCardInfoComputation(card: { name: string }): PartialCa
   return cards[card.name];
 }
 
-export function getCardInfo(game: GameState, card: CardState) {
-  return runPartialCardInfoComputation(getPartialCardInfoComputation(card), defaultUtil, game, card);
+export function getCardInfo(game: GameState, card: CardState, base = false) {
+  let info = runPartialCardInfoComputation(getPartialCardInfoComputation(card), defaultUtil, game, card);
+  if (!base) {
+    info = defaultUtil.updateCardInfo(game, card, info);
+  }
+
+  return info;
 }

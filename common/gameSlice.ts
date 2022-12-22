@@ -1,4 +1,4 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { createSlice, current, isDraft, original, PayloadAction } from "@reduxjs/toolkit";
 import { CardState, Target } from "./card";
 
 export const zones = ["deck", "board", "graveyard"] as const;
@@ -56,6 +56,7 @@ export type MoveCardParams = {
 export type AddCardParams = PlayerZone & {
   card: Target;
   name: string;
+  state?: Partial<CardState>;
 };
 
 export type TargetCardParams = {
@@ -104,10 +105,12 @@ export function updateCard(game: GameState, card: Target, f: (card: CardState) =
 
 export function defaultCardState(name: string, id: string): CardState {
   return {
-    id, name,
+    id,
+    name,
     hidden: true,
     exhausted: false,
     props: {},
+    modifiers: [],
   };
 }
 
@@ -128,7 +131,13 @@ export const gameSlice = createSlice({
       }
     },
     addCard: (state, action: PayloadAction<AddCardParams>) => {
-      state.players[action.payload.player][action.payload.zone].push(defaultCardState(action.payload.name, action.payload.card.id));
+      let cardState = defaultCardState(action.payload.name, action.payload.card.id);
+
+      if (action.payload.state && isDraft(action.payload.state)) {
+        Object.assign(cardState, current(action.payload.state));
+      }
+
+      state.players[action.payload.player][action.payload.zone].push(cardState);
     },
     removeCard: (state, action: PayloadAction<TargetCardParams>) => {
       const info = findCard(state, action.payload.card);
@@ -155,4 +164,5 @@ export const gameSlice = createSlice({
   },
 });
 
-export const { endTurn, moveCard, addCard, removeCard, revealCard, refreshCard, exhaustCard, setProp, addMoney } = gameSlice.actions;
+export const { endTurn, moveCard, addCard, removeCard, revealCard, refreshCard, exhaustCard, setProp, addMoney } =
+  gameSlice.actions;
