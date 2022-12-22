@@ -2,7 +2,7 @@ import { CardState, PartialCardInfoComputation, runPartialCardInfoComputation } 
 import { GameState } from "../common/gameSlice";
 import util from "../common/util";
 
-const defaultUtil = {
+export const defaultUtil = {
   ...util,
   getCardInfo,
 };

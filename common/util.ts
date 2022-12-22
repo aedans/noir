@@ -1,4 +1,4 @@
-import { CardInfo, CardState, CardType, Target } from "./card";
+import { CardColor, CardCost, CardInfo, CardState, CardType, Target } from "./card";
 import { findCard, gameSlice, GameState, PlayerId, Zone, zones } from "./gameSlice";
 import { v4 as uuid } from "uuid";
 
@@ -22,6 +22,7 @@ export type Filter = {
   players?: PlayerId[];
   zones?: Zone[];
   types?: CardType[];
+  colors?: CardColor[];
 };
 
 export function filter(this: Util, game: GameState, filter: Filter) {
@@ -31,8 +32,12 @@ export function filter(this: Util, game: GameState, filter: Filter) {
     for (const zone of filter.zones ?? zones) {
       let f = game.players[player][zone];
 
-      if (filter.types) {
-        f = f.filter((t) => filter.types!.includes(this.getCardInfo(game, t).type));
+      if (filter.types && filter.types.length > 0) {
+        f = f.filter((card) => filter.types!.includes(this.getCardInfo(game, card).type));
+      }
+
+      if (filter.colors && filter.colors.length > 0) {
+        f = f.filter((card) => this.getCardInfo(game, card).colors.some((color) => filter.colors!.includes(color)));
       }
 
       cards.push(...f);
@@ -40,6 +45,17 @@ export function filter(this: Util, game: GameState, filter: Filter) {
   }
 
   return cards;
+}
+
+export function canPayCost(this: Util, game: GameState, player: PlayerId, colors: CardColor[], cost: CardCost) {
+  const agents = this.filter(game, {
+    players: [player],
+    types: ["agent"],
+    zones: ["board"],
+    colors,
+  });
+  
+  return game.players[player].money >= cost.money && agents.length >= cost.agents;
 }
 
 export function cid() {
@@ -66,9 +82,10 @@ const util = {
   cardOwner,
   isInZone,
   filter,
+  canPayCost,
+  cid,
   random,
   randoms,
-  cid,
 };
 
 export type Util = typeof util & {

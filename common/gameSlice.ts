@@ -42,7 +42,7 @@ export type GameAction = PayloadAction<GameParams>;
 export type GameParams = { card?: Target } & (
   | {}
   | MoveCardParams
-  | CreateCardParams
+  | AddCardParams
   | TargetCardParams
   | SetPropParams
   | AddMoneyParams
@@ -53,7 +53,7 @@ export type MoveCardParams = {
   to: PlayerZone;
 };
 
-export type CreateCardParams = PlayerZone & {
+export type AddCardParams = PlayerZone & {
   card: Target;
   name: string;
 };
@@ -127,7 +127,7 @@ export const gameSlice = createSlice({
         state.players[from.player][from.zone].splice(from.index, 1);
       }
     },
-    createCard: (state, action: PayloadAction<CreateCardParams>) => {
+    addCard: (state, action: PayloadAction<AddCardParams>) => {
       state.players[action.payload.player][action.payload.zone].push(defaultCardState(action.payload.name, action.payload.card.id));
     },
     removeCard: (state, action: PayloadAction<TargetCardParams>) => {
@@ -155,4 +155,4 @@ export const gameSlice = createSlice({
   },
 });
 
-export const { endTurn, moveCard, createCard, removeCard, revealCard, prepareCard, exhaustCard, setProp, addMoney } = gameSlice.actions;
+export const { endTurn, moveCard, addCard, removeCard, revealCard, prepareCard, exhaustCard, setProp, addMoney } = gameSlice.actions;

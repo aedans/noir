@@ -1,6 +1,7 @@
 import Player, { PlayerAction } from "./Player";
 import {
-  createCard,
+  addMoney,
+  addCard,
   endTurn,
   exhaustCard,
   findCard,
@@ -13,13 +14,14 @@ import {
   PlayerId,
   prepareCard,
 } from "../common/gameSlice";
-import { getCardInfo } from "./card";
+import { defaultUtil, getCardInfo } from "./card";
 import util, { currentPlayer } from "../common/util";
-import { CardState, Target } from "../common/card";
+import { CardColor, CardCost, CardState, Target } from "../common/card";
 import { setAction, setHidden } from "../common/historySlice";
 
 function* doEndTurn(game: GameState): Generator<GameAction, void, GameState> {
   const player = currentPlayer(game);
+  yield addMoney({ player, money: 2 });
 
   for (const card of game.players[player].board) {
     if (!card.prepared) {
@@ -44,6 +46,32 @@ function validateTargets(card: CardState, targets: (() => Target[]) | undefined,
   }
 }
 
+function* payCost(game: GameState, colors: CardColor[], cost: CardCost) {
+  const player = currentPlayer(game);
+
+  if (game.players[player].money < cost.money) {
+    throw `Not enough money`;
+  }
+
+  const agents = defaultUtil.filter(game, {
+    players: [player],
+    types: ["agent"],
+    zones: ["board"],
+    colors,
+  });
+
+  if (agents.length < cost.agents) {
+    throw `Not enough agents`;
+  }
+
+  agents.sort((a, b) => getCardInfo(game, b).activationPriority - getCardInfo(game, a).activationPriority);
+
+  yield addMoney({ player, money: -cost.money });
+  for (const card of agents.slice(0, cost.agents)) {
+    yield exhaustCard({ card });
+  }
+}
+
 function* playCard(
   game: GameState,
   card: CardState,
@@ -51,8 +79,10 @@ function* playCard(
 ): Generator<GameAction, void, GameState> {
   const player = currentPlayer(game);
   const info = getCardInfo(game, card);
+
   validateTargets(card, info.targets, target);
 
+  yield* payCost(game, info.colors, info.cost);
   yield* info.play(target!);
 
   if (info.type == "operation") {
@@ -68,7 +98,7 @@ function* playCard(
   }
 }
 
-function* useCard(
+function* activateCard(
   game: GameState,
   card: CardState,
   target: Target | undefined
@@ -80,6 +110,7 @@ function* useCard(
   const info = getCardInfo(game, card);
   validateTargets(card, info.activateTargets, target);
 
+  yield* payCost(game, info.colors, info.activateCost);
   yield exhaustCard({ card });
   yield* info.activate(target!);
 }
@@ -95,7 +126,7 @@ function* doCard(game: GameState, id: string, target: Target | undefined): Gener
     if (zone == "deck") {
       yield* playCard(game, game.players[player][zone][index], target);
     } else if (zone == "board") {
-      yield* useCard(game, game.players[player][zone][index], target);
+      yield* activateCard(game, game.players[player][zone][index], target);
     }
   }
 }
@@ -146,7 +177,7 @@ export async function createGame(players: [Player, Player]) {
 
     for (const [name, number] of Object.entries(init.deck.cards)) {
       for (let i = 0; i < number; i++) {
-        const action = createCard({
+        const action = addCard({
           card: util.cid(),
           name,
           player,

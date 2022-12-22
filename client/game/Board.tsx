@@ -11,7 +11,7 @@ import { EnterExitAnimator } from "../EnterExitAnimation";
 import { Container } from "react-pixi-fiber";
 import { GlowFilter } from "@pixi/filter-glow";
 import { currentPlayer } from "../../common/util";
-import { useCardInfo } from "../cards";
+import { defaultUtil, useCardInfo } from "../cards";
 
 const BoardCard = React.forwardRef(function HandCard(props: GameCardProps, ref: Ref<Container>) {
   const socket = useContext(SocketContext);
@@ -26,13 +26,19 @@ const BoardCard = React.forwardRef(function HandCard(props: GameCardProps, ref: 
     socket.emit("action", { type: "do", id: props.state.id });
   }
 
-  const shouldGlow = props.state.prepared && cardInfo.hasActivateEffect && currentPlayer(game) == player;
+  const shouldGlow =
+    props.state.prepared &&
+    cardInfo.hasActivateEffect &&
+    currentPlayer(game) == player &&
+    defaultUtil.canPayCost(game, player, cardInfo.colors, cardInfo.activateCost);
+
   const filter = new GlowFilter({
     color: getCardColor(cardInfo),
     quality: 1,
+    outerStrength: shouldGlow ? 4 : 0,
   });
 
-  return <GameCard {...props} filters={shouldGlow ? [filter] : []} ref={cardRef} interactive pointerdown={pointerdown} />;
+  return <GameCard {...props} filters={[filter]} ref={cardRef} interactive pointerdown={pointerdown} />;
 });
 
 export default function Board() {
@@ -64,7 +70,7 @@ export default function Board() {
           i != null ? (
             <BoardCard state={state} status={status} key={state.id} x={x + i * (gameCardWidth + 10)} y={y} />
           ) : (
-            <BoardCard useLastPos={true} state={state} status={status} key={state.id}  />
+            <BoardCard useLastPos={true} state={state} status={status} key={state.id} />
           )
         }
       </EnterExitAnimator>

@@ -33,6 +33,7 @@ export type CardInfo = {
   activateTargets?: () => Target[];
   activate: (target: Target) => Generator<GameAction, void, GameState>;
   hasActivateEffect: boolean;
+  activationPriority: number;
   turn: () => Generator<GameAction, void, GameState>;
 };
 
@@ -87,6 +88,7 @@ export function runPartialCardInfoComputation(
     activateTargets: partial.activateTargets,
     activate: partial.activate ?? function* () {},
     hasActivateEffect: partial.hasActivateEffect ?? partial.activate != undefined,
+    activationPriority: 0,
     turn: partial.turn ?? function* () {},
   };
 }
