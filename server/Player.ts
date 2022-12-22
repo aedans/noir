@@ -13,6 +13,7 @@ export type PlayerAction = { type: "end" } | { type: "do"; id: string; target?: 
 export default interface Player {
   init(player: PlayerId): Promise<PlayerInit>;
   send(actions: HistoryAction[], name: string): void;
+  error(message: string): void;
   receive(): Promise<PlayerAction>;
 }
 
@@ -26,12 +27,16 @@ export class SocketPlayer implements Player {
   init(player: PlayerId): Promise<PlayerInit> {
     return new Promise((resolve, reject) => {
       this.socket.once("init", (action) => resolve(action));
-      this.socket.emit("init", player);  
+      this.socket.emit("init", player);
     });
   }
 
   send(actions: HistoryAction[], name: string) {
     this.socket.emit("actions", actions, name);
+  }
+
+  error(message: string): void {
+    this.socket.emit("error", message);
   }
 
   receive(): Promise<PlayerAction> {
@@ -47,6 +52,8 @@ export class UnitPlayer implements Player {
   }
 
   send() {}
+
+  error() {}
 
   receive(): Promise<PlayerAction> {
     return new Promise((resolve, reject) => {

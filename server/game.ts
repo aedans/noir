@@ -34,23 +34,24 @@ function* doEndTurn(game: GameState): Generator<GameAction, void, GameState> {
   game = yield endTurn({});
 }
 
-function validateTargets(card: CardState, targets: (() => Target[]) | undefined, target: Target | undefined) {
+function validateTargets(game: GameState, card: CardState, targets: (() => Target[]) | undefined, target: Target | undefined) {
   if (targets) {
     if (!target) {
-      throw `Card ${card.id} requires a target`;
+      throw `${card.name} requires a target`;
     }
 
     if (!targets().find((t) => t.id == target.id)) {
-      throw `Card ${target.id} is not a valid target for ${card.id}`;
+      const targetCard = getCard(game, target);
+      throw `${card.name} cannot target ${targetCard?.name}`;
     }
   }
 }
 
-function* payCost(game: GameState, colors: CardColor[], cost: CardCost) {
+function* payCost(game: GameState, verb: string, name: string, colors: CardColor[], cost: CardCost) {
   const player = currentPlayer(game);
 
   if (game.players[player].money < cost.money) {
-    throw `Not enough money`;
+    throw `Not enough money to ${verb} ${name}`;
   }
 
   const agents = defaultUtil.filter(game, {
@@ -61,7 +62,7 @@ function* payCost(game: GameState, colors: CardColor[], cost: CardCost) {
   });
 
   if (agents.length < cost.agents) {
-    throw `Not enough agents`;
+    throw `Not enough agents to ${verb} ${name}`;
   }
 
   agents.sort((a, b) => getCardInfo(game, b).activationPriority - getCardInfo(game, a).activationPriority);
@@ -80,9 +81,9 @@ function* playCard(
   const player = currentPlayer(game);
   const info = getCardInfo(game, card);
 
-  validateTargets(card, info.targets, target);
+  validateTargets(game, card, info.targets, target);
 
-  yield* payCost(game, info.colors, info.cost);
+  yield* payCost(game, "play", card.name, info.colors, info.cost);
   yield* info.play(target!);
 
   if (info.type == "operation") {
@@ -104,13 +105,18 @@ function* activateCard(
   target: Target | undefined
 ): Generator<GameAction, void, GameState> {
   if (card.exhausted) {
-    throw `Card ${card.id} is exhausted`;
+    throw `${card.name} is exhausted`;
   }
 
   const info = getCardInfo(game, card);
-  validateTargets(card, info.activateTargets, target);
 
-  yield* payCost(game, info.colors, info.activateCost);
+  if (!info.hasActivateEffect) {
+    throw `${card.name} has no activation effect`;
+  }
+
+  validateTargets(game, card, info.activateTargets, target);
+
+  yield* payCost(game, "activate", card.name, info.colors, info.activateCost);
   yield exhaustCard({ card });
   yield* info.activate(target!);
 }
@@ -120,7 +126,7 @@ function* doCard(game: GameState, id: string, target: Target | undefined): Gener
   if (info) {
     const { player, zone, index } = info;
     if (currentPlayer(game) != player) {
-      throw `Card ${id} is not owned by ${currentPlayer(game)}`;
+      throw `Cannot use opponent's cards`;
     }
 
     if (zone == "deck") {
@@ -208,7 +214,11 @@ export async function createGame(players: [Player, Player]) {
 
       sendActions(actions, player, `player${player}/${playerAction.type}Action`);
     } catch (e) {
-      console.error(e);
+      if (typeof e == "string") {
+        players[player].error(e)
+      } else {
+        console.error(e);
+      }
     }
   }
 }

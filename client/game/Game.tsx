@@ -17,6 +17,7 @@ import { io, Socket } from "socket.io-client";
 import Button from "../Button";
 import OpponentHand from "./OpponentHand";
 import { reset } from "../../common/historySlice";
+import Message from "./Message";
 
 export const SocketContext = React.createContext(null as unknown) as Context<Socket>;
 export const PlayerContext = React.createContext(0 as PlayerId);
@@ -25,6 +26,7 @@ export default function Game() {
   const [searchParams] = useSearchParams();
   const [player, setPlayer] = useState(null as PlayerId | null);
   const [socket, setSocket] = useState(null as Socket | null);
+  const [message, setMessage] = useState("");
   const cards = useRef({} as MoveAnimationState);
   const decks = useClientSelector((state) => state.decks);
   const dispatch = useClientDispatch();
@@ -34,6 +36,11 @@ export default function Game() {
 
     socket.on("actions", (actions, name) => {
       dispatch(batchActions(actions, name));
+    });
+
+    socket.on("error", (message) => {
+      setMessage("");
+      setMessage(message);
     });
 
     socket.on("init", (player) => {
@@ -70,6 +77,7 @@ export default function Game() {
             <Hand />
             <Resources />
             <EndTurn />
+            <Message text={message} />
           </Container>
         </PlayerContext.Provider>
       </MoveAnimationContext.Provider>
