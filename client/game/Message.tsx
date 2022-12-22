@@ -1,3 +1,4 @@
+import { DropShadowFilter } from "@pixi/filter-drop-shadow";
 import anime from "animejs";
 import React, { MutableRefObject, useEffect, useRef } from "react";
 import { Container } from "react-pixi-fiber";
@@ -25,10 +26,17 @@ export default function Message(props: MessageProps) {
       alpha: 0,
     });
   });
+  
+  const dropShadowFilter = new DropShadowFilter({
+    alpha: 1,
+    blur: 0,
+    distance: 10,
+  });
 
   return (
     <Text
       zIndex={1000}
+      filters={[dropShadowFilter]}
       ref={ref}
       anchor={[0.5, 0.5]}
       text={props.text}
