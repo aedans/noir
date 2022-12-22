@@ -3,6 +3,7 @@ import { AnyAction } from "redux";
 import { CardState, PartialCardInfoComputation, runPartialCardInfoComputation } from "../common/card";
 import { GameState } from "../common/gameSlice";
 import util from "../common/util";
+import { useClientSelector } from "./store";
 
 export const serverOrigin = window.location.origin.toString().replace(/5173/g, "8080");
 
@@ -39,7 +40,8 @@ export async function getCards() {
   return await fetch(`${serverOrigin}/cards.json`).then((x) => x.json());
 }
 
-export function useCardInfo(game: GameState, card: CardState) {
+export function useCardInfo(card: CardState) {
+  const game = useClientSelector((state) => state.game.current);
   const hasLoaded = card.name in cards;
   const [cardInfo, setCardInfo] = useState(
     hasLoaded ? getCardInfo(game, card) : runPartialCardInfoComputation(() => ({}), defaultUtil, game, card)

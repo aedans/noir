@@ -11,10 +11,9 @@ import Reticle from "./Reticle";
 import { getCardColor } from "../Card";
 
 const HandCard = React.forwardRef(function HandCard(props: GameCardProps, ref: Ref<Container>) {
-  const game = useClientSelector((state) => state.game.current);
   const cardRef = useRef() as MutableRefObject<Required<Container>>;
   const targetRef = useRef() as MutableRefObject<Required<Container>>;
-  const cardInfo = useCardInfo(game, props.state);
+  const cardInfo = useCardInfo(props.state);
 
   useImperativeHandle(ref, () => cardRef.current);
 
@@ -22,23 +21,29 @@ const HandCard = React.forwardRef(function HandCard(props: GameCardProps, ref: R
     if (cardRef.current) {
       drag(cardInfo.targets ? targetRef : cardRef);
     }
-  });
+  }, [cardInfo]);
 
-  const [{ isDragging, position }, drag] = useDrag(
+  const [{ isDragging, globalPosition }, drag] = useDrag(
     () => ({
       type: cardInfo.targets ? "target" : "card",
       item: props.state,
       collect: (monitor) => ({
         isDragging: monitor.isDragging(),
-        position: cardInfo.targets ? monitor.getInitialClientOffset() : monitor.getClientOffset(),
+        globalPosition: monitor.getInitialClientOffset(),
       }),
     }),
     [cardInfo]
   );
 
-  const x = isDragging ? position?.x : props.x;
-  const y = isDragging ? position?.y : props.y;
+  let x = props.x;
+  let y = props.y;
 
+  if (cardRef.current && isDragging && globalPosition) {
+    const position = cardRef.current.parent.toLocal({ x: globalPosition.x, y: globalPosition.y });
+    x = position.x;
+    y = position.y;
+  }
+  
   const card = <GameCard {...props} x={x} y={y} ref={cardRef} interactive />;
 
   if (cardInfo.targets) {

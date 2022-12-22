@@ -33,10 +33,9 @@ const PIXIBackend: BackendFactory = (manager: DragDropManager) => {
           node.zIndex = 100;
           node.parent.sortChildren();
 
-          const pos = node.parent.toLocal(e.data.global);
           manager.getActions().beginDrag([sourceId], {
-            clientOffset: pos,
-            getSourceClientOffset: () => null,
+            clientOffset: e.data.global,
+            getSourceClientOffset: () => e.data.global,
           });
         }
       }
@@ -58,7 +57,7 @@ const PIXIBackend: BackendFactory = (manager: DragDropManager) => {
 
           manager.getActions().hover(matchingTargetIds, {
             clientOffset: pos,
-            getSourceClientOffset: () => null,
+            getSourceClientOffset: () => pos,
           });
         }
       }

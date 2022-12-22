@@ -1,4 +1,4 @@
-import anime, { AnimeInstance } from "animejs";
+import anime from "animejs";
 import { Ticker } from "pixi.js";
 import React, { MutableRefObject, ReactNode, useContext, useEffect, useLayoutEffect } from "react";
 import { Container } from "react-pixi-fiber";
@@ -32,18 +32,15 @@ export default function MoveAnimation(props: MoveAnimationProps) {
   }, []);
 
   useEffect(() => {
-    const prev = state.current[props.id];
     const container = props.componentRef.current;
-    if (prev) {
-      anime({
-        targets: container.transform.position,
-        duration: 300,
-        delay: 50,
-        easing: "easeOutExpo",
-        x: props.x ?? 0,
-        y: props.y ?? 0,
-      });
-    }
+    anime.remove(container.transform.position);
+    anime({
+      targets: container.transform.position,
+      duration: 300,
+      easing: "easeOutExpo",
+      x: props.x ?? 0,
+      y: props.y ?? 0,
+    });
   });
 
   useLayoutEffect(() => {

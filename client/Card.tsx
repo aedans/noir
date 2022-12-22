@@ -1,4 +1,4 @@
-import React, { MutableRefObject, Ref, useEffect, useImperativeHandle, useRef } from "react";
+import React, { createRef, MutableRefObject, Ref, useEffect, useImperativeHandle, useRef, useState } from "react";
 import { Container, PixiElement, Sprite } from "react-pixi-fiber";
 import Rectangle from "./Rectangle";
 import { targetResolution } from "./Camera";
@@ -6,8 +6,8 @@ import { CardInfo, CardState } from "../common/card";
 import Text from "./Text";
 import { DropShadowFilter } from "@pixi/filter-drop-shadow";
 import { Filter, filters, Texture } from "pixi.js";
-import { getCardInfo, useCardInfo } from "./cards";
-import { useClientSelector } from "./store";
+import { useCardInfo } from "./cards";
+import anime from "animejs";
 
 export const cardHeight = targetResolution.height;
 export const cardWidth = cardHeight * (1 / 1.4);
@@ -29,15 +29,16 @@ export type CardProps = PixiElement<Container> & {
 };
 
 export default React.forwardRef(function Card(props: CardProps, ref: Ref<Container>) {
-  const game = useClientSelector((state) => state.game.current);
-  const cardInfo = useCardInfo(game, props.state);
+  const cardInfo = useCardInfo(props.state);
   const containerRef = useRef() as MutableRefObject<Required<Container>>;
+  const dimFilterRef = useRef(new filters.ColorMatrixFilter());
 
   useImperativeHandle(ref, () => containerRef.current);
 
   useEffect(() => {
     (containerRef.current as any).convertTo3d?.();
-  });
+    dimFilterRef.current.alpha = 0;
+  }, []);
 
   const dropShadowFilter = new DropShadowFilter({
     alpha: 0.5,
@@ -45,13 +46,17 @@ export default React.forwardRef(function Card(props: CardProps, ref: Ref<Contain
     distance: (props.zIndex ?? 0) + 5,
   });
 
-  const dimFilter = new filters.ColorMatrixFilter();
-  if (props.state.exhausted) {
-    dimFilter.greyscale(0, true);
-    dimFilter.alpha = 0.5;
-  }
+  useEffect(() => {
+    dimFilterRef.current.greyscale(0, true);
+    anime({
+      targets: dimFilterRef.current,
+      duration: 300,
+      easing: "easeOutExpo",
+      alpha: props.state.exhausted ? 0.5 : 0,
+    });
+  }, [props.state.exhausted]);
 
-  const currentFilters: Filter[] = [dimFilter, dropShadowFilter];
+  const currentFilters: Filter[] = [dimFilterRef.current, dropShadowFilter];
   if (props.filters) {
     currentFilters.push(...props.filters);
   }

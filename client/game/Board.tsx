@@ -18,7 +18,7 @@ const BoardCard = React.forwardRef(function HandCard(props: GameCardProps, ref: 
   const player = useContext(PlayerContext);
   const game = useClientSelector((state) => state.game.current);
   const cardRef = useRef() as MutableRefObject<Required<Container>>;
-  const cardInfo = useCardInfo(game, props.state);
+  const cardInfo = useCardInfo(props.state);
 
   useImperativeHandle(ref, () => cardRef.current);
 
