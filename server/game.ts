@@ -202,15 +202,17 @@ export async function createGame(players: [Player, Player]) {
 
     try {
       const generator = doAction(state, playerAction);
+      let newState = state;
       let actions: GameAction[] = [];
-      let next = generator.next(state);
+      let next = generator.next(newState);
       while (!next.done) {
-        state = gameSlice.reducer(state, next.value);
+        newState = gameSlice.reducer(newState, next.value);
         actions.push(next.value);
-        next = generator.next(state);
+        next = generator.next(newState);
       }
 
       sendActions(actions, player, `player${player}/${playerAction.type}Action`);
+      state = newState;
     } catch (e) {
       if (typeof e == "string") {
         players[player].error(e);
