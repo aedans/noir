@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 import { AnyAction } from "redux";
 import { CardState, PartialCardInfoComputation, runPartialCardInfoComputation } from "../common/card";
 import { GameState } from "../common/gameSlice";
@@ -59,7 +59,7 @@ export function useCardInfo(card: CardState) {
     }
   }, []);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (hasLoaded) {
       setCardInfo(getCardInfo(game, card));
     }
