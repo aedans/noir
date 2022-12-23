@@ -11,7 +11,7 @@ exports.card = (util, game, card) => ({
     });
 
     for (const card of util.randoms(cards, 2)) {
-      yield util.revealCard({ card });
+      yield* util.revealCard(game, { card });
     }
   }
 });

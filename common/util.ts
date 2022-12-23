@@ -1,6 +1,38 @@
-import { CardColor, CardCost, CardInfo, CardKeyword, CardModifier, CardState, CardType, Target } from "./card";
-import { findCard, gameSlice, GameState, getCard, PlayerId, Zone, zones } from "./gameSlice";
+import {
+  CardColor,
+  CardCost,
+  CardInfo,
+  CardKeyword,
+  CardModifier,
+  CardState,
+  CardTrigger,
+  CardType,
+  Target,
+} from "./card";
+import {
+  addCard,
+  addMoney,
+  endTurn,
+  exhaustCard,
+  findCard,
+  GameAction,
+  GameParams,
+  gameSlice,
+  GameState,
+  getCard,
+  moveCard,
+  PlayerId,
+  refreshCard,
+  removeCard,
+  removeMoney,
+  revealCard,
+  setProp,
+  TargetCardParams,
+  Zone,
+  zones,
+} from "./gameSlice";
 import { v4 as uuid } from "uuid";
+import { utils } from "pixi.js";
 
 export function opponent(player: PlayerId) {
   return player == 0 ? 1 : 0;
@@ -89,8 +121,37 @@ export function randoms<T>(ts: T[], number: number) {
   return result;
 }
 
+export function onTrigger<T extends GameParams>(
+  trigger: (payload: T) => GameAction,
+  selector?: (info: CardInfo) => CardTrigger<T>,
+  init: boolean = false,
+) {
+  return function* (this: GetCardInfo, game: GameState, payload: T): Generator<GameAction, void, GameState> {
+    const newGame = yield trigger(payload);
+    if (init) {
+      game = newGame;
+    }
+
+    if (selector && payload.card) {
+      const card = getCard(game, payload.card);
+      if (card) {
+        yield* selector(this.getCardInfo(game, card))(payload);  
+      }
+    }
+  };
+}
+
 const util = {
-  ...gameSlice.actions,
+  endTurn: onTrigger(endTurn),
+  moveCard: onTrigger(moveCard, (info) => info.onMove),
+  addCard: onTrigger(addCard, (info) => info.onAdd, true),
+  removeCard: onTrigger(removeCard, (info) => info.onRemove),
+  revealCard: onTrigger(revealCard, (info) => info.onReveal),
+  refreshCard: onTrigger(refreshCard, (info) => info.onRefresh),
+  exhaustCard: onTrigger(exhaustCard, (info) => info.onExhaust),
+  setProp: onTrigger(setProp, (info) => info.onSetProp),
+  addMoney: onTrigger(addMoney),
+  removeMoney: onTrigger(removeMoney),
   findCard: findCard as (game: GameState, card: Target) => { player: PlayerId; zone: Zone; index: number },
   opponent,
   currentPlayer,
@@ -103,8 +164,7 @@ const util = {
   randoms,
 };
 
-export type Util = typeof util & {
-  getCardInfo: (game: GameState, card: CardState, base?: boolean) => CardInfo;
-};
+export type GetCardInfo = { getCardInfo: (game: GameState, card: CardState, base?: boolean) => CardInfo };
+export type Util = typeof util & GetCardInfo;
 
 export default util;

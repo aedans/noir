@@ -45,7 +45,7 @@ export type GameParams = { card?: Target } & (
   | AddCardParams
   | TargetCardParams
   | SetPropParams
-  | AddMoneyParams
+  | ChangeMoneyParams
 );
 
 export type MoveCardParams = {
@@ -69,7 +69,7 @@ export type SetPropParams = {
   value: any;
 };
 
-export type AddMoneyParams = {
+export type ChangeMoneyParams = {
   player: PlayerId;
   money: number;
 };
@@ -158,10 +158,10 @@ export const gameSlice = createSlice({
     setProp: (state, action: PayloadAction<SetPropParams>) => {
       updateCard(state, action.payload.card, (card) => (card.props[action.payload.name] = action.payload.value));
     },
-    addMoney: (state, action: PayloadAction<AddMoneyParams>) => {
+    addMoney: (state, action: PayloadAction<ChangeMoneyParams>) => {
       state.players[action.payload.player].money += Math.max(0, action.payload.money);
     },
-    removeMoney: (state, action: PayloadAction<AddMoneyParams>) => {
+    removeMoney: (state, action: PayloadAction<ChangeMoneyParams>) => {
       state.players[action.payload.player].money -= Math.max(0, action.payload.money);
     },
   },

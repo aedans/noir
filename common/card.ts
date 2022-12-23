@@ -1,5 +1,5 @@
 import { DeepPartial } from "redux";
-import { GameAction, GameState } from "./gameSlice";
+import { AddCardParams, GameAction, gameSlice, GameState, MoveCardParams, TargetCardParams } from "./gameSlice";
 import { Util } from "./util";
 
 export type ModifierState = {
@@ -35,6 +35,7 @@ export type CardTargetAction = (target: Target) => Generator<GameAction, void, G
 export type CardModifier = (card: CardInfo, modifier: ModifierState) => Partial<CardInfo>;
 export type CardTargets = () => Target[];
 export type CardEffect = (card: CardInfo, state: CardState) => Partial<CardInfo>;
+export type CardTrigger<T> = (payload: T) => Generator<GameAction, void, GameState>;
 
 export type CardInfo = {
   text: string;
@@ -52,6 +53,13 @@ export type CardInfo = {
   turn: CardAction;
   effect: CardEffect;
   modifiers: { [name: string]: CardModifier };
+  onMove: CardTrigger<MoveCardParams>;
+  onAdd: CardTrigger<AddCardParams>;
+  onRemove: CardTrigger<TargetCardParams>;
+  onReveal: CardTrigger<TargetCardParams>;
+  onRefresh: CardTrigger<TargetCardParams>;
+  onExhaust: CardTrigger<TargetCardParams>;
+  onSetProp: CardTrigger<TargetCardParams>;
 };
 
 export type PartialCardInfoComputation = (
@@ -69,6 +77,13 @@ export type PartialCardInfoComputation = (
   turn?: CardAction;
   effect?: CardEffect;
   modifiers?: { [name: string]: CardModifier };
+  onMove?: CardTrigger<MoveCardParams>;
+  onAdd?: CardTrigger<AddCardParams>;
+  onRemove?: CardTrigger<TargetCardParams>;
+  onReveal?: CardTrigger<TargetCardParams>;
+  onRefresh?: CardTrigger<TargetCardParams>;
+  onExhaust?: CardTrigger<TargetCardParams>;
+  onSetProp?: CardTrigger<TargetCardParams>;
 };
 
 export type Target = { id: string };
@@ -124,5 +139,12 @@ export function runPartialCardInfoComputation(
     turn: partial.turn ?? function* () {},
     effect: partial.effect ?? (() => ({})),
     modifiers: partial.modifiers ?? {},
+    onMove: partial.onMove ?? function* () {},
+    onAdd: partial.onAdd ?? function* () {},
+    onRemove: partial.onRemove ?? function* () {},
+    onReveal: partial.onReveal ?? function* () {},
+    onRefresh: partial.onRefresh ?? function* () {},
+    onExhaust: partial.onExhaust ?? function* () {},
+    onSetProp: partial.onSetProp ?? function* () {},
   };
 }

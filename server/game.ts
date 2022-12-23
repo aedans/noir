@@ -1,41 +1,31 @@
 import Player, { PlayerAction } from "./Player";
-import {
-  addMoney,
-  addCard,
-  endTurn,
-  exhaustCard,
-  findCard,
-  GameAction,
-  gameSlice,
-  GameState,
-  getCard,
-  initialGameState,
-  moveCard,
-  PlayerId,
-  refreshCard,
-  removeMoney,
-} from "../common/gameSlice";
+import { findCard, GameAction, gameSlice, GameState, getCard, initialGameState, PlayerId } from "../common/gameSlice";
 import { defaultUtil, getCardInfo } from "./card";
-import util, { currentPlayer } from "../common/util";
+import { currentPlayer } from "../common/util";
 import { CardColor, CardCost, CardState, Target } from "../common/card";
 import { setAction, setHidden } from "../common/historySlice";
 
 function* doEndTurn(game: GameState): Generator<GameAction, void, GameState> {
   const player = currentPlayer(game);
-  yield addMoney({ player, money: 2 });
+  yield* defaultUtil.addMoney(game, { player, money: 2 });
 
   for (const card of game.players[player].board) {
     if (card.exhausted) {
-      yield refreshCard({ card });
+      yield* defaultUtil.refreshCard(game, { card });
     }
 
     yield* getCardInfo(game, card).turn();
   }
 
-  game = yield endTurn({});
+  yield* defaultUtil.endTurn(game, {});
 }
 
-function validateTargets(game: GameState, card: CardState, targets: (() => Target[]) | undefined, target: Target | undefined) {
+function validateTargets(
+  game: GameState,
+  card: CardState,
+  targets: (() => Target[]) | undefined,
+  target: Target | undefined
+) {
   if (targets) {
     if (!target) {
       throw `${card.name} requires a target`;
@@ -68,9 +58,9 @@ function* payCost(game: GameState, verb: string, name: string, colors: CardColor
 
   agents.sort((a, b) => getCardInfo(game, b).activationPriority - getCardInfo(game, a).activationPriority);
 
-  yield removeMoney({ player, money: cost.money });
+  yield* defaultUtil.removeMoney(game, { player, money: cost.money });
   for (const card of agents.slice(0, cost.agents)) {
-    yield exhaustCard({ card });
+    yield* defaultUtil.exhaustCard(game, { card });
   }
 }
 
@@ -88,12 +78,12 @@ function* playCard(
   yield* info.play(target!);
 
   if (info.type == "operation") {
-    yield moveCard({
+    yield* defaultUtil.moveCard(game, {
       card,
       to: { player, zone: "graveyard" },
     });
   } else {
-    yield moveCard({
+    yield* defaultUtil.moveCard(game, {
       card,
       to: { player, zone: "board" },
     });
@@ -118,7 +108,7 @@ function* activateCard(
   validateTargets(game, card, info.activateTargets, target);
 
   yield* payCost(game, "activate", card.name, info.colors, info.activateCost);
-  yield exhaustCard({ card });
+  yield* defaultUtil.exhaustCard(game, { card });
   yield* info.activate(target!);
 }
 
@@ -184,15 +174,19 @@ export async function createGame(players: [Player, Player]) {
 
     for (const [name, number] of Object.entries(init.deck.cards)) {
       for (let i = 0; i < number; i++) {
-        const action = addCard({
-          card: util.cid(),
+        const generator = defaultUtil.addCard(state, {
+          card: defaultUtil.cid(),
           name,
           player,
           zone: "deck",
         });
 
-        state = gameSlice.reducer(state, action);
-        actions.push(action);
+        let next = generator.next(state);
+        while (!next.done) {
+          state = gameSlice.reducer(state, next.value);
+          actions.push(next.value);
+          next = generator.next(state);
+        }
       }
     }
 
@@ -216,7 +210,7 @@ export async function createGame(players: [Player, Player]) {
       sendActions(actions, player, `player${player}/${playerAction.type}Action`);
     } catch (e) {
       if (typeof e == "string") {
-        players[player].error(e)
+        players[player].error(e);
       } else {
         console.error(e);
       }

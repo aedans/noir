@@ -7,7 +7,7 @@ exports.card = (util, game, card) => ({
   colors: [],
   keywords: ["disloyal", "protected"],
   turn: function* () {
-    yield util.setProp({ card, name: "ready", value: true });
+    yield* util.setProp(game, { card, name: "ready", value: true });
   },
   effect: (info, state) => {
     const { player, zone } = util.findCard(game, state);
@@ -15,7 +15,7 @@ exports.card = (util, game, card) => ({
       return {
         cost: { ...info.cost, money: info.cost.money - 2 },
         play: function* (target) {
-          yield util.setProp({ card, name: "ready", value: false });
+          yield* util.setProp(game, { card, name: "ready", value: false });
           yield* info.play(target);
         }
       }

@@ -8,14 +8,14 @@ exports.card = (util, game, card) => ({
   turn: function* () {
     const turns = card.props.turns ?? 0;
 
-    yield util.setProp({
+    yield* util.setProp(game, {
       card,
       name: "turns",
       value: (turns + 1) % 2,
     });
 
     if (turns == 0) {
-      yield util.addCard({
+      yield* util.addCard(game, {
         card: util.cid(),
         name: "Civic Servant",
         player: util.findCard(game, card).player,
