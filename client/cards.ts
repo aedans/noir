@@ -48,9 +48,7 @@ export async function getCards() {
 export function useCardInfo(card: CardState) {
   const game = useClientSelector((state) => state.game.current);
   const hasLoaded = card.name in cards;
-  const [cardInfo, setCardInfo] = useState(
-    hasLoaded ? getCardInfo(game, card) : runPartialCardInfoComputation(() => ({}), defaultUtil, game, card)
-  );
+  const [cardInfo, setCardInfo] = useState(runPartialCardInfoComputation(() => ({}), defaultUtil, game, card));
 
   useEffect(() => {
     if (!hasLoaded) {
@@ -60,6 +58,12 @@ export function useCardInfo(card: CardState) {
       })();
     }
   }, []);
+
+  useEffect(() => {
+    if (hasLoaded) {
+      setCardInfo(getCardInfo(game, card));
+    }
+  }, [game])
 
   return cardInfo;
 }

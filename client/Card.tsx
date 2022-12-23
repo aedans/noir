@@ -94,7 +94,13 @@ export default React.forwardRef(function Card(props: CardProps, ref: Ref<Contain
         text={text}
         style={{ fontSize: 128, align: "center", maxWidth: cardWidth - 200, letterSpacing: 1 }}
       />
-      <Text anchor={[0.5, 0.5]} x={160} y={200} text={cardInfo.cost.money} style={{ fontSize: 128, tint: 0 }} />
+      <Text
+        anchor={[0.5, 0.5]}
+        x={160}
+        y={200}
+        text={Math.max(0, cardInfo.cost.money)}
+        style={{ fontSize: 128, tint: 0 }}
+      />
     </Container>
   );
 });

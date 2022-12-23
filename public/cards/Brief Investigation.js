@@ -6,7 +6,7 @@ exports.card = (util, game, card) => ({
   cost: { money: 2 },
   play: function* () {
     const cards = util.filter(game, {
-      players: [util.opponent(util.cardOwner(game, card))],
+      players: [util.opponent(util.findCard(game, card).player)],
       zones: ["deck"],
     });
 

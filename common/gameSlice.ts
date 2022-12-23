@@ -159,10 +159,23 @@ export const gameSlice = createSlice({
       updateCard(state, action.payload.card, (card) => (card.props[action.payload.name] = action.payload.value));
     },
     addMoney: (state, action: PayloadAction<AddMoneyParams>) => {
-      state.players[action.payload.player].money += action.payload.money;
+      state.players[action.payload.player].money += Math.max(0, action.payload.money);
+    },
+    removeMoney: (state, action: PayloadAction<AddMoneyParams>) => {
+      state.players[action.payload.player].money -= Math.max(0, action.payload.money);
     },
   },
 });
 
-export const { endTurn, moveCard, addCard, removeCard, revealCard, refreshCard, exhaustCard, setProp, addMoney } =
-  gameSlice.actions;
+export const {
+  endTurn,
+  moveCard,
+  addCard,
+  removeCard,
+  revealCard,
+  refreshCard,
+  exhaustCard,
+  setProp,
+  addMoney,
+  removeMoney,
+} = gameSlice.actions;

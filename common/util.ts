@@ -10,14 +10,6 @@ export function currentPlayer(game: { turn: number }) {
   return game.turn % 2 == 0 ? (0 as const) : (1 as const);
 }
 
-export function cardOwner(game: GameState, card: Target) {
-  return findCard(game, card)!.player;
-}
-
-export function isInZone(game: GameState, card: Target, zone: Zone) {
-  return findCard(game, card)?.zone == zone;
-}
-
 export type Filter = {
   players?: PlayerId[];
   zones?: Zone[];
@@ -54,7 +46,7 @@ export function canPayCost(this: Util, game: GameState, player: PlayerId, colors
     zones: ["board"],
     colors,
   });
-  
+
   return game.players[player].money >= cost.money && agents.length >= cost.agents;
 }
 
@@ -63,15 +55,19 @@ export function updateCardInfo(this: Util, game: GameState, state: CardState, in
     const card = getCard(game, modifier.card);
     if (card) {
       const modifiers = this.getCardInfo(game, card, true).modifiers ?? {};
-      info = { ...info, ...modifiers[modifier.name](info, modifier) };  
+      info = { ...info, ...modifiers[modifier.name](info, modifier) };
     }
+  }
+
+  for (const card of this.filter(game, { zones: ["board"] })) {
+    info = { ...info, ...this.getCardInfo(game, card, true).effect(info, state) };
   }
 
   return info;
 }
 
 export function keywordModifier(keyword: CardKeyword): CardModifier {
-  return (info, card) => ({
+  return (info) => ({
     keywords: [...info.keywords, keyword],
   });
 }
@@ -95,10 +91,9 @@ export function randoms<T>(ts: T[], number: number) {
 
 const util = {
   ...gameSlice.actions,
+  findCard: findCard as (game: GameState, card: Target) => { player: PlayerId; zone: Zone; index: number },
   opponent,
   currentPlayer,
-  cardOwner,
-  isInZone,
   filter,
   canPayCost,
   updateCardInfo,

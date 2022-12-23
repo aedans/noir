@@ -18,7 +18,7 @@ exports.card = (util, game, card) => ({
       yield util.addCard({
         card: util.cid(),
         name: "Civic Servant",
-        player: util.cardOwner(game, card),
+        player: util.findCard(game, card).player,
         zone: "board",
         state: {
           modifiers: [{ card, name: "disloyal" }],

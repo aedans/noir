@@ -5,7 +5,7 @@ exports.card = (util, game, card) => ({
   type: "operation",
   play: function* () {
     yield util.addMoney({
-      player: util.cardOwner(game, card),
+      player: util.findCard(game, card).player,
       money: 1,
     });
   }

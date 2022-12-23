@@ -13,6 +13,7 @@ import {
   moveCard,
   PlayerId,
   refreshCard,
+  removeMoney,
 } from "../common/gameSlice";
 import { defaultUtil, getCardInfo } from "./card";
 import util, { currentPlayer } from "../common/util";
@@ -67,7 +68,7 @@ function* payCost(game: GameState, verb: string, name: string, colors: CardColor
 
   agents.sort((a, b) => getCardInfo(game, b).activationPriority - getCardInfo(game, a).activationPriority);
 
-  yield addMoney({ player, money: -cost.money });
+  yield removeMoney({ player, money: cost.money });
   for (const card of agents.slice(0, cost.agents)) {
     yield exhaustCard({ card });
   }

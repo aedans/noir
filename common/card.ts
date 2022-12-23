@@ -34,6 +34,7 @@ export type CardAction = () => Generator<GameAction, void, GameState>;
 export type CardTargetAction = (target: Target) => Generator<GameAction, void, GameState>;
 export type CardModifier = (card: CardInfo, modifier: ModifierState) => Partial<CardInfo>;
 export type CardTargets = () => Target[];
+export type CardEffect = (card: CardInfo, state: CardState) => Partial<CardInfo>;
 
 export type CardInfo = {
   text: string;
@@ -49,6 +50,7 @@ export type CardInfo = {
   hasActivateEffect: boolean;
   activationPriority: number;
   turn: CardAction;
+  effect: CardEffect;
   modifiers: { [name: string]: CardModifier };
 };
 
@@ -65,6 +67,7 @@ export type PartialCardInfoComputation = (
   activate?: CardTargetAction;
   hasActivateEffect?: boolean;
   turn?: CardAction;
+  effect?: CardEffect;
   modifiers?: { [name: string]: CardModifier };
 };
 
@@ -94,6 +97,17 @@ export function runPartialCardInfoComputation(
     partial.activateCost ?? {}
   );
 
+  const hasActivateEffect = partial.activate != undefined;
+  let activationPriority = partial.activationPriority ?? 0;
+
+  if (partial.colors && partial.colors.length > 0) {
+    activationPriority += partial.colors.length * 100;
+  }
+
+  if (hasActivateEffect) {
+    activationPriority -= 1000;
+  }
+
   return {
     text: partial.text ?? "",
     type: partial.type ?? "operation",
@@ -105,9 +119,10 @@ export function runPartialCardInfoComputation(
     activateCost,
     activateTargets: partial.activateTargets,
     activate: partial.activate ?? function* () {},
-    hasActivateEffect: partial.hasActivateEffect ?? partial.activate != undefined,
-    activationPriority: 0,
+    hasActivateEffect,
+    activationPriority: activationPriority,
     turn: partial.turn ?? function* () {},
+    effect: partial.effect ?? (() => ({})),
     modifiers: partial.modifiers ?? {},
   };
 }
