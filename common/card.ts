@@ -116,7 +116,7 @@ export function runPartialCardInfoComputation(
   let activationPriority = partial.activationPriority ?? 0;
 
   if (partial.colors && partial.colors.length > 0) {
-    activationPriority += partial.colors.length * 100;
+    activationPriority -= partial.colors.length * 100;
   }
 
   if (hasActivateEffect) {
