@@ -58,7 +58,10 @@ function* payCost(game: GameState, verb: string, name: string, colors: CardColor
 
   agents.sort((a, b) => getCardInfo(game, b).activationPriority - getCardInfo(game, a).activationPriority);
 
-  yield* defaultUtil.removeMoney(game, { player, money: cost.money });
+  if (cost.money > 0) {
+    yield* defaultUtil.removeMoney(game, { player, money: cost.money });
+  }
+  
   for (const card of agents.slice(0, cost.agents)) {
     yield* defaultUtil.exhaustCard(game, { card });
   }
@@ -74,9 +77,6 @@ function* playCard(
 
   validateTargets(game, card, info.targets, target);
 
-  yield* payCost(game, "play", card.name, info.colors, info.cost);
-  yield* info.play(target!);
-
   if (info.type == "operation") {
     yield* defaultUtil.moveCard(game, {
       card,
@@ -88,6 +88,9 @@ function* playCard(
       to: { player, zone: "board" },
     });
   }
+
+  yield* payCost(game, "play", card.name, info.colors, info.cost);
+  yield* info.play(target!);
 }
 
 function* activateCard(
@@ -107,8 +110,8 @@ function* activateCard(
 
   validateTargets(game, card, info.activateTargets, target);
 
-  yield* payCost(game, "activate", card.name, info.colors, info.activateCost);
   yield* defaultUtil.exhaustCard(game, { card });
+  yield* payCost(game, "activate", card.name, info.colors, info.activateCost);
   yield* info.activate(target!);
 }
 
