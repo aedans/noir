@@ -1,5 +1,4 @@
 import { useEffect, useLayoutEffect, useState } from "react";
-import { AnyAction } from "redux";
 import { CardState, PartialCardInfoComputation, runPartialCardInfoComputation } from "../common/card";
 import { GameState } from "../common/gameSlice";
 import util from "../common/util";
@@ -26,8 +25,12 @@ async function getPartialCardInfoComputation(card: { name: string }) {
   }
 }
 
+export function isLoaded(card: { name: string }) {
+  return card.name in cards;
+}
+
 export async function loadCard(card: { name: string }) {
-  if (!(card.name in cards)) {
+  if (!isLoaded(card)) {
     cards[card.name] = await getPartialCardInfoComputation(card);
   }
 }
@@ -47,7 +50,7 @@ export async function getCards() {
 
 export function useCardInfo(card: CardState) {
   const game = useClientSelector((state) => state.game.current);
-  const hasLoaded = card.name in cards;
+  const hasLoaded = isLoaded(card);
   const [cardInfo, setCardInfo] = useState(runPartialCardInfoComputation(() => ({}), defaultUtil, game, card));
 
   useEffect(() => {

@@ -83,6 +83,10 @@ export function canPayCost(this: Util, game: GameState, player: PlayerId, colors
 }
 
 export function updateCardInfo(this: Util, game: GameState, state: CardState, info: CardInfo) {
+  if (!findCard(game, state)) {
+    return info;
+  }
+  
   for (const modifier of state.modifiers) {
     const card = getCard(game, modifier.card);
     if (card) {

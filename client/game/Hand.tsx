@@ -1,4 +1,4 @@
-import React, { MutableRefObject, Ref, useContext, useEffect, useImperativeHandle, useRef } from "react";
+import React, { MutableRefObject, Ref, useContext, useEffect, useImperativeHandle, useRef, useState } from "react";
 import { useDrag } from "react-dnd";
 import { Container } from "react-pixi-fiber";
 import { targetResolution } from "../Camera";
@@ -6,9 +6,10 @@ import { EnterExitAnimator } from "../EnterExitAnimation";
 import { useClientSelector } from "../store";
 import { PlayerContext } from "./Game";
 import GameCard, { gameCardHeight, GameCardProps, gameCardWidth } from "./GameCard";
-import { useCardInfo } from "../cards";
+import { defaultUtil, getCardInfo, isLoaded, loadCard, useCardInfo } from "../cards";
 import Reticle from "./Reticle";
 import { getCardColor } from "../Card";
+import { CardState } from "../../common/card";
 
 const HandCard = React.forwardRef(function HandCard(props: GameCardProps, ref: Ref<Container>) {
   const cardRef = useRef() as MutableRefObject<Required<Container>>;
@@ -43,7 +44,7 @@ const HandCard = React.forwardRef(function HandCard(props: GameCardProps, ref: R
     x = position.x;
     y = position.y;
   }
-  
+
   const card = <GameCard {...props} x={x} y={y} ref={cardRef} interactive />;
 
   if (cardInfo.targets) {
