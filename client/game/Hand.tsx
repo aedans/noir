@@ -86,7 +86,11 @@ export default function Hand() {
       return defaultUtil.canPayCost(game, player, info.colors, info.cost);
     });
 
-  const offset = gameCardWidth - 20;
+  let offset = gameCardWidth - 20;
+  if (offset * hand.length > 2500) {
+    offset /= (offset * hand.length) / 2500;
+  }
+
   const x = (targetResolution.width - hand.length * offset) / 2 + gameCardWidth / 2;
   const y = targetResolution.height * (3 / 4) + gameCardHeight / 2 + 20;
 
