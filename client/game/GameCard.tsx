@@ -4,10 +4,11 @@ import { Container } from "react-pixi-fiber";
 import { CardState } from "../../common/card";
 import { findCard } from "../../common/gameSlice";
 import Card, { cardHeight, CardProps, cardWidth } from "../Card";
+import { defaultUtil, useCardInfo } from "../cards";
 import EnterExitAnimation, { EnterExitAnimationStatus } from "../EnterExitAnimation";
 import MoveAnimation, { MoveAnimationContext } from "../MoveAnimation";
 import { useClientSelector } from "../store";
-import { SocketContext } from "./Game";
+import { PlayerContext, SocketContext } from "./Game";
 
 export const gameCardScale = 1 / 4;
 export const gameCardWidth = cardWidth * gameCardScale;
@@ -38,7 +39,8 @@ const GameCard = React.forwardRef(function GameCard(props: GameCardProps, ref: R
     drop(componentRef);
   });
 
-  const doesExist = ["deck", "board"].includes(findCard(game, props.state)?.zone ?? "");
+  const location = findCard(game, props.state);
+  const doesExist = ["deck", "board"].includes(location?.zone ?? "");
   const hasExisted = props.state.id in move.current;
   const shouldAnimate = (!hasExisted && doesExist) || !doesExist;
 

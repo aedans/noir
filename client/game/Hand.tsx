@@ -6,10 +6,9 @@ import { EnterExitAnimator } from "../EnterExitAnimation";
 import { useClientSelector } from "../store";
 import { PlayerContext } from "./Game";
 import GameCard, { gameCardHeight, GameCardProps, gameCardWidth } from "./GameCard";
-import { defaultUtil, getCardInfo, isLoaded, loadCard, useCardInfo } from "../cards";
+import { defaultUtil, isLoaded, loadCard, useCardInfo } from "../cards";
 import Reticle from "./Reticle";
 import { getCardColor } from "../Card";
-import { CardState } from "../../common/card";
 
 const HandCard = React.forwardRef(function HandCard(props: GameCardProps, ref: Ref<Container>) {
   const cardRef = useRef() as MutableRefObject<Required<Container>>;
@@ -61,15 +60,38 @@ const HandCard = React.forwardRef(function HandCard(props: GameCardProps, ref: R
 });
 
 export default function Hand() {
+  const [_, setHasLoaded] = useState(false);
   const player = useContext(PlayerContext);
-  const cards = useClientSelector((state) => state.game.current.players[player].deck);
-  const offset = gameCardWidth - 20;
+  const game = useClientSelector((state) => state.game.current);
+  const cards = game.players[player].deck;
 
-  const x = (targetResolution.width - cards.length * offset) / 2 + gameCardWidth / 2;
+  useEffect(() => {
+    if (cards.some((card) => !isLoaded(card))) {
+      setHasLoaded(false);
+    }
+
+    (async () => {
+      for (const card of cards.filter((c) => !isLoaded(c))) {
+        await loadCard(card);
+      }
+
+      setHasLoaded(true);
+    })();
+  }, [cards]);
+
+  const hand = cards
+    .filter((card) => isLoaded(card))
+    .filter((card) => {
+      const info = defaultUtil.getCardInfo(game, card);
+      return defaultUtil.canPayCost(game, player, info.colors, info.cost);
+    });
+
+  const offset = gameCardWidth - 20;
+  const x = (targetResolution.width - hand.length * offset) / 2 + gameCardWidth / 2;
   const y = targetResolution.height * (3 / 4) + gameCardHeight / 2 + 20;
 
   return (
-    <EnterExitAnimator elements={cards}>
+    <EnterExitAnimator elements={hand}>
       {(state, status, i) =>
         i != null ? (
           <HandCard
@@ -78,8 +100,8 @@ export default function Hand() {
             status={status}
             key={state.id}
             x={x + i * offset}
-            y={y + Math.abs((i - (cards.length - 1) / 2.0) * 10)}
-            angle={(i - (cards.length - 1) / 2.0) * 1}
+            y={y + Math.abs((i - (hand.length - 1) / 2.0) * 10)}
+            angle={(i - (hand.length - 1) / 2.0) * 1}
           />
         ) : (
           <HandCard useLastPos={true} state={state} status={status} key={state.id} />

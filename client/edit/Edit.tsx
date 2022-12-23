@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { getCards as getAllCards } from "../cards";
 import Grid from "../Grid";
-import Card, { cardWidth } from "../Card";
+import Card, { cardHeight, cardWidth } from "../Card";
 import { useClientDispatch, useClientSelector } from "../store";
 import { defaultCardState } from "../../common/gameSlice";
 import { addDeckCard, removeDeckCard } from "../../common/decksSlice";
@@ -38,7 +38,7 @@ export default function Edit() {
     <>
       <Rectangle fill={0x202020} width={targetResolution.width} height={targetResolution.height} />
       <Grid maxWidth={0} x={targetResolution.width - cardWidth / 4} data={cards} margin={{ x: 1, y: 0.12 }}>
-        {(data, ref) => (
+        {(data, ref, x, y) => (
           <Card
             state={defaultCardState(data.name, data.id)}
             key={data.id}
@@ -46,18 +46,22 @@ export default function Edit() {
             scale={1 / 4}
             pointerdown={pointerdownRemove(data.name)}
             interactive
+            x={x + cardWidth / 8}
+            y={y + cardHeight / 8}
           />
         )}
       </Grid>
-      <Grid data={allCards} maxWidth={3500}>
-        {(data, ref) => (
+      <Grid data={allCards.map((id) => ({ id }))} maxWidth={3500}>
+        {(data, ref, x, y) => (
           <Card
-            state={defaultCardState(data, data)}
-            key={data}
+            state={defaultCardState(data.id, data.id)}
+            key={data.id}
             ref={ref}
             scale={1 / 4}
-            pointerdown={pointerdownAdd(data)}
+            pointerdown={pointerdownAdd(data.id)}
             interactive
+            x={x + cardWidth / 8}
+            y={y + cardHeight / 8}
           />
         )}
       </Grid>

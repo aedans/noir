@@ -36,7 +36,6 @@ export const behavior: CustomPIXIComponentBehavior<Camera3d, CustomCameraProps> 
   customDisplayObject: (props) => new Camera3d(),
   customApplyProps: (instance, oldProps, newProps) => {
     newProps.innerRef.current = instance;
-    instance.sortableChildren = true;
     Ticker.shared.add(() => onResize(instance));
     onResize(instance);
   },

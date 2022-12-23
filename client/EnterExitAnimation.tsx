@@ -1,13 +1,13 @@
 import anime from "animejs";
 import React, { MutableRefObject, ReactElement, ReactNode, useLayoutEffect, useRef } from "react";
-import { Container } from "react-pixi-fiber";
+import { Container, PixiElement } from "react-pixi-fiber";
 import { Target } from "../common/card";
 
 export type EnterExitAnimationState<T> = { [id: string]: T };
 
 export type EnterExitAnimationStatus = "entering" | "exiting" | "none";
 
-export type EnterExitAnimatorProps<T extends Target> = {
+export type EnterExitAnimatorProps<T extends Target> = Omit<PixiElement<Container>, "children"> & {
   elements: T[];
   children: (state: T, status: EnterExitAnimationStatus, index: number | null) => ReactElement;
 };
@@ -29,7 +29,11 @@ export function EnterExitAnimator<T extends Target>(props: EnterExitAnimatorProp
     return props.children(state, "exiting", null);
   });
 
-  return <>{[...children, ...exiting]}</>;
+  return (
+    <Container {...props}>
+      {[...children, ...exiting]}
+    </Container>
+  );
 }
 
 export type EnterExitAnimationProps = {

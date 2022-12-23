@@ -1,47 +1,54 @@
 import { Sprite } from "pixi.js";
-import React, { createRef, MutableRefObject, useLayoutEffect } from "react";
+import React, { createRef, MutableRefObject, Ref, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { ReactElement } from "react";
 import { Container, PixiElement } from "react-pixi-fiber";
+import { Target } from "../common/card";
 
-export type GridProps<T> = Omit<PixiElement<Container>, "children"> & {
+export type GridProps<T extends Target> = Omit<PixiElement<Container>, "children"> & {
   data: T[];
   maxWidth?: number;
   margin?: { x: number; y: number };
-  children: (t: T, ref: MutableRefObject<Required<Container>>) => ReactElement;
+  children: (t: T, ref: Ref<Container>, x: number, y: number, i: number) => ReactElement;
 };
 
-export default function Grid<T>(props: GridProps<T>) {
-  const children = props.data.map((d) => {
-    const ref = createRef() as MutableRefObject<Required<Container> & Partial<Sprite>>;
-    return { element: props.children(d, ref), ref };
-  });
+export default function Grid<T extends Target>(props: GridProps<T>) {
+  const [value, setValue] = useState(0);
+  const refs = useRef({}) as MutableRefObject<{
+    [id: string]: MutableRefObject<Required<Container> & Partial<Sprite>>;
+  }>;
 
   const margin = props.margin ?? { x: 1, y: 1 };
 
-  useLayoutEffect(() => {
-    let x = 0;
-    let y = 0;
-    for (const container of children.map((c) => c.ref.current)) {
-      container.x = x;
-      container.y = y;
+  let missingRefs = false;
+  let elems: ReactElement[] = [];
+  let x = 0;
+  let y = 0;
+  let i = 0;
+  for (const child of props.data) {
+    if (!refs.current[child.id]) {
+      refs.current[child.id] = createRef() as MutableRefObject<Required<Container> & Partial<Sprite>>;
+    }
 
-      if (container.anchor) {
-        container.x += container.width * container.anchor.x;
-        container.y += container.height * container.anchor.y;
-      }
+    const ref = refs.current[child.id];
+    elems.push(props.children(child, ref, x, y, i++));
 
-      if (container.pivot) {
-        container.x += container.pivot.x * container.scale.x;
-        container.y += container.pivot.y * container.scale.y;
-      }
-
+    if (ref.current) {
+      const container = ref.current;
       x += container.width * margin.x + margin.x;
       if (props.maxWidth != undefined && x > props.maxWidth) {
         x = 0;
         y += container.height * margin.y + margin.y;
       }
+    } else {
+      missingRefs = true;
+    } 
+  }
+
+  useLayoutEffect(() => {
+    if (missingRefs) {
+      setValue(value + 1);
     }
   }, [props.data]);
 
-  return <Container {...props}>{children.map((c) => c.element)}</Container>;
+  return <Container {...props}>{elems}</Container>;
 }

@@ -6,6 +6,7 @@ import Noir from "./Noir";
 settings.RENDER_OPTIONS.antialias = true;
 settings.ANISOTROPIC_LEVEL = 16;
 settings.MIPMAP_TEXTURES = MIPMAP_MODES.ON;
+settings.SORTABLE_CHILDREN = true;
 
 Loader.shared.add("Oswald", "./Oswald.fnt").load(() => {
   const container = document.getElementById("root")!;

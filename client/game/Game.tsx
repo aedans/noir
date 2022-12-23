@@ -18,6 +18,7 @@ import Button from "../Button";
 import OpponentHand from "./OpponentHand";
 import { reset } from "../../common/historySlice";
 import Message from "./Message";
+import Deck from "./Deck";
 
 export const SocketContext = React.createContext(null as unknown) as Context<Socket>;
 export const PlayerContext = React.createContext(0 as PlayerId);
@@ -69,14 +70,15 @@ export default function Game() {
     <SocketContext.Provider value={socket}>
       <MoveAnimationContext.Provider value={cards}>
         <PlayerContext.Provider value={player}>
-          <Container sortableChildren={true}>
+          <Container>
             <Rectangle fill={0x202020} width={targetResolution.width} height={targetResolution.height} />
+            <EndTurn />
+            <Resources />
             <OpponentHand />
             <OpponentBoard />
+            <Deck />
             <Board />
             <Hand />
-            <Resources />
-            <EndTurn />
             <Message text={message} />
           </Container>
         </PlayerContext.Provider>

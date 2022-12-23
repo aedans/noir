@@ -1,4 +1,4 @@
-import React, { createRef, MutableRefObject, Ref, useEffect, useImperativeHandle, useRef, useState } from "react";
+import React, { MutableRefObject, Ref, useEffect, useImperativeHandle, useRef } from "react";
 import { Container, PixiElement, Sprite } from "react-pixi-fiber";
 import Rectangle from "./Rectangle";
 import { targetResolution } from "./Camera";
@@ -42,6 +42,7 @@ export default React.forwardRef(function Card(props: CardProps, ref: Ref<Contain
   const cardInfo = useCardInfo(props.state);
   const containerRef = useRef() as MutableRefObject<Required<Container>>;
   const dimFilterRef = useRef(new filters.ColorMatrixFilter());
+  const dropShadowFilterRef = useRef(new DropShadowFilter({ alpha: 0.5, blur: 1, distance: 0 }));
 
   useImperativeHandle(ref, () => containerRef.current);
 
@@ -50,11 +51,9 @@ export default React.forwardRef(function Card(props: CardProps, ref: Ref<Contain
     dimFilterRef.current.alpha = 0;
   }, []);
 
-  const dropShadowFilter = new DropShadowFilter({
-    alpha: 0.5,
-    blur: 1,
-    distance: (props.zIndex ?? 0) + 5,
-  });
+  useEffect(() => {
+    dropShadowFilterRef.current.distance = (props.zIndex ?? 0) + 5;
+  }, [props.zIndex]);
 
   useEffect(() => {
     dimFilterRef.current.greyscale(0, true);
@@ -66,7 +65,7 @@ export default React.forwardRef(function Card(props: CardProps, ref: Ref<Contain
     });
   }, [props.state.exhausted]);
 
-  const currentFilters: Filter[] = [dimFilterRef.current, dropShadowFilter];
+  const currentFilters: Filter[] = [dimFilterRef.current, dropShadowFilterRef.current];
   if (props.filters) {
     currentFilters.push(...props.filters);
   }
