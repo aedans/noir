@@ -30,7 +30,7 @@ const BoardCard = React.forwardRef(function HandCard(props: GameCardProps, ref: 
     !props.state.exhausted &&
     cardInfo.hasActivateEffect &&
     currentPlayer(game) == player &&
-    defaultUtil.canPayCost(game, player, cardInfo.colors, cardInfo.activateCost);
+    defaultUtil.canPayCost(game, props.state, player, cardInfo.colors, cardInfo.activateCost);
 
   const filter = new GlowFilter({
     color: getCardColor(cardInfo),

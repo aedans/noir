@@ -17,7 +17,7 @@ export type CardState = {
 };
 
 export const cardColors = ["orange", "blue", "green", "purple"] as const;
-export const cardTypes = ["agent", "location", "operation"] as const;
+export const cardTypes = ["agent", "operation"] as const;
 export const cardKeywords = ["disloyal", "protected", "vip"] as const;
 
 export type CardColor = typeof cardColors[number];

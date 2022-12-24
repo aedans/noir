@@ -65,7 +65,9 @@ export default function Hand() {
   const game = useClientSelector((state) => state.game.current);
   const cards = useCardInfoList(game.players[player].deck);
 
-  const hand = cards.filter((card) => defaultUtil.canPayCost(game, player, card.info.colors, card.info.cost));
+  const hand = cards.filter((card) =>
+    defaultUtil.canPayCost(game, card.state, player, card.info.colors, card.info.cost)
+  );
   const sortedHand = mapSorted(hand, (card) => card.info, compareMoney).map((card) => card.state);
 
   let offset = smallCardWidth - 20;

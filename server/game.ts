@@ -38,7 +38,7 @@ function validateTargets(
   }
 }
 
-function* payCost(game: GameState, verb: string, name: string, colors: CardColor[], cost: CardCost) {
+function* payCost(game: GameState, card: Target, verb: string, name: string, colors: CardColor[], cost: CardCost) {
   const player = currentPlayer(game);
 
   if (game.players[player].money < cost.money) {
@@ -49,6 +49,7 @@ function* payCost(game: GameState, verb: string, name: string, colors: CardColor
     players: [player],
     types: ["agent"],
     zones: ["board"],
+    excludes: [card],
     colors,
   });
 
@@ -89,7 +90,7 @@ function* playCard(
     });
   }
 
-  yield* payCost(game, "play", card.name, info.colors, info.cost);
+  yield* payCost(game, card, "play", card.name, info.colors, info.cost);
   yield* info.play(target!);
 }
 
@@ -111,7 +112,7 @@ function* activateCard(
   validateTargets(game, card, info.activateTargets, target);
 
   yield* defaultUtil.exhaustCard(game, { card });
-  yield* payCost(game, "activate", card.name, info.colors, info.activateCost);
+  yield* payCost(game, card, "activate", card.name, info.colors, info.activateCost);
   yield* info.activate(target!);
 }
 

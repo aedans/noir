@@ -17,7 +17,6 @@ import {
   findCard,
   GameAction,
   GameParams,
-  gameSlice,
   GameState,
   getCard,
   moveCard,
@@ -27,12 +26,10 @@ import {
   removeMoney,
   revealCard,
   setProp,
-  TargetCardParams,
   Zone,
   zones,
 } from "./gameSlice";
 import { v4 as uuid } from "uuid";
-import { utils } from "pixi.js";
 
 export function opponent(player: PlayerId) {
   return player == 0 ? 1 : 0;
@@ -45,6 +42,7 @@ export function currentPlayer(game: { turn: number }) {
 export type Filter = {
   players?: PlayerId[];
   zones?: Zone[];
+  excludes?: Target[];
   types?: CardType[];
   colors?: CardColor[];
 };
@@ -64,6 +62,10 @@ export function filter(this: Util, game: GameState, filter: Filter) {
         f = f.filter((card) => this.getCardInfo(game, card).colors.some((color) => filter.colors!.includes(color)));
       }
 
+      if (filter.excludes && filter.excludes.length > 0) {
+        f = f.filter((card) => filter.excludes!.every((c) => c.id != card.id));
+      }
+
       cards.push(...f);
     }
   }
@@ -71,11 +73,19 @@ export function filter(this: Util, game: GameState, filter: Filter) {
   return cards;
 }
 
-export function canPayCost(this: Util, game: GameState, player: PlayerId, colors: CardColor[], cost: CardCost) {
+export function canPayCost(
+  this: Util,
+  game: GameState,
+  card: Target,
+  player: PlayerId,
+  colors: CardColor[],
+  cost: CardCost
+) {
   const agents = this.filter(game, {
     players: [player],
     types: ["agent"],
     zones: ["board"],
+    excludes: [card],
     colors,
   });
 
@@ -86,7 +96,7 @@ export function updateCardInfo(this: Util, game: GameState, state: CardState, in
   if (!findCard(game, state)) {
     return info;
   }
-  
+
   for (const modifier of state.modifiers) {
     const card = getCard(game, modifier.card);
     if (card) {
@@ -128,7 +138,7 @@ export function randoms<T>(ts: T[], number: number) {
 export function onTrigger<T extends GameParams>(
   trigger: (payload: T) => GameAction,
   selector?: (info: CardInfo) => CardTrigger<T>,
-  init: boolean = false,
+  init: boolean = false
 ) {
   return function* (this: GetCardInfo, game: GameState, payload: T): Generator<GameAction, void, GameState> {
     const newGame = yield trigger(payload);
@@ -139,7 +149,7 @@ export function onTrigger<T extends GameParams>(
     if (selector && payload.card) {
       const card = getCard(game, payload.card);
       if (card) {
-        yield* selector(this.getCardInfo(game, card))(payload);  
+        yield* selector(this.getCardInfo(game, card))(payload);
       }
     }
   };

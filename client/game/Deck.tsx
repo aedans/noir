@@ -16,7 +16,9 @@ export default function Deck() {
   const game = useClientSelector((state) => state.game.current);
   const cards = useCardInfoList(game.players[player].deck);
 
-  const deck = cards.filter((card) => !defaultUtil.canPayCost(game, player, card.info.colors, card.info.cost));
+  const deck = cards.filter(
+    (card) => !defaultUtil.canPayCost(game, card.state, player, card.info.colors, card.info.cost)
+  );
   const sortedDeck = mapSorted(deck, (card) => card.info, compareMoney).map((card) => card.state);
 
   const x = targetResolution.width - smallCardWidth;
