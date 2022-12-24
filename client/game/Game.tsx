@@ -76,9 +76,9 @@ export default function Game() {
             <Resources />
             <OpponentHand />
             <OpponentBoard />
-            <Deck />
             <Board />
             <Hand />
+            <Deck />
             <Message text={message} />
           </Container>
         </PlayerContext.Provider>
