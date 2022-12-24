@@ -12,6 +12,10 @@ import anime from "animejs";
 export const cardHeight = targetResolution.height;
 export const cardWidth = cardHeight * (1 / 1.4);
 
+export const smallCardScale = 1 / 4;
+export const smallCardWidth = cardWidth * smallCardScale;
+export const smallCardHeight = cardHeight * smallCardScale;
+
 export function getCardColor(cardInfo: CardInfo) {
   const colorMap = {
     orange: 0xeb7900,
@@ -77,6 +81,11 @@ export default React.forwardRef(function Card(props: CardProps, ref: Ref<Contain
 
   return (
     <Container pivot={[cardWidth / 2, cardHeight / 2]} {...props} filters={currentFilters} ref={containerRef}>
+      <Rectangle
+        width={cardWidth}
+        height={cardHeight}
+        fillAlpha={0.01}
+      />
       <Rectangle fill={getCardColor(cardInfo)} width={cardWidth - 100} height={cardHeight - 100} x={50} y={50} />
       <Sprite texture={Texture.from("border.png")} />
       <Text

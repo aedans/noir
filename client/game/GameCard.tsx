@@ -3,16 +3,11 @@ import { useDrop } from "react-dnd";
 import { Container } from "react-pixi-fiber";
 import { CardState } from "../../common/card";
 import { findCard } from "../../common/gameSlice";
-import Card, { cardHeight, CardProps, cardWidth } from "../Card";
-import { defaultUtil, useCardInfo } from "../cards";
+import Card, { CardProps, smallCardScale } from "../Card";
 import EnterExitAnimation, { EnterExitAnimationStatus } from "../EnterExitAnimation";
 import MoveAnimation, { MoveAnimationContext } from "../MoveAnimation";
 import { useClientSelector } from "../store";
-import { PlayerContext, SocketContext } from "./Game";
-
-export const gameCardScale = 1 / 4;
-export const gameCardWidth = cardWidth * gameCardScale;
-export const gameCardHeight = cardHeight * gameCardScale;
+import { SocketContext } from "./Game";
 
 export type GameCardProps = CardProps & {
   status: EnterExitAnimationStatus;
@@ -57,11 +52,11 @@ const GameCard = React.forwardRef(function GameCard(props: GameCardProps, ref: R
     <EnterExitAnimation
       duration={shouldAnimate ? 100 : 0}
       status={props.status}
-      scale={gameCardScale}
+      scale={smallCardScale}
       componentRef={componentRef}
     >
       <MoveAnimation id={props.state.id} x={x} y={y} componentRef={componentRef}>
-        <Card scale={gameCardScale} {...props} x={x} y={y} ref={componentRef} />
+        <Card scale={smallCardScale} {...props} x={x} y={y} ref={componentRef} />
       </MoveAnimation>
     </EnterExitAnimation>
   );

@@ -1,18 +1,21 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { getCards, useCardInfoList } from "../cards";
 import Grid from "../Grid";
-import Card, { cardHeight, cardWidth } from "../Card";
+import { smallCardHeight, smallCardScale, smallCardWidth } from "../Card";
 import { useClientDispatch, useClientSelector } from "../store";
 import { defaultCardState } from "../../common/gameSlice";
 import { addDeckCard, removeDeckCard } from "../../common/decksSlice";
 import { targetResolution } from "../Camera";
 import Rectangle from "../Rectangle";
 import { compareColor, compareMoney, mapSorted } from "../../common/sort";
+import { MoveAnimationContext, MoveAnimationState } from "../MoveAnimation";
+import EditorCard from "./EditorCard";
 
-export default function Edit() {
+export default function Editor() {
   const [searchParams] = useSearchParams();
   const dispatch = useClientDispatch();
+  const cards = useRef({} as MoveAnimationState);
 
   const deckName = searchParams.get("deck")!;
   const deck = useClientSelector((game) => game.decks[deckName]);
@@ -25,12 +28,14 @@ export default function Edit() {
 
   const [allCardNames, setAllCardNames] = useState([] as string[]);
   const allCards = useCardInfoList(
-    allCardNames.map((card) => defaultCardState(card, card)),
-    [allCardNames]
+    allCardNames.map((name) => defaultCardState(name, `${name} ${deck.cards[name] ?? 0}`)),
+    [allCardNames, deck]
   );
 
   const sortedAllCards = mapSorted(allCards, (card) => card.info, compareColor, compareMoney).map((card) => card.state);
-  const sortedDeckCards = mapSorted(deckCards, (card) => card.info, compareColor, compareMoney).map((card) => card.state);
+  const sortedDeckCards = mapSorted(deckCards, (card) => card.info, compareColor, compareMoney).map(
+    (card) => card.state
+  );
 
   useEffect(() => {
     getCards().then(setAllCardNames);
@@ -47,36 +52,36 @@ export default function Edit() {
     };
 
   return (
-    <>
+    <MoveAnimationContext.Provider value={cards}>
       <Rectangle fill={0x202020} width={targetResolution.width} height={targetResolution.height} />
-      <Grid maxWidth={0} x={targetResolution.width - cardWidth / 4} data={sortedDeckCards} margin={{ x: 1, y: 0.12 }}>
+      <Grid elements={sortedAllCards} maxWidth={3500}>
         {(data, ref, x, y) => (
-          <Card
+          <EditorCard
             state={data}
             key={data.id}
             ref={ref}
-            scale={1 / 4}
-            pointerdown={pointerdownRemove(data.name)}
+            scale={smallCardScale}
+            pointerdown={pointerdownAdd(data.name)}
             interactive
-            x={x + cardWidth / 8}
-            y={y + cardHeight / 8}
+            x={x + smallCardWidth / 2}
+            y={y + smallCardHeight / 2}
           />
         )}
       </Grid>
-      <Grid data={sortedAllCards} maxWidth={3500}>
+      <Grid maxWidth={0} x={targetResolution.width - smallCardWidth} elements={sortedDeckCards} margin={{ x: 1, y: 0.12 }}>
         {(data, ref, x, y) => (
-          <Card
-            state={defaultCardState(data.id, data.id)}
+          <EditorCard
+            state={data}
             key={data.id}
             ref={ref}
-            scale={1 / 4}
-            pointerdown={pointerdownAdd(data.id)}
+            scale={smallCardScale}
+            pointerdown={pointerdownRemove(data.name)}
             interactive
-            x={x + cardWidth / 8}
-            y={y + cardHeight / 8}
+            x={x + smallCardWidth / 2}
+            y={y + smallCardHeight / 2}
           />
         )}
       </Grid>
-    </>
+    </MoveAnimationContext.Provider>
   );
 }

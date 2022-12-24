@@ -1,12 +1,12 @@
 import React, { MutableRefObject, Ref, useContext, useImperativeHandle, useRef } from "react";
-import { cardHeight, getCardColor } from "../Card";
+import { cardHeight, getCardColor, smallCardHeight, smallCardWidth } from "../Card";
 import { useDrop } from "react-dnd";
 import Rectangle from "../Rectangle";
 import { targetResolution } from "../Camera";
 import { useClientSelector } from "../store";
 import { CardState } from "../../common/card";
 import { PlayerContext, SocketContext } from "./Game";
-import GameCard, { gameCardHeight, GameCardProps, gameCardWidth } from "./GameCard";
+import GameCard, { GameCardProps } from "./GameCard";
 import { EnterExitAnimator } from "../EnterExitAnimation";
 import { Container } from "react-pixi-fiber";
 import { GlowFilter } from "@pixi/filter-glow";
@@ -54,8 +54,8 @@ export default function Board() {
     collect: () => ({}),
   }));
 
-  const x = (targetResolution.width - cards.length * (gameCardWidth + 10)) / 2 + gameCardWidth / 2;
-  const y = targetResolution.height * (2 / 4) + gameCardHeight / 2;
+  const x = (targetResolution.width - cards.length * (smallCardWidth + 10)) / 2 + smallCardWidth / 2;
+  const y = targetResolution.height * (2 / 4) + smallCardHeight / 2;
 
   return (
     <>
@@ -68,7 +68,7 @@ export default function Board() {
       <EnterExitAnimator elements={cards}>
         {(state, status, i) =>
           i != null ? (
-            <BoardCard state={state} status={status} key={state.id} x={x + i * (gameCardWidth + 10)} y={y} />
+            <BoardCard state={state} status={status} key={state.id} x={x + i * (smallCardWidth + 10)} y={y} />
           ) : (
             <BoardCard useLastPos={true} state={state} status={status} key={state.id} />
           )

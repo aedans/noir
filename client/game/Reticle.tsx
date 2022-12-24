@@ -2,8 +2,8 @@ import { Texture } from "pixi.js";
 import React, { Ref } from "react";
 import { Container, Sprite } from "react-pixi-fiber";
 import Rectangle from "../Rectangle";
-import { gameCardHeight, gameCardWidth } from "./GameCard";
 import { GlowFilter } from "@pixi/filter-glow";
+import { smallCardHeight, smallCardWidth } from "../Card";
 
 export type ReticleProps = {
   x?: number;
@@ -24,18 +24,18 @@ export default React.forwardRef(function Reticle(props: ReticleProps, ref: Ref<C
     <>
       <Rectangle
         {...props}
-        pivot={[gameCardWidth / 2, gameCardHeight / 2]}
+        pivot={[smallCardWidth / 2, smallCardHeight / 2]}
         zIndex={100}
-        width={gameCardWidth}
-        height={gameCardHeight}
+        width={smallCardWidth}
+        height={smallCardHeight}
         ref={ref}
         fillAlpha={0.01}
         interactive
       >
         <Sprite
           pivot={[texture.width / 2, texture.height / 2]}
-          x={gameCardWidth / 2}
-          y={gameCardHeight / 2}
+          x={smallCardWidth / 2}
+          y={smallCardHeight / 2}
           width={200}
           height={200}
           texture={texture}

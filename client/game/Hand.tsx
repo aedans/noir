@@ -1,14 +1,14 @@
-import React, { MutableRefObject, Ref, useContext, useEffect, useImperativeHandle, useRef, useState } from "react";
+import React, { MutableRefObject, Ref, useContext, useEffect, useImperativeHandle, useRef } from "react";
 import { useDrag } from "react-dnd";
 import { Container } from "react-pixi-fiber";
 import { targetResolution } from "../Camera";
 import { EnterExitAnimator } from "../EnterExitAnimation";
 import { useClientSelector } from "../store";
 import { PlayerContext } from "./Game";
-import GameCard, { gameCardHeight, GameCardProps, gameCardWidth } from "./GameCard";
-import { defaultUtil, isLoaded, loadCard, useCardInfo, useCardInfoList } from "../cards";
+import GameCard, { GameCardProps } from "./GameCard";
+import { defaultUtil, useCardInfo, useCardInfoList } from "../cards";
 import Reticle from "./Reticle";
-import { getCardColor } from "../Card";
+import { getCardColor, smallCardHeight, smallCardWidth } from "../Card";
 import { compareMoney, mapSorted } from "../../common/sort";
 
 const HandCard = React.forwardRef(function HandCard(props: GameCardProps, ref: Ref<Container>) {
@@ -68,13 +68,13 @@ export default function Hand() {
   const hand = cards.filter((card) => defaultUtil.canPayCost(game, player, card.info.colors, card.info.cost));
   const sortedHand = mapSorted(hand, (card) => card.info, compareMoney).map((card) => card.state);
 
-  let offset = gameCardWidth - 20;
+  let offset = smallCardWidth - 20;
   if (offset * hand.length > 2500) {
     offset /= (offset * hand.length) / 2500;
   }
 
-  const x = (targetResolution.width - hand.length * offset) / 2 + gameCardWidth / 2;
-  const y = targetResolution.height * (3 / 4) + gameCardHeight / 2 + 20;
+  const x = (targetResolution.width - hand.length * offset) / 2 + smallCardWidth / 2;
+  const y = targetResolution.height * (3 / 4) + smallCardHeight / 2 + 20;
 
   return (
     <EnterExitAnimator elements={sortedHand}>

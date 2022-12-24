@@ -11,7 +11,7 @@ import { Routes, Route } from "react-router-dom";
 import Menu from "./menu/Menu";
 import Play from "./play/Play";
 import Decks from "./decks/Decks";
-import Edit from "./edit/Edit";
+import Editor from "./editor/Editor";
 
 export default function Noir() {
   const options = {
@@ -31,7 +31,7 @@ export default function Noir() {
                 <Route path="/play" element={<Play />} />
                 <Route path="/game" element={<Game />} />
                 <Route path="/decks" element={<Decks />} />
-                <Route path="/edit" element={<Edit />}/>
+                <Route path="/edit" element={<Editor />}/>
                 <Route path="/" element={<Menu />} />
               </Routes>
             </BrowserRouter>

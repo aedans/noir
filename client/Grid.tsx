@@ -5,7 +5,7 @@ import { Container, PixiElement } from "react-pixi-fiber";
 import { Target } from "../common/card";
 
 export type GridProps<T extends Target> = Omit<PixiElement<Container>, "children"> & {
-  data: T[];
+  elements: T[];
   maxWidth?: number;
   margin?: { x: number; y: number };
   children: (t: T, ref: Ref<Container>, x: number, y: number, i: number) => ReactElement;
@@ -24,7 +24,7 @@ export default function Grid<T extends Target>(props: GridProps<T>) {
   let x = 0;
   let y = 0;
   let i = 0;
-  for (const child of props.data) {
+  for (const child of props.elements) {
     if (!refs.current[child.id]) {
       refs.current[child.id] = createRef() as MutableRefObject<Required<Container> & Partial<Sprite>>;
     }
@@ -48,7 +48,7 @@ export default function Grid<T extends Target>(props: GridProps<T>) {
     if (missingRefs) {
       setValue(value + 1);
     }
-  }, [props.data]);
+  }, [props.elements]);
 
   return <Container {...props}>{elems}</Container>;
 }

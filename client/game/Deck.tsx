@@ -1,14 +1,14 @@
 import React from "react";
-import { useContext, useEffect, useState } from "react";
-import { Container } from "react-pixi-fiber";
+import { useContext, useState } from "react";
 import { compareMoney, mapSorted } from "../../common/sort";
 import { targetResolution } from "../Camera";
-import { defaultUtil, isLoaded, loadCard, useCardInfoList } from "../cards";
+import { smallCardHeight, smallCardWidth } from "../Card";
+import { defaultUtil, useCardInfoList } from "../cards";
 import Grid from "../Grid";
 import Rectangle from "../Rectangle";
 import { useClientSelector } from "../store";
 import { PlayerContext } from "./Game";
-import GameCard, { gameCardHeight, gameCardWidth } from "./GameCard";
+import GameCard from "./GameCard";
 
 export default function Deck() {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -19,8 +19,8 @@ export default function Deck() {
   const deck = cards.filter((card) => !defaultUtil.canPayCost(game, player, card.info.colors, card.info.cost));
   const sortedDeck = mapSorted(deck, (card) => card.info, compareMoney).map((card) => card.state);
 
-  const x = targetResolution.width - gameCardWidth;
-  const y = targetResolution.height - gameCardHeight;
+  const x = targetResolution.width - smallCardWidth;
+  const y = targetResolution.height - smallCardHeight;
 
   function pointerdown() {
     if (deck.length > 0) {
@@ -33,13 +33,13 @@ export default function Deck() {
       <Rectangle
         x={x}
         y={y}
-        width={gameCardWidth}
-        height={gameCardHeight}
+        width={smallCardWidth}
+        height={smallCardHeight}
         fillAlpha={0.01}
         pointerdown={pointerdown}
         interactive
       />
-      <Grid data={sortedDeck} margin={isExpanded ? { x: 1, y: -0.15 } : { x: 0, y: 0 }} x={x} y={y} maxWidth={1}>
+      <Grid elements={sortedDeck} margin={isExpanded ? { x: 1, y: -0.15 } : { x: 0, y: 0 }} x={x} y={y} maxWidth={1}>
         {(state, ref, x, y, i) => (
           <GameCard
             zIndex={20 - i}
@@ -47,8 +47,8 @@ export default function Deck() {
             key={state.id}
             ref={ref}
             status={"none"}
-            x={x + gameCardWidth / 2}
-            y={y + gameCardHeight / 2}
+            x={x + smallCardWidth / 2}
+            y={y + smallCardHeight / 2}
           />
         )}
       </Grid>
