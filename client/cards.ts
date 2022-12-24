@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useState } from "react";
-import { CardState, PartialCardInfoComputation, runPartialCardInfoComputation } from "../common/card";
+import { CardInfo, CardState, PartialCardInfoComputation, runPartialCardInfoComputation } from "../common/card";
 import { GameState } from "../common/gameSlice";
 import util from "../common/util";
 import { useClientSelector } from "./store";
@@ -66,7 +66,27 @@ export function useCardInfo(card: CardState) {
     if (hasLoaded) {
       setCardInfo(getCardInfo(game, card));
     }
-  }, [game])
+  }, [game]);
 
   return cardInfo;
+}
+
+export function useCardInfoList(states: CardState[], deps?: ReadonlyArray<unknown>) {
+  const [cards, setCards] = useState([] as { state: CardState; info: CardInfo }[]);
+  const game = useClientSelector((state) => state.game.current);
+
+  useEffect(
+    () => {
+      (async () => {
+        for (const card of states.filter((c) => !isLoaded(c))) {
+          await loadCard(card);
+        }
+
+        setCards(states.filter((card) => isLoaded(card)).map((state) => ({ state, info: getCardInfo(game, state) })));
+      })();
+    },
+    deps ? deps : [states]
+  );
+
+  return cards;
 }

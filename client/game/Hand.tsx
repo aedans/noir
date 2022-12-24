@@ -6,9 +6,10 @@ import { EnterExitAnimator } from "../EnterExitAnimation";
 import { useClientSelector } from "../store";
 import { PlayerContext } from "./Game";
 import GameCard, { gameCardHeight, GameCardProps, gameCardWidth } from "./GameCard";
-import { defaultUtil, isLoaded, loadCard, useCardInfo } from "../cards";
+import { defaultUtil, isLoaded, loadCard, useCardInfo, useCardInfoList } from "../cards";
 import Reticle from "./Reticle";
 import { getCardColor } from "../Card";
+import { compareMoney, mapSorted } from "../../common/sort";
 
 const HandCard = React.forwardRef(function HandCard(props: GameCardProps, ref: Ref<Container>) {
   const cardRef = useRef() as MutableRefObject<Required<Container>>;
@@ -60,31 +61,12 @@ const HandCard = React.forwardRef(function HandCard(props: GameCardProps, ref: R
 });
 
 export default function Hand() {
-  const [_, setHasLoaded] = useState(false);
   const player = useContext(PlayerContext);
   const game = useClientSelector((state) => state.game.current);
-  const cards = game.players[player].deck;
+  const cards = useCardInfoList(game.players[player].deck);
 
-  useEffect(() => {
-    if (cards.some((card) => !isLoaded(card))) {
-      setHasLoaded(false);
-    }
-
-    (async () => {
-      for (const card of cards.filter((c) => !isLoaded(c))) {
-        await loadCard(card);
-      }
-
-      setHasLoaded(true);
-    })();
-  }, [cards]);
-
-  const hand = cards
-    .filter((card) => isLoaded(card))
-    .filter((card) => {
-      const info = defaultUtil.getCardInfo(game, card);
-      return defaultUtil.canPayCost(game, player, info.colors, info.cost);
-    });
+  const hand = cards.filter((card) => defaultUtil.canPayCost(game, player, card.info.colors, card.info.cost));
+  const sortedHand = mapSorted(hand, (card) => card.info, compareMoney).map((card) => card.state);
 
   let offset = gameCardWidth - 20;
   if (offset * hand.length > 2500) {
@@ -95,7 +77,7 @@ export default function Hand() {
   const y = targetResolution.height * (3 / 4) + gameCardHeight / 2 + 20;
 
   return (
-    <EnterExitAnimator elements={hand}>
+    <EnterExitAnimator elements={sortedHand}>
       {(state, status, i) =>
         i != null ? (
           <HandCard
