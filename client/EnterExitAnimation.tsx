@@ -9,7 +9,7 @@ export type EnterExitAnimationStatus = "entering" | "exiting" | "none";
 
 export type EnterExitAnimatorProps<T extends Target> = Omit<PixiElement<Container>, "children"> & {
   elements: T[];
-  children: (state: T, status: EnterExitAnimationStatus, index: number | null) => ReactElement;
+  children: (data: T, status: EnterExitAnimationStatus, index: number | null) => ReactElement;
 };
 
 export function EnterExitAnimator<T extends Target>(props: EnterExitAnimatorProps<T>) {
@@ -40,8 +40,8 @@ export type EnterExitAnimationProps = {
   componentRef: MutableRefObject<Required<Container>>;
   children: ReactNode;
   status: EnterExitAnimationStatus;
-  duration: number;
   scale: number;
+  skip?: boolean;
 };
 
 export default function EnterExitAnimation(props: EnterExitAnimationProps) {
@@ -52,7 +52,7 @@ export default function EnterExitAnimation(props: EnterExitAnimationProps) {
       container.scale = { x: 0, y: 0 };
       anime({
         targets: container.transform.scale,
-        duration: props.duration,
+        duration: props.skip ? 0 : 100,
         easing: "linear",
         x: props.scale,
         y: props.scale,
@@ -62,7 +62,7 @@ export default function EnterExitAnimation(props: EnterExitAnimationProps) {
     if (props.status == "exiting") {
       anime({
         targets: container.transform.scale,
-        duration: props.duration,
+        duration: props.skip ? 0 : 100,
         easing: "linear",
         x: 0,
         y: 0,

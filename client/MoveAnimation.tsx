@@ -11,9 +11,29 @@ export type MoveAnimationProps = {
   id: string;
   componentRef: MutableRefObject<Required<Container>>;
   children: ReactNode;
+  skip?: boolean;
   x?: number;
   y?: number;
 };
+
+export function useLastPos(
+  props: { x?: number; y?: number; useLastPos?: boolean },
+  id: string,
+  ref: MutableRefObject<Container>
+) {
+  const move = useContext(MoveAnimationContext);
+
+  let x = props.x;
+  let y = props.y;
+
+  if (props.useLastPos && id in move.current && ref.current) {
+    const prevPosition = ref.current.parent!.toLocal(move.current[id]);
+    x = prevPosition.x;
+    y = prevPosition.y;  
+  }
+
+  return { x, y };
+}
 
 export default function MoveAnimation(props: MoveAnimationProps) {
   const state = useContext(MoveAnimationContext);
@@ -32,21 +52,23 @@ export default function MoveAnimation(props: MoveAnimationProps) {
   }, []);
 
   useEffect(() => {
-    const container = props.componentRef.current;
-    anime.remove(container.transform.position);
-    anime({
-      targets: container.transform.position,
-      duration: 300,
-      easing: "easeOutExpo",
-      x: props.x ?? 0,
-      y: props.y ?? 0,
-    });
+    if (!props.skip) {
+      const container = props.componentRef.current;
+      anime.remove(container.transform.position);
+      anime({
+        targets: container.transform.position,
+        duration: 300,
+        easing: "easeOutExpo",
+        x: props.x ?? 0,
+        y: props.y ?? 0,
+      });        
+    }
   });
 
   useLayoutEffect(() => {
     const prev = state.current[props.id];
     const container = props.componentRef.current;
-    if (prev) {
+    if (prev && !props.skip) {
       container.position = container.parent.toLocal(prev);
     }
   });

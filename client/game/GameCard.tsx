@@ -5,7 +5,7 @@ import { CardState } from "../../common/card";
 import { findCard } from "../../common/gameSlice";
 import Card, { CardProps, smallCardScale } from "../Card";
 import EnterExitAnimation, { EnterExitAnimationStatus } from "../EnterExitAnimation";
-import MoveAnimation, { MoveAnimationContext } from "../MoveAnimation";
+import MoveAnimation, { MoveAnimationContext, useLastPos } from "../MoveAnimation";
 import { useClientSelector } from "../store";
 import { SocketContext } from "./Game";
 
@@ -19,6 +19,7 @@ const GameCard = React.forwardRef(function GameCard(props: GameCardProps, ref: R
   const move = useContext(MoveAnimationContext);
   const game = useClientSelector((state) => state.game.current);
   const componentRef = useRef() as MutableRefObject<Required<Container>>;
+  const { x, y } = useLastPos(props, props.state.id, componentRef);
 
   useImperativeHandle(ref, () => componentRef.current);
 
@@ -39,18 +40,9 @@ const GameCard = React.forwardRef(function GameCard(props: GameCardProps, ref: R
   const hasExisted = props.state.id in move.current;
   const shouldAnimate = (!hasExisted && doesExist) || !doesExist;
 
-  let x = props.x;
-  let y = props.y;
-
-  if (props.useLastPos && props.state.id in move.current && componentRef.current) {
-    const prevPosition = componentRef.current.parent.toLocal(move.current[props.state.id]);
-    x = prevPosition.x;
-    y = prevPosition.y;
-  }
-
   return (
     <EnterExitAnimation
-      duration={shouldAnimate ? 100 : 0}
+      skip={!shouldAnimate}
       status={props.status}
       scale={smallCardScale}
       componentRef={componentRef}

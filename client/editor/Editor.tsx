@@ -11,6 +11,7 @@ import Rectangle from "../Rectangle";
 import { compareColor, compareMoney, mapSorted } from "../../common/sort";
 import { MoveAnimationContext, MoveAnimationState } from "../MoveAnimation";
 import EditorCard from "./EditorCard";
+import { EnterExitAnimator } from "../EnterExitAnimation";
 
 export default function Editor() {
   const [searchParams] = useSearchParams();
@@ -58,9 +59,9 @@ export default function Editor() {
         {(data, ref, x, y) => (
           <EditorCard
             state={data}
+            status="none"
             key={data.id}
             ref={ref}
-            scale={smallCardScale}
             pointerdown={pointerdownAdd(data.name)}
             interactive
             x={x + smallCardWidth / 2}
@@ -68,20 +69,26 @@ export default function Editor() {
           />
         )}
       </Grid>
-      <Grid maxWidth={0} x={targetResolution.width - smallCardWidth} elements={sortedDeckCards} margin={{ x: 1, y: 0.12 }}>
-        {(data, ref, x, y) => (
-          <EditorCard
-            state={data}
-            key={data.id}
-            ref={ref}
-            scale={smallCardScale}
-            pointerdown={pointerdownRemove(data.name)}
-            interactive
-            x={x + smallCardWidth / 2}
-            y={y + smallCardHeight / 2}
-          />
-        )}
-      </Grid>
+      <EnterExitAnimator
+        x={targetResolution.width - smallCardWidth / 2}
+        y={smallCardHeight / 2}
+        elements={sortedDeckCards}
+      >
+        {(data, status, i) =>
+          i != null ? (
+            <EditorCard
+              state={data}
+              status={status}
+              key={data.id}
+              pointerdown={pointerdownRemove(data.name)}
+              interactive
+              y={(i * smallCardHeight) / 8 ?? 0}
+            />
+          ) : (
+            <EditorCard state={data} status={status} key={data.id} useLastPos={true} />
+          )
+        }
+      </EnterExitAnimator>
     </MoveAnimationContext.Provider>
   );
 }
