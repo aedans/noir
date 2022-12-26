@@ -75,6 +75,10 @@ export type ChangeMoneyParams = {
 };
 
 export function findCard(game: GameState, card: Target) {
+  if (!card) {
+    return null;
+  }
+  
   for (const player of [0, 1] as const) {
     for (const zone of zones) {
       const index = game.players[player][zone].findIndex((c) => c.id == card.id);
@@ -143,6 +147,7 @@ export const gameSlice = createSlice({
       const info = findCard(state, action.payload.card);
       if (info) {
         const { player, zone, index } = info;
+        state.players[player]["graveyard"].push(state.players[info.player][info.zone][info.index]);
         state.players[player][zone].splice(index, 1);
       }
     },

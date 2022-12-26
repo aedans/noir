@@ -11,6 +11,7 @@ exports.card = (util, game, card) => ({
         players: [util.findCard(game, card).player],
         zones: ["deck"],
         types: ["agent"],
+        excludes: [card],
       })
     );
 

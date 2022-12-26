@@ -25,7 +25,7 @@ export function EnterExitAnimator<T extends Target>(props: EnterExitAnimatorProp
   });
 
   const exiting = Object.values(unusedStates).map((state) => {
-    delete ref.current[state.id];
+    setTimeout(() => delete ref.current[state.id], 100);
     return props.children(state, "exiting", null);
   });
 
