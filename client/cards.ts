@@ -79,7 +79,11 @@ export function useCardInfoList(states: CardState[], deps?: ReadonlyArray<unknow
     () => {
       (async () => {
         for (const card of states.filter((c) => !isLoaded(c))) {
-          await loadCard(card);
+          try {
+            await loadCard(card);            
+          } catch (e) {
+            console.error(e);
+          }
         }
 
         setCards(states.filter((card) => isLoaded(card)).map((state) => ({ state, info: getCardInfo(game, state) })));

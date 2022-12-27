@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { getCards, useCardInfoList } from "../cards";
 import Grid from "../Grid";
-import { smallCardHeight, smallCardScale, smallCardWidth } from "../Card";
+import { smallCardHeight, smallCardWidth } from "../Card";
 import { useClientDispatch, useClientSelector } from "../store";
 import { defaultCardState } from "../../common/gameSlice";
 import { addDeckCard, removeDeckCard } from "../../common/decksSlice";
