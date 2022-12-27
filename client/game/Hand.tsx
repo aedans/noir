@@ -1,4 +1,4 @@
-import React, { MutableRefObject, Ref, useContext, useEffect, useImperativeHandle, useRef } from "react";
+import React, { MutableRefObject, Ref, useContext, useEffect, useImperativeHandle, useRef, useState } from "react";
 import { useDrag } from "react-dnd";
 import { Container } from "react-pixi-fiber";
 import { targetResolution } from "../Camera";
@@ -8,13 +8,14 @@ import { PlayerContext } from "./Game";
 import GameCard, { GameCardProps } from "./GameCard";
 import { defaultUtil, useCardInfo, useCardInfoList } from "../cards";
 import Reticle from "./Reticle";
-import { getCardColor, smallCardHeight, smallCardWidth } from "../Card";
+import { getCardColor, smallCardHeight, smallCardScale, smallCardWidth } from "../Card";
 import { compareMoney, mapSorted } from "../../common/sort";
 
 const HandCard = React.forwardRef(function HandCard(props: GameCardProps, ref: Ref<Container>) {
   const cardRef = useRef() as MutableRefObject<Required<Container>>;
   const targetRef = useRef() as MutableRefObject<Required<Container>>;
   const cardInfo = useCardInfo(props.state);
+  const [zoom, setZoom] = useState(false);
 
   useImperativeHandle(ref, () => cardRef.current);
 
@@ -45,7 +46,20 @@ const HandCard = React.forwardRef(function HandCard(props: GameCardProps, ref: R
     y = position.y;
   }
 
-  const card = <GameCard {...props} shadow={20} x={x} y={y} ref={cardRef} interactive={props.status != "exiting"} />;
+  const card = (
+    <GameCard
+      {...props}
+      shadow={20}
+      x={x}
+      y={zoom ? (y ?? 0) - smallCardHeight / 10 : y}
+      scale={zoom ? smallCardScale * 1.2 : smallCardScale}
+      zIndex={zoom ? 1000 : props.zIndex}
+      ref={cardRef}
+      interactive={props.status != "exiting"}
+      pointerover={() => setZoom(true)}
+      pointerout={() => setZoom(false)}
+    />
+  );
 
   if (cardInfo.targets) {
     const target = <Reticle x={x} y={y} ref={targetRef} isDragging={isDragging} color={getCardColor(cardInfo)} />;

@@ -10,6 +10,7 @@ import { useClientSelector } from "../store";
 import { SocketContext } from "./Game";
 
 export type GameCardProps = CardProps & {
+  scale?: number;
   status: EnterExitAnimationStatus;
   useLastPos?: boolean;
 };
@@ -19,7 +20,6 @@ const GameCard = React.forwardRef(function GameCard(props: GameCardProps, ref: R
   const move = useContext(MoveAnimationContext);
   const game = useClientSelector((state) => state.game.current);
   const componentRef = useRef() as MutableRefObject<Required<Container>>;
-  const [zoom, setZoom] = useState(false);
   const { x, y } = useLastPos(props, props.state.id, componentRef);
 
   useImperativeHandle(ref, () => componentRef.current);
@@ -45,18 +45,15 @@ const GameCard = React.forwardRef(function GameCard(props: GameCardProps, ref: R
     <MoveAnimation
       id={props.state.id}
       x={x}
-      y={zoom ? (y ?? 0) - smallCardHeight / 10 : y}
-      scale={zoom ? smallCardScale * 1.2 : smallCardScale}
+      y={y}
+      scale={props.scale ?? smallCardScale}
       componentRef={componentRef}
     >
       <EnterExitAnimation skip={!shouldAnimate} status={props.status} componentRef={componentRef}>
         <Card
           {...props}
           scale={0}
-          zIndex={zoom ? 1000 : props.zIndex}
           ref={componentRef}
-          pointerover={() => setZoom(true)}
-          pointerout={() => setZoom(false)}
         />
       </EnterExitAnimation>
     </MoveAnimation>
