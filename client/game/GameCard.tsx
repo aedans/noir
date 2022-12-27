@@ -1,9 +1,9 @@
-import React, { MutableRefObject, Ref, useContext, useEffect, useImperativeHandle, useRef } from "react";
+import React, { MutableRefObject, Ref, useContext, useEffect, useImperativeHandle, useRef, useState } from "react";
 import { useDrop } from "react-dnd";
 import { Container } from "react-pixi-fiber";
 import { CardState } from "../../common/card";
 import { findCard } from "../../common/gameSlice";
-import Card, { CardProps, smallCardScale } from "../Card";
+import Card, { CardProps, smallCardHeight, smallCardScale } from "../Card";
 import EnterExitAnimation, { EnterExitAnimationStatus } from "../EnterExitAnimation";
 import MoveAnimation, { MoveAnimationContext, useLastPos } from "../MoveAnimation";
 import { useClientSelector } from "../store";
@@ -19,6 +19,7 @@ const GameCard = React.forwardRef(function GameCard(props: GameCardProps, ref: R
   const move = useContext(MoveAnimationContext);
   const game = useClientSelector((state) => state.game.current);
   const componentRef = useRef() as MutableRefObject<Required<Container>>;
+  const [zoom, setZoom] = useState(false);
   const { x, y } = useLastPos(props, props.state.id, componentRef);
 
   useImperativeHandle(ref, () => componentRef.current);
@@ -41,16 +42,24 @@ const GameCard = React.forwardRef(function GameCard(props: GameCardProps, ref: R
   const shouldAnimate = (!hasExisted && doesExist) || !doesExist;
 
   return (
-    <EnterExitAnimation
-      skip={!shouldAnimate}
-      status={props.status}
-      scale={smallCardScale}
+    <MoveAnimation
+      id={props.state.id}
+      x={x}
+      y={zoom ? (y ?? 0) - smallCardHeight / 10 : y}
+      scale={zoom ? smallCardScale * 1.2 : smallCardScale}
       componentRef={componentRef}
     >
-      <MoveAnimation id={props.state.id} x={x} y={y} componentRef={componentRef}>
-        <Card scale={smallCardScale} {...props} x={x} y={y} ref={componentRef} />
-      </MoveAnimation>
-    </EnterExitAnimation>
+      <EnterExitAnimation skip={!shouldAnimate} status={props.status} componentRef={componentRef}>
+        <Card
+          {...props}
+          scale={0}
+          zIndex={zoom ? 1000 : props.zIndex}
+          ref={componentRef}
+          pointerover={() => setZoom(true)}
+          pointerout={() => setZoom(false)}
+        />
+      </EnterExitAnimation>
+    </MoveAnimation>
   );
 });
 

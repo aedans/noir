@@ -3,7 +3,14 @@ import { Ticker } from "pixi.js";
 import React, { MutableRefObject, ReactNode, useContext, useEffect, useLayoutEffect } from "react";
 import { Container } from "react-pixi-fiber";
 
-export type MoveAnimationState = { [id: string]: { x: number; y: number } };
+export type MoveAnimationState = {
+  [id: string]: {
+    x: number;
+    y: number;
+    scaleX: number;
+    scaleY: number;
+  };
+};
 
 export const MoveAnimationContext = React.createContext({ current: {} as MoveAnimationState });
 
@@ -11,9 +18,11 @@ export type MoveAnimationProps = {
   id: string;
   componentRef: MutableRefObject<Required<Container>>;
   children: ReactNode;
-  skip?: boolean;
+  skipPosition?: boolean;
+  skipScale?: boolean;
   x?: number;
   y?: number;
+  scale?: number;
 };
 
 export function useLastPos(
@@ -29,7 +38,7 @@ export function useLastPos(
   if (props.useLastPos && id in move.current && ref.current) {
     const prevPosition = ref.current.parent!.toLocal(move.current[id]);
     x = prevPosition.x;
-    y = prevPosition.y;  
+    y = prevPosition.y;
   }
 
   return { x, y };
@@ -40,8 +49,14 @@ export default function MoveAnimation(props: MoveAnimationProps) {
 
   useEffect(() => {
     function onTick() {
-      if (props.componentRef.current) {
-        state.current[props.id] = props.componentRef.current.getGlobalPosition();
+      const component = props.componentRef.current;
+      if (component) {
+        state.current[props.id] = {
+          x: component.getGlobalPosition().x,
+          y: component.getGlobalPosition().y,
+          scaleX: component.transform.scale.x,
+          scaleY: component.transform.scale.y,
+        };
       }
     }
 
@@ -52,24 +67,37 @@ export default function MoveAnimation(props: MoveAnimationProps) {
   }, []);
 
   useEffect(() => {
-    if (!props.skip) {
-      const container = props.componentRef.current;
-      anime.remove(container.transform.position);
+    const component = props.componentRef.current;
+
+    if (!props.skipPosition) {
+      anime.remove(component.transform.position);
       anime({
-        targets: container.transform.position,
+        targets: component.transform.position,
         duration: 300,
         easing: "easeOutExpo",
         x: props.x ?? 0,
         y: props.y ?? 0,
-      });        
+      });
+    }
+
+    if (!props.skipScale) {
+      anime.remove(component.transform.scale);
+      anime({
+        targets: component.transform.scale,
+        duration: 300,
+        easing: "easeOutExpo",
+        x: props.scale ?? 0,
+        y: props.scale ?? 0,
+      });
     }
   });
 
   useLayoutEffect(() => {
     const prev = state.current[props.id];
-    const container = props.componentRef.current;
-    if (prev && !props.skip) {
-      container.position = container.parent.toLocal(prev);
+    const component = props.componentRef.current;
+    if (prev && !props.skipPosition) {
+      component.position = component.parent.toLocal(prev);
+      component.scale = { x: prev.scaleX, y: prev.scaleY };
     }
   });
 

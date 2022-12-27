@@ -9,15 +9,15 @@ export type EditorCardProps = CardProps & {
   status: EnterExitAnimationStatus;
 };
 
-const EditorCard = React.forwardRef(function GameCard(props: EditorCardProps, ref: Ref<Container>) {
+const EditorCard = React.forwardRef(function EditorCard(props: EditorCardProps, ref: Ref<Container>) {
   const componentRef = useRef() as MutableRefObject<Required<Container>>;
   const { x, y } = useLastPos(props, props.state.id, componentRef);
 
   useImperativeHandle(ref, () => componentRef.current);
 
   return (
-    <EnterExitAnimation skip={props.status == "entering"} status={props.status} scale={smallCardScale} componentRef={componentRef}>
-      <MoveAnimation skip={props.status == "none"} id={props.state.id} x={x} y={y} componentRef={componentRef}>
+    <EnterExitAnimation skip={props.status == "entering"} status={props.status} componentRef={componentRef}>
+      <MoveAnimation skipPosition={props.status == "none"} id={props.state.id} x={x} y={y} scale={smallCardScale} componentRef={componentRef}>
         <Card scale={smallCardScale} {...props} x={x} y={y} ref={componentRef} />
       </MoveAnimation>
     </EnterExitAnimation>

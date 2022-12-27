@@ -40,6 +40,7 @@ export function getDisplayName(keyword: CardKeyword) {
 
 export type CardProps = PixiElement<Container> & {
   state: CardState;
+  shadow?: number;
 };
 
 export default React.forwardRef(function Card(props: CardProps, ref: Ref<Container>) {
@@ -56,7 +57,7 @@ export default React.forwardRef(function Card(props: CardProps, ref: Ref<Contain
   }, []);
 
   useEffect(() => {
-    dropShadowFilterRef.current.distance = (props.zIndex ?? 0) + 5;
+    dropShadowFilterRef.current.distance = props.shadow ?? 5;
   }, [props.zIndex]);
 
   useEffect(() => {

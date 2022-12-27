@@ -40,7 +40,6 @@ export type EnterExitAnimationProps = {
   componentRef: MutableRefObject<Required<Container>>;
   children: ReactNode;
   status: EnterExitAnimationStatus;
-  scale: number;
   skip?: boolean;
 };
 
@@ -49,23 +48,22 @@ export default function EnterExitAnimation(props: EnterExitAnimationProps) {
     const container = props.componentRef.current;
 
     if (props.status == "entering") {
-      container.scale = { x: 0, y: 0 };
+      container.alpha = 0;
       anime({
-        targets: container.transform.scale,
+        targets: container,
         duration: props.skip ? 0 : 100,
         easing: "linear",
-        x: props.scale,
-        y: props.scale,
+        alpha: 1
       });
     }
 
     if (props.status == "exiting") {
+      container.interactive = false;
       anime({
-        targets: container.transform.scale,
+        targets: container,
         duration: props.skip ? 0 : 100,
         easing: "linear",
-        x: 0,
-        y: 0,
+        alpha: 0,
       });
     }
   });

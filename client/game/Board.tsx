@@ -13,7 +13,7 @@ import { GlowFilter } from "@pixi/filter-glow";
 import { currentPlayer } from "../../common/util";
 import { defaultUtil, useCardInfo } from "../cards";
 
-const BoardCard = React.forwardRef(function HandCard(props: GameCardProps, ref: Ref<Container>) {
+const BoardCard = React.forwardRef(function BoardCard(props: GameCardProps, ref: Ref<Container>) {
   const socket = useContext(SocketContext);
   const player = useContext(PlayerContext);
   const game = useClientSelector((state) => state.game.current);
