@@ -4,7 +4,7 @@ import { IDisplayObject3d } from "pixi-projection";
 import { DisplayObject, Ticker } from "pixi.js";
 
 type Identifier = string | symbol;
-type DisplayObject3d = DisplayObject & Partial<IDisplayObject3d>
+type DisplayObject3d = DisplayObject & Partial<IDisplayObject3d>;
 
 const PIXIBackend: BackendFactory = (manager: DragDropManager) => {
   let currentObject: DisplayObject3d | null = null;
@@ -30,13 +30,15 @@ const PIXIBackend: BackendFactory = (manager: DragDropManager) => {
         if (currentObject == null) {
           currentObject = node;
           initIndex = node.zIndex;
-          node.zIndex = 100;
+          node.zIndex = 10000;
           node.parent.sortChildren();
 
-          manager.getActions().beginDrag([sourceId], {
-            clientOffset: e.data.global,
-            getSourceClientOffset: () => e.data.global,
-          });
+          if (!manager.getMonitor().isDragging()) {
+            manager.getActions().beginDrag([sourceId], {
+              clientOffset: { ...e.data.global },
+              getSourceClientOffset: () => null,
+            });
+          }
         }
       }
 
@@ -55,15 +57,12 @@ const PIXIBackend: BackendFactory = (manager: DragDropManager) => {
             targetObjects[key].getBounds().contains(e.x, e.y)
           );
 
-          manager.getActions().hover(matchingTargetIds, {
-            clientOffset: pos,
-            getSourceClientOffset: () => pos,
-          });
+          manager.getActions().hover(matchingTargetIds);
         }
       }
 
       function mouseUpListener(e: MouseEvent) {
-        if (currentObject == node) {
+        if (currentObject == node && manager.getMonitor().isDragging()) {
           currentObject = null;
           manager.getActions().drop();
 

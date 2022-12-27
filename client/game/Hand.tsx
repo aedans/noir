@@ -1,6 +1,6 @@
 import React, { MutableRefObject, Ref, useContext, useEffect, useImperativeHandle, useRef, useState } from "react";
 import { useDrag } from "react-dnd";
-import { Container } from "react-pixi-fiber";
+import { Container, Sprite } from "react-pixi-fiber";
 import { targetResolution } from "../Camera";
 import { EnterExitAnimator } from "../EnterExitAnimation";
 import { useClientSelector } from "../store";
@@ -13,7 +13,7 @@ import { compareMoney, mapSorted } from "../../common/sort";
 
 const HandCard = React.forwardRef(function HandCard(props: GameCardProps, ref: Ref<Container>) {
   const cardRef = useRef() as MutableRefObject<Required<Container>>;
-  const targetRef = useRef() as MutableRefObject<Required<Container>>;
+  const targetRef = useRef() as MutableRefObject<Required<Sprite>>;
   const cardInfo = useCardInfo(props.state);
   const [zoom, setZoom] = useState(false);
 
@@ -53,16 +53,27 @@ const HandCard = React.forwardRef(function HandCard(props: GameCardProps, ref: R
       x={x}
       y={zoom ? (y ?? 0) - smallCardHeight / 10 : y}
       scale={zoom ? smallCardScale * 1.2 : smallCardScale}
-      zIndex={zoom ? 1000 : props.zIndex}
+      zIndex={zoom ? 100 : props.zIndex}
       ref={cardRef}
       interactive={props.status != "exiting"}
-      pointerover={() => setZoom(true)}
-      pointerout={() => setZoom(false)}
+      pointerover={() => isDragging ? {} : setZoom(true)}
+      pointerout={() => isDragging ? {} : setZoom(false)}
     />
   );
 
   if (cardInfo.targets) {
-    const target = <Reticle x={x} y={y} ref={targetRef} isDragging={isDragging} color={getCardColor(cardInfo)} />;
+    const target = (
+      <Reticle
+        x={x}
+        y={y}
+        ref={targetRef}
+        isDragging={isDragging}
+        color={getCardColor(cardInfo)}
+        angle={props.angle}
+        pointerover={() => isDragging ? {} : setZoom(true)}
+        pointerout={() => isDragging ? {} : setZoom(false)}
+      />
+    );
     return (
       <>
         {card}

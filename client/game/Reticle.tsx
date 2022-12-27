@@ -1,11 +1,10 @@
-import { Texture } from "pixi.js";
+import { Rectangle, Texture } from "pixi.js";
 import React, { Ref } from "react";
-import { Container, Sprite } from "react-pixi-fiber";
-import Rectangle from "../Rectangle";
+import { PixiElement, Sprite } from "react-pixi-fiber";
 import { GlowFilter } from "@pixi/filter-glow";
-import { smallCardHeight, smallCardWidth } from "../Card";
+import { cardHeight, cardWidth, smallCardScale } from "../Card";
 
-export type ReticleProps = {
+export type ReticleProps = PixiElement<Sprite> & {
   x?: number;
   y?: number;
   isDragging: boolean;
@@ -14,35 +13,26 @@ export type ReticleProps = {
 
 const texture = Texture.from("reticle.png");
 
-export default React.forwardRef(function Reticle(props: ReticleProps, ref: Ref<Container>) {
+export default React.forwardRef(function Reticle(props: ReticleProps, ref: Ref<Sprite>) {
   const filter = new GlowFilter({
     color: props.color,
     quality: 1,
   });
 
+  const offset = (1 / smallCardScale) * 200;
   return (
-    <>
-      <Rectangle
-        {...props}
-        pivot={[smallCardWidth / 2, smallCardHeight / 2]}
-        zIndex={100}
-        width={smallCardWidth}
-        height={smallCardHeight}
-        ref={ref}
-        fillAlpha={0.01}
-        interactive
-      >
-        <Sprite
-          pivot={[texture.width / 2, texture.height / 2]}
-          x={smallCardWidth / 2}
-          y={smallCardHeight / 2}
-          width={200}
-          height={200}
-          texture={texture}
-          alpha={props.isDragging ? 1 : 0}
-          filters={[filter]}
-        />
-      </Rectangle>
-    </>
+    <Sprite
+      {...props}
+      pivot={[texture.width / 2, texture.height / 2]}
+      width={200}
+      height={200}
+      texture={texture}
+      alpha={props.isDragging ? 1 : 0.001}
+      filters={[filter]}
+      zIndex={1000}
+      hitArea={new Rectangle(-cardWidth / 2 + offset, -cardHeight / 2 + offset, cardWidth - offset, cardHeight - offset)}
+      interactive
+      ref={ref}
+    />
   );
 });
