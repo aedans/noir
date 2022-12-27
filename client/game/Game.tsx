@@ -11,7 +11,7 @@ import { useSearchParams } from "react-router-dom";
 import { PlayerId } from "../../common/gameSlice";
 import Resources from "./Resources";
 import { batchActions } from "redux-batched-actions";
-import { serverOrigin } from "../cards";
+import { loadCardsFromAction, serverOrigin } from "../cards";
 import OpponentBoard from "./OpponentBoard";
 import { io, Socket } from "socket.io-client";
 import Button from "../Button";
@@ -36,7 +36,13 @@ export default function Game() {
     const socket = io(serverOrigin);
 
     socket.on("actions", (actions, name) => {
-      dispatch(batchActions(actions, name));
+      (async () => {
+        for (const action of actions) {
+          await loadCardsFromAction(action);
+        }
+
+        dispatch(batchActions(actions, name));
+      })();
     });
 
     socket.on("error", (message) => {

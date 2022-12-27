@@ -45,7 +45,7 @@ const HandCard = React.forwardRef(function HandCard(props: GameCardProps, ref: R
     y = position.y;
   }
 
-  const card = <GameCard {...props} shadow={20} x={x} y={y} ref={cardRef} interactive />;
+  const card = <GameCard {...props} shadow={20} x={x} y={y} ref={cardRef} interactive={props.status != "exiting"} />;
 
   if (cardInfo.targets) {
     const target = <Reticle x={x} y={y} ref={targetRef} isDragging={isDragging} color={getCardColor(cardInfo)} />;

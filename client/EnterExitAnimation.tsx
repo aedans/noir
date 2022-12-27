@@ -47,6 +47,10 @@ export default function EnterExitAnimation(props: EnterExitAnimationProps) {
   useLayoutEffect(() => {
     const container = props.componentRef.current;
 
+    if (!container) {
+      return;
+    }
+
     if (props.status == "entering") {
       container.alpha = 0;
       anime({

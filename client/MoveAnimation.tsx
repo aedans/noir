@@ -69,6 +69,10 @@ export default function MoveAnimation(props: MoveAnimationProps) {
   useEffect(() => {
     const component = props.componentRef.current;
 
+    if (!component) {
+      return;
+    }
+    
     if (!props.skipPosition) {
       anime.remove(component.transform.position);
       anime({
@@ -95,7 +99,7 @@ export default function MoveAnimation(props: MoveAnimationProps) {
   useLayoutEffect(() => {
     const prev = state.current[props.id];
     const component = props.componentRef.current;
-    if (prev && !props.skipPosition) {
+    if (prev && component && !props.skipPosition) {
       component.position = component.parent.toLocal(prev);
       component.scale = { x: prev.scaleX, y: prev.scaleY };
     }

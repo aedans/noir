@@ -1,4 +1,5 @@
 import { useEffect, useLayoutEffect, useState } from "react";
+import { AnyAction } from "redux";
 import { CardInfo, CardState, PartialCardInfoComputation, runPartialCardInfoComputation } from "../common/card";
 import { GameState } from "../common/gameSlice";
 import util from "../common/util";
@@ -35,13 +36,32 @@ export async function loadCard(card: { name: string }) {
   }
 }
 
-export function getCardInfo(game: GameState, card: CardState, base = false) {
-  let info = runPartialCardInfoComputation(cards[card.name], defaultUtil, game, card);
-  if (!base) {
-    info = defaultUtil.updateCardInfo(game, card, info);
+export async function loadCardsFromAction(action: AnyAction) {
+  if (action.type == "game/addCard") {
+    await loadCard({ name: action.payload.name });
   }
 
-  return info;
+  if (action.type == "history/setAction") {
+    await loadCardsFromAction(action.payload.action);
+  }
+}
+
+export function getCardInfo(game: GameState, card: CardState, base = false) {
+  try {
+    if (!(card.name in cards)) {
+      throw new Error(`Card ${card.name} is not loaded`);
+    }
+
+    let info = runPartialCardInfoComputation(cards[card.name], defaultUtil, game, card);
+    if (!base) {
+      info = defaultUtil.updateCardInfo(game, card, info);
+    }
+
+    return info;
+  } catch (e) {
+    console.error(`Error getting card info for ${card.name}`);
+    throw e;
+  }
 }
 
 export async function getCards() {
@@ -50,20 +70,26 @@ export async function getCards() {
 
 export function useCardInfo(card: CardState) {
   const game = useClientSelector((state) => state.game.current);
-  const hasLoaded = isLoaded(card);
   const [cardInfo, setCardInfo] = useState(runPartialCardInfoComputation(() => ({}), defaultUtil, game, card));
 
   useEffect(() => {
-    if (!hasLoaded) {
+    let isMounted = true;
+
+    if (!isLoaded(card)) {
       (async () => {
         await loadCard(card);
+        if (!isMounted) return;
         setCardInfo(getCardInfo(game, card));
       })();
     }
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   useLayoutEffect(() => {
-    if (hasLoaded) {
+    if (isLoaded(card)) {
       setCardInfo(getCardInfo(game, card));
     }
   }, [game]);
@@ -80,7 +106,7 @@ export function useCardInfoList(states: CardState[], deps?: ReadonlyArray<unknow
       (async () => {
         for (const card of states.filter((c) => !isLoaded(c))) {
           try {
-            await loadCard(card);            
+            await loadCard(card);
           } catch (e) {
             console.error(e);
           }
