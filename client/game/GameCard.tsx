@@ -1,9 +1,9 @@
-import React, { MutableRefObject, Ref, useContext, useEffect, useImperativeHandle, useRef, useState } from "react";
+import React, { MutableRefObject, Ref, useContext, useEffect, useImperativeHandle, useRef } from "react";
 import { useDrop } from "react-dnd";
 import { Container } from "react-pixi-fiber";
 import { CardState } from "../../common/card";
 import { findCard } from "../../common/gameSlice";
-import Card, { CardProps, smallCardHeight, smallCardScale } from "../Card";
+import Card, { CardProps, smallCardScale } from "../Card";
 import EnterExitAnimation, { EnterExitAnimationStatus } from "../EnterExitAnimation";
 import MoveAnimation, { MoveAnimationContext, useLastPos } from "../MoveAnimation";
 import { useClientSelector } from "../store";
@@ -42,19 +42,9 @@ const GameCard = React.forwardRef(function GameCard(props: GameCardProps, ref: R
   const shouldAnimate = (!hasExisted && doesExist) || !doesExist;
 
   return (
-    <MoveAnimation
-      id={props.state.id}
-      x={x}
-      y={y}
-      scale={props.scale ?? smallCardScale}
-      componentRef={componentRef}
-    >
+    <MoveAnimation id={props.state.id} x={x} y={y} scale={props.scale ?? smallCardScale} componentRef={componentRef}>
       <EnterExitAnimation skip={!shouldAnimate} status={props.status} componentRef={componentRef}>
-        <Card
-          {...props}
-          scale={0}
-          ref={componentRef}
-        />
+        <Card {...props} scale={0} ref={componentRef} />
       </EnterExitAnimation>
     </MoveAnimation>
   );

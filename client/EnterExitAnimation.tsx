@@ -1,4 +1,3 @@
-import anime from "animejs";
 import React, { MutableRefObject, ReactElement, ReactNode, useLayoutEffect, useRef } from "react";
 import { Container, PixiElement } from "react-pixi-fiber";
 import { Target } from "../common/card";
@@ -51,25 +50,7 @@ export default function EnterExitAnimation(props: EnterExitAnimationProps) {
       return;
     }
 
-    if (props.status == "entering") {
-      container.alpha = 0;
-      anime({
-        targets: container,
-        duration: props.skip ? 0 : 100,
-        easing: "linear",
-        alpha: 1
-      });
-    }
-
-    if (props.status == "exiting") {
-      container.interactive = false;
-      anime({
-        targets: container,
-        duration: props.skip ? 0 : 100,
-        easing: "linear",
-        alpha: 0,
-      });
-    }
+    container.alpha = props.status == "exiting" ? 0 : 1
   });
 
   return <>{props.children}</>;
