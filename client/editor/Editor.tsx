@@ -55,7 +55,7 @@ export default function Editor() {
   return (
     <MoveAnimationContext.Provider value={cards}>
       <Rectangle fill={0x202020} width={targetResolution.width} height={targetResolution.height} />
-      <Grid elements={sortedAllCards} maxWidth={3500}>
+      <Grid elements={sortedAllCards} maxWidth={3000}>
         {(data, ref, x, y) => (
           <EditorCard
             state={data}
