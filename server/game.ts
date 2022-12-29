@@ -81,7 +81,7 @@ function* playCard(
   if (info.type == "operation") {
     yield* defaultUtil.moveCard(game, {
       card,
-      to: { player, zone: "graveyard" },
+      to: { player, zone: "grave" },
     });
   } else {
     yield* defaultUtil.moveCard(game, {

@@ -36,14 +36,9 @@ const GameCard = React.forwardRef(function GameCard(props: GameCardProps, ref: R
     drop(componentRef);
   });
 
-  const location = findCard(game, props.state);
-  const doesExist = ["deck", "board"].includes(location?.zone ?? "");
-  const hasExisted = props.state.id in move.current;
-  const shouldAnimate = (!hasExisted && doesExist) || !doesExist;
-
   return (
     <MoveAnimation id={props.state.id} x={x} y={y} scale={props.scale ?? smallCardScale} componentRef={componentRef}>
-      <EnterExitAnimation skip={!shouldAnimate} status={props.status} componentRef={componentRef}>
+      <EnterExitAnimation skip={true} status={props.status} componentRef={componentRef}>
         <Card {...props} scale={0} ref={componentRef} />
       </EnterExitAnimation>
     </MoveAnimation>

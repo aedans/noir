@@ -19,6 +19,7 @@ import OpponentHand from "./OpponentHand";
 import { reset } from "../../common/historySlice";
 import Message from "./Message";
 import Deck from "./Deck";
+import Grave from "./Grave";
 
 export const SocketContext = React.createContext(null as unknown) as Context<Socket>;
 export const PlayerContext = React.createContext(0 as PlayerId);
@@ -84,6 +85,7 @@ export default function Game() {
             <OpponentBoard />
             <Board />
             <Hand />
+            <Grave />
             <Deck />
             <Message text={message} />
           </Container>

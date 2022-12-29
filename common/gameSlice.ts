@@ -1,7 +1,7 @@
 import { createSlice, current, isDraft, original, PayloadAction } from "@reduxjs/toolkit";
 import { CardState, Target } from "./card";
 
-export const zones = ["deck", "board", "graveyard"] as const;
+export const zones = ["deck", "board", "grave"] as const;
 export type Zone = typeof zones[number];
 
 export type PlayerId = 0 | 1;
@@ -25,13 +25,13 @@ export const initialGameState: GameState = {
       money: 0,
       deck: [],
       board: [],
-      graveyard: [],
+      grave: [],
     },
     {
       money: 0,
       deck: [],
       board: [],
-      graveyard: [],
+      grave: [],
     },
   ],
   turn: 0,
@@ -147,7 +147,7 @@ export const gameSlice = createSlice({
       const info = findCard(state, action.payload.card);
       if (info) {
         const { player, zone, index } = info;
-        state.players[player]["graveyard"].push(state.players[info.player][info.zone][info.index]);
+        state.players[player]["grave"].push(state.players[info.player][info.zone][info.index]);
         state.players[player][zone].splice(index, 1);
       }
     },
