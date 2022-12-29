@@ -8,6 +8,7 @@ exports.card = (util, game, card) => ({
     const cards = util.filter(game, {
       players: [util.opponent(util.findCard(game, card).player)],
       zones: ["deck"],
+      hidden: true,
     });
 
     for (const card of util.randoms(cards, 2)) {

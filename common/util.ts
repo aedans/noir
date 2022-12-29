@@ -1,6 +1,7 @@
 import {
   CardColor,
   CardCost,
+  CardGenerator,
   CardInfo,
   CardKeyword,
   CardModifier,
@@ -12,14 +13,15 @@ import {
 import {
   addCard,
   addMoney,
+  bounceCard,
   endTurn,
+  enterCard,
   exhaustCard,
   findCard,
   GameAction,
   GameParams,
   GameState,
   getCard,
-  moveCard,
   PlayerId,
   refreshCard,
   removeCard,
@@ -30,6 +32,7 @@ import {
   zones,
 } from "./gameSlice";
 import { v4 as uuid } from "uuid";
+import { historySlice } from "./historySlice";
 
 export function opponent(player: PlayerId) {
   return player == 0 ? 1 : 0;
@@ -45,6 +48,7 @@ export type Filter = {
   excludes?: Target[];
   types?: CardType[];
   colors?: CardColor[];
+  hidden?: boolean;
 };
 
 export function filter(this: Util, game: GameState, filter: Filter) {
@@ -54,16 +58,20 @@ export function filter(this: Util, game: GameState, filter: Filter) {
     for (const zone of filter.zones ?? zones) {
       let f = game.players[player][zone];
 
-      if (filter.types && filter.types.length > 0) {
+      if (filter.types != undefined && filter.types.length > 0) {
         f = f.filter((card) => filter.types!.includes(this.getCardInfo(game, card).type));
       }
 
-      if (filter.colors && filter.colors.length > 0) {
+      if (filter.colors != undefined && filter.colors.length > 0) {
         f = f.filter((card) => this.getCardInfo(game, card).colors.some((color) => filter.colors!.includes(color)));
       }
 
-      if (filter.excludes && filter.excludes.length > 0) {
+      if (filter.excludes != undefined && filter.excludes.length > 0) {
         f = f.filter((card) => filter.excludes!.every((c) => c.id != card.id));
+      }
+
+      if (filter.hidden != undefined) {
+        f = f.filter((card) => filter.hidden! == card.hidden);
       }
 
       cards.push(...f);
@@ -140,7 +148,7 @@ export function onTrigger<T extends GameParams>(
   selector?: (info: CardInfo) => CardTrigger<T>,
   init: boolean = false
 ) {
-  return function* (this: GetCardInfo, game: GameState, payload: T): Generator<GameAction, void, GameState> {
+  return function* (this: GetCardInfo, game: GameState, payload: T): CardGenerator {
     const newGame = yield trigger(payload);
     if (init) {
       game = newGame;
@@ -156,10 +164,12 @@ export function onTrigger<T extends GameParams>(
 }
 
 const util = {
+  ...historySlice.actions,
   endTurn: onTrigger(endTurn),
-  moveCard: onTrigger(moveCard, (info) => info.onMove),
   addCard: onTrigger(addCard, (info) => info.onAdd, true),
   removeCard: onTrigger(removeCard, (info) => info.onRemove),
+  enterCard: onTrigger(enterCard, (info) => info.onEnter),
+  bounceCard: onTrigger(bounceCard, (info) => info.onBounce),
   revealCard: onTrigger(revealCard, (info) => info.onReveal),
   refreshCard: onTrigger(refreshCard, (info) => info.onRefresh),
   exhaustCard: onTrigger(exhaustCard, (info) => info.onExhaust),
@@ -167,6 +177,7 @@ const util = {
   addMoney: onTrigger(addMoney),
   removeMoney: onTrigger(removeMoney),
   findCard: findCard as (game: GameState, card: Target) => { player: PlayerId; zone: Zone; index: number },
+  getCard: getCard as (game: GameState, card: Target) => CardState,
   opponent,
   currentPlayer,
   filter,

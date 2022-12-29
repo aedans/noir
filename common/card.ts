@@ -1,5 +1,6 @@
 import { DeepPartial } from "redux";
-import { AddCardParams, GameAction, gameSlice, GameState, MoveCardParams, TargetCardParams } from "./gameSlice";
+import { AddCardParams, GameAction, GameState, MoveCardParams, TargetCardParams } from "./gameSlice";
+import { HistoryAction } from "./historySlice";
 import { Util } from "./util";
 
 export type ModifierState = {
@@ -30,12 +31,13 @@ export type CardCost = {
   agents: number;
 };
 
-export type CardAction = () => Generator<GameAction, void, GameState>;
-export type CardTargetAction = (target: Target) => Generator<GameAction, void, GameState>;
+export type CardGenerator = Generator<GameAction | HistoryAction, void, GameState>;
+export type CardAction = () => CardGenerator;
+export type CardTargetAction = (target: Target) => CardGenerator;
 export type CardModifier = (card: CardInfo, modifier: ModifierState) => Partial<CardInfo>;
 export type CardTargets = () => Target[];
 export type CardEffect = (card: CardInfo, state: CardState) => Partial<CardInfo>;
-export type CardTrigger<T> = (payload: T) => Generator<GameAction, void, GameState>;
+export type CardTrigger<T> = (payload: T) => CardGenerator;
 
 export type CardInfo = {
   text: string;
@@ -53,9 +55,10 @@ export type CardInfo = {
   turn: CardAction;
   effect: CardEffect;
   modifiers: { [name: string]: CardModifier };
-  onMove: CardTrigger<MoveCardParams>;
   onAdd: CardTrigger<AddCardParams>;
   onRemove: CardTrigger<TargetCardParams>;
+  onEnter: CardTrigger<TargetCardParams>;
+  onBounce: CardTrigger<TargetCardParams>;
   onReveal: CardTrigger<TargetCardParams>;
   onRefresh: CardTrigger<TargetCardParams>;
   onExhaust: CardTrigger<TargetCardParams>;
@@ -77,9 +80,10 @@ export type PartialCardInfoComputation = (
   turn?: CardAction;
   effect?: CardEffect;
   modifiers?: { [name: string]: CardModifier };
-  onMove?: CardTrigger<MoveCardParams>;
   onAdd?: CardTrigger<AddCardParams>;
   onRemove?: CardTrigger<TargetCardParams>;
+  onEnter?: CardTrigger<TargetCardParams>;
+  onBounce?: CardTrigger<TargetCardParams>;
   onReveal?: CardTrigger<TargetCardParams>;
   onRefresh?: CardTrigger<TargetCardParams>;
   onExhaust?: CardTrigger<TargetCardParams>;
@@ -139,9 +143,10 @@ export function runPartialCardInfoComputation(
     turn: partial.turn ?? function* () {},
     effect: partial.effect ?? (() => ({})),
     modifiers: partial.modifiers ?? {},
-    onMove: partial.onMove ?? function* () {},
     onAdd: partial.onAdd ?? function* () {},
     onRemove: partial.onRemove ?? function* () {},
+    onEnter: partial.onEnter ?? function* () {},
+    onBounce: partial.onBounce ?? function* () {},
     onReveal: partial.onReveal ?? function* () {},
     onRefresh: partial.onRefresh ?? function* () {},
     onExhaust: partial.onExhaust ?? function* () {},

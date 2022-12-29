@@ -12,9 +12,9 @@ export const initialHistoryState: HistoryState = {
   current: initialGameState,
 };
 
-export type HistoryAction = PayloadAction<HistoryParams>;
+export type HistoryAction = PayloadAction<HistoryParams, `history/${keyof typeof historySlice.actions}`>;
 
-export type HistoryParams = SetActionParams | SetHiddenParams;
+export type HistoryParams = SetActionParams | SetHiddenParams | SetUndoneParams;
 
 export type SetActionParams = {
   index: number;
@@ -26,8 +26,7 @@ export type SetHiddenParams = {
   card: Target;
 };
 
-export type RevealHiddenActionParams = {
-  action: GameAction;
+export type SetUndoneParams = {
   index: number;
 };
 
@@ -41,9 +40,14 @@ export const historySlice = createSlice({
       state.current = state.history.reduce(gameSlice.reducer, initialGameState);
     },
     setHidden: (state, action: PayloadAction<SetHiddenParams>) => {
-      state.history[action.payload.index] = { type: "hidden", payload: action.payload };
+      state.history[action.payload.index] = { type: "game/hidden", payload: { card: action.payload.card } };
+      state.current = state.history.reduce(gameSlice.reducer, initialGameState);
     },
+    setUndone: (state, action: PayloadAction<SetUndoneParams>) => {
+      state.history[action.payload.index] = { type: "game/undone", payload: { action: state.history[action.payload.index] } };
+      state.current = state.history.reduce(gameSlice.reducer, initialGameState);
+    }
   },
 });
 
-export const { reset, setAction, setHidden } = historySlice.actions;
+export const { reset, setAction, setHidden, setUndone } = historySlice.actions;

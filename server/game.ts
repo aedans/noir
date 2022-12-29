@@ -1,11 +1,19 @@
-import Player, { PlayerAction } from "./Player";
+import Player, { PlayerAction, PlayerInit } from "./Player";
 import { findCard, GameAction, gameSlice, GameState, getCard, initialGameState, PlayerId } from "../common/gameSlice";
 import { defaultUtil, getCardInfo } from "./card";
 import { currentPlayer } from "../common/util";
-import { CardColor, CardCost, CardState, Target } from "../common/card";
-import { setAction, setHidden } from "../common/historySlice";
+import { CardColor, CardCost, CardGenerator, CardState, Target } from "../common/card";
+import {
+  HistoryAction,
+  historySlice,
+  HistoryState,
+  initialHistoryState,
+  setAction,
+  setHidden,
+} from "../common/historySlice";
+import { Deck } from "../common/decksSlice";
 
-function* doEndTurn(game: GameState): Generator<GameAction, void, GameState> {
+function* doEndTurn(game: GameState): CardGenerator {
   const player = currentPlayer(game);
   yield* defaultUtil.addMoney(game, { player, money: 2 });
 
@@ -62,43 +70,28 @@ function* payCost(game: GameState, card: Target, verb: string, name: string, col
   if (cost.money > 0) {
     yield* defaultUtil.removeMoney(game, { player, money: cost.money });
   }
-  
+
   for (const card of agents.slice(0, cost.agents)) {
     yield* defaultUtil.exhaustCard(game, { card });
   }
 }
 
-function* playCard(
-  game: GameState,
-  card: CardState,
-  target: Target | undefined
-): Generator<GameAction, void, GameState> {
-  const player = currentPlayer(game);
+function* playCard(game: GameState, card: CardState, target: Target | undefined): CardGenerator {
   const info = getCardInfo(game, card);
 
   validateTargets(game, card, info.targets, target);
 
   if (info.type == "operation") {
-    yield* defaultUtil.moveCard(game, {
-      card,
-      to: { player, zone: "grave" },
-    });
+    yield* defaultUtil.removeCard(game, { card });
   } else {
-    yield* defaultUtil.moveCard(game, {
-      card,
-      to: { player, zone: "board" },
-    });
+    yield* defaultUtil.enterCard(game, { card });
   }
 
   yield* payCost(game, card, "play", card.name, info.colors, info.cost);
   yield* info.play(target!);
 }
 
-function* activateCard(
-  game: GameState,
-  card: CardState,
-  target: Target | undefined
-): Generator<GameAction, void, GameState> {
+function* activateCard(game: GameState, card: CardState, target: Target | undefined): CardGenerator {
   if (card.exhausted) {
     throw `${card.name} is exhausted`;
   }
@@ -116,7 +109,7 @@ function* activateCard(
   yield* info.activate(target!);
 }
 
-function* doCard(game: GameState, id: string, target: Target | undefined): Generator<GameAction, void, GameState> {
+function* doCard(game: GameState, id: string, target: Target | undefined): CardGenerator {
   const info = findCard(game, { id });
   if (info) {
     const { player, zone, index } = info;
@@ -132,7 +125,7 @@ function* doCard(game: GameState, id: string, target: Target | undefined): Gener
   }
 }
 
-function* doAction(game: GameState, action: PlayerAction): Generator<GameAction, void, GameState> {
+function* doAction(game: GameState, action: PlayerAction): CardGenerator {
   if (action.type == "end") {
     yield* doEndTurn(game);
   } else if (action.type == "do") {
@@ -140,17 +133,50 @@ function* doAction(game: GameState, action: PlayerAction): Generator<GameAction,
   }
 }
 
-export async function createGame(players: [Player, Player]) {
-  let state = initialGameState;
-  const history: GameAction[] = [];
+function* initalizePlayer(state: HistoryState, player: PlayerId, init: PlayerInit): CardGenerator {
+  for (const [name, number] of Object.entries(init.deck.cards)) {
+    for (let i = 0; i < number; i++) {
+      yield* defaultUtil.addCard(state.current, {
+        card: defaultUtil.cid(),
+        name,
+        player,
+        zone: "deck",
+      });
+    }
+  }
+}
 
-  function sendActions(actions: GameAction[], source: PlayerId, name: string) {
-    const length = history.length;
-    history.push(...actions);
+function liftAction(state: HistoryState, action: GameAction | HistoryAction): HistoryAction {
+  if (action.type.startsWith("history")) {
+    return action as HistoryAction;
+  } else {
+    return setAction({
+      index: state.history.length,
+      action: action as GameAction,
+    });
+  }
+}
+
+export async function createGame(players: [Player, Player]) {
+  let state = initialHistoryState;
+
+  function sendActions(generator: CardGenerator, source: PlayerId, name: string) {
+    const length = state.history.length;
+
+    let next = generator.next(state.current);
+    const historyActions: HistoryAction[] = [];
+    while (!next.done) {
+      const action = liftAction(state, next.value);
+      historyActions.push(action);
+      state = historySlice.reducer(state, action);
+      next = generator.next(state.current);
+    }
+
+    const gameActions = state.history.slice(length);
 
     for (const player of [0, 1] as const) {
       function hide(action: GameAction, i: number) {
-        if (action.payload.card && player != source && getCard(state, action.payload.card)?.hidden) {
+        if (action.payload.card && player != source && getCard(state.current, action.payload.card)?.hidden) {
           return setHidden({ card: { id: action.payload.card.id }, index: length + i });
         } else {
           return setAction({ action, index: length + i });
@@ -160,7 +186,7 @@ export async function createGame(players: [Player, Player]) {
       function reveal(action: GameAction) {
         if (action.type == "game/revealCard" && action.payload.card) {
           const id = action.payload.card.id;
-          return history.flatMap((action, index) => {
+          return state.history.flatMap((action, index) => {
             return action.payload.card?.id == id ? [setAction({ action, index })] : [];
           });
         } else {
@@ -168,52 +194,30 @@ export async function createGame(players: [Player, Player]) {
         }
       }
 
-      players[player].send([...actions.map(hide), ...actions.flatMap(reveal)], name);
+      players[player].send(
+        [
+          ...gameActions.map(hide),
+          ...gameActions.flatMap(reveal),
+          ...historyActions.filter((action) => action.type == "history/setUndone"),
+        ],
+        name
+      );
     }
   }
 
   for (const player of [0, 1] as const) {
     const init = await players[player].init(player);
-    const actions: GameAction[] = [];
-
-    for (const [name, number] of Object.entries(init.deck.cards)) {
-      for (let i = 0; i < number; i++) {
-        const generator = defaultUtil.addCard(state, {
-          card: defaultUtil.cid(),
-          name,
-          player,
-          zone: "deck",
-        });
-
-        let next = generator.next(state);
-        while (!next.done) {
-          state = gameSlice.reducer(state, next.value);
-          actions.push(next.value);
-          next = generator.next(state);
-        }
-      }
-    }
-
-    sendActions(actions, player, `player${player}/init`);
+    const generator = initalizePlayer(state, player, init);
+    sendActions(generator, player, `player${player}/init`);
   }
 
   while (true) {
-    const player = currentPlayer(state);
+    const player = currentPlayer(state.current);
     const playerAction = await players[player].receive();
 
     try {
-      const generator = doAction(state, playerAction);
-      let newState = state;
-      let actions: GameAction[] = [];
-      let next = generator.next(newState);
-      while (!next.done) {
-        newState = gameSlice.reducer(newState, next.value);
-        actions.push(next.value);
-        next = generator.next(newState);
-      }
-
-      sendActions(actions, player, `player${player}/${playerAction.type}Action`);
-      state = newState;
+      const generator = doAction(state.current, playerAction);
+      sendActions(generator, player, `player${player}/${playerAction.type}Action`);
     } catch (e) {
       if (typeof e == "string") {
         players[player].error(e);

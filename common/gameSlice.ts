@@ -1,4 +1,4 @@
-import { createSlice, current, isDraft, original, PayloadAction } from "@reduxjs/toolkit";
+import { createSlice, current, isDraft, PayloadAction } from "@reduxjs/toolkit";
 import { CardState, Target } from "./card";
 
 export const zones = ["deck", "board", "grave"] as const;
@@ -10,6 +10,7 @@ export type PlayerState = { [zone in Zone]: CardState[] } & {
 };
 
 export type GameState = {
+  history: GameAction[];
   players: [PlayerState, PlayerState];
   turn: number;
 };
@@ -20,6 +21,7 @@ export type PlayerZone = {
 };
 
 export const initialGameState: GameState = {
+  history: [],
   players: [
     {
       money: 0,
@@ -37,16 +39,28 @@ export const initialGameState: GameState = {
   turn: 0,
 };
 
-export type GameAction = PayloadAction<GameParams>;
+export type GameAction = PayloadAction<GameParams, `game/${keyof typeof gameSlice.actions}`>;
 
 export type GameParams = { card?: Target } & (
-  | {}
+  | NoActionParams
+  | HiddenActionParams
+  | UndoneActionParams
   | MoveCardParams
   | AddCardParams
   | TargetCardParams
   | SetPropParams
   | ChangeMoneyParams
 );
+
+export type NoActionParams = {};
+
+export type HiddenActionParams = {
+  card: Target
+};
+
+export type UndoneActionParams = {
+  action: GameAction
+};
 
 export type MoveCardParams = {
   card: Target;
@@ -78,7 +92,7 @@ export function findCard(game: GameState, card: Target) {
   if (!card) {
     return null;
   }
-  
+
   for (const player of [0, 1] as const) {
     for (const zone of zones) {
       const index = game.players[player][zone].findIndex((c) => c.id == card.id);
@@ -122,19 +136,18 @@ export const gameSlice = createSlice({
   name: "game",
   initialState: initialGameState,
   reducers: {
-    endTurn: (state, action: PayloadAction<{}>) => {
+    hidden: (state, action: PayloadAction<HiddenActionParams>) => {
+      state.history.push(action as GameAction);
+    },
+    undone: (state, action: PayloadAction<UndoneActionParams>) => {
+      state.history.push(action as GameAction);
+    },
+    endTurn: (state, action: PayloadAction<NoActionParams>) => {
+      state.history.push(action as GameAction);
       state.turn++;
     },
-    moveCard: (state, action: PayloadAction<MoveCardParams>) => {
-      const { card, to } = action.payload;
-      const from = findCard(state, card);
-
-      if (from) {
-        state.players[to.player][to.zone].push(state.players[from.player][from.zone][from.index]);
-        state.players[from.player][from.zone].splice(from.index, 1);
-      }
-    },
     addCard: (state, action: PayloadAction<AddCardParams>) => {
+      state.history.push(action as GameAction);
       let cardState = defaultCardState(action.payload.name, action.payload.card.id);
 
       if (action.payload.state && isDraft(action.payload.state)) {
@@ -144,29 +157,54 @@ export const gameSlice = createSlice({
       state.players[action.payload.player][action.payload.zone].push(cardState);
     },
     removeCard: (state, action: PayloadAction<TargetCardParams>) => {
+      state.history.push(action as GameAction);
       const info = findCard(state, action.payload.card);
       if (info) {
         const { player, zone, index } = info;
-        state.players[player]["grave"].push(state.players[info.player][info.zone][info.index]);
+        state.players[player].grave.push(state.players[info.player][info.zone][info.index]);
+        state.players[player][zone].splice(index, 1);
+      }
+    },
+    enterCard: (state, action: PayloadAction<TargetCardParams>) => {
+      state.history.push(action as GameAction);
+      const info = findCard(state, action.payload.card);
+      if (info) {
+        const { player, zone, index } = info;
+        state.players[player].board.push(state.players[info.player][info.zone][info.index]);
+        state.players[player][zone].splice(index, 1);
+      }
+    },
+    bounceCard: (state, action: PayloadAction<TargetCardParams>) => {
+      state.history.push(action as GameAction);
+      const info = findCard(state, action.payload.card);
+      if (info) {
+        const { player, zone, index } = info;
+        state.players[player].deck.push(state.players[info.player][info.zone][info.index]);
         state.players[player][zone].splice(index, 1);
       }
     },
     revealCard: (state, action: PayloadAction<TargetCardParams>) => {
-      updateCard(state, action.payload.card, (card) => (card.hidden = true));
+      state.history.push(action as GameAction);
+      updateCard(state, action.payload.card, (card) => (card.hidden = false));
     },
     refreshCard: (state, action: PayloadAction<TargetCardParams>) => {
+      state.history.push(action as GameAction);
       updateCard(state, action.payload.card, (card) => (card.exhausted = false));
     },
     exhaustCard: (state, action: PayloadAction<TargetCardParams>) => {
+      state.history.push(action as GameAction);
       updateCard(state, action.payload.card, (card) => (card.exhausted = true));
     },
     setProp: (state, action: PayloadAction<SetPropParams>) => {
+      state.history.push(action as GameAction);
       updateCard(state, action.payload.card, (card) => (card.props[action.payload.name] = action.payload.value));
     },
     addMoney: (state, action: PayloadAction<ChangeMoneyParams>) => {
+      state.history.push(action as GameAction);
       state.players[action.payload.player].money += Math.max(0, action.payload.money);
     },
     removeMoney: (state, action: PayloadAction<ChangeMoneyParams>) => {
+      state.history.push(action as GameAction);
       state.players[action.payload.player].money -= Math.max(0, action.payload.money);
     },
   },
@@ -174,9 +212,10 @@ export const gameSlice = createSlice({
 
 export const {
   endTurn,
-  moveCard,
   addCard,
   removeCard,
+  enterCard,
+  bounceCard,
   revealCard,
   refreshCard,
   exhaustCard,
