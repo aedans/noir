@@ -27,6 +27,10 @@ const BoardCard = React.forwardRef(function BoardCard(props: GameCardProps, ref:
   }
 
   function pointerover() {
+    if (props.state.exhausted) {
+      return;
+    }
+
     const result = defaultUtil.tryPayCost(
       game,
       props.state,

@@ -5,9 +5,10 @@ import { targetResolution } from "./Camera";
 import { CardInfo, CardKeyword, CardState } from "../common/card";
 import Text from "./Text";
 import { DropShadowFilter } from "@pixi/filter-drop-shadow";
-import { Filter, filters, Texture } from "pixi.js";
+import { filters, Texture } from "pixi.js";
 import { useCardInfo } from "./cards";
 import anime from "animejs";
+import { GlowFilter } from "@pixi/filter-glow";
 
 export const cardHeight = targetResolution.height;
 export const cardWidth = cardHeight * (1 / 1.4);
@@ -41,6 +42,7 @@ export function getDisplayName(keyword: CardKeyword) {
 export type CardProps = PixiElement<Container> & {
   state: CardState;
   shadow?: number;
+  shouldGlow?: boolean;
 };
 
 export default React.forwardRef(function Card(props: CardProps, ref: Ref<Container>) {
@@ -48,6 +50,13 @@ export default React.forwardRef(function Card(props: CardProps, ref: Ref<Contain
   const containerRef = useRef() as MutableRefObject<Required<Container>>;
   const dimFilterRef = useRef(new filters.ColorMatrixFilter());
   const dropShadowFilterRef = useRef(new DropShadowFilter({ alpha: 0.5, blur: 1, distance: 0 }));
+  const glowFilterRef = useRef(
+    new GlowFilter({
+      color: 0,
+      quality: 1,
+      outerStrength: props.shouldGlow ? 4 : 0,
+    })
+  );
 
   useImperativeHandle(ref, () => containerRef.current);
 
@@ -70,10 +79,13 @@ export default React.forwardRef(function Card(props: CardProps, ref: Ref<Contain
     });
   }, [props.state.exhausted]);
 
-  const currentFilters: Filter[] = [dimFilterRef.current, dropShadowFilterRef.current];
-  if (props.filters) {
-    currentFilters.push(...props.filters);
-  }
+  useEffect(() => {
+    glowFilterRef.current.color = getCardColor(cardInfo);
+  }, [cardInfo]);
+
+  useEffect(() => {
+    glowFilterRef.current.outerStrength = props.shouldGlow ? 4 : 0;
+  }, [props.shouldGlow]);
 
   let text = cardInfo.text;
   if (cardInfo.keywords.length > 0) {
@@ -81,12 +93,13 @@ export default React.forwardRef(function Card(props: CardProps, ref: Ref<Contain
   }
 
   return (
-    <Container pivot={[cardWidth / 2, cardHeight / 2]} {...props} filters={currentFilters} ref={containerRef}>
-      <Rectangle
-        width={cardWidth}
-        height={cardHeight}
-        fillAlpha={0.01}
-      />
+    <Container
+      pivot={[cardWidth / 2, cardHeight / 2]}
+      {...props}
+      filters={[dimFilterRef.current, dropShadowFilterRef.current, glowFilterRef.current]}
+      ref={containerRef}
+    >
+      <Rectangle width={cardWidth} height={cardHeight} fillAlpha={0.01} />
       <Rectangle fill={getCardColor(cardInfo)} width={cardWidth - 100} height={cardHeight - 100} x={50} y={50} />
       <Sprite texture={Texture.from("border.png")} />
       <Text
