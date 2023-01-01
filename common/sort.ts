@@ -23,7 +23,3 @@ export function compareColor(a: CardInfo, b: CardInfo) {
     b.colors.map((color) => color.charCodeAt(0)).reduce((a, b) => a + b, 0)
   );
 }
-
-// export function compareColor(a: CardInfo, b: CardInfo) {
-
-// }

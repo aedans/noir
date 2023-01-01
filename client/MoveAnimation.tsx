@@ -78,6 +78,7 @@ export default function MoveAnimation(props: MoveAnimationProps) {
       anime({
         targets: component.transform.position,
         duration: 300,
+        delay: -10,
         easing: "easeOutExpo",
         x: props.x ?? 0,
         y: props.y ?? 0,
@@ -89,6 +90,7 @@ export default function MoveAnimation(props: MoveAnimationProps) {
       anime({
         targets: component.transform.scale,
         duration: 300,
+        delay: -10,
         easing: "easeOutExpo",
         x: props.scale ?? 0,
         y: props.scale ?? 0,

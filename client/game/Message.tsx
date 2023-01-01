@@ -9,7 +9,7 @@ export type MessageProps = {
   text: string;
 };
 
-export default function Message(props: MessageProps) {
+export default React.memo(function Message(props: MessageProps) {
   const ref = useRef() as MutableRefObject<Container>;
 
   if (ref.current) {
@@ -26,7 +26,7 @@ export default function Message(props: MessageProps) {
       alpha: 0,
     });
   });
-  
+
   const dropShadowFilter = new DropShadowFilter({
     alpha: 1,
     blur: 0,
@@ -44,4 +44,4 @@ export default function Message(props: MessageProps) {
       y={targetResolution.height / 2}
     />
   );
-}
+});

@@ -20,14 +20,22 @@ import { reset } from "../../common/historySlice";
 import Message from "./Message";
 import Deck from "./Deck";
 import Grave from "./Grave";
+import { CardState } from "../../common/card";
 
-export const SocketContext = React.createContext(null as unknown) as Context<Socket>;
+export const SocketContext = React.createContext(null as unknown as Socket);
 export const PlayerContext = React.createContext(0 as PlayerId);
+export const HoverContext = React.createContext(
+  {} as {
+    hover: CardState[];
+    setHover: (hover: CardState[]) => void;
+  }
+);
 
 export default function Game() {
   const [searchParams] = useSearchParams();
   const [player, setPlayer] = useState(null as PlayerId | null);
   const [socket, setSocket] = useState(null as Socket | null);
+  const [hover, setHover] = useState([] as CardState[]);
   const [message, setMessage] = useState("");
   const cards = useRef({} as MoveAnimationState);
   const decks = useClientSelector((state) => state.decks);
@@ -73,22 +81,30 @@ export default function Game() {
     return <Button text={"Waiting for player"} x={targetResolution.width / 2} y={targetResolution.height / 2} />;
   }
 
+  function setHoverMemo(h: CardState[]) {
+    if ((hover.length == 0 && h.length > 0) || hover.length > 0) {
+      setHover(h);
+    }
+  }
+
   return (
     <SocketContext.Provider value={socket}>
       <MoveAnimationContext.Provider value={cards}>
         <PlayerContext.Provider value={player}>
-          <Container>
-            <Rectangle fill={0x202020} width={targetResolution.width} height={targetResolution.height} />
-            <EndTurn />
-            <Resources />
-            <OpponentHand />
-            <OpponentBoard />
-            <Board />
-            <Hand />
-            <Grave />
-            <Deck />
-            <Message text={message} />
-          </Container>
+          <HoverContext.Provider value={{ hover, setHover: setHoverMemo }}>
+            <Container>
+              <Rectangle fill={0x202020} width={targetResolution.width} height={targetResolution.height} />
+              <EndTurn />
+              <Resources />
+              <OpponentHand />
+              <OpponentBoard />
+              <Board />
+              <Hand />
+              <Grave />
+              <Deck />
+              <Message text={message} />
+            </Container>
+          </HoverContext.Provider>
         </PlayerContext.Provider>
       </MoveAnimationContext.Provider>
     </SocketContext.Provider>

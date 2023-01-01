@@ -1,5 +1,5 @@
 import Player, { PlayerAction, PlayerInit } from "./Player";
-import { findCard, GameAction, gameSlice, GameState, getCard, initialGameState, PlayerId } from "../common/gameSlice";
+import { findCard, GameAction, GameState, getCard, PlayerId } from "../common/gameSlice";
 import { defaultUtil, getCardInfo } from "./card";
 import { currentPlayer } from "../common/util";
 import { CardColor, CardCost, CardGenerator, CardState, Target } from "../common/card";
@@ -11,7 +11,6 @@ import {
   setAction,
   setHidden,
 } from "../common/historySlice";
-import { Deck } from "../common/decksSlice";
 
 function* doEndTurn(game: GameState): CardGenerator {
   const player = currentPlayer(game);
@@ -48,30 +47,19 @@ function validateTargets(
 
 function* payCost(game: GameState, card: Target, verb: string, name: string, colors: CardColor[], cost: CardCost) {
   const player = currentPlayer(game);
+  const result = defaultUtil.tryPayCost(game, card, verb, name, player, colors, cost);
 
-  if (game.players[player].money < cost.money) {
-    throw `Not enough money to ${verb} ${name}`;
+  if (typeof result == "string") {
+    throw result;
   }
 
-  const agents = defaultUtil.filter(game, {
-    players: [player],
-    types: ["agent"],
-    zones: ["board"],
-    excludes: [card],
-    colors,
-  });
+  const { agents, money } = result;
 
-  if (agents.length < cost.agents) {
-    throw `Not enough agents to ${verb} ${name}`;
+  if (money > 0) {
+    yield* defaultUtil.removeMoney(game, { player, money });
   }
 
-  agents.sort((a, b) => getCardInfo(game, b).activationPriority - getCardInfo(game, a).activationPriority);
-
-  if (cost.money > 0) {
-    yield* defaultUtil.removeMoney(game, { player, money: cost.money });
-  }
-
-  for (const card of agents.slice(0, cost.agents)) {
+  for (const card of agents) {
     yield* defaultUtil.exhaustCard(game, { card });
   }
 }

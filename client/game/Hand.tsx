@@ -4,7 +4,7 @@ import { Container, Sprite } from "react-pixi-fiber";
 import { targetResolution } from "../Camera";
 import { EnterExitAnimator } from "../EnterExitAnimation";
 import { useClientSelector } from "../store";
-import { PlayerContext } from "./Game";
+import { HoverContext, PlayerContext } from "./Game";
 import GameCard, { GameCardProps } from "./GameCard";
 import { defaultUtil, useCardInfo, useCardInfoList } from "../cards";
 import Reticle from "./Reticle";
@@ -12,6 +12,9 @@ import { getCardColor, smallCardHeight, smallCardScale, smallCardWidth } from ".
 import { compareMoney, mapSorted } from "../../common/sort";
 
 const HandCard = React.forwardRef(function HandCard(props: GameCardProps, ref: Ref<Container>) {
+  const { setHover } = useContext(HoverContext);
+  const player = useContext(PlayerContext);
+  const game = useClientSelector((state) => state.game.current);
   const cardRef = useRef() as MutableRefObject<Required<Container>>;
   const targetRef = useRef() as MutableRefObject<Required<Sprite>>;
   const cardInfo = useCardInfo(props.state);
@@ -23,6 +26,8 @@ const HandCard = React.forwardRef(function HandCard(props: GameCardProps, ref: R
     if (cardRef.current) {
       drag(cardInfo.targets ? targetRef : cardRef);
     }
+
+    return () => setHover([]);
   }, [cardInfo]);
 
   const [{ isDragging, globalPosition }, drag] = useDrag(
@@ -46,6 +51,33 @@ const HandCard = React.forwardRef(function HandCard(props: GameCardProps, ref: R
     y = position.y;
   }
 
+  function pointerover() {
+    if (!isDragging) {
+      setZoom(true);
+
+      const result = defaultUtil.tryPayCost(
+        game,
+        props.state,
+        "play",
+        props.state.name,
+        player,
+        cardInfo.colors,
+        cardInfo.cost
+      );
+
+      if (typeof result != "string") {
+        setHover(result.agents);
+      }
+    }
+  }
+
+  function pointerout() {
+    if (!isDragging) {
+      setZoom(false);
+      setHover([]);
+    }
+  }
+
   const card = (
     <GameCard
       {...props}
@@ -56,8 +88,8 @@ const HandCard = React.forwardRef(function HandCard(props: GameCardProps, ref: R
       zIndex={zoom ? 100 : props.zIndex}
       ref={cardRef}
       interactive={props.status != "exiting"}
-      pointerover={() => isDragging ? {} : setZoom(true)}
-      pointerout={() => isDragging ? {} : setZoom(false)}
+      pointerover={pointerover}
+      pointerout={pointerout}
     />
   );
 
@@ -70,8 +102,8 @@ const HandCard = React.forwardRef(function HandCard(props: GameCardProps, ref: R
         isDragging={isDragging}
         color={getCardColor(cardInfo)}
         angle={props.angle}
-        pointerover={() => isDragging ? {} : setZoom(true)}
-        pointerout={() => isDragging ? {} : setZoom(false)}
+        pointerover={pointerover}
+        pointerout={pointerout}
       />
     );
     return (

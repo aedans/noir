@@ -1,19 +1,19 @@
 import React, { MutableRefObject, Ref, useContext, useImperativeHandle, useRef } from "react";
-import { cardHeight, getCardColor, smallCardHeight, smallCardWidth } from "../Card";
+import { cardHeight, smallCardHeight, smallCardWidth } from "../Card";
 import { useDrop } from "react-dnd";
 import Rectangle from "../Rectangle";
 import { targetResolution } from "../Camera";
 import { useClientSelector } from "../store";
 import { CardState } from "../../common/card";
-import { PlayerContext, SocketContext } from "./Game";
+import { HoverContext, PlayerContext, SocketContext } from "./Game";
 import GameCard, { GameCardProps } from "./GameCard";
 import { EnterExitAnimator } from "../EnterExitAnimation";
 import { Container } from "react-pixi-fiber";
-import { GlowFilter } from "@pixi/filter-glow";
 import { currentPlayer } from "../../common/util";
 import { defaultUtil, useCardInfo } from "../cards";
 
 const BoardCard = React.forwardRef(function BoardCard(props: GameCardProps, ref: Ref<Container>) {
+  const { setHover } = useContext(HoverContext);
   const socket = useContext(SocketContext);
   const player = useContext(PlayerContext);
   const game = useClientSelector((state) => state.game.current);
@@ -26,19 +26,43 @@ const BoardCard = React.forwardRef(function BoardCard(props: GameCardProps, ref:
     socket.emit("action", { type: "do", id: props.state.id });
   }
 
+  function pointerover() {
+    const result = defaultUtil.tryPayCost(
+      game,
+      props.state,
+      "activate",
+      props.state.name,
+      player,
+      cardInfo.colors,
+      cardInfo.activateCost
+    );
+
+    if (typeof result != "string") {
+      setHover(result.agents);
+    }
+  }
+
+  function pointerout() {
+    setHover([]);
+  }
+
   const shouldGlow =
     !props.state.exhausted &&
     cardInfo.hasActivateEffect &&
     currentPlayer(game) == player &&
     defaultUtil.canPayCost(game, props.state, player, cardInfo.colors, cardInfo.activateCost);
 
-  const filter = new GlowFilter({
-    color: getCardColor(cardInfo),
-    quality: 1,
-    outerStrength: shouldGlow ? 4 : 0,
-  });
-
-  return <GameCard {...props} filters={[filter]} ref={cardRef} interactive pointerdown={pointerdown} />;
+  return (
+    <GameCard
+      {...props}
+      shouldGlow={shouldGlow}
+      ref={cardRef}
+      interactive
+      pointerdown={pointerdown}
+      pointerover={pointerover}
+      pointerout={pointerout}
+    />
+  );
 });
 
 export default function Board() {

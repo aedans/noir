@@ -49,6 +49,7 @@ export type Filter = {
   types?: CardType[];
   colors?: CardColor[];
   hidden?: boolean;
+  exhausted?: boolean;
 };
 
 export function filter(this: Util, game: GameState, filter: Filter) {
@@ -74,6 +75,10 @@ export function filter(this: Util, game: GameState, filter: Filter) {
         f = f.filter((card) => filter.hidden! == card.hidden);
       }
 
+      if (filter.exhausted != undefined) {
+        f = f.filter((card) => filter.exhausted! == card.exhausted)
+      }
+
       cards.push(...f);
     }
   }
@@ -81,23 +86,50 @@ export function filter(this: Util, game: GameState, filter: Filter) {
   return cards;
 }
 
-export function canPayCost(
+export function tryPayCost(
   this: Util,
   game: GameState,
   card: Target,
+  verb: string,
+  name: string,
   player: PlayerId,
   colors: CardColor[],
   cost: CardCost
-) {
+): string | { agents: CardState[]; money: number } {
+  if (game.players[player].money < cost.money) {
+    return `Not enough money to ${verb} ${name}`;
+  }
+
   const agents = this.filter(game, {
     players: [player],
     types: ["agent"],
     zones: ["board"],
     excludes: [card],
+    exhausted: false,
     colors,
   });
 
-  return game.players[player].money >= cost.money && agents.length >= cost.agents;
+  if (agents.length < cost.agents) {
+    return `Not enough agents to ${verb} ${name}`;
+  }
+
+  agents.sort((a, b) => this.getCardInfo(game, b).activationPriority - this.getCardInfo(game, a).activationPriority);
+
+  return {
+    agents: agents.slice(0, cost.agents),
+    money: cost.money,
+  };
+}
+
+export function canPayCost(
+  this: Util,
+  game: GameState,
+  card: CardState,
+  player: PlayerId,
+  colors: CardColor[],
+  cost: CardCost
+) {
+  return typeof this.tryPayCost(game, card, "play", card.name, player, colors, cost) != "string";
 }
 
 export function updateCardInfo(this: Util, game: GameState, state: CardState, info: CardInfo) {
@@ -181,6 +213,7 @@ const util = {
   opponent,
   currentPlayer,
   filter,
+  tryPayCost,
   canPayCost,
   updateCardInfo,
   keywordModifier,

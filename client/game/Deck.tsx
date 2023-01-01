@@ -21,7 +21,5 @@ export default function Deck() {
   const x = targetResolution.width - smallCardWidth;
   const y = targetResolution.height - smallCardHeight;
 
-  return (
-    <CardList cards={sortedDeck} x={x} y={y} />
-  );
+  return <CardList cards={sortedDeck} x={x} y={y} />;
 }
