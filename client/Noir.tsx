@@ -12,6 +12,7 @@ import Menu from "./menu/Menu";
 import Play from "./play/Play";
 import Decks from "./decks/Decks";
 import Editor from "./editor/Editor";
+import Stats from "./Stats";
 
 export default function Noir() {
   const options = {
@@ -23,6 +24,7 @@ export default function Noir() {
 
   return (
     <Stage options={options}>
+      <Stats />
       <Camera>
         <Provider store={store}>
           <DndProvider backend={PIXIBackend}>
@@ -31,7 +33,7 @@ export default function Noir() {
                 <Route path="/play" element={<Play />} />
                 <Route path="/game" element={<Game />} />
                 <Route path="/decks" element={<Decks />} />
-                <Route path="/edit" element={<Editor />}/>
+                <Route path="/edit" element={<Editor />} />
                 <Route path="/" element={<Menu />} />
               </Routes>
             </BrowserRouter>
