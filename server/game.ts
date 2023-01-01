@@ -146,7 +146,7 @@ function liftAction(state: HistoryState, action: GameAction | HistoryAction): Hi
 }
 
 export async function createGame(players: [Player, Player]) {
-  let state = initialHistoryState;
+  let state = initialHistoryState();
 
   function sendActions(generator: CardGenerator, source: PlayerId, name: string) {
     const length = state.history.length;

@@ -1,16 +1,18 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { Target } from "./card";
-import { GameAction, gameSlice, GameState, initialGameState } from "./gameSlice";
+import { GameAction, gameReducers, GameState, initialGameState } from "./gameSlice";
 
 export type HistoryState = {
   history: GameAction[];
   current: GameState;
 };
 
-export const initialHistoryState: HistoryState = {
-  history: [],
-  current: initialGameState,
-};
+export function initialHistoryState(): HistoryState {
+  return {
+    history: [],
+    current: initialGameState(),
+  };
+}
 
 export type HistoryAction = PayloadAction<HistoryParams, `history/${keyof typeof historySlice.actions}`>;
 
@@ -30,23 +32,35 @@ export type SetUndoneParams = {
   index: number;
 };
 
+function reduce(history: GameAction[], state: GameState) {
+  for (const action of history) {
+    const name = action.type.replace("game/", "") as keyof typeof gameReducers;
+    (gameReducers[name] as (state: GameState, action: GameAction) => void)(state, action);
+  }
+
+  return state;
+}
+
 export const historySlice = createSlice({
   name: "history",
-  initialState: initialHistoryState,
+  initialState: initialHistoryState(),
   reducers: {
-    reset: () => initialHistoryState,
+    reset: () => initialHistoryState(),
     setAction: (state, action: PayloadAction<SetActionParams>) => {
       state.history[action.payload.index] = action.payload.action;
-      state.current = state.history.reduce(gameSlice.reducer, initialGameState);
+      state.current = reduce(state.history, initialGameState());
     },
     setHidden: (state, action: PayloadAction<SetHiddenParams>) => {
       state.history[action.payload.index] = { type: "game/hidden", payload: { card: action.payload.card } };
-      state.current = state.history.reduce(gameSlice.reducer, initialGameState);
+      state.current = reduce(state.history, initialGameState());
     },
     setUndone: (state, action: PayloadAction<SetUndoneParams>) => {
-      state.history[action.payload.index] = { type: "game/undone", payload: { action: state.history[action.payload.index] } };
-      state.current = state.history.reduce(gameSlice.reducer, initialGameState);
-    }
+      state.history[action.payload.index] = {
+        type: "game/undone",
+        payload: { action: state.history[action.payload.index] },
+      };
+      state.current = reduce(state.history, initialGameState());
+    },
   },
 });
 
