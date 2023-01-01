@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from "react";
-import { useSearchParams } from "react-router-dom";
 import { getCards, useCardInfoList } from "../cards";
 import Grid from "../Grid";
 import { smallCardHeight, smallCardWidth } from "../Card";
@@ -13,12 +12,11 @@ import { MoveAnimationContext, MoveAnimationState } from "../MoveAnimation";
 import EditorCard from "./EditorCard";
 import { EnterExitAnimator } from "../EnterExitAnimation";
 
-export default function Editor() {
-  const [searchParams] = useSearchParams();
+export default function Editor(props: { params: { deck: string } }) {
   const dispatch = useClientDispatch();
   const cards = useRef({} as MoveAnimationState);
 
-  const deckName = searchParams.get("deck")!;
+  const deckName = props.params.deck;
   const deck = useClientSelector((game) => game.decks[deckName]);
   const deckCards = useCardInfoList(
     Object.entries(deck.cards).flatMap(([name, number]) => {

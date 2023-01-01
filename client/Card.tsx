@@ -101,7 +101,7 @@ export default React.forwardRef(function Card(props: CardProps, ref: Ref<Contain
     >
       <Rectangle width={cardWidth} height={cardHeight} fillAlpha={0.01} />
       <Rectangle fill={getCardColor(cardInfo)} width={cardWidth - 100} height={cardHeight - 100} x={50} y={50} />
-      <Sprite texture={Texture.from("border.png")} />
+      <Sprite texture={Texture.from("/border.png")} />
       <Text
         anchor={[0.5, 0]}
         x={cardWidth / 2 + 100}

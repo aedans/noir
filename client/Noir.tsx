@@ -1,12 +1,11 @@
 import React from "react";
+import { Route, Router } from "wouter";
 import { DndProvider } from "react-dnd";
 import PIXIBackend from "./PIXIBackend";
 import Camera from "./Camera";
 import { Provider } from "react-redux";
 import { store } from "./store";
 import Game from "./game/Game";
-import { BrowserRouter } from "react-router-dom";
-import { Routes, Route } from "react-router-dom";
 import Menu from "./menu/Menu";
 import Play from "./play/Play";
 import Decks from "./decks/Decks";
@@ -17,15 +16,13 @@ export default function Noir() {
     <Camera>
       <Provider store={store}>
         <DndProvider backend={PIXIBackend}>
-          <BrowserRouter>
-            <Routes>
-              <Route path="/play" element={<Play />} />
-              <Route path="/game" element={<Game />} />
-              <Route path="/decks" element={<Decks />} />
-              <Route path="/edit" element={<Editor />} />
-              <Route path="/" element={<Menu />} />
-            </Routes>
-          </BrowserRouter>
+          <Router>
+            <Route path="/play" component={Play} />
+            <Route path="/game/:deck" component={Game} />
+            <Route path="/decks" component={Decks} />
+            <Route path="/edit/:deck" component={Editor} />
+            <Route path="/" component={Menu} />
+          </Router>
         </DndProvider>
       </Provider>
     </Camera>

@@ -2,13 +2,13 @@ import React from "react";
 import { ReactNode } from "react";
 import { useClientSelector } from "../store";
 import Button from "../Button";
-import { useNavigate } from "react-router-dom";
+import { useLocation } from "wouter";
 import { Container } from "react-pixi-fiber";
 import { targetResolution } from "../Camera";
 
 export default function Play() {
   const decks = useClientSelector((game) => game.decks);
-  const navigate = useNavigate();
+  const [_, setLocation] = useLocation();
 
   let y = 0;
   let buttons: ReactNode[] = [];
@@ -19,7 +19,7 @@ export default function Play() {
         key={name}
         y={y}
         pointerdown={() => {
-          navigate(`/game?deck=${name}`);
+          setLocation(`/game/${name}`);
         }}
       />
     );

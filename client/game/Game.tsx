@@ -1,4 +1,4 @@
-import React, { Context, useContext, useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Container } from "react-pixi-fiber";
 import Board from "./Board";
 import Hand from "./Hand";
@@ -7,7 +7,7 @@ import { targetResolution } from "../Camera";
 import { useClientDispatch, useClientSelector } from "../store";
 import EndTurn from "./EndTurn";
 import { MoveAnimationContext, MoveAnimationState } from "../MoveAnimation";
-import { useSearchParams } from "react-router-dom";
+import { useRoute } from "wouter";
 import { PlayerId } from "../../common/gameSlice";
 import Resources from "./Resources";
 import { batchActions } from "redux-batched-actions";
@@ -31,8 +31,7 @@ export const HoverContext = React.createContext(
   }
 );
 
-export default function Game() {
-  const [searchParams] = useSearchParams();
+export default function Game(props: { params: { deck: string } }) {
   const [player, setPlayer] = useState(null as PlayerId | null);
   const [socket, setSocket] = useState(null as Socket | null);
   const [hover, setHover] = useState([] as CardState[]);
@@ -63,7 +62,7 @@ export default function Game() {
       setPlayer(player);
 
       socket.emit("init", {
-        deck: decks[searchParams.get("deck")!],
+        deck: decks[props.params.deck],
       });
     });
 

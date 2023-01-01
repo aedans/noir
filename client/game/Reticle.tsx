@@ -11,7 +11,7 @@ export type ReticleProps = PixiElement<Sprite> & {
   color: number;
 };
 
-const texture = Texture.from("reticle.png");
+const texture = Texture.from("/reticle.png");
 
 export default React.forwardRef(function Reticle(props: ReticleProps, ref: Ref<Sprite>) {
   const filter = new GlowFilter({
