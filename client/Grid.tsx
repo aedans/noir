@@ -1,5 +1,5 @@
 import { Sprite } from "pixi.js";
-import React, { createRef, MutableRefObject, Ref, useEffect, useLayoutEffect, useRef, useState } from "react";
+import React, { createRef, MutableRefObject, Ref, useLayoutEffect, useRef, useState } from "react";
 import { ReactElement } from "react";
 import { Container, PixiElement } from "react-pixi-fiber";
 import { Target } from "../common/card";
@@ -41,7 +41,7 @@ export default function Grid<T extends Target>(props: GridProps<T>) {
       }
     } else {
       missingRefs = true;
-    } 
+    }
   }
 
   useLayoutEffect(() => {
