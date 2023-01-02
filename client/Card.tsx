@@ -50,13 +50,7 @@ export default React.forwardRef(function Card(props: CardProps, ref: Ref<Contain
   const containerRef = useRef() as MutableRefObject<Required<Container>>;
   const dimFilterRef = useRef(new filters.ColorMatrixFilter());
   const dropShadowFilterRef = useRef(new DropShadowFilter({ alpha: 0.5, blur: 1, distance: 0 }));
-  const glowFilterRef = useRef(
-    new GlowFilter({
-      color: 0,
-      quality: 1,
-      outerStrength: props.shouldGlow ? 4 : 0,
-    })
-  );
+  const glowFilterRef = useRef(new GlowFilter({ outerStrength: 4 }));
 
   useImperativeHandle(ref, () => containerRef.current);
 
@@ -84,7 +78,7 @@ export default React.forwardRef(function Card(props: CardProps, ref: Ref<Contain
   }, [cardInfo]);
 
   useEffect(() => {
-    glowFilterRef.current.outerStrength = props.shouldGlow ? 4 : 0;
+    glowFilterRef.current.enabled = props.shouldGlow ?? false;
   }, [props.shouldGlow]);
 
   let text = cardInfo.text;
