@@ -31,7 +31,7 @@ export const HoverContext = React.createContext(
   }
 );
 
-export default function Game(props: { params: { deck: string } }) {
+export default function Game(props: { params: { queue: string, deck: string } }) {
   const [player, setPlayer] = useState(null as PlayerId | null);
   const [socket, setSocket] = useState(null as Socket | null);
   const [hover, setHover] = useState([] as CardState[]);
@@ -68,7 +68,7 @@ export default function Game(props: { params: { deck: string } }) {
 
     setSocket(socket);
 
-    socket.emit("queue", "practice");
+    socket.emit("queue", props.params.queue);
 
     return () => {
       socket?.close();

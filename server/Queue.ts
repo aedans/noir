@@ -1,10 +1,10 @@
 import { Socket } from "socket.io";
-import Practice from "./queue/Practice";
-import Unranked from "./queue/Unranked";
+import Test from "./queue/Test";
+import Casual from "./queue/Casual";
 
 export const queues: { [name: string]: Queue } = {
-  practice: new Practice(),
-  unranked: new Unranked(),
+  test: new Test(),
+  casual: new Casual(),
 };
 
 export default interface Queue {

@@ -3,7 +3,7 @@ import { createGame } from "../game";
 import { SocketPlayer } from "../Player";
 import Queue from "../Queue";
 
-export default class Unranked implements Queue {
+export default class Casual implements Queue {
   sockets: Socket[] = [];
 
   push(socket: Socket): void {

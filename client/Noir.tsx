@@ -18,7 +18,7 @@ export default function Noir() {
         <DndProvider backend={PIXIBackend}>
           <Router>
             <Route path="/play" component={Play} />
-            <Route path="/game/:deck" component={Game} />
+            <Route path="/game/:queue/:deck" component={Game} />
             <Route path="/decks" component={Decks} />
             <Route path="/edit/:deck" component={Editor} />
             <Route path="/" component={Menu} />
