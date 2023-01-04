@@ -1,5 +1,5 @@
 import { DeepPartial } from "redux";
-import { AddCardParams, GameAction, GameState, MoveCardParams, TargetCardParams } from "./gameSlice";
+import { AddCardParams, GameAction, GameState, TargetCardParams } from "./gameSlice";
 import { HistoryAction } from "./historySlice";
 import { Util } from "./util";
 
@@ -13,6 +13,7 @@ export type CardState = {
   name: string;
   hidden: boolean;
   exhausted: boolean;
+  protected: boolean;
   props: any;
   modifiers: ModifierState[];
 };

@@ -12,6 +12,7 @@ import {
 } from "./card";
 import {
   addCard,
+  AddCardParams,
   addMoney,
   bounceCard,
   endTurn,
@@ -23,11 +24,13 @@ import {
   GameState,
   getCard,
   PlayerId,
-  refreshCard,
+  protectCard,
   removeCard,
+  refreshCard,
   removeMoney,
   revealCard,
   setProp,
+  TargetCardParams,
   Zone,
   zones,
 } from "./gameSlice";
@@ -76,7 +79,7 @@ export function filter(this: Util, game: GameState, filter: Filter) {
       }
 
       if (filter.exhausted != undefined) {
-        f = f.filter((card) => filter.exhausted! == card.exhausted)
+        f = f.filter((card) => filter.exhausted! == card.exhausted);
       }
 
       cards.push(...f);
@@ -177,7 +180,7 @@ export function randoms<T>(ts: T[], number: number) {
 
 export function onTrigger<T extends GameParams>(
   trigger: (payload: T) => GameAction,
-  selector?: (info: CardInfo) => CardTrigger<T>,
+  selector?: (info: CardInfo, game: GameState, payload: T) => CardTrigger<T>,
   init: boolean = false
 ) {
   return function* (this: GetCardInfo, game: GameState, payload: T): CardGenerator {
@@ -189,17 +192,33 @@ export function onTrigger<T extends GameParams>(
     if (selector && payload.card) {
       const card = getCard(game, payload.card);
       if (card) {
-        yield* selector(this.getCardInfo(game, card))(payload);
+        yield* selector(this.getCardInfo(game, card), game, payload)(payload);
       }
     }
   };
 }
 
+function* onAdd(info: CardInfo, payload: AddCardParams): CardGenerator {
+  yield* info.onAdd(payload);
+
+  if (info.keywords.includes("protected")) {
+    yield protectCard(payload);
+  }
+}
+
+function* onRemove(info: CardInfo, game: GameState, payload: TargetCardParams): CardGenerator {
+  const state = getCard(game, payload.card);
+
+  if (state && !state.protected) {
+    yield* info.onRemove(payload);
+  }
+}
+
 const util = {
   ...historySlice.actions,
   endTurn: onTrigger(endTurn),
-  addCard: onTrigger(addCard, (info) => info.onAdd, true),
-  removeCard: onTrigger(removeCard, (info) => info.onRemove),
+  addCard: onTrigger(addCard, (info) => (payload) => onAdd(info, payload), true),
+  removeCard: onTrigger(removeCard, (info, game) => (payload) => onRemove(info, game, payload)),
   enterCard: onTrigger(enterCard, (info) => info.onEnter),
   bounceCard: onTrigger(bounceCard, (info) => info.onBounce),
   revealCard: onTrigger(revealCard, (info) => info.onReveal),

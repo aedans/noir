@@ -1,4 +1,4 @@
-import { createSlice, current, Draft, isDraft, PayloadAction } from "@reduxjs/toolkit";
+import { createSlice, current, isDraft, PayloadAction } from "@reduxjs/toolkit";
 import { CardState, Target } from "./card";
 
 export const zones = ["deck", "board", "grave"] as const;
@@ -129,6 +129,7 @@ export function defaultCardState(name: string, id: string): CardState {
     name,
     hidden: true,
     exhausted: false,
+    protected: false,
     props: {},
     modifiers: [],
   };
@@ -160,8 +161,13 @@ export const gameReducers = {
     const info = findCard(state, action.payload.card);
     if (info) {
       const { player, zone, index } = info;
-      state.players[player].grave.push(state.players[info.player][info.zone][info.index]);
-      state.players[player][zone].splice(index, 1);
+      const card = state.players[player][zone][index];
+      if (card.protected) {
+        card.protected = false;
+      } else {
+        state.players[player].grave.push(state.players[info.player][info.zone][info.index]);
+        state.players[player][zone].splice(index, 1);
+      }
     }
   },
   enterCard: (state: GameState, action: PayloadAction<TargetCardParams>) => {
@@ -194,6 +200,10 @@ export const gameReducers = {
     state.history.push(action as GameAction);
     updateCard(state, action.payload.card, (card) => (card.exhausted = true));
   },
+  protectCard: (state: GameState, action: PayloadAction<TargetCardParams>) => {
+    state.history.push(action as GameAction);
+    updateCard(state, action.payload.card, (card) => (card.protected = true));
+  },
   setProp: (state: GameState, action: PayloadAction<SetPropParams>) => {
     state.history.push(action as GameAction);
     updateCard(state, action.payload.card, (card) => (card.props[action.payload.name] = action.payload.value));
@@ -223,6 +233,7 @@ export const {
   revealCard,
   refreshCard,
   exhaustCard,
+  protectCard,
   setProp,
   addMoney,
   removeMoney,
