@@ -1,5 +1,5 @@
 import React, { useContext } from "react";
-import { opponent } from "../../common/util";
+import { opponentOf } from "../../common/util";
 import { targetResolution } from "../Camera";
 import { smallCardHeight, smallCardWidth } from "../Card";
 import { EnterExitAnimator } from "../EnterExitAnimation";
@@ -9,7 +9,7 @@ import GameCard from "./GameCard";
 
 export default function OpponentBoard() {
   const player = useContext(PlayerContext);
-  const cards = useClientSelector((state) => state.game.current.players[opponent(player)].board);
+  const cards = useClientSelector((state) => state.game.current.players[opponentOf(player)].board);
 
   const x = (targetResolution.width - cards.length * (smallCardWidth + 10)) / 2 + smallCardWidth / 2;
   const y = targetResolution.height * (1 / 4) + smallCardHeight / 2;

@@ -37,12 +37,16 @@ import {
 import { v4 as uuid } from "uuid";
 import { historySlice } from "./historySlice";
 
-export function opponent(player: PlayerId) {
+export function opponentOf(player: PlayerId) {
   return player == 0 ? 1 : 0;
 }
 
 export function currentPlayer(game: { turn: number }) {
   return game.turn % 2 == 0 ? (0 as const) : (1 as const);
+}
+
+export function opponent(game: GameState, card: Target) {
+  return opponentOf(findCard(game, card)?.player ?? currentPlayer(game));
 }
 
 export type Filter = {
@@ -133,6 +137,24 @@ export function canPayCost(
   cost: CardCost
 ) {
   return typeof this.tryPayCost(game, card, "play", card.name, player, colors, cost) != "string";
+}
+
+export function* revealRandom(
+  this: Util,
+  game: GameState,
+  card: CardState,
+  number: number,
+  filter: Omit<Filter, "hidden">
+): CardGenerator {
+  const cards = this.filter(game, {
+    ...filter,
+    hidden: true,
+    excludes: [card, ...(filter.excludes ?? [])],
+  });
+
+  for (const card of util.randoms(cards, number)) {
+    yield* this.revealCard(game, { card });
+  }
 }
 
 export function updateCardInfo(this: Util, game: GameState, state: CardState, info: CardInfo) {
@@ -229,11 +251,13 @@ const util = {
   removeMoney: onTrigger(removeMoney),
   findCard: findCard as (game: GameState, card: Target) => { player: PlayerId; zone: Zone; index: number },
   getCard: getCard as (game: GameState, card: Target) => CardState,
-  opponent,
+  opponentOf,
   currentPlayer,
+  opponent,
   filter,
   tryPayCost,
   canPayCost,
+  revealRandom,
   updateCardInfo,
   keywordModifier,
   cid,

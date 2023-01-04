@@ -5,14 +5,9 @@ exports.card = (util, game, card) => ({
   type: "operation",
   cost: { money: 2 },
   play: function* () {
-    const cards = util.filter(game, {
-      players: [util.opponent(util.findCard(game, card).player)],
+    yield* util.revealRandom(game, card, 2, {
+      players: [util.opponent(game, card)],
       zones: ["deck"],
-      hidden: true,
     });
-
-    for (const card of util.randoms(cards, 2)) {
-      yield* util.revealCard(game, { card });
-    }
-  }
+  },
 });
