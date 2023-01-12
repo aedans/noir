@@ -45,8 +45,12 @@ export function currentPlayer(game: { turn: number }) {
   return game.turn % 2 == 0 ? (0 as const) : (1 as const);
 }
 
+export function self(game: GameState, card: Target) {
+  return findCard(game, card)?.player ?? currentPlayer(game);
+}
+
 export function opponent(game: GameState, card: Target) {
-  return opponentOf(findCard(game, card)?.player ?? currentPlayer(game));
+  return opponentOf(self(game, card));
 }
 
 export type Filter = {
@@ -253,6 +257,7 @@ const util = {
   getCard: getCard as (game: GameState, card: Target) => CardState,
   opponentOf,
   currentPlayer,
+  self,
   opponent,
   filter,
   tryPayCost,
