@@ -1,5 +1,5 @@
 import { CustomPIXIComponent, CustomPIXIComponentBehavior, DisplayObjectProps } from "react-pixi-fiber";
-import { Ticker } from "pixi.js";
+import { Graphics, graphicsUtils, Ticker } from "pixi.js";
 import { Camera3d } from "pixi-projection";
 import React, { Context, MutableRefObject } from "react";
 import PIXI from "pixi.js";
@@ -14,6 +14,12 @@ export let targetResolution = {
   width: 4096,
   height: 2160,
 };
+
+const mask = new Graphics();
+mask.alpha = 0;
+mask.beginFill(0xffffff);
+mask.drawRect(0, 0, targetResolution.width, targetResolution.height);
+mask.endFill();
 
 export function onResize(camera: Camera3d) {
   let width = window.innerWidth;
@@ -38,6 +44,8 @@ export const behavior: CustomPIXIComponentBehavior<Camera3d, CustomCameraProps> 
     newProps.innerRef.current = instance;
     Ticker.shared.add(() => onResize(instance));
     onResize(instance);
+    instance.addChild(mask);
+    instance.mask = mask;  
   },
 };
 

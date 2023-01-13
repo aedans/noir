@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { MutableRefObject, useEffect, useRef, useState } from "react";
 import { getCards, useCardInfoList } from "../cards";
 import Grid from "../Grid";
 import { smallCardHeight, smallCardWidth } from "../Card";
@@ -15,6 +15,7 @@ import { ordered } from "../../common/util";
 export default function Editor(props: { params: { deck: string } }) {
   const dispatch = useClientDispatch();
   const cards = useRef({} as MoveAnimationState);
+  const [scroll, setScroll] = useState(0);
 
   const deckName = props.params.deck;
   const deck = useClientSelector((game) => game.decks[deckName]);
@@ -31,11 +32,24 @@ export default function Editor(props: { params: { deck: string } }) {
     [allCardNames, deck]
   );
 
-  const sortedAllCards = ordered(allCards, ["color", "money"], card => card.info).map((card) => card.state);
-  const sortedDeckCards = ordered(deckCards, ["color", "money"], card => card.info).map((card) => card.state);
+  const sortedAllCards = ordered(allCards, ["color", "money"], (card) => card.info).map((card) => card.state);
+  const sortedDeckCards = ordered(deckCards, ["color", "money"], (card) => card.info).map((card) => card.state);
 
   useEffect(() => {
     getCards().then(setAllCardNames);
+
+    let scrollY = scroll;
+    function onWheel(e: WheelEvent) {
+      scrollY -= e.deltaY;
+      scrollY = Math.min(0, scrollY);
+      setScroll(scrollY);
+    }
+
+    window.addEventListener("wheel", onWheel);
+
+    return () => {
+      window.removeEventListener("wheel", onWheel);
+    };
   }, []);
 
   const pointerdownRemove = (name: string) =>
@@ -51,7 +65,7 @@ export default function Editor(props: { params: { deck: string } }) {
   return (
     <MoveAnimationContext.Provider value={cards}>
       <Rectangle fill={0x202020} width={targetResolution.width} height={targetResolution.height} />
-      <Grid elements={sortedAllCards} maxWidth={3000}>
+      <Grid y={scroll} elements={sortedAllCards} maxWidth={3000}>
         {(data, ref, x, y) => (
           <EditorCard
             state={data}
