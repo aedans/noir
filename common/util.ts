@@ -207,7 +207,10 @@ export function updateCardInfo(this: Util, game: GameState, state: CardState, in
   }
 
   for (const card of this.filter(game, { zones: ["board"] })) {
-    info = { ...info, ...this.getCardInfo(game, card, true).effect(info, state) };
+    const cardInfo = this.getCardInfo(game, card, true);
+    if (this.filter(game, cardInfo.effectFilter).find(c => c.id == state.id)) {
+      info = { ...info, ...cardInfo.effect(info, state) };
+    }
   }
 
   return info;

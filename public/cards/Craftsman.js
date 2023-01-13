@@ -9,18 +9,19 @@ exports.card = (util, game, card) => ({
   turn: function* () {
     yield* util.setProp(game, { card, name: "ready", value: true });
   },
+  effectFilter: {
+    players: [util.self(game, card)],
+    zones: ["deck"],
+  },
   effect: (info, state) => {
-    const { player, zone } = util.findCard(game, state);
-    if (card.props.ready && zone == "deck" && player == util.currentPlayer(game)) {
+    if (card.props.ready) {
       return {
         cost: { ...info.cost, money: info.cost.money - 2 },
         play: function* (target) {
           yield* util.setProp(game, { card, name: "ready", value: false });
           yield* info.play(target);
-        }
-      }
-    } else {
-      return {};
+        },
+      };
     }
-  }
+  },
 });

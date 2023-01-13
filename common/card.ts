@@ -1,7 +1,7 @@
 import { DeepPartial } from "redux";
 import { AddCardParams, GameAction, GameState, TargetCardParams } from "./gameSlice";
 import { HistoryAction } from "./historySlice";
-import { Util } from "./util";
+import { Filter, Util } from "./util";
 
 export type ModifierState = {
   card: Target;
@@ -37,7 +37,7 @@ export type CardAction = () => CardGenerator;
 export type CardTargetAction = (target: Target) => CardGenerator;
 export type CardModifier = (card: CardInfo, modifier: ModifierState) => Partial<CardInfo>;
 export type CardTargets = () => Target[];
-export type CardEffect = (card: CardInfo, state: CardState) => Partial<CardInfo>;
+export type CardEffect = (card: CardInfo, state: CardState) => Partial<CardInfo> | undefined;
 export type CardTrigger<T> = (payload: T) => CardGenerator;
 
 export type CardInfo = {
@@ -54,6 +54,7 @@ export type CardInfo = {
   hasActivateEffect: boolean;
   activationPriority: number;
   turn: CardAction;
+  effectFilter: Filter,
   effect: CardEffect;
   modifiers: { [name: string]: CardModifier };
   onAdd: CardTrigger<AddCardParams>;
@@ -77,7 +78,6 @@ export type PartialCardInfoComputation = (
   play?: CardTargetAction;
   activateTargets?: CardTargets;
   activate?: CardTargetAction;
-  hasActivateEffect?: boolean;
   turn?: CardAction;
   effect?: CardEffect;
   modifiers?: { [name: string]: CardModifier };
@@ -143,6 +143,7 @@ export function runPartialCardInfoComputation(
     activationPriority: activationPriority,
     turn: partial.turn ?? function* () {},
     effect: partial.effect ?? (() => ({})),
+    effectFilter: partial.effectFilter ?? {},
     modifiers: partial.modifiers ?? {},
     onAdd: partial.onAdd ?? function* () {},
     onRemove: partial.onRemove ?? function* () {},
