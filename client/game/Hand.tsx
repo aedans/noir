@@ -9,7 +9,7 @@ import GameCard, { GameCardProps } from "./GameCard";
 import { defaultUtil, useCardInfo, useCardInfoList } from "../cards";
 import Reticle from "./Reticle";
 import { getCardColor, smallCardHeight, smallCardScale, smallCardWidth } from "../Card";
-import { compareMoney, mapSorted } from "../../common/sort";
+import { ordered } from "../../common/util";
 
 const HandCard = React.forwardRef(function HandCard(props: GameCardProps, ref: Ref<Container>) {
   const { setHover } = useContext(HoverContext);
@@ -125,7 +125,7 @@ export default function Hand() {
   const hand = cards.filter((card) =>
     defaultUtil.canPayCost(game, card.state, player, card.info.colors, card.info.cost)
   );
-  const sortedHand = mapSorted(hand, (card) => card.info, compareMoney).map((card) => card.state);
+  const sortedHand = ordered(hand, ["money"], card => card.info).map((card) => card.state);
 
   let offset = smallCardWidth - 20;
   if (offset * hand.length > 2500) {

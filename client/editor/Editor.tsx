@@ -7,10 +7,10 @@ import { defaultCardState } from "../../common/gameSlice";
 import { addDeckCard, removeDeckCard } from "../../common/decksSlice";
 import { targetResolution } from "../Camera";
 import Rectangle from "../Rectangle";
-import { compareColor, compareMoney, mapSorted } from "../../common/sort";
 import { MoveAnimationContext, MoveAnimationState } from "../MoveAnimation";
 import EditorCard from "./EditorCard";
 import { EnterExitAnimator } from "../EnterExitAnimation";
+import { ordered } from "../../common/util";
 
 export default function Editor(props: { params: { deck: string } }) {
   const dispatch = useClientDispatch();
@@ -31,10 +31,8 @@ export default function Editor(props: { params: { deck: string } }) {
     [allCardNames, deck]
   );
 
-  const sortedAllCards = mapSorted(allCards, (card) => card.info, compareColor, compareMoney).map((card) => card.state);
-  const sortedDeckCards = mapSorted(deckCards, (card) => card.info, compareColor, compareMoney).map(
-    (card) => card.state
-  );
+  const sortedAllCards = ordered(allCards, ["color", "money"], card => card.info).map((card) => card.state);
+  const sortedDeckCards = ordered(deckCards, ["color", "money"], card => card.info).map((card) => card.state);
 
   useEffect(() => {
     getCards().then(setAllCardNames);

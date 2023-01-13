@@ -61,6 +61,8 @@ export type Filter = {
   colors?: CardColor[];
   hidden?: boolean;
   exhausted?: boolean;
+  ordering?: Order[];
+  reversed?: boolean;
 };
 
 export function filter(this: Util, game: GameState, filter: Filter) {
@@ -94,7 +96,37 @@ export function filter(this: Util, game: GameState, filter: Filter) {
     }
   }
 
+  if (filter.ordering != undefined) {
+    cards = ordered(cards, filter.ordering, card => this.getCardInfo(game, card));
+  }
+
+  if (filter.reversed != undefined && filter.reversed) {
+    cards = cards.reverse();
+  }
+
   return cards;
+}
+
+export type Order = "money" | "agents" | "color";
+
+export const orderings: { [T in Order]: (card: CardInfo) => number } = {
+  money: (card: CardInfo) => card.cost.money,
+  agents: (card: CardInfo) => card.cost.agents,
+  color: (card: CardInfo) => card.colors.map((color) => color.charCodeAt(0)).reduce((a, b) => a + b, 0),
+};
+
+export function ordered<T>(array: T[], ordering: Order[], map: (t: T) => CardInfo,) {
+  return [...array].sort((a, b) => {
+    for (const order of ordering) {
+      const f = orderings[order];
+      const res = f(map(a)) - f(map(b));
+      if (res != 0) {
+        return res;
+      }
+    }
+
+    return 0;
+  });
 }
 
 export function tryPayCost(
@@ -260,6 +292,7 @@ const util = {
   self,
   opponent,
   filter,
+  ordered,
   tryPayCost,
   canPayCost,
   revealRandom,
