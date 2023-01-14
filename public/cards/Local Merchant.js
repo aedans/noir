@@ -2,7 +2,7 @@
 
 /** @type {import("../../common/card").PartialCardInfoComputation} */
 exports.card = (util,game,card) => ({
-    text: "Each turn: gain $4.",
+    text: "Each turn: gain $2.",
     type: "agent",
     cost: {money:10}, 
     keywords: ["disloyal", "protected"], 
