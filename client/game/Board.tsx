@@ -9,8 +9,8 @@ import { HoverContext, PlayerContext, SocketContext } from "./Game";
 import GameCard, { GameCardProps } from "./GameCard";
 import { EnterExitAnimator } from "../EnterExitAnimation";
 import { Container } from "react-pixi-fiber";
-import { currentPlayer } from "../../common/util";
 import { defaultUtil, useCardInfo } from "../cards";
+import { currentPlayer } from "../../common/gameSlice";
 
 const BoardCard = React.forwardRef(function BoardCard(props: GameCardProps, ref: Ref<Container>) {
   const { setHover } = useContext(HoverContext);
@@ -38,7 +38,8 @@ const BoardCard = React.forwardRef(function BoardCard(props: GameCardProps, ref:
       props.state.name,
       player,
       cardInfo.colors,
-      cardInfo.activateCost
+      cardInfo.activateCost,
+      cardInfo.activateTargets
     );
 
     if (typeof result != "string") {
@@ -54,7 +55,7 @@ const BoardCard = React.forwardRef(function BoardCard(props: GameCardProps, ref:
     !props.state.exhausted &&
     cardInfo.hasActivateEffect &&
     currentPlayer(game) == player &&
-    defaultUtil.canPayCost(game, props.state, player, cardInfo.colors, cardInfo.activateCost);
+    defaultUtil.canPayCost(game, props.state, player, cardInfo.colors, cardInfo.activateCost, cardInfo.activateTargets);
 
   return (
     <GameCard

@@ -36,7 +36,6 @@ export type CardGenerator = Generator<GameAction | HistoryAction, void, GameStat
 export type CardAction = () => CardGenerator;
 export type CardTargetAction = (target: Target) => CardGenerator;
 export type CardModifier = (card: CardInfo, modifier: ModifierState) => Partial<CardInfo>;
-export type CardTargets = () => Target[];
 export type CardEffect = (card: CardInfo, state: CardState) => Partial<CardInfo> | undefined;
 export type CardTrigger<T> = (payload: T) => CardGenerator;
 
@@ -46,10 +45,10 @@ export type CardInfo = {
   colors: CardColor[];
   cost: CardCost;
   keywords: CardKeyword[];
-  targets?: CardTargets;
+  targets?: Filter;
   play: CardTargetAction;
   activateCost: CardCost;
-  activateTargets?: CardTargets;
+  activateTargets?: Filter;
   activate: CardTargetAction;
   hasActivateEffect: boolean;
   activationPriority: number;
@@ -61,6 +60,7 @@ export type CardInfo = {
   onRemove: CardTrigger<TargetCardParams>;
   onEnter: CardTrigger<TargetCardParams>;
   onBounce: CardTrigger<TargetCardParams>;
+  onSteal: CardTrigger<TargetCardParams>;
   onReveal: CardTrigger<TargetCardParams>;
   onRefresh: CardTrigger<TargetCardParams>;
   onExhaust: CardTrigger<TargetCardParams>;
@@ -74,9 +74,7 @@ export type PartialCardInfoComputation = (
 ) => { [K in keyof CardInfo]?: DeepPartial<CardInfo[K]> } & {
   colors?: CardColor[];
   keywords?: CardKeyword[];
-  targets?: CardTargets;
   play?: CardTargetAction;
-  activateTargets?: CardTargets;
   activate?: CardTargetAction;
   turn?: CardAction;
   effect?: CardEffect;
@@ -85,6 +83,7 @@ export type PartialCardInfoComputation = (
   onRemove?: CardTrigger<TargetCardParams>;
   onEnter?: CardTrigger<TargetCardParams>;
   onBounce?: CardTrigger<TargetCardParams>;
+  onSteal?: CardTrigger<TargetCardParams>;
   onReveal?: CardTrigger<TargetCardParams>;
   onRefresh?: CardTrigger<TargetCardParams>;
   onExhaust?: CardTrigger<TargetCardParams>;
@@ -149,6 +148,7 @@ export function runPartialCardInfoComputation(
     onRemove: partial.onRemove ?? function* () {},
     onEnter: partial.onEnter ?? function* () {},
     onBounce: partial.onBounce ?? function* () {},
+    onSteal: partial.onSteal ?? function* () {},
     onReveal: partial.onReveal ?? function* () {},
     onRefresh: partial.onRefresh ?? function* () {},
     onExhaust: partial.onExhaust ?? function* () {},

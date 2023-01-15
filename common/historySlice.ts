@@ -1,4 +1,4 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { createSlice, current, PayloadAction } from "@reduxjs/toolkit";
 import { Target } from "./card";
 import { GameAction, gameReducers, GameState, initialGameState } from "./gameSlice";
 
@@ -34,8 +34,10 @@ export type SetUndoneParams = {
 
 function reduce(history: GameAction[], state: GameState) {
   for (const action of history) {
-    const name = action.type.replace("game/", "") as keyof typeof gameReducers;
-    (gameReducers[name] as (state: GameState, action: GameAction) => void)(state, action);
+    if (action) {
+      const name = action.type.replace("game/", "") as keyof typeof gameReducers;
+      (gameReducers[name] as (state: GameState, action: GameAction) => void)(state, action);  
+    }
   }
 
   return state;

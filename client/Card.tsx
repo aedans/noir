@@ -106,7 +106,7 @@ export default React.forwardRef(function Card(props: CardProps, ref: Ref<Contain
       <Text
         anchor={[0.5, 0.5]}
         x={cardWidth / 2}
-        y={cardHeight * (3 / 4)}
+        y={cardHeight * (3 / 4) + 50}
         text={text}
         style={{ fontSize: 128, align: "center", maxWidth: cardWidth - 200, letterSpacing: 1 }}
       />

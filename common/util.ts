@@ -33,25 +33,14 @@ import {
   TargetCardParams,
   Zone,
   zones,
+  stealCard,
+  opponentOf,
+  currentPlayer,
+  opponent,
+  self,
 } from "./gameSlice";
 import { v4 as uuid } from "uuid";
 import { historySlice } from "./historySlice";
-
-export function opponentOf(player: PlayerId) {
-  return player == 0 ? 1 : 0;
-}
-
-export function currentPlayer(game: { turn: number }) {
-  return game.turn % 2 == 0 ? (0 as const) : (1 as const);
-}
-
-export function self(game: GameState, card: Target) {
-  return findCard(game, card)?.player ?? currentPlayer(game);
-}
-
-export function opponent(game: GameState, card: Target) {
-  return opponentOf(self(game, card));
-}
 
 export type Filter = {
   players?: PlayerId[];
@@ -97,7 +86,7 @@ export function filter(this: Util, game: GameState, filter: Filter) {
   }
 
   if (filter.ordering != undefined) {
-    cards = ordered(cards, filter.ordering, card => this.getCardInfo(game, card));
+    cards = ordered(cards, filter.ordering, (card) => this.getCardInfo(game, card));
   }
 
   if (filter.reversed != undefined && filter.reversed) {
@@ -115,7 +104,7 @@ export const orderings: { [T in Order]: (card: CardInfo) => number } = {
   color: (card: CardInfo) => card.colors.map((color) => color.charCodeAt(0)).reduce((a, b) => a + b, 0),
 };
 
-export function ordered<T>(array: T[], ordering: Order[], map: (t: T) => CardInfo,) {
+export function ordered<T>(array: T[], ordering: Order[], map: (t: T) => CardInfo) {
   return [...array].sort((a, b) => {
     for (const order of ordering) {
       const f = orderings[order];
@@ -137,7 +126,8 @@ export function tryPayCost(
   name: string,
   player: PlayerId,
   colors: CardColor[],
-  cost: CardCost
+  cost: CardCost,
+  targets: Filter | undefined
 ): string | { agents: CardState[]; money: number } {
   if (game.players[player].money < cost.money) {
     return `Not enough money to ${verb} ${name}`;
@@ -156,6 +146,10 @@ export function tryPayCost(
     return `Not enough agents to ${verb} ${name}`;
   }
 
+  if (targets != undefined && this.filter(game, targets).length == 0) {
+    return `No valid targets for ${name}`;
+  }
+
   agents.sort((a, b) => this.getCardInfo(game, b).activationPriority - this.getCardInfo(game, a).activationPriority);
 
   return {
@@ -170,9 +164,10 @@ export function canPayCost(
   card: CardState,
   player: PlayerId,
   colors: CardColor[],
-  cost: CardCost
+  cost: CardCost,
+  targets: Filter | undefined
 ) {
-  return typeof this.tryPayCost(game, card, "play", card.name, player, colors, cost) != "string";
+  return typeof this.tryPayCost(game, card, "play", card.name, player, colors, cost, targets) != "string";
 }
 
 export function* revealRandom(
@@ -208,7 +203,7 @@ export function updateCardInfo(this: Util, game: GameState, state: CardState, in
 
   for (const card of this.filter(game, { zones: ["board"] })) {
     const cardInfo = this.getCardInfo(game, card, true);
-    if (this.filter(game, cardInfo.effectFilter).find(c => c.id == state.id)) {
+    if (this.filter(game, cardInfo.effectFilter).find((c) => c.id == state.id)) {
       info = { ...info, ...cardInfo.effect(info, state) };
     }
   }
@@ -282,6 +277,7 @@ const util = {
   removeCard: onTrigger(removeCard, (info, game) => (payload) => onRemove(info, game, payload)),
   enterCard: onTrigger(enterCard, (info) => info.onEnter),
   bounceCard: onTrigger(bounceCard, (info) => info.onBounce),
+  stealCard: onTrigger(stealCard, (info) => info.onSteal),
   revealCard: onTrigger(revealCard, (info) => info.onReveal),
   refreshCard: onTrigger(refreshCard, (info) => info.onRefresh),
   exhaustCard: onTrigger(exhaustCard, (info) => info.onExhaust),
