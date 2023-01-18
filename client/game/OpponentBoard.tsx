@@ -1,5 +1,5 @@
 import React, { useContext } from "react";
-import { opponentOf } from "../../common/util";
+import { opponentOf } from "../../common/gameSlice";
 import { targetResolution } from "../Camera";
 import { smallCardHeight, smallCardWidth } from "../Card";
 import { EnterExitAnimator } from "../EnterExitAnimation";

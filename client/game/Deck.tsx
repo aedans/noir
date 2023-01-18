@@ -14,9 +14,9 @@ export default function Deck() {
   const cards = useCardInfoList(game.players[player].deck);
 
   const deck = cards.filter(
-    (card) => !defaultUtil.canPayCost(game, card.state, player, card.info.colors, card.info.cost)
+    (card) => !defaultUtil.canPayCost(game, card.state, player, card.info.colors, card.info.cost, card.info.targets)
   );
-  const sortedDeck = ordered(deck, ["money"], card => card.info).map((card) => card.state);
+  const sortedDeck = ordered(deck, ["money"], (card) => card.info).map((card) => card.state);
 
   const x = targetResolution.width - smallCardWidth;
   const y = targetResolution.height - smallCardHeight;

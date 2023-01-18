@@ -1,7 +1,6 @@
 import Player, { PlayerAction, PlayerInit } from "./Player";
-import { findCard, GameAction, GameState, getCard, PlayerId } from "../common/gameSlice";
+import { currentPlayer, findCard, GameAction, GameState, getCard, PlayerId } from "../common/gameSlice";
 import { defaultUtil, getCardInfo } from "./card";
-import { currentPlayer } from "../common/util";
 import { CardColor, CardCost, CardGenerator, CardState, Target } from "../common/card";
 import {
   HistoryAction,
@@ -11,6 +10,7 @@ import {
   setAction,
   setHidden,
 } from "../common/historySlice";
+import { Filter } from "../common/util";
 
 function* doEndTurn(game: GameState): CardGenerator {
   const player = currentPlayer(game);
@@ -27,27 +27,30 @@ function* doEndTurn(game: GameState): CardGenerator {
   yield* defaultUtil.endTurn(game, {});
 }
 
-function validateTargets(
-  game: GameState,
-  card: CardState,
-  targets: (() => Target[]) | undefined,
-  target: Target | undefined
-) {
+function validateTargets(game: GameState, card: CardState, targets: Filter | undefined, target: Target | undefined) {
   if (targets) {
     if (!target) {
       throw `${card.name} requires a target`;
     }
 
-    if (!targets().find((t) => t.id == target.id)) {
+    if (!defaultUtil.filter(game, targets).find((t) => t.id == target.id)) {
       const targetCard = getCard(game, target);
       throw `${card.name} cannot target ${targetCard?.name}`;
     }
   }
 }
 
-function* payCost(game: GameState, card: Target, verb: string, name: string, colors: CardColor[], cost: CardCost) {
+function* payCost(
+  game: GameState,
+  card: Target,
+  verb: string,
+  name: string,
+  colors: CardColor[],
+  cost: CardCost,
+  targets: Filter | undefined
+) {
   const player = currentPlayer(game);
-  const result = defaultUtil.tryPayCost(game, card, verb, name, player, colors, cost);
+  const result = defaultUtil.tryPayCost(game, card, verb, name, player, colors, cost, targets);
 
   if (typeof result == "string") {
     throw result;
@@ -75,7 +78,7 @@ function* playCard(game: GameState, card: CardState, target: Target | undefined)
     yield* defaultUtil.enterCard(game, { card });
   }
 
-  yield* payCost(game, card, "play", card.name, info.colors, info.cost);
+  yield* payCost(game, card, "play", card.name, info.colors, info.cost, info.targets);
   yield* info.play(target!);
 }
 
@@ -93,7 +96,7 @@ function* activateCard(game: GameState, card: CardState, target: Target | undefi
   validateTargets(game, card, info.activateTargets, target);
 
   yield* defaultUtil.exhaustCard(game, { card });
-  yield* payCost(game, card, "activate", card.name, info.colors, info.activateCost);
+  yield* payCost(game, card, "activate", card.name, info.colors, info.activateCost, info.activateTargets);
   yield* info.activate(target!);
 }
 
@@ -151,14 +154,17 @@ export async function createGame(players: [Player, Player]) {
   function sendActions(generator: CardGenerator, source: PlayerId, name: string) {
     const length = state.history.length;
 
+    let newState = state;
     let next = generator.next(state.current);
     const historyActions: HistoryAction[] = [];
     while (!next.done) {
-      const action = liftAction(state, next.value);
+      const action = liftAction(newState, next.value);
       historyActions.push(action);
-      state = historySlice.reducer(state, action);
-      next = generator.next(state.current);
+      newState = historySlice.reducer(newState, action);
+      next = generator.next(newState.current);
     }
+
+    state = newState;
 
     const gameActions = state.history.slice(length);
 

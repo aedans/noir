@@ -62,7 +62,8 @@ const HandCard = React.forwardRef(function HandCard(props: GameCardProps, ref: R
         props.state.name,
         player,
         cardInfo.colors,
-        cardInfo.cost
+        cardInfo.cost,
+        cardInfo.targets
       );
 
       if (typeof result != "string") {
@@ -123,9 +124,9 @@ export default function Hand() {
   const cards = useCardInfoList(game.players[player].deck);
 
   const hand = cards.filter((card) =>
-    defaultUtil.canPayCost(game, card.state, player, card.info.colors, card.info.cost)
+    defaultUtil.canPayCost(game, card.state, player, card.info.colors, card.info.cost, card.info.targets)
   );
-  const sortedHand = ordered(hand, ["money"], card => card.info).map((card) => card.state);
+  const sortedHand = ordered(hand, ["money"], (card) => card.info).map((card) => card.state);
 
   let offset = smallCardWidth - 20;
   if (offset * hand.length > 2500) {

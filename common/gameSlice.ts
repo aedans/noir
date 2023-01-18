@@ -44,43 +44,41 @@ export function initialGameState(): GameState {
 export type GameAction = PayloadAction<GameParams, `game/${keyof typeof gameReducers}`>;
 
 export type GameParams = { card?: Target } & (
+  | TargetCardParams
   | NoActionParams
-  | HiddenActionParams
   | UndoneActionParams
   | MoveCardParams
   | AddCardParams
-  | TargetCardParams
+  | StealCardParams
   | SetPropParams
   | ChangeMoneyParams
 );
-
-export type NoActionParams = {};
-
-export type HiddenActionParams = {
-  card: Target;
-};
-
-export type UndoneActionParams = {
-  action: GameAction;
-};
-
-export type MoveCardParams = {
-  card: Target;
-  to: PlayerZone;
-};
-
-export type AddCardParams = PlayerZone & {
-  card: Target;
-  name: string;
-  state?: Partial<CardState>;
-};
 
 export type TargetCardParams = {
   card: Target;
 };
 
-export type SetPropParams = {
-  card: Target;
+export type NoActionParams = {};
+
+export type UndoneActionParams = {
+  action: GameAction;
+};
+
+export type MoveCardParams = TargetCardParams & {
+  to: PlayerZone;
+};
+
+export type AddCardParams = PlayerZone &
+  TargetCardParams & {
+    name: string;
+    state?: Partial<CardState>;
+  };
+
+export type StealCardParams = TargetCardParams & {
+  zone: Zone;
+};
+
+export type SetPropParams = TargetCardParams & {
   name: string;
   value: any;
 };
@@ -135,8 +133,24 @@ export function defaultCardState(name: string, id: string): CardState {
   };
 }
 
+export function opponentOf(player: PlayerId) {
+  return player == 0 ? 1 : 0;
+}
+
+export function currentPlayer(game: { turn: number }) {
+  return game.turn % 2 == 0 ? (0 as const) : (1 as const);
+}
+
+export function self(game: GameState, card: Target) {
+  return findCard(game, card)?.player ?? currentPlayer(game);
+}
+
+export function opponent(game: GameState, card: Target) {
+  return opponentOf(self(game, card));
+}
+
 export const gameReducers = {
-  hidden: (state: GameState, action: PayloadAction<HiddenActionParams>) => {
+  hidden: (state: GameState, action: PayloadAction<TargetCardParams>) => {
     state.history.push(action as GameAction);
   },
   undone: (state: GameState, action: PayloadAction<UndoneActionParams>) => {
@@ -165,7 +179,7 @@ export const gameReducers = {
       if (card.protected) {
         card.protected = false;
       } else {
-        state.players[player].grave.push(state.players[info.player][info.zone][info.index]);
+        state.players[player].grave.push(state.players[player][zone][index]);
         state.players[player][zone].splice(index, 1);
       }
     }
@@ -175,7 +189,7 @@ export const gameReducers = {
     const info = findCard(state, action.payload.card);
     if (info) {
       const { player, zone, index } = info;
-      state.players[player].board.push(state.players[info.player][info.zone][info.index]);
+      state.players[player].board.push(state.players[player][zone][index]);
       state.players[player][zone].splice(index, 1);
     }
   },
@@ -184,7 +198,16 @@ export const gameReducers = {
     const info = findCard(state, action.payload.card);
     if (info) {
       const { player, zone, index } = info;
-      state.players[player].deck.push(state.players[info.player][info.zone][info.index]);
+      state.players[player].deck.push(state.players[player][zone][index]);
+      state.players[player][zone].splice(index, 1);
+    }
+  },
+  stealCard: (state: GameState, action: PayloadAction<StealCardParams>) => {
+    state.history.push(action as GameAction);
+    const info = findCard(state, action.payload.card);
+    if (info) {
+      const { player, zone, index } = info;
+      state.players[opponentOf(player)][action.payload.zone].push(state.players[player][zone][index]);
       state.players[player][zone].splice(index, 1);
     }
   },
@@ -230,6 +253,7 @@ export const {
   removeCard,
   enterCard,
   bounceCard,
+  stealCard,
   revealCard,
   refreshCard,
   exhaustCard,
