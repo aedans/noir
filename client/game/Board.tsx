@@ -1,6 +1,6 @@
-import React, { MutableRefObject, Ref, useContext, useImperativeHandle, useRef } from "react";
-import { cardHeight, smallCardHeight, smallCardWidth } from "../Card";
-import { useDrop } from "react-dnd";
+import React, { MutableRefObject, Ref, useContext, useEffect, useImperativeHandle, useRef } from "react";
+import { cardHeight, getCardColor, smallCardHeight, smallCardWidth } from "../Card";
+import { useDrag, useDrop } from "react-dnd";
 import Rectangle from "../Rectangle";
 import { targetResolution } from "../Camera";
 import { useClientSelector } from "../store";
@@ -8,9 +8,10 @@ import { CardState } from "../../common/card";
 import { HoverContext, PlayerContext, SocketContext } from "./Game";
 import GameCard, { GameCardProps } from "./GameCard";
 import { EnterExitAnimator } from "../EnterExitAnimation";
-import { Container } from "react-pixi-fiber";
+import { Container, Sprite } from "react-pixi-fiber";
 import { defaultUtil, useCardInfo } from "../cards";
 import { currentPlayer } from "../../common/gameSlice";
+import Reticle from "./Reticle";
 
 const BoardCard = React.forwardRef(function BoardCard(props: GameCardProps, ref: Ref<Container>) {
   const { setHover } = useContext(HoverContext);
@@ -18,12 +19,35 @@ const BoardCard = React.forwardRef(function BoardCard(props: GameCardProps, ref:
   const player = useContext(PlayerContext);
   const game = useClientSelector((state) => state.game.current);
   const cardRef = useRef() as MutableRefObject<Required<Container>>;
+  const targetRef = useRef() as MutableRefObject<Required<Sprite>>;
   const cardInfo = useCardInfo(props.state);
 
   useImperativeHandle(ref, () => cardRef.current);
 
+  useEffect(() => {
+    if (cardRef.current) {
+      drag(cardInfo.activateTargets ? targetRef : cardRef);
+    }
+
+    return () => setHover([]);
+  }, [cardInfo]);
+
+  const [{ isDragging, globalPosition }, drag] = useDrag(
+    () => ({
+      type: cardInfo.activateTargets ? "target" : "card",
+      item: props.state,
+      collect: (monitor) => ({
+        isDragging: monitor.isDragging(),
+        globalPosition: monitor.getInitialClientOffset(),
+      }),
+    }),
+    [cardInfo]
+  );
+
   function pointerdown() {
-    socket.emit("action", { type: "do", id: props.state.id });
+    if (!cardInfo.activateTargets) {
+      socket.emit("action", { type: "do", id: props.state.id });
+    }
   }
 
   function pointerover() {
@@ -56,8 +80,17 @@ const BoardCard = React.forwardRef(function BoardCard(props: GameCardProps, ref:
     cardInfo.hasActivateEffect &&
     currentPlayer(game) == player &&
     defaultUtil.canPayCost(game, props.state, player, cardInfo.colors, cardInfo.activateCost, cardInfo.activateTargets);
+  
+  let x = props.x;
+  let y = props.y;
 
-  return (
+  if (cardRef.current && isDragging && globalPosition) {
+    const position = cardRef.current.parent.toLocal({ x: globalPosition.x, y: globalPosition.y });
+    x = position.x;
+    y = position.y;
+  }
+
+  const card = (
     <GameCard
       {...props}
       shouldGlow={shouldGlow}
@@ -68,6 +101,28 @@ const BoardCard = React.forwardRef(function BoardCard(props: GameCardProps, ref:
       pointerout={pointerout}
     />
   );
+
+  if (cardInfo.activateTargets && !props.state.exhausted) {
+    const target = (
+      <Reticle
+        x={x}
+        y={y}
+        ref={targetRef}
+        isDragging={isDragging}
+        color={getCardColor(cardInfo)}
+        pointerover={pointerover}
+        pointerout={pointerout}
+      />
+    );
+    return (
+      <>
+        {card}
+        {target}
+      </>
+    );
+  } else {
+    return card;
+  }
 });
 
 export default function Board() {
