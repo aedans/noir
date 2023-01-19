@@ -25,8 +25,8 @@ const BoardCard = React.forwardRef(function BoardCard(props: GameCardProps, ref:
   useImperativeHandle(ref, () => cardRef.current);
 
   useEffect(() => {
-    if (cardRef.current) {
-      drag(cardInfo.activateTargets ? targetRef : cardRef);
+    if (cardRef.current && cardInfo.activateTargets) {
+      drag(targetRef);
     }
 
     return () => setHover([]);
