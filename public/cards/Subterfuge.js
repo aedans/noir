@@ -3,7 +3,7 @@
 exports.card = (util, game, card) => ({
   text: "Additonal cost: remove a purple card in your deck. Steal an operation and put it hidden into your deck.",
   type: "operation",
-  cost: { money: 4 },
+  cost: { money: 0 },
   colors: ["purple"],
   targets: {
     players: [util.opponent(game, card)],
@@ -22,5 +22,14 @@ exports.card = (util, game, card) => ({
     }
 
     yield* util.stealCard(game, { card: target, zone: "deck" });
+    const removedCard = util.random(
+      util.filter(game, {
+        players: [util.findCard(game, card).player],
+        zones: ["deck"],
+        colors: ["purple"],
+        excludes: [card],
+      })
+    );
+    yield* util.removeCard(game, { card: removedCard });
   },
 });
