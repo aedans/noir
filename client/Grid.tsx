@@ -1,10 +1,10 @@
 import { Sprite } from "pixi.js";
 import React, { createRef, MutableRefObject, Ref, useLayoutEffect, useRef, useState } from "react";
 import { ReactElement } from "react";
-import { Container, PixiElement } from "react-pixi-fiber";
+import { Container } from "react-pixi-fiber";
 import { Target } from "../common/card";
 
-export type GridProps<T extends Target> = Omit<PixiElement<Container>, "children"> & {
+export type GridProps<T extends Target> = {
   elements: T[];
   maxWidth?: number;
   margin?: { x: number; y: number };
@@ -50,5 +50,5 @@ export default function Grid<T extends Target>(props: GridProps<T>) {
     }
   }, [props.elements]);
 
-  return <Container {...props}>{elems}</Container>;
+  return <>{elems}</>;
 }

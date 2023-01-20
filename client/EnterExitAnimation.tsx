@@ -6,7 +6,7 @@ export type EnterExitAnimationState<T> = { [id: string]: T };
 
 export type EnterExitAnimationStatus = "entering" | "exiting" | "none";
 
-export type EnterExitAnimatorProps<T extends Target> = Omit<PixiElement<Container>, "children"> & {
+export type EnterExitAnimatorProps<T extends Target> = {
   elements: T[];
   children: (data: T, status: EnterExitAnimationStatus, index: number | null) => ReactElement;
 };
@@ -28,11 +28,7 @@ export function EnterExitAnimator<T extends Target>(props: EnterExitAnimatorProp
     return props.children(state, "exiting", null);
   });
 
-  return (
-    <Container {...props}>
-      {[...children, ...exiting]}
-    </Container>
-  );
+  return <>{[...children, ...exiting]}</>;
 }
 
 export type EnterExitAnimationProps = {
@@ -50,7 +46,7 @@ export default function EnterExitAnimation(props: EnterExitAnimationProps) {
       return;
     }
 
-    container.alpha = props.status == "exiting" ? 0 : 1
+    container.alpha = props.status == "exiting" ? 0 : 1;
   });
 
   return <>{props.children}</>;
