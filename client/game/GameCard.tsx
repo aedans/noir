@@ -21,12 +21,14 @@ export default React.forwardRef(function GameCard(props: GameCardProps, ref: Ref
 
   useImperativeHandle(ref, () => componentRef.current);
 
-  const [{}, drop] = useDrop(() => ({
+  const [{ isOver }, drop] = useDrop(() => ({
     accept: "target",
     drop: (state: CardState) => {
       socket.emit("action", { type: "do", id: state.id, target: { id: props.state.id } });
     },
-    collect: () => ({}),
+    collect: (monitor) => ({
+      isOver: monitor.isOver()
+    }),
   }));
 
   useEffect(() => {
@@ -42,6 +44,7 @@ export default React.forwardRef(function GameCard(props: GameCardProps, ref: Ref
           {...props}
           state={{ ...props.state, exhausted: isHovered ? true : props.state.exhausted }}
           scale={0}
+          shouldGlow={props.shouldGlow || isOver}
           ref={componentRef}
         />
       </EnterExitAnimation>

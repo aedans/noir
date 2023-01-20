@@ -90,7 +90,7 @@ export default React.forwardRef(function Card(props: CardProps, ref: Ref<Contain
     <Container
       pivot={[cardWidth / 2, cardHeight / 2]}
       {...props}
-      filters={[dimFilterRef.current, dropShadowFilterRef.current, glowFilterRef.current]}
+      filters={[dimFilterRef.current,glowFilterRef.current, dropShadowFilterRef.current]}
       ref={containerRef}
     >
       <Rectangle width={cardWidth} height={cardHeight} fillAlpha={0.01} />
