@@ -50,7 +50,7 @@ export default React.forwardRef(function Card(props: CardProps, ref: Ref<Contain
   const containerRef = useRef() as MutableRefObject<Required<Container>>;
   const dimFilterRef = useRef(new filters.ColorMatrixFilter());
   const dropShadowFilterRef = useRef(new DropShadowFilter({ alpha: 0.5, blur: 1, distance: 0 }));
-  const glowFilterRef = useRef(new GlowFilter({ outerStrength: 4 }));
+  const glowFilterRef = useRef(new GlowFilter({ outerStrength: 0 }));
 
   useImperativeHandle(ref, () => containerRef.current);
 
@@ -78,7 +78,12 @@ export default React.forwardRef(function Card(props: CardProps, ref: Ref<Contain
   }, [cardInfo]);
 
   useEffect(() => {
-    glowFilterRef.current.enabled = props.shouldGlow ?? false;
+    anime({
+      targets: glowFilterRef.current,
+      duration: 300,
+      easing: "easeOutExpo",
+      outerStrength: props.shouldGlow ? 4 : 0,
+    });
   }, [props.shouldGlow]);
 
   let text = cardInfo.text;
@@ -90,7 +95,7 @@ export default React.forwardRef(function Card(props: CardProps, ref: Ref<Contain
     <Container
       pivot={[cardWidth / 2, cardHeight / 2]}
       {...props}
-      filters={[dimFilterRef.current,glowFilterRef.current, dropShadowFilterRef.current]}
+      filters={[dimFilterRef.current, glowFilterRef.current, dropShadowFilterRef.current]}
       ref={containerRef}
     >
       <Rectangle width={cardWidth} height={cardHeight} fillAlpha={0.01} />
