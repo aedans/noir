@@ -9,7 +9,10 @@ settings.ANISOTROPIC_LEVEL = 16;
 settings.MIPMAP_TEXTURES = MIPMAP_MODES.ON;
 settings.SORTABLE_CHILDREN = true;
 
-Loader.shared.add("Oswald", "/Oswald.fnt").load(() => {
+Loader.shared
+  .add("Oswald", "/Oswald.fnt")
+  .add("Border", "/border.png")
+  .load(() => {
   const canvasElement = document.getElementById("root") as HTMLCanvasElement;
 
   const app = new Application({

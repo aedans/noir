@@ -97,8 +97,10 @@ export function useCardInfo(card: CardState) {
   return cardInfo;
 }
 
+export type CardInfoList = { state: CardState; info: CardInfo }[];
+
 export function useCardInfoList(states: CardState[], deps?: ReadonlyArray<unknown>) {
-  const [cards, setCards] = useState([] as { state: CardState; info: CardInfo }[]);
+  const [cards, setCards] = useState([] as CardInfoList);
   const game = useClientSelector((state) => state.game.current);
 
   useEffect(

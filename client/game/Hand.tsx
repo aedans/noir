@@ -1,146 +1,25 @@
-import React, { MutableRefObject, Ref, useContext, useEffect, useImperativeHandle, useRef, useState } from "react";
-import { useDrag } from "react-dnd";
-import { Container, Sprite } from "react-pixi-fiber";
+import React from "react";
 import { targetResolution } from "../Camera";
 import { EnterExitAnimator } from "../EnterExitAnimation";
-import { useClientSelector } from "../store";
-import { HoverContext, PlayerContext } from "./Game";
-import GameCard, { GameCardProps } from "./GameCard";
-import { defaultUtil, useCardInfo, useCardInfoList } from "../cards";
-import Reticle from "./Reticle";
-import { getCardColor, smallCardHeight, smallCardScale, smallCardWidth } from "../Card";
-import { ordered } from "../../common/util";
+import { smallCardHeight, smallCardWidth } from "../Card";
+import { CardState } from "../../common/card";
+import HandCard from "./HandCard";
 
-const HandCard = React.forwardRef(function HandCard(props: GameCardProps, ref: Ref<Container>) {
-  const { setHover } = useContext(HoverContext);
-  const player = useContext(PlayerContext);
-  const game = useClientSelector((state) => state.game.current);
-  const cardRef = useRef() as MutableRefObject<Required<Container>>;
-  const targetRef = useRef() as MutableRefObject<Required<Sprite>>;
-  const cardInfo = useCardInfo(props.state);
-  const [zoom, setZoom] = useState(false);
+export type HandProps = {
+  cards: CardState[];
+};
 
-  useImperativeHandle(ref, () => cardRef.current);
-
-  useEffect(() => {
-    if (cardRef.current) {
-      drag(cardInfo.targets ? targetRef : cardRef);
-    }
-
-    return () => setHover([]);
-  }, [cardInfo]);
-
-  const [{ isDragging, globalPosition }, drag] = useDrag(
-    () => ({
-      type: cardInfo.targets ? "target" : "card",
-      item: props.state,
-      collect: (monitor) => ({
-        isDragging: monitor.isDragging(),
-        globalPosition: monitor.getInitialClientOffset(),
-      }),
-    }),
-    [cardInfo]
-  );
-
-  let x = props.x;
-  let y = zoom ? (props.y ?? 0) - smallCardHeight / 10 : props.y;
-
-  if (cardRef.current && isDragging && globalPosition) {
-    const position = cardRef.current.parent.toLocal({ x: globalPosition.x, y: globalPosition.y });
-    x = position.x;
-    y = position.y;
-  }
-
-  function pointerover() {
-    if (!isDragging) {
-      setZoom(true);
-
-      const result = defaultUtil.tryPayCost(
-        game,
-        props.state,
-        "play",
-        props.state.name,
-        player,
-        cardInfo.colors,
-        cardInfo.cost,
-        cardInfo.targets
-      );
-
-      if (typeof result != "string") {
-        setHover(result.agents);
-      }
-    }
-  }
-
-  function pointerout() {
-    if (!isDragging) {
-      setZoom(false);
-      setHover([]);
-    }
-  }
-
-  const scale = zoom ? smallCardScale * 1.2 : smallCardScale;
-
-  const card = (
-    <GameCard
-      {...props}
-      shadow={20}
-      x={x}
-      y={y}
-      scale={scale}
-      zIndex={zoom ? 100 : props.zIndex}
-      ref={cardRef}
-      interactive={props.status != "exiting"}
-      pointerover={pointerover}
-      pointerout={pointerout}
-    />
-  );
-
-  if (cardInfo.targets) {
-    const target = (
-      <Reticle
-        x={x}
-        y={y}
-        ref={targetRef}
-        isDragging={isDragging}
-        color={getCardColor(cardInfo)}
-        angle={props.angle}
-        scale={scale}
-        pointerover={pointerover}
-        pointerout={pointerout}
-      />
-    );
-    return (
-      <>
-        {card}
-        {target}
-      </>
-    );
-  } else {
-    return card;
-  }
-});
-
-export default function Hand() {
-  const player = useContext(PlayerContext);
-  const game = useClientSelector((state) => state.game.current);
-  const cards = useCardInfoList(game.players[player].deck);
-
-  const hand = cards.filter((card) =>
-    defaultUtil.canPayCost(game, card.state, player, card.info.colors, card.info.cost, card.info.targets)
-  );
-  const sortedHand = ordered(hand, ["money"], (card) => card.info).map((card) => card.state);
-
+export default function Hand(props: HandProps) {
   let offset = smallCardWidth - 20;
-  if (offset * hand.length > 2500) {
-    offset /= (offset * hand.length) / 2500;
+  if (offset * props.cards.length > 2500) {
+    offset /= (offset * props.cards.length) / 2500;
   }
 
-  const x = (targetResolution.width - hand.length * offset) / 2 + smallCardWidth / 2;
+  const x = (targetResolution.width - props.cards.length * offset) / 2 + smallCardWidth / 2;
   const y = targetResolution.height * (3 / 4) + smallCardHeight / 2 + 20;
 
   return (
-    <EnterExitAnimator elements={sortedHand}>
+    <EnterExitAnimator elements={props.cards}>
       {(state, status, i) =>
         i != null ? (
           <HandCard
@@ -149,8 +28,8 @@ export default function Hand() {
             status={status}
             key={state.id}
             x={x + i * offset}
-            y={y + Math.abs((i - (hand.length - 1) / 2.0) * 10)}
-            angle={(i - (hand.length - 1) / 2.0) * 1}
+            y={y + Math.abs((i - (props.cards.length - 1) / 2.0) * 10)}
+            angle={(i - (props.cards.length - 1) / 2.0) * 1}
           />
         ) : (
           <HandCard useLastPos state={state} status={status} key={state.id} />

@@ -21,6 +21,7 @@ import Message from "./Message";
 import Deck from "./Deck";
 import Grave from "./Grave";
 import { CardState } from "../../common/card";
+import HandAndDeck from "./HandAndDeck";
 
 export const SocketContext = React.createContext(null as unknown as Socket);
 export const PlayerContext = React.createContext(0 as PlayerId);
@@ -31,7 +32,7 @@ export const HoverContext = React.createContext(
   }
 );
 
-export default function Game(props: { params: { queue: string, deck: string } }) {
+export default function Game(props: { params: { queue: string; deck: string } }) {
   const [player, setPlayer] = useState(null as PlayerId | null);
   const [socket, setSocket] = useState(null as Socket | null);
   const [hover, setHover] = useState([] as CardState[]);
@@ -98,9 +99,8 @@ export default function Game(props: { params: { queue: string, deck: string } })
               <OpponentHand />
               <OpponentBoard />
               <Board />
-              <Hand />
+              <HandAndDeck />
               <Grave />
-              <Deck />
               <Message text={message} />
             </Container>
           </HoverContext.Provider>

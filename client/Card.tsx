@@ -1,5 +1,5 @@
 import React, { MutableRefObject, Ref, useEffect, useImperativeHandle, useRef } from "react";
-import { Container, PixiElement, Sprite } from "react-pixi-fiber";
+import { Container, Sprite } from "react-pixi-fiber";
 import Rectangle from "./Rectangle";
 import { targetResolution } from "./Camera";
 import { CardInfo, CardKeyword, CardState } from "../common/card";
@@ -9,6 +9,7 @@ import { filters, Texture } from "pixi.js";
 import { useCardInfo } from "./cards";
 import anime from "animejs";
 import { GlowFilter } from "@pixi/filter-glow";
+import deepEqual from "deep-equal";
 
 export const cardHeight = targetResolution.height;
 export const cardWidth = cardHeight * (1 / 1.4);
@@ -39,90 +40,99 @@ export function getDisplayName(keyword: CardKeyword) {
   return displayNameMap[keyword];
 }
 
-export type CardProps = PixiElement<Container> & {
+export type CardProps = {
   state: CardState;
+  zIndex?: number;
   shadow?: number;
   shouldGlow?: boolean;
   shouldDimWhenExhausted?: boolean;
 };
 
-export default React.forwardRef(function Card(props: CardProps, ref: Ref<Container>) {
-  const cardInfo = useCardInfo(props.state);
-  const containerRef = useRef() as MutableRefObject<Required<Container>>;
-  const dimFilterRef = useRef(new filters.ColorMatrixFilter());
-  const dropShadowFilterRef = useRef(new DropShadowFilter({ alpha: 0.5, blur: 1, distance: 0 }));
-  const glowFilterRef = useRef(new GlowFilter({ outerStrength: 0 }));
+export default React.memo(
+  React.forwardRef(function Card(props: CardProps, ref: Ref<Container>) {
+    const cardInfo = useCardInfo(props.state);
+    const containerRef = useRef() as MutableRefObject<Required<Container>>;
+    const dimFilterRef = useRef(new filters.ColorMatrixFilter());
+    const dropShadowFilterRef = useRef(new DropShadowFilter({ alpha: 0.5, blur: 1, distance: 0 }));
+    const glowFilterRef = useRef(new GlowFilter({ outerStrength: 0 }));
 
-  useImperativeHandle(ref, () => containerRef.current);
+    useImperativeHandle(ref, () => containerRef.current);
 
-  useEffect(() => {
-    (containerRef.current as any).convertTo3d?.();
-    dimFilterRef.current.alpha = 0;
-  }, []);
+    useEffect(() => {
+      (containerRef.current as any).convertTo3d?.();
+      dimFilterRef.current.alpha = 0;
+    }, []);
 
-  useEffect(() => {
-    dropShadowFilterRef.current.distance = props.shadow ?? 5;
-  }, [props.zIndex]);
+    useEffect(() => {
+      dropShadowFilterRef.current.distance = props.shadow ?? 5;
+    }, [props.zIndex]);
 
-  useEffect(() => {
-    dimFilterRef.current.greyscale(0, true);
-    anime({
-      targets: dimFilterRef.current,
-      duration: 300,
-      easing: "easeOutExpo",
-      alpha: props.state.exhausted && props.shouldDimWhenExhausted ? 0.5 : 0,
-    });
-  }, [props.state.exhausted]);
+    useEffect(() => {
+      dimFilterRef.current.greyscale(0, true);
+      anime({
+        targets: dimFilterRef.current,
+        duration: 300,
+        easing: "easeOutExpo",
+        alpha: props.state.exhausted && props.shouldDimWhenExhausted ? 0.5 : 0,
+      });
+    }, [props.state.exhausted]);
 
-  useEffect(() => {
-    glowFilterRef.current.color = getCardColor(cardInfo);
-  }, [cardInfo]);
+    useEffect(() => {
+      glowFilterRef.current.color = getCardColor(cardInfo);
+    }, [cardInfo]);
 
-  useEffect(() => {
-    anime({
-      targets: glowFilterRef.current,
-      duration: 300,
-      easing: "easeOutExpo",
-      outerStrength: props.shouldGlow ? 4 : 0,
-    });
-  }, [props.shouldGlow]);
+    useEffect(() => {
+      anime({
+        targets: glowFilterRef.current,
+        duration: 300,
+        easing: "easeOutExpo",
+        outerStrength: props.shouldGlow ? 4 : 0,
+      });
+    }, [props.shouldGlow]);
 
-  let text = cardInfo.text;
-  if (cardInfo.keywords.length > 0) {
-    text = `${cardInfo.keywords.map(getDisplayName).join(", ")}\n${text}`.trim();
-  }
+    let text = cardInfo.text;
+    let keywords = cardInfo.keywords;
 
-  return (
-    <Container
-      pivot={[cardWidth / 2, cardHeight / 2]}
-      {...props}
-      filters={[dimFilterRef.current, glowFilterRef.current, dropShadowFilterRef.current]}
-      ref={containerRef}
-    >
-      <Rectangle width={cardWidth} height={cardHeight} fillAlpha={0.01} />
-      <Rectangle fill={getCardColor(cardInfo)} width={cardWidth - 100} height={cardHeight - 100} x={50} y={50} />
-      <Sprite texture={Texture.from("/border.png")} />
-      <Text
-        anchor={[0.5, 0]}
-        x={cardWidth / 2 + 100}
-        y={110}
-        text={props.state.name}
-        style={{ fontSize: 128, tint: 0 }}
-      />
-      <Text
-        anchor={[0.5, 0.5]}
-        x={cardWidth / 2}
-        y={cardHeight * (3 / 4) + 50}
-        text={text}
-        style={{ fontSize: 128, align: "center", maxWidth: cardWidth - 200, letterSpacing: 1 }}
-      />
-      <Text
-        anchor={[0.5, 0.5]}
-        x={160}
-        y={200}
-        text={Math.max(0, cardInfo.cost.money)}
-        style={{ fontSize: 128, tint: 0 }}
-      />
-    </Container>
-  );
-});
+    if (!props.state.protected) {
+      keywords.filter((x) => x != "protected");
+    }
+
+    if (keywords.length > 0) {
+      text = `${keywords.map(getDisplayName).join(", ")}\n${text}`.trim();
+    }
+
+    return (
+      <Container
+        pivot={[cardWidth / 2, cardHeight / 2]}
+        zIndex={props.zIndex ?? 5}
+        filters={[dimFilterRef.current, glowFilterRef.current, dropShadowFilterRef.current]}
+        ref={containerRef}
+      >
+        <Rectangle fill={getCardColor(cardInfo)} width={cardWidth - 100} height={cardHeight - 100} x={50} y={50} />
+        <Sprite texture={Texture.from("/border.png")} />
+        <Text
+          anchor={[0.5, 0]}
+          x={cardWidth / 2 + 100}
+          y={110}
+          text={props.state.name}
+          style={{ fontSize: 128, tint: 0 }}
+        />
+        <Text
+          anchor={[0.5, 0.5]}
+          x={cardWidth / 2}
+          y={cardHeight * (3 / 4) + 50}
+          text={text}
+          style={{ fontSize: 128, align: "center", maxWidth: cardWidth - 200, letterSpacing: 1 }}
+        />
+        <Text
+          anchor={[0.5, 0.5]}
+          x={160}
+          y={200}
+          text={Math.max(0, cardInfo.cost.money)}
+          style={{ fontSize: 128, tint: 0 }}
+        />
+      </Container>
+    );
+  }),
+  (a, b) => deepEqual(a, b)
+);

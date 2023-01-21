@@ -9,6 +9,7 @@
     "@reduxjs/toolkit": "^1.9.0",
     "@types/wouter": "^2.2.0",
     "animejs": "^3.2.1",
+    "deep-equal": "^2.2.0",
     "express": "^4.17.3",
     "pixi-projection": "^0.4.4",
     "pixi-stats": "^1.0.7",
@@ -30,6 +31,7 @@
   "devDependencies": {
     "@redux-devtools/core": "^3.13.1",
     "@types/animejs": "^3.1.6",
+    "@types/deep-equal": "^1.0.1",
     "@types/express": "^4.17.13",
     "@types/react": "^18.0.25",
     "@types/uuid": "^9.0.0",

@@ -1,6 +1,6 @@
-import React, { MutableRefObject, useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { getCards, useCardInfoList } from "../cards";
-import Grid from "../Grid";
+import Grid from "./Grid";
 import { smallCardHeight, smallCardWidth } from "../Card";
 import { useClientDispatch, useClientSelector } from "../store";
 import { defaultCardState } from "../../common/gameSlice";
