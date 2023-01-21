@@ -45,7 +45,6 @@ export default React.forwardRef(function GameCard(props: GameCardProps, ref: Ref
           <Card
             state={{ ...props.state, exhausted: isHovered ? true : props.state.exhausted }}
             shouldGlow={props.shouldGlow || isOver}
-            zIndex={props.zIndex}
             shadow={props.shadow}
             shouldDimWhenExhausted={props.shouldDimWhenExhausted}
           />

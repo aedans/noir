@@ -6,7 +6,7 @@ import { CardInfo, CardKeyword, CardState } from "../common/card";
 import Text from "./Text";
 import { DropShadowFilter } from "@pixi/filter-drop-shadow";
 import { filters, Texture } from "pixi.js";
-import { useCardInfo } from "./cards";
+import { isLoaded, useCardInfo } from "./cards";
 import anime from "animejs";
 import { GlowFilter } from "@pixi/filter-glow";
 import deepEqual from "deep-equal";
@@ -42,11 +42,19 @@ export function getDisplayName(keyword: CardKeyword) {
 
 export type CardProps = {
   state: CardState;
-  zIndex?: number;
   shadow?: number;
   shouldGlow?: boolean;
   shouldDimWhenExhausted?: boolean;
 };
+
+export function isCardPropsEqual(a: CardProps, b: CardProps) {
+  return (
+    deepEqual({ ...a.state, id: "" }, { ...b.state, id: "" }) &&
+    a.shadow == b.shadow &&
+    a.shouldDimWhenExhausted == b.shouldDimWhenExhausted &&
+    a.shouldGlow == b.shouldGlow
+  );
+}
 
 export default React.memo(
   React.forwardRef(function Card(props: CardProps, ref: Ref<Container>) {
@@ -64,8 +72,12 @@ export default React.memo(
     }, []);
 
     useEffect(() => {
-      dropShadowFilterRef.current.distance = props.shadow ?? 5;
-    }, [props.zIndex]);
+      if (props.shadow) {
+        dropShadowFilterRef.current.distance = props.shadow;
+      } else {
+        dropShadowFilterRef.current.enabled = false;
+      }
+    }, [props.shadow]);
 
     useEffect(() => {
       dimFilterRef.current.greyscale(0, true);
@@ -104,7 +116,6 @@ export default React.memo(
     return (
       <Container
         pivot={[cardWidth / 2, cardHeight / 2]}
-        zIndex={props.zIndex ?? 5}
         filters={[dimFilterRef.current, glowFilterRef.current, dropShadowFilterRef.current]}
         ref={containerRef}
       >
@@ -134,5 +145,5 @@ export default React.memo(
       </Container>
     );
   }),
-  (a, b) => deepEqual(a, b)
+  isCardPropsEqual
 );

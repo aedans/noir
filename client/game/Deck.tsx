@@ -3,7 +3,6 @@ import { targetResolution } from "../Camera";
 import { smallCardHeight, smallCardWidth } from "../Card";
 import CardList from "./CardList";
 import { CardState } from "../../common/card";
-import deepEqual from "deep-equal";
 
 export type DeckProps = {
   cards: CardState[];

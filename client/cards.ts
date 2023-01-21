@@ -70,7 +70,11 @@ export async function getCards() {
 
 export function useCardInfo(card: CardState) {
   const game = useClientSelector((state) => state.game.current);
-  const [cardInfo, setCardInfo] = useState(runPartialCardInfoComputation(() => ({}), defaultUtil, game, card));
+  const loaded = isLoaded(card);
+
+  const [cardInfo, setCardInfo] = useState(
+    loaded ? getCardInfo(game, card) : runPartialCardInfoComputation(() => ({}), defaultUtil, game, card)
+  );
 
   useEffect(() => {
     let isMounted = true;
@@ -87,12 +91,6 @@ export function useCardInfo(card: CardState) {
       isMounted = false;
     };
   }, []);
-
-  useLayoutEffect(() => {
-    if (isLoaded(card)) {
-      setCardInfo(getCardInfo(game, card));
-    }
-  }, [game]);
 
   return cardInfo;
 }

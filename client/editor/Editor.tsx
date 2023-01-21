@@ -21,9 +21,9 @@ export default function Editor(props: { params: { deck: string } }) {
   const deckName = props.params.deck;
   const deck = useClientSelector((game) => game.decks[deckName]);
   const deckCards = useCardInfoList(
-    Object.entries(deck.cards).flatMap(([name, number]) => {
-      return Array.from(Array(number).keys()).map((_, index) => defaultCardState(name, `${name} ${index}`));
-    }),
+    Object.entries(deck.cards).flatMap(([name, number]) =>
+      Array.from(Array(number).keys()).map((_, index) => defaultCardState(name, `${name} ${index}`))
+    ),
     [deck.cards]
   );
 
@@ -68,12 +68,11 @@ export default function Editor(props: { params: { deck: string } }) {
       <Rectangle fill={0x202020} width={targetResolution.width} height={targetResolution.height} />
       <Container y={scroll}>
         <Grid elements={sortedAllCards} maxWidth={3000}>
-          {(data, ref, x, y) => (
+          {(data, x, y) => (
             <EditorCard
               state={data}
               status="none"
               key={data.id}
-              ref={ref}
               pointerdown={pointerdownAdd(data.name)}
               interactive
               x={x + smallCardWidth / 2}

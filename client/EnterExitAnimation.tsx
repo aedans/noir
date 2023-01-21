@@ -1,7 +1,6 @@
-import deepEqual from "deep-equal";
 import React, { MutableRefObject, ReactElement, ReactNode, useLayoutEffect, useRef } from "react";
 import { Container } from "react-pixi-fiber";
-import { CardState, Target } from "../common/card";
+import { CardState } from "../common/card";
 
 export type EnterExitAnimationState = { [id: string]: CardState };
 
@@ -12,28 +11,25 @@ export type EnterExitAnimatorProps = {
   children: (data: CardState, status: EnterExitAnimationStatus, index: number | null) => ReactElement;
 };
 
-export const EnterExitAnimator = React.memo(
-  function EnterExitAnimator(props: EnterExitAnimatorProps) {
-    const ref = useRef({} as EnterExitAnimationState);
+export function EnterExitAnimator(props: EnterExitAnimatorProps) {
+  const ref = useRef({} as EnterExitAnimationState);
 
-    let unusedStates = { ...ref.current };
-    let i = 0;
-    const children = props.elements.map((state) => {
-      const status = state.id in ref.current ? "none" : "entering";
-      delete unusedStates[state.id];
-      ref.current[state.id] = state;
-      return props.children(state, status, i++);
-    });
+  let unusedStates = { ...ref.current };
+  let i = 0;
+  const children = props.elements.map((state) => {
+    const status = state.id in ref.current ? "none" : "entering";
+    delete unusedStates[state.id];
+    ref.current[state.id] = state;
+    return props.children(state, status, i++);
+  });
 
-    const exiting = Object.values(unusedStates).map((state) => {
-      setTimeout(() => delete ref.current[state.id], 100);
-      return props.children(state, "exiting", null);
-    });
+  const exiting = Object.values(unusedStates).map((state) => {
+    setTimeout(() => delete ref.current[state.id], 100);
+    return props.children(state, "exiting", null);
+  });
 
-    return <>{[...children, ...exiting]}</>;
-  },
-  (a, b) => deepEqual(a.elements, b.elements)
-);
+  return <>{[...children, ...exiting]}</>;
+}
 
 export type EnterExitAnimationProps = {
   componentRef: MutableRefObject<Required<Container>>;
