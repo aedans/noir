@@ -39,7 +39,7 @@ export default React.forwardRef(function GameCard(props: GameCardProps, ref: Ref
 
   return (
     <MoveAnimation id={props.state.id} x={x} y={y} scale={props.scale ?? smallCardScale} componentRef={componentRef}>
-      <EnterExitAnimation skip={true} status={props.status} componentRef={componentRef}>
+      <EnterExitAnimation skip status={props.status} componentRef={componentRef}>
         <Card
           {...props}
           state={{ ...props.state, exhausted: isHovered ? true : props.state.exhausted }}

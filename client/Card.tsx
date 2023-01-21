@@ -43,6 +43,7 @@ export type CardProps = PixiElement<Container> & {
   state: CardState;
   shadow?: number;
   shouldGlow?: boolean;
+  shouldDimWhenExhausted?: boolean;
 };
 
 export default React.forwardRef(function Card(props: CardProps, ref: Ref<Container>) {
@@ -69,7 +70,7 @@ export default React.forwardRef(function Card(props: CardProps, ref: Ref<Contain
       targets: dimFilterRef.current,
       duration: 300,
       easing: "easeOutExpo",
-      alpha: props.state.exhausted ? 0.5 : 0,
+      alpha: props.state.exhausted && props.shouldDimWhenExhausted ? 0.5 : 0,
     });
   }, [props.state.exhausted]);
 

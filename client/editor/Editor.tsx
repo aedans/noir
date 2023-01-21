@@ -95,7 +95,7 @@ export default function Editor(props: { params: { deck: string } }) {
                 y={(i * smallCardHeight) / 8 ?? 0}
               />
             ) : (
-              <EditorCard state={data} status={status} key={data.id} useLastPos={true} />
+              <EditorCard state={data} status={status} key={data.id} useLastPos />
             )
           }
         </EnterExitAnimator>

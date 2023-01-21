@@ -153,7 +153,7 @@ export default function Hand() {
             angle={(i - (hand.length - 1) / 2.0) * 1}
           />
         ) : (
-          <HandCard useLastPos={true} state={state} status={status} key={state.id} />
+          <HandCard useLastPos state={state} status={status} key={state.id} />
         )
       }
     </EnterExitAnimator>

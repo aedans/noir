@@ -2,8 +2,7 @@ import { Rectangle, Texture } from "pixi.js";
 import React, { Ref } from "react";
 import { PixiElement, Sprite } from "react-pixi-fiber";
 import { GlowFilter } from "@pixi/filter-glow";
-import { cardHeight, cardWidth, smallCardHeight, smallCardScale, smallCardWidth } from "../Card";
-import Rect from "../Rectangle"
+import { cardHeight, cardWidth, smallCardHeight, smallCardWidth } from "../Card";
 
 export type ReticleProps = PixiElement<Sprite> & {
   x?: number;

@@ -50,6 +50,8 @@ export type Filter = {
   colors?: CardColor[];
   hidden?: boolean;
   exhausted?: boolean;
+  maxMoney?: number;
+  minMoney?: number;
   ordering?: Order[];
   reversed?: boolean;
 };
@@ -79,6 +81,14 @@ export function filter(this: Util, game: GameState, filter: Filter) {
 
       if (filter.exhausted != undefined) {
         f = f.filter((card) => filter.exhausted! == card.exhausted);
+      }
+
+      if (filter.maxMoney != undefined) {
+        f = f.filter((card) => this.getCardInfo(game, card).cost.money <= filter.maxMoney!);
+      }
+
+      if (filter.minMoney != undefined) {
+        f = f.filter((card) => this.getCardInfo(game, card).cost.money >= filter.minMoney!);
       }
 
       cards.push(...f);
