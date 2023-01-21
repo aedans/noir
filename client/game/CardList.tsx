@@ -37,7 +37,6 @@ export default function CardList(props: CardListProps) {
           zIndex={20 - i}
           state={state}
           key={state.id}
-          status={"none"}
           x={smallCardWidth / 2}
           y={smallCardHeight / 2 - i * smallCardWidth * distance}
         />

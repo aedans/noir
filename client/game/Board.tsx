@@ -33,15 +33,8 @@ export default function Board() {
         height={cardHeight * (3 / 4)}
         visible={false}
       />
-      <EnterExitAnimator elements={cards}>
-        {(state, status, i) =>
-          i != null ? (
-            <BoardCard state={state} status={status} key={state.id} x={x + i * (smallCardWidth + 10)} y={y} />
-          ) : (
-            <BoardCard useLastPos state={state} status={status} key={state.id} />
-          )
-        }
-      </EnterExitAnimator>
+      {cards.map((state, i) => <BoardCard state={state}key={state.id} x={x + i * (smallCardWidth + 10)} y={y} />)}
+
     </>
   );
 }

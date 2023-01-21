@@ -88,7 +88,7 @@ export default React.forwardRef(function HandCard(props: GameCardProps, ref: Ref
       scale={scale}
       zIndex={zoom ? 100 : props.zIndex}
       ref={cardRef}
-      interactive={props.status != "exiting"}
+      interactive
       pointerover={pointerover}
       pointerout={pointerout}
     />

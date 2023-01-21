@@ -3,14 +3,12 @@ import { useDrop } from "react-dnd";
 import { Container, PixiElement } from "react-pixi-fiber";
 import { CardState } from "../../common/card";
 import Card, { CardProps, smallCardScale } from "../Card";
-import EnterExitAnimation, { EnterExitAnimationStatus } from "../EnterExitAnimation";
 import MoveAnimation, { useLastPos } from "../MoveAnimation";
 import { HoverContext, SocketContext } from "./Game";
 
 export type GameCardProps = CardProps &
   PixiElement<Container> & {
     scale?: number;
-    status: EnterExitAnimationStatus;
     useLastPos?: boolean;
   };
 
@@ -40,16 +38,14 @@ export default React.forwardRef(function GameCard(props: GameCardProps, ref: Ref
 
   return (
     <MoveAnimation id={props.state.id} x={x} y={y} scale={props.scale ?? smallCardScale} componentRef={componentRef}>
-      <EnterExitAnimation skip status={props.status} componentRef={componentRef}>
-        <Container {...props} scale={0} ref={componentRef}>
-          <Card
-            state={{ ...props.state, exhausted: isHovered ? true : props.state.exhausted }}
-            shouldGlow={props.shouldGlow || isOver}
-            shadow={props.shadow}
-            shouldDimWhenExhausted={props.shouldDimWhenExhausted}
-          />
-        </Container>
-      </EnterExitAnimation>
+      <Container {...props} scale={0} ref={componentRef}>
+        <Card
+          state={{ ...props.state, exhausted: isHovered ? true : props.state.exhausted }}
+          shouldGlow={props.shouldGlow || isOver}
+          shadow={props.shadow}
+          shouldDimWhenExhausted={props.shouldDimWhenExhausted}
+        />
+      </Container>
     </MoveAnimation>
   );
 });
