@@ -92,6 +92,12 @@ export function useCardInfo(card: CardState) {
     };
   }, []);
 
+  useEffect(() => {
+    if (isLoaded(card)) {
+      setCardInfo(getCardInfo(game, card));
+    }
+  }, [game]);
+
   return cardInfo;
 }
 
