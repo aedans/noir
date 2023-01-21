@@ -6,7 +6,6 @@ import { targetResolution } from "../Camera";
 import { useClientSelector } from "../store";
 import { CardState } from "../../common/card";
 import { PlayerContext, SocketContext } from "./Game";
-import { EnterExitAnimator } from "../EnterExitAnimation";
 import BoardCard from "./BoardCard";
 
 export default function Board() {
@@ -33,8 +32,9 @@ export default function Board() {
         height={cardHeight * (3 / 4)}
         visible={false}
       />
-      {cards.map((state, i) => <BoardCard state={state}key={state.id} x={x + i * (smallCardWidth + 10)} y={y} />)}
-
+      {cards.map((state, i) => (
+        <BoardCard state={state} key={state.id} x={x + i * (smallCardWidth + 10)} y={y} />
+      ))}
     </>
   );
 }
