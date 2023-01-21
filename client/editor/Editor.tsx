@@ -11,6 +11,7 @@ import { MoveAnimationContext, MoveAnimationState } from "../MoveAnimation";
 import EditorCard from "./EditorCard";
 import { EnterExitAnimator } from "../EnterExitAnimation";
 import { ordered } from "../../common/util";
+import { Container } from "react-pixi-fiber";
 
 export default function Editor(props: { params: { deck: string } }) {
   const dispatch = useClientDispatch();
@@ -65,40 +66,40 @@ export default function Editor(props: { params: { deck: string } }) {
   return (
     <MoveAnimationContext.Provider value={cards}>
       <Rectangle fill={0x202020} width={targetResolution.width} height={targetResolution.height} />
-      <Grid y={scroll} elements={sortedAllCards} maxWidth={3000}>
-        {(data, ref, x, y) => (
-          <EditorCard
-            state={data}
-            status="none"
-            key={data.id}
-            ref={ref}
-            pointerdown={pointerdownAdd(data.name)}
-            interactive
-            x={x + smallCardWidth / 2}
-            y={y + smallCardHeight / 2}
-          />
-        )}
-      </Grid>
-      <EnterExitAnimator
-        x={targetResolution.width - smallCardWidth / 2}
-        y={smallCardHeight / 2}
-        elements={sortedDeckCards}
-      >
-        {(data, status, i) =>
-          i != null ? (
+      <Container y={scroll}>
+        <Grid elements={sortedAllCards} maxWidth={3000}>
+          {(data, ref, x, y) => (
             <EditorCard
               state={data}
-              status={status}
+              status="none"
               key={data.id}
-              pointerdown={pointerdownRemove(data.name)}
+              ref={ref}
+              pointerdown={pointerdownAdd(data.name)}
               interactive
-              y={(i * smallCardHeight) / 8 ?? 0}
+              x={x + smallCardWidth / 2}
+              y={y + smallCardHeight / 2}
             />
-          ) : (
-            <EditorCard state={data} status={status} key={data.id} useLastPos={true} />
-          )
-        }
-      </EnterExitAnimator>
+          )}
+        </Grid>
+      </Container>
+      <Container x={targetResolution.width - smallCardWidth / 2} y={smallCardHeight / 2}>
+        <EnterExitAnimator elements={sortedDeckCards}>
+          {(data, status, i) =>
+            i != null ? (
+              <EditorCard
+                state={data}
+                status={status}
+                key={data.id}
+                pointerdown={pointerdownRemove(data.name)}
+                interactive
+                y={(i * smallCardHeight) / 8 ?? 0}
+              />
+            ) : (
+              <EditorCard state={data} status={status} key={data.id} useLastPos />
+            )
+          }
+        </EnterExitAnimator>
+      </Container>
     </MoveAnimationContext.Provider>
   );
 }

@@ -43,7 +43,7 @@ const HandCard = React.forwardRef(function HandCard(props: GameCardProps, ref: R
   );
 
   let x = props.x;
-  let y = props.y;
+  let y = zoom ? (props.y ?? 0) - smallCardHeight / 10 : props.y;
 
   if (cardRef.current && isDragging && globalPosition) {
     const position = cardRef.current.parent.toLocal({ x: globalPosition.x, y: globalPosition.y });
@@ -79,13 +79,15 @@ const HandCard = React.forwardRef(function HandCard(props: GameCardProps, ref: R
     }
   }
 
+  const scale = zoom ? smallCardScale * 1.2 : smallCardScale;
+
   const card = (
     <GameCard
       {...props}
       shadow={20}
       x={x}
-      y={zoom ? (y ?? 0) - smallCardHeight / 10 : y}
-      scale={zoom ? smallCardScale * 1.2 : smallCardScale}
+      y={y}
+      scale={scale}
       zIndex={zoom ? 100 : props.zIndex}
       ref={cardRef}
       interactive={props.status != "exiting"}
@@ -103,6 +105,7 @@ const HandCard = React.forwardRef(function HandCard(props: GameCardProps, ref: R
         isDragging={isDragging}
         color={getCardColor(cardInfo)}
         angle={props.angle}
+        scale={scale}
         pointerover={pointerover}
         pointerout={pointerout}
       />
@@ -150,7 +153,7 @@ export default function Hand() {
             angle={(i - (hand.length - 1) / 2.0) * 1}
           />
         ) : (
-          <HandCard useLastPos={true} state={state} status={status} key={state.id} />
+          <HandCard useLastPos state={state} status={status} key={state.id} />
         )
       }
     </EnterExitAnimator>

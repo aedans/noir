@@ -20,7 +20,7 @@ export default function OpponentHand() {
         i != null ? (
           <GameCard state={state} status={status} key={state.id} x={x + i * (smallCardWidth + 10)} y={y} />
         ) : (
-          <GameCard useLastPos={true} state={state} status={status} key={state.id}/>
+          <GameCard useLastPos state={state} status={status} key={state.id}/>
         )
       }
     </EnterExitAnimator>

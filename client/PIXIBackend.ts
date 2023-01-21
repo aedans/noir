@@ -1,7 +1,7 @@
 import anime from "animejs";
 import { BackendFactory, DragDropManager } from "dnd-core";
 import { IDisplayObject3d } from "pixi-projection";
-import { DisplayObject, Ticker } from "pixi.js";
+import { DisplayObject, InteractionManager, Renderer, Ticker } from "pixi.js";
 
 type Identifier = string | symbol;
 type DisplayObject3d = DisplayObject & Partial<IDisplayObject3d>;
@@ -54,10 +54,15 @@ const PIXIBackend: BackendFactory = (manager: DragDropManager) => {
           }
 
           const matchingTargetIds = Object.keys(targetObjects).filter((key) =>
-            targetObjects[key].getBounds().contains(e.x, e.y)
+            targetObjects[key].getBounds().contains(e.x, e.y) && targetObjects[key].zIndex < 1000
           );
 
-          manager.getActions().hover(matchingTargetIds);
+          if (matchingTargetIds.length > 0) {
+            matchingTargetIds.sort((a, b) => targetObjects[b].zIndex - targetObjects[a].zIndex);
+            manager.getActions().hover([matchingTargetIds[0]]);
+          } else {
+            manager.getActions().hover([]);
+          }
         }
       }
 

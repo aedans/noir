@@ -11,6 +11,7 @@ settings.SORTABLE_CHILDREN = true;
 
 Loader.shared.add("Oswald", "/Oswald.fnt").load(() => {
   const canvasElement = document.getElementById("root") as HTMLCanvasElement;
+
   const app = new Application({
     view: canvasElement,
     width: window.screen.width,

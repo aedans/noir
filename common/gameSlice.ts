@@ -131,7 +131,7 @@ export function defaultCardState(name: string, id: string): CardState {
     id,
     name,
     hidden: true,
-    exhausted: false,
+    exhausted: true,
     protected: false,
     props: {},
     modifiers: [],

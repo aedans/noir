@@ -94,6 +94,7 @@ const BoardCard = React.forwardRef(function BoardCard(props: GameCardProps, ref:
     <GameCard
       {...props}
       shouldGlow={shouldGlow}
+      shouldDimWhenExhausted
       ref={cardRef}
       interactive
       pointerdown={pointerdown}
@@ -154,7 +155,7 @@ export default function Board() {
           i != null ? (
             <BoardCard state={state} status={status} key={state.id} x={x + i * (smallCardWidth + 10)} y={y} />
           ) : (
-            <BoardCard useLastPos={true} state={state} status={status} key={state.id} />
+            <BoardCard useLastPos state={state} status={status} key={state.id} />
           )
         }
       </EnterExitAnimator>

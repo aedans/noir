@@ -43,6 +43,7 @@ export type CardProps = PixiElement<Container> & {
   state: CardState;
   shadow?: number;
   shouldGlow?: boolean;
+  shouldDimWhenExhausted?: boolean;
 };
 
 export default React.forwardRef(function Card(props: CardProps, ref: Ref<Container>) {
@@ -50,7 +51,7 @@ export default React.forwardRef(function Card(props: CardProps, ref: Ref<Contain
   const containerRef = useRef() as MutableRefObject<Required<Container>>;
   const dimFilterRef = useRef(new filters.ColorMatrixFilter());
   const dropShadowFilterRef = useRef(new DropShadowFilter({ alpha: 0.5, blur: 1, distance: 0 }));
-  const glowFilterRef = useRef(new GlowFilter({ outerStrength: 4 }));
+  const glowFilterRef = useRef(new GlowFilter({ outerStrength: 0 }));
 
   useImperativeHandle(ref, () => containerRef.current);
 
@@ -69,7 +70,7 @@ export default React.forwardRef(function Card(props: CardProps, ref: Ref<Contain
       targets: dimFilterRef.current,
       duration: 300,
       easing: "easeOutExpo",
-      alpha: props.state.exhausted ? 0.5 : 0,
+      alpha: props.state.exhausted && props.shouldDimWhenExhausted ? 0.5 : 0,
     });
   }, [props.state.exhausted]);
 
@@ -78,7 +79,12 @@ export default React.forwardRef(function Card(props: CardProps, ref: Ref<Contain
   }, [cardInfo]);
 
   useEffect(() => {
-    glowFilterRef.current.enabled = props.shouldGlow ?? false;
+    anime({
+      targets: glowFilterRef.current,
+      duration: 300,
+      easing: "easeOutExpo",
+      outerStrength: props.shouldGlow ? 4 : 0,
+    });
   }, [props.shouldGlow]);
 
   let text = cardInfo.text;
@@ -90,7 +96,7 @@ export default React.forwardRef(function Card(props: CardProps, ref: Ref<Contain
     <Container
       pivot={[cardWidth / 2, cardHeight / 2]}
       {...props}
-      filters={[dimFilterRef.current, dropShadowFilterRef.current, glowFilterRef.current]}
+      filters={[dimFilterRef.current, glowFilterRef.current, dropShadowFilterRef.current]}
       ref={containerRef}
     >
       <Rectangle width={cardWidth} height={cardHeight} fillAlpha={0.01} />
