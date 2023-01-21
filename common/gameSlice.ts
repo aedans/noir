@@ -1,5 +1,5 @@
 import { createSlice, current, isDraft, PayloadAction } from "@reduxjs/toolkit";
-import { CardState, Target } from "./card";
+import { CardState, ModifierState, Target } from "./card";
 
 export const zones = ["deck", "board", "grave"] as const;
 export type Zone = typeof zones[number];
@@ -52,6 +52,7 @@ export type GameParams = { card?: Target } & (
   | StealCardParams
   | SetPropParams
   | ChangeMoneyParams
+  | ModifyCardParams
 );
 
 export type TargetCardParams = {
@@ -86,6 +87,10 @@ export type SetPropParams = TargetCardParams & {
 export type ChangeMoneyParams = {
   player: PlayerId;
   money: number;
+};
+
+export type ModifyCardParams = TargetCardParams & {
+  modifier: ModifierState;
 };
 
 export function findCard(game: GameState, card: Target) {
@@ -239,6 +244,14 @@ export const gameReducers = {
     state.history.push(action as GameAction);
     state.players[action.payload.player].money -= Math.max(0, action.payload.money);
   },
+  modifyCard: (state: GameState, action: PayloadAction<ModifyCardParams>) => {
+    state.history.push(action as GameAction);
+    const info = findCard(state, action.payload.card);
+    if (info) {
+      const { player, zone, index } = info;
+      state.players[player][zone][index].modifiers.push(action.payload.modifier)
+    }
+  }
 };
 
 export const gameSlice = createSlice({
@@ -261,4 +274,5 @@ export const {
   setProp,
   addMoney,
   removeMoney,
+  modifyCard,
 } = gameSlice.actions;
