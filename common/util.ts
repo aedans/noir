@@ -38,6 +38,7 @@ import {
   currentPlayer,
   opponent,
   self,
+  modifyCard,
 } from "./gameSlice";
 import { v4 as uuid } from "uuid";
 import { historySlice } from "./historySlice";
@@ -282,6 +283,7 @@ const util = {
   refreshCard: onTrigger(refreshCard, (info) => info.onRefresh),
   exhaustCard: onTrigger(exhaustCard, (info) => info.onExhaust),
   setProp: onTrigger(setProp, (info) => info.onSetProp),
+  modifyCard: onTrigger(modifyCard, (info) => info.onModify),
   addMoney: onTrigger(addMoney),
   removeMoney: onTrigger(removeMoney),
   findCard: findCard as (game: GameState, card: Target) => { player: PlayerId; zone: Zone; index: number },

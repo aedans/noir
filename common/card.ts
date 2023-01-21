@@ -1,5 +1,5 @@
 import { DeepPartial } from "redux";
-import { AddCardParams, GameAction, GameState, TargetCardParams } from "./gameSlice";
+import { AddCardParams, GameAction, GameState, ModifyCardParams, TargetCardParams } from "./gameSlice";
 import { HistoryAction } from "./historySlice";
 import { Filter, Util } from "./util";
 
@@ -65,6 +65,7 @@ export type CardInfo = {
   onRefresh: CardTrigger<TargetCardParams>;
   onExhaust: CardTrigger<TargetCardParams>;
   onSetProp: CardTrigger<TargetCardParams>;
+  onModify: CardTrigger<ModifyCardParams>;
 };
 
 export type PartialCardInfoComputation = (
@@ -88,6 +89,7 @@ export type PartialCardInfoComputation = (
   onRefresh?: CardTrigger<TargetCardParams>;
   onExhaust?: CardTrigger<TargetCardParams>;
   onSetProp?: CardTrigger<TargetCardParams>;
+  onModify?: CardTrigger<ModifyCardParams>;
 };
 
 export type Target = { id: string };
@@ -153,5 +155,6 @@ export function runPartialCardInfoComputation(
     onRefresh: partial.onRefresh ?? function* () {},
     onExhaust: partial.onExhaust ?? function* () {},
     onSetProp: partial.onSetProp ?? function* () {},
+    onModify: partial.onSetProp ?? function* () {},
   };
 }
