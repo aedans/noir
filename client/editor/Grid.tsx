@@ -1,7 +1,6 @@
 import React, { useRef } from "react";
 import { ReactElement } from "react";
 import { CardState } from "../../common/card";
-import deepEqual from "deep-equal";
 import { smallCardHeight, smallCardWidth } from "../Card";
 
 export type GridProps = {

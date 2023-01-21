@@ -81,24 +81,18 @@ export default function Game(props: { params: { queue: string; deck: string } })
     return <Button text={"Waiting for player"} x={targetResolution.width / 2} y={targetResolution.height / 2} />;
   }
 
-  function setHoverMemo(h: CardState[]) {
-    if ((hover.length == 0 && h.length > 0) || hover.length > 0) {
-      setHover(h);
-    }
-  }
-
   return (
     <SocketContext.Provider value={socket}>
       <MoveAnimationContext.Provider value={cards}>
         <PlayerContext.Provider value={player}>
-          <HoverContext.Provider value={{ hover, setHover: setHoverMemo }}>
+          <HoverContext.Provider value={{ hover, setHover }}>
             <Container>
               <Rectangle fill={0x202020} width={targetResolution.width} height={targetResolution.height} />
-              <EndTurn />
-              <Resources />
               <OpponentHand />
               <OpponentBoard />
               <Board />
+              <EndTurn />
+              <Resources />
               <HandAndDeck />
               <Grave />
               <Message text={message} />

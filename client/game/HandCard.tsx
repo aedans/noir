@@ -20,14 +20,6 @@ export default React.forwardRef(function HandCard(props: GameCardProps, ref: Ref
 
   useImperativeHandle(ref, () => cardRef.current);
 
-  useEffect(() => {
-    if (cardRef.current) {
-      drag(cardInfo.targets ? targetRef : cardRef);
-    }
-
-    return () => setHover([]);
-  }, [cardInfo]);
-
   const [{ isDragging, globalPosition }, drag] = useDrag(
     () => ({
       type: cardInfo.targets ? "target" : "card",
@@ -37,8 +29,16 @@ export default React.forwardRef(function HandCard(props: GameCardProps, ref: Ref
         globalPosition: monitor.getInitialClientOffset(),
       }),
     }),
-    [cardInfo]
+    []
   );
+
+  useEffect(() => {
+    drag(cardInfo.targets ? targetRef : cardRef);
+  });
+
+  useEffect(() => {
+    return () => setHover([]);
+  }, []);
 
   let x = props.x;
   let y = zoom ? (props.y ?? 0) - smallCardHeight / 10 : props.y;
@@ -103,7 +103,6 @@ export default React.forwardRef(function HandCard(props: GameCardProps, ref: Ref
         isDragging={isDragging}
         color={getCardColor(cardInfo)}
         angle={props.angle}
-        scale={scale}
         pointerover={pointerover}
         pointerout={pointerout}
       />

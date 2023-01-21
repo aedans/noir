@@ -2,7 +2,7 @@ import React, { Ref, useContext, useRef, MutableRefObject, useImperativeHandle, 
 import { useDrag } from "react-dnd";
 import { Container, Sprite } from "react-pixi-fiber";
 import { currentPlayer } from "../../common/gameSlice";
-import { getCardColor } from "../Card";
+import { getCardColor, smallCardScale } from "../Card";
 import { useCardInfo, defaultUtil } from "../cards";
 import { useClientSelector } from "../store";
 import { HoverContext, SocketContext, PlayerContext } from "./Game";
@@ -20,14 +20,6 @@ export default React.forwardRef(function BoardCard(props: GameCardProps, ref: Re
 
   useImperativeHandle(ref, () => cardRef.current);
 
-  useEffect(() => {
-    if (cardRef.current && cardInfo.activateTargets) {
-      drag(targetRef);
-    }
-
-    return () => setHover([]);
-  }, [cardInfo]);
-
   const [{ isDragging, globalPosition }, drag] = useDrag(
     () => ({
       type: cardInfo.activateTargets ? "target" : "card",
@@ -37,8 +29,16 @@ export default React.forwardRef(function BoardCard(props: GameCardProps, ref: Re
         globalPosition: monitor.getInitialClientOffset(),
       }),
     }),
-    [cardInfo]
+    []
   );
+
+  useEffect(() => {
+    drag(targetRef);
+  });
+
+  useEffect(() => {
+    return () => setHover([]);
+  }, []);
 
   function pointerdown() {
     if (!cardInfo.activateTargets) {
@@ -51,24 +51,28 @@ export default React.forwardRef(function BoardCard(props: GameCardProps, ref: Re
       return;
     }
 
-    const result = defaultUtil.tryPayCost(
-      game,
-      props.state,
-      "activate",
-      props.state.name,
-      player,
-      cardInfo.colors,
-      cardInfo.activateCost,
-      cardInfo.activateTargets
-    );
+    if (!isDragging) {
+      const result = defaultUtil.tryPayCost(
+        game,
+        props.state,
+        "activate",
+        props.state.name,
+        player,
+        cardInfo.colors,
+        cardInfo.activateCost,
+        cardInfo.activateTargets
+      );
 
-    if (typeof result != "string") {
-      setHover(result.agents);
+      if (typeof result != "string") {
+        setHover([...result.agents, props.state]);
+      }
     }
   }
 
   function pointerout() {
-    setHover([]);
+    if (!isDragging) {
+      setHover([]);
+    }
   }
 
   const shouldGlow =
@@ -76,7 +80,7 @@ export default React.forwardRef(function BoardCard(props: GameCardProps, ref: Re
     cardInfo.hasActivateEffect &&
     currentPlayer(game) == player &&
     defaultUtil.canPayCost(game, props.state, player, cardInfo.colors, cardInfo.activateCost, cardInfo.activateTargets);
-  
+
   let x = props.x;
   let y = props.y;
 

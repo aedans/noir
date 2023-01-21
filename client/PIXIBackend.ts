@@ -80,7 +80,7 @@ const PIXIBackend: BackendFactory = (manager: DragDropManager) => {
         }
       }
 
-      function onTick(dt: number) {
+      function onTick() {
         if (manager.getMonitor().isDragging()) {
           ddx *= 0.9;
           ddy *= 0.9;

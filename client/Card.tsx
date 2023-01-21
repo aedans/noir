@@ -6,10 +6,9 @@ import { CardInfo, CardKeyword, CardState } from "../common/card";
 import Text from "./Text";
 import { DropShadowFilter } from "@pixi/filter-drop-shadow";
 import { filters, Texture } from "pixi.js";
-import { isLoaded, useCardInfo } from "./cards";
+import { useCardInfo } from "./cards";
 import anime from "animejs";
 import { GlowFilter } from "@pixi/filter-glow";
-import deepEqual from "deep-equal";
 
 export const cardHeight = targetResolution.height;
 export const cardWidth = cardHeight * (1 / 1.4);
@@ -47,12 +46,39 @@ export type CardProps = {
   shouldDimWhenExhausted?: boolean;
 };
 
+function isCardStateEqual(a: CardState, b: CardState) {
+  const aKeys = Object.keys(a.props);
+  const bKeys = Object.keys(b.props);
+
+  if (aKeys.length != bKeys.length) {
+    return false;
+  }
+
+  for (let i = 0; i < aKeys.length; i++) {
+    if (aKeys[i] != bKeys[i] || a.props[aKeys[i]] != b.props[aKeys[i]]) {
+      return false;
+    }
+  }
+
+  if (a.modifiers.length != b.modifiers.length) {
+    return false;
+  }
+
+  for (let i = 0; i < a.modifiers.length; i++) {
+    if (a.modifiers[i].name != b.modifiers[i].name || a.modifiers[i].card != b.modifiers[i].card) {
+      return false;
+    }
+  }
+
+  return a.hidden == b.hidden && a.exhausted == b.exhausted && a.name == b.name && a.protected == b.protected;
+}
+
 export function isCardPropsEqual(a: CardProps, b: CardProps) {
   return (
-    deepEqual({ ...a.state, id: "" }, { ...b.state, id: "" }) &&
+    isCardStateEqual(a.state, b.state) &&
     a.shadow == b.shadow &&
-    a.shouldDimWhenExhausted == b.shouldDimWhenExhausted &&
-    a.shouldGlow == b.shouldGlow
+    a.shouldGlow == b.shouldGlow &&
+    a.shouldDimWhenExhausted == b.shouldDimWhenExhausted
   );
 }
 
@@ -106,7 +132,7 @@ export default React.memo(
     let keywords = cardInfo.keywords;
 
     if (!props.state.protected) {
-      keywords.filter((x) => x != "protected");
+      keywords = keywords.filter((x) => x != "protected");
     }
 
     if (keywords.length > 0) {
@@ -116,7 +142,7 @@ export default React.memo(
     return (
       <Container
         pivot={[cardWidth / 2, cardHeight / 2]}
-        filters={[dimFilterRef.current, glowFilterRef.current, dropShadowFilterRef.current]}
+        filters={[glowFilterRef.current, dimFilterRef.current, dropShadowFilterRef.current]}
         ref={containerRef}
       >
         <Rectangle fill={getCardColor(cardInfo)} width={cardWidth - 100} height={cardHeight - 100} x={50} y={50} />
