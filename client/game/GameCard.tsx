@@ -53,6 +53,10 @@ export default React.memo(
       drop(componentRef);
     });
 
+    useEffect(() => {
+      (componentRef.current as any).convertTo3d?.();
+    }, []);
+
     const isHovered = hover.some((agent) => agent.id == props.state.id);
 
     return (
