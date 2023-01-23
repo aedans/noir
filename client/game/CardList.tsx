@@ -8,12 +8,14 @@ import GameCard from "./GameCard";
 
 export type CardListProps = Omit<PixiElement<Container>, "children"> & {
   cards: CardState[];
+  reverse?: boolean;
 };
 
 export default function CardList(props: CardListProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const cardInfo = useCardInfoList(props.cards);
   const cards = cardInfo.map((card) => card.state);
+  const sortedCards = props.reverse ? [...cards.reverse()] : [...cards];
 
   const distance = isExpanded ? .2 : 0;
 
@@ -32,13 +34,13 @@ export default function CardList(props: CardListProps) {
         pointerdown={pointerdown}
         interactive
       />
-      {cards.map((state, i) => (
+      {sortedCards.map((state, i) => (
         <GameCard
-          zIndex={20 - i}
+          zIndex={20 + (props.reverse ? -i : i)}
           state={state}
           key={state.id}
           x={smallCardWidth / 2}
-          y={smallCardHeight / 2 - i * smallCardWidth * distance}
+          y={smallCardHeight / 2 - (props.reverse ? i : -i) * smallCardWidth * distance}
         />
       ))}
     </Container>

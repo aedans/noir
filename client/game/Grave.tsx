@@ -8,12 +8,10 @@ import { PlayerContext } from "./Game";
 
 export default function Grave() {
   const player = useContext(PlayerContext);
-  const game = useClientSelector((state) => state.game.current);
-  const cards = game.players[player].grave;
-  const sortedCards = [...cards].reverse();
+  const cards = useClientSelector((state) => state.game.current.players[player].grave);
 
   const x = 0;
   const y = targetResolution.height - smallCardHeight;
 
-  return <CardList cards={sortedCards} x={x} y={y} />;
+  return <CardList reverse cards={cards} x={x} y={y} />;
 }

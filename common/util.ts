@@ -44,6 +44,7 @@ import {
 } from "./gameSlice";
 import { v4 as uuid } from "uuid";
 import { historySlice } from "./historySlice";
+import { defaultUtil } from "../server/card";
 
 export type Filter = {
   players?: PlayerId[];
@@ -249,10 +250,15 @@ export function randoms<T>(ts: T[], number: number) {
 
 export function onTrigger<T extends GameParams>(
   trigger: (payload: T) => GameAction,
-  selector?: (info: CardInfo, game: GameState, payload: T) => CardTrigger<T>,
+  selector?: (info: CardInfo, game: GameState) => CardTrigger<T>,
   init: boolean = false
 ) {
-  return function* (this: GetCardInfo, game: GameState, source: Target | null, sourceless: Omit<T, "source">): CardGenerator {
+  return function* (
+    this: GetCardInfo,
+    game: GameState,
+    source: Target | null,
+    sourceless: Omit<T, "source">
+  ): CardGenerator {
     const payload = { ...sourceless, source } as T;
     const newGame = yield trigger(payload);
     if (init) {
@@ -262,7 +268,33 @@ export function onTrigger<T extends GameParams>(
     if (selector && sourceless.target) {
       const card = getCard(game, sourceless.target);
       if (card) {
-        yield* selector(this.getCardInfo(game, card), game, payload)(payload);
+        yield* selector(this.getCardInfo(game, card), game)(payload);
+      }
+    }
+  };
+}
+
+function triggerReveal<T extends GameParams>(
+  info: CardInfo,
+  game: GameState,
+  trigger?: CardTrigger<T>,
+  ...[selectTarget]: T extends TargetCardParams ? [undefined?] : [(payload: T) => PlayerId]
+): CardTrigger<T> {
+  return function* (payload) {
+    if (trigger) {
+      yield* trigger(payload);
+    }
+
+    if (payload.source) {
+      const sourcePlayer = findCard(game, payload.source)?.player;
+      const targetPlayer = selectTarget
+        ? (selectTarget as (payload: T) => PlayerId)(payload)
+        : findCard(game, payload.target!)?.player;
+
+      if (sourcePlayer != targetPlayer) {
+        const reveal: TargetCardParams = { source: payload.source, target: payload.source };
+        yield revealCard(reveal);
+        yield* info.onReveal(reveal);
       }
     }
   };
@@ -297,19 +329,21 @@ function* onRemove(info: CardInfo, game: GameState, payload: TargetCardParams): 
 const util = {
   ...historySlice.actions,
   endTurn: onTrigger(endTurn),
-  addCard: onTrigger(addCard, (info) => (payload) => onAdd(info, payload), true),
-  playCard: onTrigger(playCard, (info) => (payload) => onPlay(info, payload)),
-  removeCard: onTrigger(removeCard, (info, game) => (payload) => onRemove(info, game, payload)),
-  enterCard: onTrigger(enterCard, (info) => info.onEnter),
-  bounceCard: onTrigger(bounceCard, (info) => info.onBounce),
-  stealCard: onTrigger(stealCard, (info) => info.onSteal),
-  revealCard: onTrigger(revealCard, (info) => info.onReveal),
-  refreshCard: onTrigger(refreshCard, (info) => info.onRefresh),
-  exhaustCard: onTrigger(exhaustCard, (info) => info.onExhaust),
-  setProp: onTrigger(setProp, (info) => info.onSetProp),
-  modifyCard: onTrigger(modifyCard, (info) => info.onModify),
-  addMoney: onTrigger(addMoney),
-  removeMoney: onTrigger(removeMoney),
+  addCard: onTrigger(addCard, (info, game) => triggerReveal(info, game, (payload) => onAdd(info, payload)), true),
+  playCard: onTrigger(playCard, (info, game) => triggerReveal(info, game, (payload) => onPlay(info, payload))),
+  removeCard: onTrigger(removeCard, (info, game) =>
+    triggerReveal(info, game, (payload) => onRemove(info, game, payload))
+  ),
+  enterCard: onTrigger(enterCard, (info, game) => triggerReveal(info, game, info.onEnter)),
+  bounceCard: onTrigger(bounceCard, (info, game) => triggerReveal(info, game, info.onBounce)),
+  stealCard: onTrigger(stealCard, (info, game) => triggerReveal(info, game, info.onSteal)),
+  revealCard: onTrigger(revealCard, (info, game) => triggerReveal(info, game, info.onReveal)),
+  refreshCard: onTrigger(refreshCard, (info, game) => triggerReveal(info, game, info.onRefresh)),
+  exhaustCard: onTrigger(exhaustCard, (info, game) => triggerReveal(info, game, info.onExhaust)),
+  setProp: onTrigger(setProp, (info, game) => triggerReveal(info, game, info.onSetProp)),
+  modifyCard: onTrigger(modifyCard, (info, game) => triggerReveal(info, game, info.onModify)),
+  addMoney: onTrigger(addMoney, (info, game) => triggerReveal(info, game, undefined, (p) => p.player)),
+  removeMoney: onTrigger(removeMoney, (info, game) => triggerReveal(info, game, undefined, (p) => p.player)),
   findCard: findCard as (game: GameState, card: Target) => { player: PlayerId; zone: Zone; index: number },
   getCard: getCard as (game: GameState, card: Target) => CardState,
   opponentOf,

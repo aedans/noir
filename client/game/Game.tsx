@@ -22,6 +22,7 @@ import Deck from "./Deck";
 import Grave from "./Grave";
 import { CardState } from "../../common/card";
 import HandAndDeck from "./HandAndDeck";
+import OpponentGrave from "./OpponentGrave";
 
 export const SocketContext = React.createContext(null as unknown as Socket);
 export const PlayerContext = React.createContext(0 as PlayerId);
@@ -94,6 +95,7 @@ export default function Game(props: { params: { queue: string; deck: string } })
               <EndTurn />
               <Resources />
               <HandAndDeck />
+              <OpponentGrave />
               <Grave />
               <Message text={message} />
             </Container>
