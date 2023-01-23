@@ -9,6 +9,6 @@ exports.card = (util, game, card) => ({
     zones: ["board"],
   },
   play: function* (target) {
-    yield* util.removeCard(game, { card: target });
+    yield* util.removeCard(game, card, { target });
   },
 });

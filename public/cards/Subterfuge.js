@@ -1,4 +1,4 @@
-//ts-check
+// @ts-check
 /** @type {import("../../common/card").PartialCardInfoComputation} */
 exports.card = (util, game, card) => ({
   text: "Additonal cost: remove a purple card in your deck. Steal an operation and put it hidden into your deck.",
@@ -21,7 +21,7 @@ exports.card = (util, game, card) => ({
       throw "No purple cards in your deck";
     }
 
-    yield* util.stealCard(game, { card: target, zone: "deck" });
+    yield* util.stealCard(game, card, { target, zone: "deck" });
     const removedCard = util.random(
       util.filter(game, {
         players: [util.findCard(game, card).player],
@@ -30,6 +30,6 @@ exports.card = (util, game, card) => ({
         excludes: [card],
       })
     );
-    yield* util.removeCard(game, { card: removedCard });
+    yield* util.removeCard(game, card, { target: removedCard });
   },
 });

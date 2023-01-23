@@ -196,8 +196,8 @@ export function* revealRandom(
     excludes: [card, ...(filter.excludes ?? [])],
   });
 
-  for (const card of util.randoms(cards, number)) {
-    yield* this.revealCard(game, { card });
+  for (const target of util.randoms(cards, number)) {
+    yield* this.revealCard(game, card, { target });
   }
 }
 
@@ -252,14 +252,15 @@ export function onTrigger<T extends GameParams>(
   selector?: (info: CardInfo, game: GameState, payload: T) => CardTrigger<T>,
   init: boolean = false
 ) {
-  return function* (this: GetCardInfo, game: GameState, payload: T): CardGenerator {
+  return function* (this: GetCardInfo, game: GameState, source: Target | null, sourceless: Omit<T, "source">): CardGenerator {
+    const payload = { ...sourceless, source } as T;
     const newGame = yield trigger(payload);
     if (init) {
       game = newGame;
     }
 
-    if (selector && payload.card) {
-      const card = getCard(game, payload.card);
+    if (selector && sourceless.target) {
+      const card = getCard(game, sourceless.target);
       if (card) {
         yield* selector(this.getCardInfo(game, card), game, payload)(payload);
       }
@@ -286,7 +287,7 @@ function* onPlay(info: CardInfo, payload: PlayCardParams): CardGenerator {
 }
 
 function* onRemove(info: CardInfo, game: GameState, payload: TargetCardParams): CardGenerator {
-  const state = getCard(game, payload.card);
+  const state = getCard(game, payload.target);
 
   if (state && !state.protected) {
     yield* info.onRemove(payload);

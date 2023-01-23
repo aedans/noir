@@ -3,5 +3,5 @@
 exports.card = (util, game, card) => ({
   type: "agent",
   cost: { money: 6 },
-  colors: ["blue"]
+  colors: ["blue"],
 });

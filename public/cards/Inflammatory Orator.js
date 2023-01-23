@@ -6,14 +6,14 @@ exports.card = (util, game, card) => ({
   cost: { money: 12 },
   colors: ["orange"],
   onEnter: function* () {
-    yield* util.setProp(game, { card, name: "turns", value: 0 });
+    yield* util.setProp(game, card, { target: card, name: "turns", value: 0 });
   },
   turn: function* () {
-    yield* util.setProp(game, { card, name: "turns", value: (card.props.turns + 1) % 2 });
+    yield* util.setProp(game, card, { target: card, name: "turns", value: (card.props.turns + 1) % 2 });
 
     if (card.props.turns == 0) {
-      yield* util.addCard(game, {
-        card: util.cid(),
+      yield* util.addCard(game, card, {
+        target: util.cid(),
         name: "Disgruntled Civilian",
         player: util.findCard(game, card).player,
         zone: "board",

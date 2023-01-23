@@ -8,6 +8,6 @@ exports.card = (util, game, card) => ({
     types: ["agent"],
   },
   play: function* (target) {
-    yield* util.removeCard(game, { card: target });
+    yield* util.removeCard(game, card, { target });
   },
 });

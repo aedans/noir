@@ -1,4 +1,4 @@
-//ts-check
+// @ts-check
 /** @type {import("../../common/card").PartialCardInfoComputation} */
 exports.card = (util, game, card) => ({
   type: "agent",
@@ -6,7 +6,7 @@ exports.card = (util, game, card) => ({
   cost: { money: 4 },
   colors: ["green"],
   onReveal: function* () {
-    yield* util.addMoney(game, {
+    yield* util.addMoney(game, card, {
       player: util.opponent(game, card),
       money: 2,
     });

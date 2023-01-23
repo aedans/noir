@@ -14,17 +14,17 @@ import { Filter } from "../common/util";
 
 function* doEndTurn(game: GameState): CardGenerator {
   const player = currentPlayer(game);
-  yield* defaultUtil.addMoney(game, { player, money: 2 });
+  yield* defaultUtil.addMoney(game, null, { player, money: 2 });
 
   for (const card of game.players[player].board) {
     if (card.exhausted) {
-      yield* defaultUtil.refreshCard(game, { card });
+      yield* defaultUtil.refreshCard(game, card, { target: card });
     }
 
     yield* getCardInfo(game, card).turn();
   }
 
-  yield* defaultUtil.endTurn(game, {});
+  yield* defaultUtil.endTurn(game, null, {});
 }
 
 function validateTargets(game: GameState, card: CardState, targets: Filter | undefined, target: Target | undefined) {
@@ -59,11 +59,11 @@ function* payCost(
   const { agents, money } = result;
 
   if (money > 0) {
-    yield* defaultUtil.removeMoney(game, { player, money });
+    yield* defaultUtil.removeMoney(game, card, { player, money });
   }
 
-  for (const card of agents) {
-    yield* defaultUtil.exhaustCard(game, { card });
+  for (const agent of agents) {
+    yield* defaultUtil.exhaustCard(game, card, { target: agent });
   }
 }
 
@@ -72,7 +72,7 @@ function* playCard(game: GameState, card: CardState, target: Target | undefined)
 
   validateTargets(game, card, info.targets, target);
 
-  yield* defaultUtil.playCard(game, { card, type: info.type });
+  yield* defaultUtil.playCard(game, card, { target: card, type: info.type });
   yield* payCost(game, card, "play", card.name, info.colors, info.cost, info.targets);
   yield* info.play(target!);
 }
@@ -90,7 +90,7 @@ function* activateCard(game: GameState, card: CardState, target: Target | undefi
 
   validateTargets(game, card, info.activateTargets, target);
 
-  yield* defaultUtil.exhaustCard(game, { card });
+  yield* defaultUtil.exhaustCard(game, card, { target: card });
   yield* payCost(game, card, "activate", card.name, info.colors, info.activateCost, info.activateTargets);
   yield* info.activate(target!);
 }
@@ -122,8 +122,8 @@ function* doAction(game: GameState, action: PlayerAction): CardGenerator {
 function* initalizePlayer(state: HistoryState, player: PlayerId, init: PlayerInit): CardGenerator {
   for (const [name, number] of Object.entries(init.deck.cards)) {
     for (let i = 0; i < number; i++) {
-      yield* defaultUtil.addCard(state.current, {
-        card: defaultUtil.cid(),
+      yield* defaultUtil.addCard(state.current, null, {
+        target: defaultUtil.cid(),
         name,
         player,
         zone: "deck",
@@ -165,18 +165,18 @@ export async function createGame(players: [Player, Player]) {
 
     for (const player of [0, 1] as const) {
       function hide(action: GameAction, i: number) {
-        if (action.payload.card && player != source && getCard(state.current, action.payload.card)?.hidden) {
-          return setHidden({ card: { id: action.payload.card.id }, index: length + i });
+        if (action.payload.target && player != source && getCard(state.current, action.payload.target)?.hidden) {
+          return setHidden({ target: { id: action.payload.target.id }, index: length + i });
         } else {
           return setAction({ action, index: length + i });
         }
       }
 
       function reveal(action: GameAction) {
-        if (action.type == "game/revealCard" && action.payload.card) {
-          const id = action.payload.card.id;
+        if (action.type == "game/revealCard" && action.payload.target) {
+          const id = action.payload.target.id;
           return state.history.flatMap((action, index) => {
-            return action.payload.card?.id == id ? [setAction({ action, index })] : [];
+            return action.payload.target?.id == id ? [setAction({ action, index })] : [];
           });
         } else {
           return [];

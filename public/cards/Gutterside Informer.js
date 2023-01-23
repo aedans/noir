@@ -1,4 +1,4 @@
-//ts-check
+// @ts-check
 /** @type {import("../../common/card").PartialCardInfoComputation} */
 exports.card = (util, game, card) => ({
   text: "Activate this: reveal your opponent's lowest cost card.",
@@ -14,7 +14,7 @@ exports.card = (util, game, card) => ({
     });
 
     if (cards.length > 0) {
-      yield* util.revealCard(game, { card: cards[0] });
+      yield* util.revealCard(game, card, { target: cards[0] });
     }
   },
 });

@@ -1,4 +1,4 @@
-//ts-check
+// @ts-check
 /** @type {import("../../common/card").PartialCardInfoComputation} */
 exports.card = (util, game, card) => ({
   text: "Each turn, reveal the highest cost hidden card.",
@@ -13,7 +13,7 @@ exports.card = (util, game, card) => ({
     });
 
     if (cards.length > 0) {
-      yield* util.revealCard(game, { card: cards[0] });
+      yield* util.revealCard(game, card, { target: cards[0] });
     }
   },
 });

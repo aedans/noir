@@ -15,6 +15,6 @@ exports.card = (util, game, card) => ({
       })
     );
 
-    yield* util.removeCard(game, { card: removedCard });
+    yield* util.removeCard(game, card, { target: removedCard });
   },
 });
