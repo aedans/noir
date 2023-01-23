@@ -157,17 +157,17 @@ export function opponent(game: GameState, card: Target) {
 
 export const gameReducers = {
   hidden: (state: GameState, action: PayloadAction<TargetCardParams>) => {
-    state.history.push(action as GameAction);
+    state.history.unshift(action as GameAction);
   },
   undone: (state: GameState, action: PayloadAction<UndoneActionParams>) => {
-    state.history.push(action as GameAction);
+    state.history.unshift(action as GameAction);
   },
   endTurn: (state: GameState, action: PayloadAction<NoActionParams>) => {
-    state.history.push(action as GameAction);
+    state.history.unshift(action as GameAction);
     state.turn++;
   },
   addCard: (state: GameState, action: PayloadAction<AddCardParams>) => {
-    state.history.push(action as GameAction);
+    state.history.unshift(action as GameAction);
     let cardState = defaultCardState(action.payload.name, action.payload.target.id);
 
     if (action.payload.state && isDraft(action.payload.state)) {
@@ -177,7 +177,7 @@ export const gameReducers = {
     state.players[action.payload.player][action.payload.zone].push(cardState);
   },
   playCard: (state: GameState, action: PayloadAction<PlayCardParams>) => {
-    state.history.push(action as GameAction);
+    state.history.unshift(action as GameAction);
     const info = findCard(state, action.payload.target);
 
     if (info) {
@@ -192,7 +192,7 @@ export const gameReducers = {
     }
   },
   removeCard: (state: GameState, action: PayloadAction<TargetCardParams>) => {
-    state.history.push(action as GameAction);
+    state.history.unshift(action as GameAction);
     const info = findCard(state, action.payload.target);
     if (info) {
       const { player, zone, index } = info;
@@ -206,7 +206,7 @@ export const gameReducers = {
     }
   },
   enterCard: (state: GameState, action: PayloadAction<TargetCardParams>) => {
-    state.history.push(action as GameAction);
+    state.history.unshift(action as GameAction);
     const info = findCard(state, action.payload.target);
     if (info) {
       const { player, zone, index } = info;
@@ -215,7 +215,7 @@ export const gameReducers = {
     }
   },
   bounceCard: (state: GameState, action: PayloadAction<TargetCardParams>) => {
-    state.history.push(action as GameAction);
+    state.history.unshift(action as GameAction);
     const info = findCard(state, action.payload.target);
     if (info) {
       const { player, zone, index } = info;
@@ -224,7 +224,7 @@ export const gameReducers = {
     }
   },
   stealCard: (state: GameState, action: PayloadAction<StealCardParams>) => {
-    state.history.push(action as GameAction);
+    state.history.unshift(action as GameAction);
     const info = findCard(state, action.payload.target);
     if (info) {
       const { player, zone, index } = info;
@@ -233,35 +233,35 @@ export const gameReducers = {
     }
   },
   revealCard: (state: GameState, action: PayloadAction<TargetCardParams>) => {
-    state.history.push(action as GameAction);
+    state.history.unshift(action as GameAction);
     updateCard(state, action.payload.target, (card) => (card.hidden = false));
   },
   refreshCard: (state: GameState, action: PayloadAction<TargetCardParams>) => {
-    state.history.push(action as GameAction);
+    state.history.unshift(action as GameAction);
     updateCard(state, action.payload.target, (card) => (card.exhausted = false));
   },
   exhaustCard: (state: GameState, action: PayloadAction<TargetCardParams>) => {
-    state.history.push(action as GameAction);
+    state.history.unshift(action as GameAction);
     updateCard(state, action.payload.target, (card) => (card.exhausted = true));
   },
   protectCard: (state: GameState, action: PayloadAction<TargetCardParams>) => {
-    state.history.push(action as GameAction);
+    state.history.unshift(action as GameAction);
     updateCard(state, action.payload.target, (card) => (card.protected = true));
   },
   setProp: (state: GameState, action: PayloadAction<SetPropParams>) => {
-    state.history.push(action as GameAction);
+    state.history.unshift(action as GameAction);
     updateCard(state, action.payload.target, (card) => (card.props[action.payload.name] = action.payload.value));
   },
   addMoney: (state: GameState, action: PayloadAction<ChangeMoneyParams>) => {
-    state.history.push(action as GameAction);
+    state.history.unshift(action as GameAction);
     state.players[action.payload.player].money += Math.max(0, action.payload.money);
   },
   removeMoney: (state: GameState, action: PayloadAction<ChangeMoneyParams>) => {
-    state.history.push(action as GameAction);
+    state.history.unshift(action as GameAction);
     state.players[action.payload.player].money -= Math.max(0, action.payload.money);
   },
   modifyCard: (state: GameState, action: PayloadAction<ModifyCardParams>) => {
-    state.history.push(action as GameAction);
+    state.history.unshift(action as GameAction);
     const info = findCard(state, action.payload.target);
     if (info) {
       const { player, zone, index } = info;

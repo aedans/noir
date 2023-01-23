@@ -43,8 +43,7 @@ import {
   PlayCardParams,
 } from "./gameSlice";
 import { v4 as uuid } from "uuid";
-import { historySlice } from "./historySlice";
-import { defaultUtil } from "../server/card";
+import { historySlice, SetUndoneParams } from "./historySlice";
 
 export type Filter = {
   players?: PlayerId[];
@@ -326,14 +325,15 @@ function* onRemove(info: CardInfo, game: GameState, payload: TargetCardParams): 
   }
 }
 
+function setUndone(game: GameState, payload: SetUndoneParams) {
+  return historySlice.actions.setUndone({ index: game.history.length - payload.index - 1 });
+}
+
 const util = {
-  ...historySlice.actions,
   endTurn: onTrigger(endTurn),
-  addCard: onTrigger(addCard, (info, game) => triggerReveal(info, game, (payload) => onAdd(info, payload)), true),
-  playCard: onTrigger(playCard, (info, game) => triggerReveal(info, game, (payload) => onPlay(info, payload))),
-  removeCard: onTrigger(removeCard, (info, game) =>
-    triggerReveal(info, game, (payload) => onRemove(info, game, payload))
-  ),
+  addCard: onTrigger(addCard, (info, game) => triggerReveal(info, game, (p) => onAdd(info, p)), true),
+  playCard: onTrigger(playCard, (info, game) => triggerReveal(info, game, (p) => onPlay(info, p))),
+  removeCard: onTrigger(removeCard, (info, game) => triggerReveal(info, game, (p) => onRemove(info, game, p))),
   enterCard: onTrigger(enterCard, (info, game) => triggerReveal(info, game, info.onEnter)),
   bounceCard: onTrigger(bounceCard, (info, game) => triggerReveal(info, game, info.onBounce)),
   stealCard: onTrigger(stealCard, (info, game) => triggerReveal(info, game, info.onSteal)),
@@ -346,6 +346,7 @@ const util = {
   removeMoney: onTrigger(removeMoney, (info, game) => triggerReveal(info, game, undefined, (p) => p.player)),
   findCard: findCard as (game: GameState, card: Target) => { player: PlayerId; zone: Zone; index: number },
   getCard: getCard as (game: GameState, card: Target) => CardState,
+  setUndone,
   opponentOf,
   currentPlayer,
   self,

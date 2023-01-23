@@ -6,17 +6,21 @@ exports.card = (util, game, card) => ({
   cost: { money: 4, agents: 1 },
   colors: [],
   play: function* () {
-    const index = [...game.history]
-      .reverse()
-      .findIndex(
-        (action) =>
-          action.type == "game/removeCard" &&
-          action.payload.target &&
-          util.getCardInfo(game, util.getCard(game, action.payload.target)).type == "agent"
-      );
+    const index = game.history.findIndex((action) => {
+      if (action.type != "game/removeCard" || !action.payload.target) {
+        return false;
+      }
 
-    if (index >= 0) {
-      yield util.setUndone({ index });
+      const { player, zone, index } = util.findCard(game, action.payload.target);
+      const toUndo = game.players[player][zone][index];
+
+      return player == util.self(game, card) && util.getCardInfo(game, toUndo).type == "agent";
+    });
+
+    if (index == 0) {
+      throw "Your opponent has removed none of your agents";
     }
+
+    yield util.setUndone(game, { index });
   },
 });

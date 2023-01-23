@@ -6,27 +6,29 @@ exports.card = (util, game, card) => ({
   cost: { money: 6, agents: 1 },
   colors: [],
   play: function* () {
-    const action = [...game.history].reverse().find((action) => {
-      if (action.type != "game/playCard" || action.payload.target == undefined) {
+    const action = game.history.find((action) => {
+      if (action.type != "game/playCard" || !action.payload.target) {
         return false;
       }
 
-      const toUndo = util.getCard(game, action.payload.target);
-      const { player } = util.findCard(game, toUndo);
+      const { player, zone, index } = util.findCard(game, action.payload.target);
+      const toUndo = game.players[player][zone][index];
 
       return player == util.opponent(game, card) && util.getCardInfo(game, toUndo).type == "operation";
     });
 
-    if (action) {
-      const target = action.payload.target;
+    if (!action) {
+      throw "Your opponent has played no operations";
+    }
 
-      if (target) {
-        yield* util.revealCard(game, card, { target });
+    const target = action.payload.target;
 
-        for (let index = 0; index < game.history.length; index++) {
-          if (game.history[index].payload.source == target && game.history[index].type != "game/playCard") {
-            yield util.setUndone({ index });
-          }
+    if (target) {
+      yield* util.revealCard(game, card, { target });
+
+      for (let index = 0; index < game.history.length; index++) {
+        if (game.history[index].payload.source == target && game.history[index].type != "game/playCard") {
+          yield util.setUndone(game, { index });
         }
       }
     }
