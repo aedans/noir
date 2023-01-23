@@ -24,7 +24,7 @@ export default function Editor(props: { params: { deck: string } }) {
     Object.entries(deck.cards).flatMap(([name, number]) =>
       Array.from(Array(number).keys()).map((_, index) => defaultCardState(name, `${name} ${index}`))
     ),
-    [deck.cards]
+    [deck]
   );
 
   const [allCardNames, setAllCardNames] = useState([] as string[]);

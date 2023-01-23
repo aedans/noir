@@ -103,26 +103,24 @@ export function useCardInfo(card: CardState) {
 
 export type CardInfoList = { state: CardState; info: CardInfo }[];
 
-export function useCardInfoList(states: CardState[], deps?: ReadonlyArray<unknown>) {
+export function useCardInfoList(states: CardState[], deps: ReadonlyArray<unknown>) {
   const [cards, setCards] = useState([] as CardInfoList);
   const game = useClientSelector((state) => state.game.current);
 
-  useEffect(
-    () => {
-      (async () => {
-        for (const card of states.filter((c) => !isLoaded(c))) {
-          try {
-            await loadCard(card);
-          } catch (e) {
-            console.error(e);
-          }
+  useEffect(() => {
+    (async () => {
+      for (const card of states.filter((c) => !isLoaded(c))) {
+        try {
+          await loadCard(card);
+          setCards(states.filter((card) => isLoaded(card)).map((state) => ({ state, info: getCardInfo(game, state) })));
+        } catch (e) {
+          console.error(e);
         }
+      }
 
-        setCards(states.filter((card) => isLoaded(card)).map((state) => ({ state, info: getCardInfo(game, state) })));
-      })();
-    },
-    deps ? deps : [states]
-  );
+      setCards(states.filter((card) => isLoaded(card)).map((state) => ({ state, info: getCardInfo(game, state) })));
+    })();
+  }, deps);
 
   return cards;
 }
