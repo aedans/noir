@@ -6,7 +6,7 @@ exports.card = (util, game, card) => ({
   cost: { money: 4, agents: 1 },
   colors: [],
   play: function* () {
-    const index = game.history
+    const index = [...game.history]
       .reverse()
       .findIndex(
         (action) =>
