@@ -46,9 +46,9 @@ import { v4 as uuid } from "uuid";
 import { historySlice, SetUndoneParams } from "./historySlice";
 
 export type Filter = {
+  excludes?: Target[];
   players?: PlayerId[];
   zones?: Zone[];
-  excludes?: Target[];
   types?: CardType[];
   colors?: CardColor[];
   hidden?: boolean;
@@ -66,16 +66,16 @@ export function filter(this: Util, game: GameState, filter: Filter) {
     for (const zone of filter.zones ?? zones) {
       let f = game.players[player][zone];
 
+      if (filter.excludes != undefined && filter.excludes.length > 0) {
+        f = f.filter((card) => filter.excludes!.every((c) => c.id != card.id));
+      }
+
       if (filter.types != undefined && filter.types.length > 0) {
         f = f.filter((card) => filter.types!.includes(this.getCardInfo(game, card).type));
       }
 
       if (filter.colors != undefined && filter.colors.length > 0) {
         f = f.filter((card) => this.getCardInfo(game, card).colors.some((color) => filter.colors!.includes(color)));
-      }
-
-      if (filter.excludes != undefined && filter.excludes.length > 0) {
-        f = f.filter((card) => filter.excludes!.every((c) => c.id != card.id));
       }
 
       if (filter.hidden != undefined) {
