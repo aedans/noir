@@ -19,10 +19,10 @@ export const smallCardHeight = cardHeight * smallCardScale;
 
 export function getCardColor(cardInfo: CardInfo) {
   const colorMap = {
-    orange: 0xeb7900,
-    blue: 0x00aceb,
-    green: 0x83eb00,
-    purple: 0xcd00eb,
+    orange: 0xeb6300,
+    blue: 0x0087eb,
+    green: 0x12eb00,
+    purple: 0xd800eb,
     any: 0x767676,
   };
 
@@ -176,9 +176,16 @@ export default React.memo(
         <Text
           anchor={[0.5, 0.5]}
           x={160}
-          y={200}
+          y={170}
           text={Math.max(0, cardInfo.cost.money)}
           style={{ fontSize: 128, tint: 0 }}
+        />
+        <Text
+          anchor={[0.5, 0.5]}
+          x={160}
+          y={340}
+          text={Math.max(0, cardInfo.cost.agents) || ""}
+          style={{ fontSize: 128, tint: getCardColor(cardInfo) }}
         />
       </Container>
     );
