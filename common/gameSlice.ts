@@ -1,5 +1,5 @@
 import { createSlice, current, isDraft, PayloadAction } from "@reduxjs/toolkit";
-import { CardState, ModifierState, Target } from "./card";
+import { CardState, CardType, ModifierState, Target } from "./card";
 
 export const zones = ["deck", "board", "grave"] as const;
 export type Zone = typeof zones[number];
@@ -47,8 +47,8 @@ export type GameParams = { card?: Target } & (
   | TargetCardParams
   | NoActionParams
   | UndoneActionParams
-  | MoveCardParams
   | AddCardParams
+  | PlayCardParams
   | StealCardParams
   | SetPropParams
   | ChangeMoneyParams
@@ -65,15 +65,15 @@ export type UndoneActionParams = {
   action: GameAction;
 };
 
-export type MoveCardParams = TargetCardParams & {
-  to: PlayerZone;
-};
-
 export type AddCardParams = PlayerZone &
   TargetCardParams & {
     name: string;
     state?: Partial<CardState>;
   };
+
+export type PlayCardParams = TargetCardParams & {
+  type: CardType;
+};
 
 export type StealCardParams = TargetCardParams & {
   zone: Zone;
@@ -175,6 +175,21 @@ export const gameReducers = {
 
     state.players[action.payload.player][action.payload.zone].push(cardState);
   },
+  playCard: (state: GameState, action: PayloadAction<PlayCardParams>) => {
+    state.history.push(action as GameAction);
+    const info = findCard(state, action.payload.card);
+
+    if (info) {
+      const { player, zone, index } = info;
+      const card = state.players[player][zone][index];
+      if (action.payload.type == "operation") {
+        state.players[player].grave.push(card);
+      } else {
+        state.players[player].board.push(card);
+      }
+      state.players[player][zone].splice(index, 1);
+    }
+  },
   removeCard: (state: GameState, action: PayloadAction<TargetCardParams>) => {
     state.history.push(action as GameAction);
     const info = findCard(state, action.payload.card);
@@ -184,7 +199,7 @@ export const gameReducers = {
       if (card.protected) {
         card.protected = false;
       } else {
-        state.players[player].grave.push(state.players[player][zone][index]);
+        state.players[player].grave.push(card);
         state.players[player][zone].splice(index, 1);
       }
     }
@@ -249,9 +264,9 @@ export const gameReducers = {
     const info = findCard(state, action.payload.card);
     if (info) {
       const { player, zone, index } = info;
-      state.players[player][zone][index].modifiers.push(action.payload.modifier)
+      state.players[player][zone][index].modifiers.push(action.payload.modifier);
     }
-  }
+  },
 };
 
 export const gameSlice = createSlice({
@@ -263,6 +278,7 @@ export const gameSlice = createSlice({
 export const {
   endTurn,
   addCard,
+  playCard,
   removeCard,
   enterCard,
   bounceCard,

@@ -5,16 +5,13 @@ exports.card = (util, game, card) => ({
   type: "agent",
   cost: { money: 12 },
   colors: ["blue"],
+  onEnter: function* () {
+    yield* util.setProp(game, { card, name: "turns", value: 0 });
+  },
   turn: function* () {
-    const turns = card.props.turns ?? 0;
+    yield* util.setProp(game, { card, name: "turns", value: (card.props.turns + 1) % 2 });
 
-    yield* util.setProp(game, {
-      card,
-      name: "turns",
-      value: (turns + 1) % 2,
-    });
-
-    if (turns == 0) {
+    if (card.props.turns == 0) {
       yield* util.addCard(game, {
         card: util.cid(),
         name: "Civic Servant",

@@ -72,12 +72,7 @@ function* playCard(game: GameState, card: CardState, target: Target | undefined)
 
   validateTargets(game, card, info.targets, target);
 
-  if (info.type == "operation") {
-    yield* defaultUtil.removeCard(game, { card });
-  } else {
-    yield* defaultUtil.enterCard(game, { card });
-  }
-
+  yield* defaultUtil.playCard(game, { card, type: info.type });
   yield* payCost(game, card, "play", card.name, info.colors, info.cost, info.targets);
   yield* info.play(target!);
 }

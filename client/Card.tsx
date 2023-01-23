@@ -139,6 +139,18 @@ export default React.memo(
       text = `${keywords.map(getDisplayName).join(", ")}\n${text}`.trim();
     }
 
+    let propsText = "";
+    for (const [name, value] of Object.entries(props.state.props)) {
+      if (value != undefined) {
+        const upperName = name.charAt(0).toUpperCase() + name.slice(1);
+        propsText += `${upperName}: ${value}`;
+      }
+    }
+
+    if (propsText != "") {
+      text = `${text}\n${propsText}`;
+    }
+
     return (
       <Container
         pivot={[cardWidth / 2, cardHeight / 2]}

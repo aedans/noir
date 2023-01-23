@@ -39,6 +39,8 @@ import {
   opponent,
   self,
   modifyCard,
+  playCard,
+  PlayCardParams,
 } from "./gameSlice";
 import { v4 as uuid } from "uuid";
 import { historySlice } from "./historySlice";
@@ -273,6 +275,16 @@ function* onAdd(info: CardInfo, payload: AddCardParams): CardGenerator {
   }
 }
 
+function* onPlay(info: CardInfo, payload: PlayCardParams): CardGenerator {
+  yield* info.onPlay(payload);
+
+  if (payload.type == "operation") {
+    yield* info.onRemove(payload);
+  } else {
+    yield* info.onEnter(payload);
+  }
+}
+
 function* onRemove(info: CardInfo, game: GameState, payload: TargetCardParams): CardGenerator {
   const state = getCard(game, payload.card);
 
@@ -285,6 +297,7 @@ const util = {
   ...historySlice.actions,
   endTurn: onTrigger(endTurn),
   addCard: onTrigger(addCard, (info) => (payload) => onAdd(info, payload), true),
+  playCard: onTrigger(playCard, (info) => (payload) => onPlay(info, payload)),
   removeCard: onTrigger(removeCard, (info, game) => (payload) => onRemove(info, game, payload)),
   enterCard: onTrigger(enterCard, (info) => info.onEnter),
   bounceCard: onTrigger(bounceCard, (info) => info.onBounce),
