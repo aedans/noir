@@ -12,5 +12,5 @@ export default function Deck(props: DeckProps) {
   const x = targetResolution.width - smallCardWidth;
   const y = targetResolution.height - smallCardHeight;
 
-  return <CardList cards={props.cards} x={x} y={y} />;
+  return <CardList reverse cards={props.cards} x={x} y={y} />;
 }
