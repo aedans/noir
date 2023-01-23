@@ -1,18 +1,29 @@
-import React, { useMemo, useRef } from "react";
+import React, { useMemo } from "react";
 import { ReactElement } from "react";
 import { CardState } from "../../common/card";
-import { smallCardHeight, smallCardWidth } from "../Card";
+import { isCardStateEqual, smallCardHeight, smallCardWidth } from "../Card";
 
 export type GridProps = {
   elements: CardState[];
   maxWidth?: number;
-  margin?: { x: number; y: number };
   children: (t: CardState, x: number, y: number, i: number) => ReactElement;
 };
 
-export default React.memo(function Grid(props: GridProps) {
-  const margin = props.margin ?? { x: 1, y: 1 };
+export function isGridPropsEqual(a: GridProps, b: GridProps) {
+  if (a.elements.length != b.elements.length) {
+    return false;
+  }
 
+  for (let i = 0; i < a.elements.length; i++) {
+    if (!isCardStateEqual(a.elements[i], b.elements[i]) || a.elements[i].id != b.elements[i].id) {
+      return false
+    }
+  }
+
+  return a.maxWidth == b.maxWidth;
+}
+
+export default React.memo(function Grid(props: GridProps) {
   const elements = useMemo(() => {
     let elements: ReactElement[] = [];
     let x = 0;
@@ -21,14 +32,14 @@ export default React.memo(function Grid(props: GridProps) {
     for (const child of props.elements) {
       elements.push(props.children(child, x, y, i++));
 
-      x += smallCardWidth * margin.x + margin.x;
+      x += smallCardWidth;
       if (props.maxWidth != undefined && x > props.maxWidth) {
         x = 0;
-        y += smallCardHeight * margin.y + margin.y;
+        y += smallCardHeight;
       }
     }
     return elements;
   }, [props.elements]);
 
   return <>{elements}</>;
-});
+}, isGridPropsEqual);

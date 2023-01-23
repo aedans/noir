@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { getCards, useCardInfoList } from "../cards";
+import { getCards, isLoaded, useCardInfoList } from "../cards";
 import Grid from "./Grid";
 import { smallCardHeight, smallCardWidth } from "../Card";
 import { useClientDispatch, useClientSelector } from "../store";
@@ -8,10 +8,11 @@ import { addDeckCard, removeDeckCard } from "../../common/decksSlice";
 import { targetResolution } from "../Camera";
 import Rectangle from "../Rectangle";
 import { MoveAnimationContext, MoveAnimationState } from "../MoveAnimation";
-import EditorCard from "./EditorCard";
+import GridCard from "./GridCard";
 import { EnterExitAnimator } from "../EnterExitAnimation";
 import { ordered } from "../../common/util";
 import { Container } from "react-pixi-fiber";
+import DeckCard from "./DeckCard";
 
 export default function Editor(props: { params: { deck: string } }) {
   const dispatch = useClientDispatch();
@@ -35,6 +36,8 @@ export default function Editor(props: { params: { deck: string } }) {
 
   const sortedAllCards = ordered(allCards, ["color", "money"], (card) => card.info).map((card) => card.state);
   const sortedDeckCards = ordered(deckCards, ["color", "money"], (card) => card.info).map((card) => card.state);
+
+  const areCardsLoaded = allCardNames.every((name) => isLoaded({ name }));
 
   useEffect(() => {
     getCards().then(setAllCardNames);
@@ -69,12 +72,11 @@ export default function Editor(props: { params: { deck: string } }) {
       <Container y={scroll}>
         <Grid elements={sortedAllCards} maxWidth={3000}>
           {(data, x, y) => (
-            <EditorCard
+            <GridCard
               state={data}
-              status="none"
               key={data.id}
               pointerdown={pointerdownAdd(data.name)}
-              interactive
+              interactive={areCardsLoaded}
               x={x + smallCardWidth / 2}
               y={y + smallCardHeight / 2}
             />
@@ -85,7 +87,7 @@ export default function Editor(props: { params: { deck: string } }) {
         <EnterExitAnimator elements={sortedDeckCards}>
           {(data, status, i) =>
             i != null ? (
-              <EditorCard
+              <DeckCard
                 state={data}
                 status={status}
                 key={data.id}
@@ -94,7 +96,7 @@ export default function Editor(props: { params: { deck: string } }) {
                 y={(i * smallCardHeight) / 8 ?? 0}
               />
             ) : (
-              <EditorCard state={data} status={status} key={data.id} useLastPos />
+              <DeckCard state={data} status={status} key={data.id} useLastPos />
             )
           }
         </EnterExitAnimator>

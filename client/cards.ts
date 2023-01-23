@@ -107,16 +107,21 @@ export function useCardInfoList(states: CardState[], deps: ReadonlyArray<unknown
   const [cards, setCards] = useState([] as CardInfoList);
   const game = useClientSelector((state) => state.game.current);
 
+  function resetCards() {
+    setCards(states.filter((card) => isLoaded(card)).map((state) => ({ state, info: getCardInfo(game, state) })));
+  }
+
   useEffect(() => {
+    const promises: Promise<any>[] = [];
     for (const card of states.filter((c) => !isLoaded(c))) {
       try {
-        loadCard(card).then(() => {
-          setCards(states.filter((card) => isLoaded(card)).map((state) => ({ state, info: getCardInfo(game, state) })));
-        });
+        promises.push(loadCard(card).then(() => resetCards()));
       } catch (e) {
         console.error(e);
       }
     }
+
+    Promise.all(promises).then(() => resetCards());
   }, deps);
 
   return cards;

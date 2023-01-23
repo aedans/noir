@@ -46,7 +46,7 @@ export type CardProps = {
   shouldDimWhenExhausted?: boolean;
 };
 
-function isCardStateEqual(a: CardState, b: CardState) {
+export function isCardStateEqual(a: CardState, b: CardState) {
   const aKeys = Object.keys(a.props);
   const bKeys = Object.keys(b.props);
 
