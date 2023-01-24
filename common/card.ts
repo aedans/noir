@@ -53,7 +53,7 @@ export type CardInfo = {
   hasActivateEffect: boolean;
   activationPriority: number;
   turn: CardAction;
-  effectFilter: Filter,
+  effectFilter: Filter;
   effect: CardEffect;
   modifiers: { [name: string]: CardModifier };
   onAdd: CardTrigger<AddCardParams>;
@@ -104,23 +104,25 @@ export function runPartialCardInfoComputation(
 ): CardInfo {
   const partial = computation(util, game, card);
 
-  const cost: CardCost = Object.assign(
-    {
-      money: 0,
-      agents: 0,
+  const cost: CardCost = {
+    get money() {
+      return partial.cost?.money ?? 0;
     },
-    partial.cost ?? {}
-  );
-
-  const activateCost: CardCost = Object.assign(
-    {
-      money: 0,
-      agents: 0,
+    get agents() {
+      return partial.cost?.agents ?? 0;
     },
-    partial.activateCost ?? {}
-  );
+  };
 
-  const hasActivateEffect = partial.activate != undefined;
+  const activateCost: CardCost = {
+    get money() {
+      return partial.activateCost?.money ?? 0;
+    },
+    get agents() {
+      return partial.activateCost?.agents ?? 0;
+    },
+  };
+
+  const hasActivateEffect = partial.hasActivateEffect ?? partial.activate != undefined;
   let activationPriority = partial.activationPriority ?? 0;
 
   if (partial.colors && partial.colors.length > 0) {
@@ -132,22 +134,38 @@ export function runPartialCardInfoComputation(
   }
 
   return {
-    text: partial.text ?? "",
-    type: partial.type ?? "operation",
-    colors: partial.colors ?? [],
+    get text() {
+      return partial.text ?? "";
+    },
+    get type() {
+      return partial.type ?? "operation";
+    },
+    get colors() {
+      return partial.colors ?? [];
+    },
     cost,
-    keywords: partial.keywords ?? [],
-    targets: partial.targets,
+    get keywords() {
+      return partial.keywords ?? [];
+    },
+    get targets() {
+      return partial.targets;
+    },
     play: partial.play ?? function* () {},
     activateCost,
-    activateTargets: partial.activateTargets,
+    get activateTargets() {
+      return partial.activateTargets;
+    },
     activate: partial.activate ?? function* () {},
     hasActivateEffect,
-    activationPriority: activationPriority,
+    activationPriority,
     turn: partial.turn ?? function* () {},
     effect: partial.effect ?? (() => ({})),
-    effectFilter: partial.effectFilter ?? {},
-    modifiers: partial.modifiers ?? {},
+    get effectFilter() {
+      return partial.effectFilter ?? {};
+    },
+    get modifiers() {
+      return partial.modifiers ?? {};
+    },
     onAdd: partial.onAdd ?? function* () {},
     onPlay: partial.onPlay ?? function* () {},
     onRemove: partial.onRemove ?? function* () {},
