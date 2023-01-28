@@ -2,7 +2,7 @@
 /** @type {import("../../common/card").PartialCardInfoComputation} */
 exports.card = (util, game, card) => ({
   type: "agent",
-  text: "Activate this, remove the lowest cost purple card in your deck: destroy one of your opponent's revealed agents.",
+  text: "Activate this, remove the lowest cost purple card in your deck: remove one of your opponent's revealed agents.",
   cost: { money: 14 },
   colors: ["purple"],
   activateTargets: {

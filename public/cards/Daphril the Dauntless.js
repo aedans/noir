@@ -2,7 +2,7 @@
 /** @type {import("../../common/card").PartialCardInfoComputation} */
 exports.card = (util, game, card) => ({
     type: "agent",
-    text: "Activate this: destroy the highest cost card in your opponent's deck and the highest cost card on your opponent's board.",
+    text: "Activate this: remove the highest cost card in your opponent's deck and the highest cost card on your opponent's board.",
     cost: {money:36},
     keywords: ["vip", "protected"],
     activate: function*() {
