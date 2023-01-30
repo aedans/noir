@@ -64,13 +64,13 @@ export default function Game(props: { params: { queue: string; deck: string } })
       setPlayer(player);
 
       socket.emit("init", {
-        deck: decks[props.params.deck],
+        deck: decks[decodeURIComponent(props.params.deck)],
       });
     });
 
     setSocket(socket);
 
-    socket.emit("queue", props.params.queue);
+    socket.emit("queue", decodeURIComponent(props.params.queue));
 
     return () => {
       socket?.close();

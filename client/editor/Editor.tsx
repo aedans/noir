@@ -19,7 +19,7 @@ export default function Editor(props: { params: { deck: string } }) {
   const cards = useRef({} as MoveAnimationState);
   const [scroll, setScroll] = useState(0);
 
-  const deckName = props.params.deck;
+  const deckName = decodeURIComponent(props.params.deck);
   const deck = useClientSelector((game) => game.decks[deckName]);
   const deckCards = useCardInfoList(
     Object.entries(deck.cards).flatMap(([name, number]) =>
