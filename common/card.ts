@@ -108,21 +108,13 @@ export function runPartialCardInfoComputation(
   const partial = computation(util, game, card);
 
   const cost: CardCost = {
-    get money() {
-      return partial.cost?.money ?? 0;
-    },
-    get agents() {
-      return partial.cost?.agents ?? 0;
-    },
+    money: partial.cost?.money ?? 0,
+    agents: partial.cost?.agents ?? 0,
   };
 
   const activateCost: CardCost = {
-    get money() {
-      return partial.activateCost?.money ?? 0;
-    },
-    get agents() {
-      return partial.activateCost?.agents ?? 0;
-    },
+    money: partial.activateCost?.money ?? 0,
+    agents: partial.activateCost?.agents ?? 0,
   };
 
   const hasActivateEffect = partial.hasActivateEffect ?? partial.activate != undefined;
@@ -137,42 +129,24 @@ export function runPartialCardInfoComputation(
   }
 
   return {
-    get text() {
-      return partial.text ?? "";
-    },
-    get type() {
-      return partial.type ?? "operation";
-    },
-    get colors() {
-      return partial.colors ?? [];
-    },
+    text: partial.text ?? "",
+    type: partial.type ?? "operation",
+    colors: partial.colors ?? [],
     cost,
-    get keywords() {
-      return partial.keywords ?? [];
-    },
-    get targets() {
-      return partial.targets;
-    },
+    keywords: partial.keywords ?? [],
+    targets: partial.targets,
     play: partial.play ?? function* () {},
     activateCost,
-    get activateTargets() {
-      return partial.activateTargets;
-    },
+    activateTargets: partial.activateTargets,
     activate: partial.activate ?? function* () {},
     hasActivateEffect,
     activationPriority,
     turn: partial.turn ?? function* () {},
     effect: partial.effect ?? (() => ({})),
-    get effectFilter() {
-      return partial.effectFilter ?? {};
-    },
+    effectFilter: partial.effectFilter ?? {},
     secondaryEffect: partial.secondaryEffect ?? (() => ({})),
-    get secondaryEffectFilter() {
-      return partial.secondaryEffectFilter ?? {};
-    },
-    get modifiers() {
-      return partial.modifiers ?? {};
-    },
+    secondaryEffectFilter: partial.secondaryEffectFilter ?? {},
+    modifiers: partial.modifiers ?? {},
     onAdd: partial.onAdd ?? function* () {},
     onPlay: partial.onPlay ?? function* () {},
     onRemove: partial.onRemove ?? function* () {},
