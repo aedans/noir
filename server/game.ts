@@ -1,6 +1,6 @@
 import Player, { PlayerAction, PlayerInit } from "./Player";
 import { currentPlayer, findCard, GameAction, GameState, getCard, PlayerId } from "../common/gameSlice";
-import { defaultUtil, getCardInfo } from "./card";
+import { defaultUtil } from "./card";
 import { CardColor, CardCost, CardGenerator, CardState, Target } from "../common/card";
 import {
   HistoryAction,
@@ -21,7 +21,7 @@ function* doEndTurn(game: GameState): CardGenerator {
       yield* defaultUtil.refreshCard(game, card, { target: card });
     }
 
-    yield* getCardInfo(game, card).turn();
+    yield* defaultUtil.getCardInfo(game, card).turn();
   }
 
   yield* defaultUtil.endTurn(game, null, {});
@@ -68,7 +68,7 @@ function* payCost(
 }
 
 function* playCard(game: GameState, card: CardState, target: Target | undefined): CardGenerator {
-  const info = getCardInfo(game, card);
+  const info = defaultUtil.getCardInfo(game, card);
 
   validateTargets(game, card, info.targets, target);
 
@@ -82,7 +82,7 @@ function* activateCard(game: GameState, card: CardState, target: Target | undefi
     throw `${card.name} is exhausted`;
   }
 
-  const info = getCardInfo(game, card);
+  const info = defaultUtil.getCardInfo(game, card);
 
   if (!info.hasActivateEffect) {
     throw `${card.name} has no activation effect`;

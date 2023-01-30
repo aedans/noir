@@ -47,7 +47,7 @@ export default React.forwardRef(function BoardCard(props: GameCardProps, ref: Re
   }
 
   function pointerover() {
-    if (props.state.exhausted) {
+    if (props.state.exhausted || !cardInfo.hasActivateEffect) {
       return;
     }
 
