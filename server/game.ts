@@ -33,7 +33,7 @@ function validateTargets(game: GameState, card: CardState, targets: Filter | und
       throw `${card.name} requires a target`;
     }
 
-    if (!defaultUtil.filter(game, targets).find((t) => t.id == target.id)) {
+    if (!defaultUtil.getTargets(game, card, targets).find((t) => t.id == target.id)) {
       const targetCard = getCard(game, target);
       throw `${card.name} cannot target ${targetCard?.name}`;
     }

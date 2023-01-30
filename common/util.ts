@@ -4,6 +4,7 @@ import {
   CardGenerator,
   CardInfo,
   CardKeyword,
+  cardKeywords,
   CardModifier,
   CardState,
   CardTrigger,
@@ -57,7 +58,7 @@ export type Filter = {
   minMoney?: number;
   ordering?: Order[];
   reversed?: boolean;
-};
+} & { [key in CardKeyword]?: boolean };
 
 export function filter(this: Util, game: GameState, filter: Filter) {
   let cards: CardState[] = [];
@@ -92,6 +93,12 @@ export function filter(this: Util, game: GameState, filter: Filter) {
 
       if (filter.minMoney != undefined) {
         f = f.filter((card) => this.getCardInfo(game, card).cost.money >= filter.minMoney!);
+      }
+
+      for (const keyword of cardKeywords) {
+        if (filter[keyword] != undefined) {
+          f = f.filter((card) => this.getCardInfo(game, card).keywords.includes(keyword) == filter[keyword]!);
+        }
       }
 
       cards.push(...f);
@@ -131,6 +138,26 @@ export function ordered<T>(array: T[], ordering: Order[], map: (t: T) => CardInf
   });
 }
 
+export function getTargets(this: Util, game: GameState, card: Target, targetFilter: Filter) {
+  const opponent = this.opponent(game, card);
+  const bodyguards = this.filter(game, {
+    players: [opponent],
+    zones: ["board"],
+    types: ["agent"],
+    disloyal: false,
+    vip: false,
+  });
+
+  if (bodyguards.length == 0) {
+    return this.filter(game, targetFilter);
+  } else {
+    return this.filter(game, {
+      ...targetFilter,
+      vip: false,
+    });
+  }
+}
+
 export function tryPayCost(
   this: Util,
   game: GameState,
@@ -159,7 +186,7 @@ export function tryPayCost(
     return `Not enough agents to ${verb} ${name}`;
   }
 
-  if (targets != undefined && this.filter(game, targets).length == 0) {
+  if (targets != undefined && this.getTargets(game, card, targets).length == 0) {
     return `No valid targets for ${name}`;
   }
 
@@ -357,6 +384,7 @@ const util = {
   opponent,
   filter,
   ordered,
+  getTargets,
   tryPayCost,
   canPayCost,
   revealRandom,
