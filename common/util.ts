@@ -219,6 +219,10 @@ export function updateCardInfo(this: Util, game: GameState, state: CardState, in
     if (this.filter(game, cardInfo.effectFilter).find((c) => c.id == state.id)) {
       info = { ...info, ...cardInfo.effect(info, state) };
     }
+
+    if (this.filter(game, cardInfo.secondaryEffectFilter).find((c) => c.id == state.id)) {
+      info = { ...info, ...cardInfo.secondaryEffect(info, state) };
+    }
   }
 
   return info;

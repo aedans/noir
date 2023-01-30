@@ -55,6 +55,8 @@ export type CardInfo = {
   turn: CardAction;
   effectFilter: Filter;
   effect: CardEffect;
+  secondaryEffectFilter: Filter;
+  secondaryEffect: CardEffect;
   modifiers: { [name: string]: CardModifier };
   onAdd: CardTrigger<AddCardParams>;
   onPlay: CardTrigger<PlayCardParams>;
@@ -80,6 +82,7 @@ export type PartialCardInfoComputation = (
   activate?: CardTargetAction;
   turn?: CardAction;
   effect?: CardEffect;
+  secondaryEffect?: CardEffect;
   modifiers?: { [name: string]: CardModifier };
   onAdd?: CardTrigger<AddCardParams>;
   onPlay?: CardTrigger<PlayCardParams>;
@@ -162,6 +165,10 @@ export function runPartialCardInfoComputation(
     effect: partial.effect ?? (() => ({})),
     get effectFilter() {
       return partial.effectFilter ?? {};
+    },
+    secondaryEffect: partial.secondaryEffect ?? (() => ({})),
+    get secondaryEffectFilter() {
+      return partial.secondaryEffectFilter ?? {};
     },
     get modifiers() {
       return partial.modifiers ?? {};
