@@ -9,7 +9,7 @@ exports.card = (util, game, card) => ({
         types: ["agent"]
     },
     play: function* (target){
-        util.bounceCard(game,card, {target: target})
+        yield* util.bounceCard(game,card, {target: target})
     }
   });
   

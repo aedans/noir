@@ -3,7 +3,7 @@
 exports.card = (util, game, card) => ({
   type: "agent",
   text: "Activate this: steal an agent from your opponent, putting it onto your board revealed.",
-  cost: { money: 30 },
+  cost: { money: 30, agents: 1 },
   colors: ["green"],
   keywords: ["vip"],
   activateTargets: {
