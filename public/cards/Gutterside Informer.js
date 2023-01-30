@@ -10,7 +10,7 @@ exports.card = (util, game, card) => ({
       hidden: true,
       ordering: ["money"],
       reversed: false,
-      players: [util.opponent(game,card)],
+      players: [util.opponent(game, card)],
     });
 
     if (cards.length > 0) {
@@ -18,4 +18,3 @@ exports.card = (util, game, card) => ({
     }
   },
 });
-  

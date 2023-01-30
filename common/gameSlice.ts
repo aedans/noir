@@ -2,7 +2,7 @@ import { createSlice, current, isDraft, PayloadAction } from "@reduxjs/toolkit";
 import { CardState, CardType, ModifierState, Target } from "./card";
 
 export const zones = ["deck", "board", "grave"] as const;
-export type Zone = typeof zones[number];
+export type Zone = (typeof zones)[number];
 
 export type PlayerId = 0 | 1;
 export type PlayerState = { [zone in Zone]: CardState[] } & {

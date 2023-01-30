@@ -53,8 +53,8 @@ const PIXIBackend: BackendFactory = (manager: DragDropManager) => {
             node.position.copyFrom(pos);
           }
 
-          const matchingTargetIds = Object.keys(targetObjects).filter((key) =>
-            targetObjects[key].getBounds().contains(e.x, e.y) && targetObjects[key].zIndex < 1000
+          const matchingTargetIds = Object.keys(targetObjects).filter(
+            (key) => targetObjects[key].getBounds().contains(e.x, e.y) && targetObjects[key].zIndex < 1000
           );
 
           if (matchingTargetIds.length > 0) {

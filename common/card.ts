@@ -22,9 +22,9 @@ export const cardColors = ["orange", "blue", "green", "purple"] as const;
 export const cardTypes = ["agent", "operation"] as const;
 export const cardKeywords = ["disloyal", "protected", "vip"] as const;
 
-export type CardColor = typeof cardColors[number];
-export type CardType = typeof cardTypes[number];
-export type CardKeyword = typeof cardKeywords[number];
+export type CardColor = (typeof cardColors)[number];
+export type CardType = (typeof cardTypes)[number];
+export type CardKeyword = (typeof cardKeywords)[number];
 export type CardColorFilter = CardColor | "any";
 
 export type CardCost = {

@@ -5,6 +5,6 @@ import Queue from "../Queue";
 
 export default class Test implements Queue {
   push(socket: Socket): void {
-    createGame([new SocketPlayer(socket), new UnitPlayer()])
+    createGame([new SocketPlayer(socket), new UnitPlayer()]);
   }
 }

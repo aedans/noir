@@ -10,7 +10,7 @@ export default class Casual implements Queue {
     this.sockets.push(socket);
 
     if (this.sockets.length >= 2) {
-      createGame([new SocketPlayer(this.sockets[0]), new SocketPlayer(this.sockets[1])])
+      createGame([new SocketPlayer(this.sockets[0]), new SocketPlayer(this.sockets[1])]);
       this.sockets = this.sockets.slice(2);
     }
   }
