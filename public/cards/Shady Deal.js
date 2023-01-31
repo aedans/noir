@@ -1,9 +1,9 @@
 // @ts-check
 /** @type {import("../../common/card").PartialCardInfoComputation} */
 exports.card = (util, game, card) => ({
-  text: "Additional cost: remove an agent in your deck. Next turn, gain $8.",
+  text: "Additional cost: remove an agent in your deck. Next turn, gain $7.",
   type: "operation",
-  cost: { money: 2 },
+  cost: { money: 3 },
   onPlay: function* () {
     yield* util.enterCard(game, card, { target: card });
   },
@@ -30,7 +30,7 @@ exports.card = (util, game, card) => ({
   turn: function* () {
     yield* util.addMoney(game, card, {
       player: util.findCard(game, card).player,
-      money: 8,
+      money: 7,
     });
     yield* util.removeCard(game, card, { target: card });
   },
