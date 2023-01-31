@@ -53,6 +53,7 @@ export default React.forwardRef(function BoardCard(props: GameCardProps, ref: Re
 
     if (!isDragging) {
       const result = defaultUtil.tryPayCost(
+        new Map(),
         game,
         props.state,
         "activate",
@@ -79,7 +80,7 @@ export default React.forwardRef(function BoardCard(props: GameCardProps, ref: Re
     !props.state.exhausted &&
     cardInfo.hasActivateEffect &&
     currentPlayer(game) == player &&
-    defaultUtil.canPayCost(game, props.state, player, cardInfo.colors, cardInfo.activateCost, cardInfo.activateTargets);
+    defaultUtil.canPayCost(new Map(), game, props.state, player, cardInfo.colors, cardInfo.activateCost, cardInfo.activateTargets);
 
   let x = props.x;
   let y = props.y;
