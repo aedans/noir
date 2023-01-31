@@ -1,12 +1,12 @@
 // @ts-check
 /** @type {import("../../common/card").PartialCardInfoComputation} */
-exports.card = (util, game, card) => ({
+exports.card = (util, cache, game, card) => ({
   text: "Activate this: reveal your opponent's lowest cost card.",
   type: "agent",
   cost: { money: 10 },
   colors: ["purple"],
   activate: function* () {
-    const cards = util.filter(game, {
+    const cards = util.filter(cache, game, {
       hidden: true,
       ordering: ["money"],
       reversed: false,
@@ -14,7 +14,7 @@ exports.card = (util, game, card) => ({
     });
 
     if (cards.length > 0) {
-      yield* util.revealCard(game, card, { target: cards[0] });
+      yield* util.revealCard(cache, game, card, { target: cards[0] });
     }
   },
 });

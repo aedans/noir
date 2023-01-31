@@ -67,7 +67,9 @@ export function useCardInfo(card: CardState) {
   const loaded = isLoaded(card);
 
   const [cardInfo, setCardInfo] = useState(
-    loaded ? defaultUtil.getCardInfo(game, card) : runPartialCardInfoComputation(() => ({}), defaultUtil, game, card)
+    loaded
+      ? defaultUtil.getCardInfo(new Map(), game, card)
+      : runPartialCardInfoComputation(() => ({}), defaultUtil, new Map(), game, card)
   );
 
   useEffect(() => {
@@ -77,7 +79,7 @@ export function useCardInfo(card: CardState) {
       (async () => {
         await loadCard(card);
         if (!isMounted) return;
-        setCardInfo(defaultUtil.getCardInfo(game, card));
+        setCardInfo(defaultUtil.getCardInfo(new Map(), game, card));
       })();
     }
 
@@ -88,7 +90,7 @@ export function useCardInfo(card: CardState) {
 
   useEffect(() => {
     if (isLoaded(card)) {
-      setCardInfo(defaultUtil.getCardInfo(game, card));
+      setCardInfo(defaultUtil.getCardInfo(new Map(), game, card));
     }
   }, [game]);
 
@@ -102,8 +104,11 @@ export function useCardInfoList(states: CardState[], deps: ReadonlyArray<unknown
   const game = useClientSelector((state) => state.game.current);
 
   function resetCards() {
+    var cache = new Map();
     setCards(
-      states.filter((card) => isLoaded(card)).map((state) => ({ state, info: defaultUtil.getCardInfo(game, state) }))
+      states
+        .filter((card) => isLoaded(card))
+        .map((state) => ({ state, info: defaultUtil.getCardInfo(cache, game, state) }))
     );
   }
 

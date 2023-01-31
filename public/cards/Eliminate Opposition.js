@@ -1,6 +1,6 @@
 // @ts-check
 /** @type {import("../../common/card").PartialCardInfoComputation} */
-exports.card = (util, game, card) => ({
+exports.card = (util, cache, game, card) => ({
   text: "Reveal and remove the last agent your opponent played.",
   type: "operation",
   cost: { money: 4, agents: 1 },
@@ -14,14 +14,14 @@ exports.card = (util, game, card) => ({
       const { player, zone, index } = util.findCard(game, action.payload.target);
       const toRemove = game.players[player][zone][index];
 
-      return player == util.opponent(game, card) && util.getCardInfo(game, toRemove).type == "agent";
+      return player == util.opponent(game, card) && util.getCardInfo(cache, game, toRemove).type == "agent";
     });
 
     if (!action || !action.payload.target) {
       throw "Your opponent has played no agents";
     }
 
-    yield* util.revealCard(game, card, { target: action.payload.target });
-    yield* util.removeCard(game, card, { target: action.payload.target });
+    yield* util.revealCard(cache, game, card, { target: action.payload.target });
+    yield* util.removeCard(cache, game, card, { target: action.payload.target });
   },
 });

@@ -16,8 +16,9 @@ export default function HandAndDeck() {
     const hand = [] as CardState[];
     const deck = [] as CardState[];
 
+    var cache = new Map();
     for (const card of ordered(cards, ["color", "money"], (card) => card.info)) {
-      if (defaultUtil.canPayCost(game, card.state, player, card.info.colors, card.info.cost, card.info.targets)) {
+      if (defaultUtil.canPayCost(cache, game, card.state, player, card.info.colors, card.info.cost, card.info.targets)) {
         hand.push(card.state);
       } else {
         deck.push(card.state);

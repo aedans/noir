@@ -62,7 +62,7 @@ export type Filter = {
   reversed?: boolean;
 } & { [key in CardKeyword]?: boolean };
 
-export function filter(this: Util, game: GameState, filter: Filter, cache: CardInfoCache = new Map()) {
+export function filter(this: Util, cache: CardInfoCache, game: GameState, filter: Filter) {
   let cards: CardState[] = [];
 
   for (const player of filter.players ?? ([0, 1] as const)) {
@@ -74,11 +74,11 @@ export function filter(this: Util, game: GameState, filter: Filter, cache: CardI
       }
 
       if (filter.types != undefined && filter.types.length > 0) {
-        f = f.filter((card) => filter.types!.includes(this.getCardInfo(game, card, cache).type));
+        f = f.filter((card) => filter.types!.includes(this.getCardInfo(cache, game, card).type));
       }
 
       if (filter.colors != undefined && filter.colors.length > 0) {
-        f = f.filter((card) => this.getCardInfo(game, card, cache).colors.some((c) => filter.colors!.includes(c)));
+        f = f.filter((card) => this.getCardInfo(cache, game, card).colors.some((c) => filter.colors!.includes(c)));
       }
 
       if (filter.hidden != undefined) {
@@ -90,16 +90,16 @@ export function filter(this: Util, game: GameState, filter: Filter, cache: CardI
       }
 
       if (filter.maxMoney != undefined) {
-        f = f.filter((card) => this.getCardInfo(game, card, cache).cost.money <= filter.maxMoney!);
+        f = f.filter((card) => this.getCardInfo(cache, game, card).cost.money <= filter.maxMoney!);
       }
 
       if (filter.minMoney != undefined) {
-        f = f.filter((card) => this.getCardInfo(game, card, cache).cost.money >= filter.minMoney!);
+        f = f.filter((card) => this.getCardInfo(cache, game, card).cost.money >= filter.minMoney!);
       }
 
       for (const keyword of cardKeywords) {
         if (filter[keyword] != undefined) {
-          f = f.filter((card) => this.getCardInfo(game, card, cache).keywords.includes(keyword) == filter[keyword]!);
+          f = f.filter((card) => this.getCardInfo(cache, game, card).keywords.includes(keyword) == filter[keyword]!);
         }
       }
 
@@ -108,7 +108,7 @@ export function filter(this: Util, game: GameState, filter: Filter, cache: CardI
   }
 
   if (filter.ordering != undefined) {
-    cards = ordered(cards, filter.ordering, (card) => this.getCardInfo(game, card, cache));
+    cards = ordered(cards, filter.ordering, (card) => this.getCardInfo(cache, game, card));
   }
 
   if (filter.reversed != undefined && filter.reversed) {
@@ -140,9 +140,9 @@ export function ordered<T>(array: T[], ordering: Order[], map: (t: T) => CardInf
   });
 }
 
-export function getTargets(this: Util, game: GameState, card: Target, targetFilter: Filter) {
+export function getTargets(this: Util, cache: CardInfoCache, game: GameState, card: Target, targetFilter: Filter) {
   const opponent = this.opponent(game, card);
-  const bodyguards = this.filter(game, {
+  const bodyguards = this.filter(cache, game, {
     players: [opponent],
     zones: ["board"],
     types: ["agent"],
@@ -151,9 +151,9 @@ export function getTargets(this: Util, game: GameState, card: Target, targetFilt
   });
 
   if (bodyguards.length == 0) {
-    return this.filter(game, targetFilter);
+    return this.filter(cache, game, targetFilter);
   } else {
-    return this.filter(game, {
+    return this.filter(cache, game, {
       ...targetFilter,
       vip: false,
     });
@@ -162,6 +162,7 @@ export function getTargets(this: Util, game: GameState, card: Target, targetFilt
 
 export function tryPayCost(
   this: Util,
+  cache: CardInfoCache,
   game: GameState,
   card: Target,
   verb: string,
@@ -175,7 +176,7 @@ export function tryPayCost(
     return `Not enough money to ${verb} ${name}`;
   }
 
-  const agents = this.filter(game, {
+  const agents = this.filter(cache, game, {
     players: [player],
     types: ["agent"],
     zones: ["board"],
@@ -188,11 +189,11 @@ export function tryPayCost(
     return `Not enough agents to ${verb} ${name}`;
   }
 
-  if (targets != undefined && this.getTargets(game, card, targets).length == 0) {
+  if (targets != undefined && this.getTargets(cache, game, card, targets).length == 0) {
     return `No valid targets for ${name}`;
   }
 
-  agents.sort((a, b) => this.getCardInfo(game, b).activationPriority - this.getCardInfo(game, a).activationPriority);
+  agents.sort((a, b) => this.getCardInfo(cache, game, b).activationPriority - this.getCardInfo(cache, game, a).activationPriority);
 
   return {
     agents: agents.slice(0, cost.agents),
@@ -202,6 +203,7 @@ export function tryPayCost(
 
 export function canPayCost(
   this: Util,
+  cache: CardInfoCache,
   game: GameState,
   card: CardState,
   player: PlayerId,
@@ -209,36 +211,37 @@ export function canPayCost(
   cost: CardCost,
   targets: Filter | undefined
 ) {
-  return typeof this.tryPayCost(game, card, "play", card.name, player, colors, cost, targets) != "string";
+  return typeof this.tryPayCost(cache, game, card, "play", card.name, player, colors, cost, targets) != "string";
 }
 
 export function* revealRandom(
   this: Util,
+  cache: CardInfoCache,
   game: GameState,
   card: CardState,
   number: number,
   filter: Omit<Filter, "hidden">
 ): CardGenerator {
-  const cards = this.filter(game, {
+  const cards = this.filter(cache, game, {
     ...filter,
     hidden: true,
     excludes: [card, ...(filter.excludes ?? [])],
   });
 
   for (const target of util.randoms(cards, number)) {
-    yield* this.revealCard(game, card, { target });
+    yield* this.revealCard(cache, game, card, { target });
   }
 }
 
 export type CardInfoCache = Map<string, CardInfo>;
 
-export function getCardInfo(this: Util, game: GameState, card: CardState, cache: CardInfoCache = new Map()): CardInfo {
+export function getCardInfo(this: Util, cache: CardInfoCache, game: GameState, card: CardState): CardInfo {
   if (cache.has(card.id)) {
     return cache.get(card.id)!;
   } else {
-    const baseInfo = runPartialCardInfoComputation(this.getCardInfoImpl(card), this, game, card);
+    const baseInfo = runPartialCardInfoComputation(this.getCardInfoImpl(card), this, cache, game, card);
     cache.set(card.id, baseInfo);
-    const info = this.updateCardInfo(game, card, baseInfo, cache);
+    const info = this.updateCardInfo(cache, game, card, baseInfo);
     cache.set(card.id, info);
     return info;
   }
@@ -246,10 +249,10 @@ export function getCardInfo(this: Util, game: GameState, card: CardState, cache:
 
 export function updateCardInfo(
   this: Util,
+  cache: CardInfoCache,
   game: GameState,
   state: CardState,
   info: CardInfo,
-  cache: CardInfoCache = new Map()
 ) {
   if (!findCard(game, state)) {
     return info;
@@ -260,20 +263,20 @@ export function updateCardInfo(
   for (const modifier of state.modifiers) {
     const card = getCard(game, modifier.card);
     if (card) {
-      const modifiers = this.getCardInfo(game, card, cache).modifiers ?? {};
+      const modifiers = this.getCardInfo(cache, game, card).modifiers ?? {};
       info = { ...info, ...modifiers[modifier.name](info, modifier) };
       cache.set(state.id, info);
     }
   }
 
-  for (const card of this.filter(game, { zones: ["board"] }, cache)) {
-    const cardInfo = this.getCardInfo(game, card, cache);
-    if (this.filter(game, cardInfo.effectFilter, cache).find((c) => c.id == state.id)) {
+  for (const card of this.filter(cache, game, { zones: ["board"] })) {
+    const cardInfo = this.getCardInfo(cache, game, card);
+    if (this.filter(cache, game, cardInfo.effectFilter).find((c) => c.id == state.id)) {
       info = { ...info, ...cardInfo.effect(info, state) };
       cache.set(state.id, info);
     }
 
-    if (this.filter(game, cardInfo.secondaryEffectFilter, cache).find((c) => c.id == state.id)) {
+    if (this.filter(cache, game, cardInfo.secondaryEffectFilter).find((c) => c.id == state.id)) {
       info = { ...info, ...cardInfo.secondaryEffect(info, state) };
       cache.set(state.id, info);
     }
@@ -314,6 +317,7 @@ export function onTrigger<T extends GameParams>(
 ) {
   return function* (
     this: GetCardInfo,
+    cache: CardInfoCache,
     game: GameState,
     source: Target | null,
     sourceless: Omit<T, "source">
@@ -327,7 +331,7 @@ export function onTrigger<T extends GameParams>(
     if (selector && sourceless.target) {
       const card = getCard(game, sourceless.target);
       if (card) {
-        yield* selector(this.getCardInfo(game, card), game)(payload);
+        yield* selector(this.getCardInfo(cache, game, card), game)(payload);
       }
     }
   };
@@ -426,7 +430,7 @@ const util = {
 };
 
 export type GetCardInfo = {
-  getCardInfo: (game: GameState, card: CardState, cache?: CardInfoCache) => CardInfo;
+  getCardInfo: (cache: CardInfoCache, game: GameState, card: CardState) => CardInfo;
   getCardInfoImpl: (card: { name: string }) => PartialCardInfoComputation;
 };
 

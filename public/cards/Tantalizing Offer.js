@@ -1,6 +1,6 @@
 // @ts-check
 /** @type {import("../../common/card").PartialCardInfoComputation} */
-exports.card = (util, game, card) => ({
+exports.card = (util, cache, game, card) => ({
   text: "Steal an agent and put it revealed onto your board.",
   type: "operation",
   cost: { money: 16, agents: 1 },
@@ -10,6 +10,6 @@ exports.card = (util, game, card) => ({
     types: ["agent"],
   },
   play: function* (target) {
-    yield* util.stealCard(game, card, { target, zone: "board" });
+    yield* util.stealCard(cache, game, card, { target, zone: "board" });
   },
 });

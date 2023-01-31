@@ -1,12 +1,12 @@
 // @ts-check
 /** @type {import("../../common/card").PartialCardInfoComputation} */
-exports.card = (util, game, card) => ({
+exports.card = (util, cache, game, card) => ({
   type: "agent",
   text: "This costs $1 less for each revealed orange agent on your board.",
   cost: {
     money:
       8 -
-      util.filter(game, {
+      util.filter(cache, game, {
         hidden: false,
         colors: ["orange"],
         zones: ["board"],

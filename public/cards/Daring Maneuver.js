@@ -1,6 +1,6 @@
 // @ts-check
 /** @type {import("../../common/card").PartialCardInfoComputation} */
-exports.card = (util, game, card) => ({
+exports.card = (util, cache, game, card) => ({
   text: "Undo the removal of your last removed agent.",
   type: "operation",
   cost: { money: 4, agents: 1 },
@@ -14,7 +14,7 @@ exports.card = (util, game, card) => ({
       const { player, zone, index } = util.findCard(game, action.payload.target);
       const toUndo = game.players[player][zone][index];
 
-      return player == util.self(game, card) && util.getCardInfo(game, toUndo).type == "agent";
+      return player == util.self(game, card) && util.getCardInfo(cache, game, toUndo).type == "agent";
     });
 
     if (index == 0) {

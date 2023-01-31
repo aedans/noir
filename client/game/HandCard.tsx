@@ -54,6 +54,7 @@ export default React.forwardRef(function HandCard(props: GameCardProps, ref: Ref
       setZoom(true);
 
       const result = defaultUtil.tryPayCost(
+        new Map(),
         game,
         props.state,
         "play",

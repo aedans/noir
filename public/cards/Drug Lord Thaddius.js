@@ -1,6 +1,6 @@
 // @ts-check
 /** @type {import("../../common/card").PartialCardInfoComputation} */
-exports.card = (util, game, card) => ({
+exports.card = (util, cache, game, card) => ({
   type: "agent",
   text: "Whenever an agent in your deck is removed on your turn, gain $4.",
   cost: { money: 10, agents: 1 },
@@ -14,7 +14,7 @@ exports.card = (util, game, card) => ({
     return {
       onRemove: function* () {
         if (util.currentPlayer(game) == util.self(game, card)) {
-          yield* util.addMoney(game, card, {
+          yield* util.addMoney(cache, game, card, {
             player: util.findCard(game, card).player,
             money: 4,
           });

@@ -1,6 +1,6 @@
 // @ts-check
 /** @type {import("../../common/card").PartialCardInfoComputation} */
-exports.card = (util, game, card) => ({
+exports.card = (util, cache, game, card) => ({
   type: "agent",
   text: "Activate this, remove the lowest cost purple card in your deck: remove one of your opponent's revealed agents.",
   cost: { money: 14 },
@@ -11,7 +11,7 @@ exports.card = (util, game, card) => ({
     players: [util.opponent(game, card)],
   },
   activate: function* (target) {
-    const cards = util.filter(game, {
+    const cards = util.filter(cache, game, {
       players: [util.self(game, card)],
       colors: ["purple"],
       zones: ["deck"],
@@ -22,14 +22,14 @@ exports.card = (util, game, card) => ({
       throw "No purple cards in your deck";
     }
 
-    yield* util.removeCard(game, card, { target });
-    const purplecards = util.filter(game, {
+    yield* util.removeCard(cache, game, card, { target });
+    const purplecards = util.filter(cache, game, {
       players: [util.self(game, card)],
       zones: ["deck"],
       colors: ["purple"],
       ordering: ["money"],
       excludes: [card],
     });
-    yield* util.removeCard(game, card, { target: purplecards[0] });
+    yield* util.removeCard(cache, game, card, { target: purplecards[0] });
   },
 });

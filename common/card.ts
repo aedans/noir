@@ -1,7 +1,7 @@
 import { DeepPartial } from "redux";
 import { AddCardParams, GameAction, GameState, ModifyCardParams, PlayCardParams, TargetCardParams } from "./gameSlice";
 import { HistoryAction } from "./historySlice";
-import { Filter, Util } from "./util";
+import { CardInfoCache, Filter, Util } from "./util";
 
 export type ModifierState = {
   card: Target;
@@ -73,6 +73,7 @@ export type CardInfo = {
 
 export type PartialCardInfoComputation = (
   util: Util,
+  cache: CardInfoCache,
   game: GameState,
   card: CardState
 ) => { [K in keyof CardInfo]?: DeepPartial<CardInfo[K]> } & {
@@ -102,10 +103,11 @@ export type Target = { id: string };
 export function runPartialCardInfoComputation(
   computation: PartialCardInfoComputation,
   util: Util,
+  cache: CardInfoCache,
   game: GameState,
   card: CardState
 ): CardInfo {
-  const partial = computation(util, game, card);
+  const partial = computation(util, cache, game, card);
 
   const cost: CardCost = {
     money: partial.cost?.money ?? 0,

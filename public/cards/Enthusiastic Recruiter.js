@@ -1,6 +1,6 @@
 // @ts-check
 /** @type {import("../../common/card").PartialCardInfoComputation} */
-exports.card = (util, game, card) => ({
+exports.card = (util, cache, game, card) => ({
   type: "agent",
   cost: { money: 9 },
   text: "Whenever this is activated, your next agent this turn costs $3 less.",
@@ -15,16 +15,16 @@ exports.card = (util, game, card) => ({
       return {
         cost: { ...info.cost, money: info.cost.money - 3 },
         play: function* (target) {
-          yield* util.setProp(game, card, { target: card, name: "recruiting", value: false });
+          yield* util.setProp(cache, game, card, { target: card, name: "recruiting", value: false });
           yield* info.play(target);
         },
       };
     }
   },
   onExhaust: function* () {
-    yield* util.setProp(game, card, { target: card, name: "recruiting", value: true });
+    yield* util.setProp(cache, game, card, { target: card, name: "recruiting", value: true });
   },
   turn: function* () {
-    yield* util.setProp(game, card, { target: card, name: "recruiting", value: false });
+    yield* util.setProp(cache, game, card, { target: card, name: "recruiting", value: false });
   },
 });

@@ -1,6 +1,6 @@
 // @ts-check
 /** @type {import("../../common/card").PartialCardInfoComputation} */
-exports.card = (util, game, card) => ({
+exports.card = (util, cache, game, card) => ({
   text: "Choose one of your opponent's agents. It gains 'Whenever this is activated, you lose $2'.",
   type: "operation",
   cost: { money: 3 },
@@ -10,7 +10,7 @@ exports.card = (util, game, card) => ({
     types: ["agent"],
   },
   play: function* (target) {
-    yield* util.modifyCard(game, card, {
+    yield* util.modifyCard(cache, game, card, {
       target,
       modifier: {
         card,
@@ -22,7 +22,7 @@ exports.card = (util, game, card) => ({
     avaricious: (info) => ({
       text: `${info.text} Whenever this is activated, you lose $2.`,
       onExhaust: function* () {
-        yield* util.addMoney(game, card, {
+        yield* util.addMoney(cache, game, card, {
           player: util.findCard(game, card).player,
           money: -2,
         });

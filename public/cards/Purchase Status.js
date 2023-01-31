@@ -1,6 +1,6 @@
 // @ts-check
 /** @type {import("../../common/card").PartialCardInfoComputation} */
-exports.card = (util, game, card) => ({
+exports.card = (util, cache, game, card) => ({
   text: "Choose an agent on your board. It gains VIP and Protected.",
   type: "operation",
   cost: { money: 4, agents: 1 },
@@ -10,7 +10,7 @@ exports.card = (util, game, card) => ({
     types: ["agent"],
   },
   play: function* (target) {
-    yield* util.modifyCard(game, card, {
+    yield* util.modifyCard(cache, game, card, {
       target,
       modifier: {
         card,

@@ -1,6 +1,6 @@
 // @ts-check
 /** @type {import("../../common/card").PartialCardInfoComputation} */
-exports.card = (util, game, card) => ({
+exports.card = (util, cache, game, card) => ({
   text: "Reveal and undo the last operation your opponent played.",
   type: "operation",
   cost: { money: 6, agents: 1 },
@@ -14,7 +14,7 @@ exports.card = (util, game, card) => ({
       const { player, zone, index } = util.findCard(game, action.payload.target);
       const toUndo = game.players[player][zone][index];
 
-      return player == util.opponent(game, card) && util.getCardInfo(game, toUndo).type == "operation";
+      return player == util.opponent(game, card) && util.getCardInfo(cache, game, toUndo).type == "operation";
     });
 
     if (!action) {
@@ -24,11 +24,11 @@ exports.card = (util, game, card) => ({
     const target = action.payload.target;
 
     if (target) {
-      yield* util.revealCard(game, card, { target });
+      yield* util.revealCard(cache, game, card, { target });
 
       for (let index = 0; index < game.history.length; index++) {
         if (game.history[index].payload.source == target && game.history[index].type != "game/playCard") {
-          yield util.setUndone(game, { index });
+          yield util.setUndone( game, { index });
         }
       }
     }

@@ -25,7 +25,7 @@ app.use(express.json());
 app.get("/cards.json", (req, res) => {
   const cards = fs.readdirSync("./public/cards").map((file) => file.substring(0, file.lastIndexOf(".")));
   const cardStates = cards.map((name) => defaultCardState(name, name));
-  const allCards = cardStates.map((state) => ({ state, info: defaultUtil.getCardInfo(initialGameState(), state) }));
+  const allCards = cardStates.map((state) => ({ state, info: defaultUtil.getCardInfo(new Map(), initialGameState(), state) }));
   const orderedCards = ordered(allCards, ["color", "money"], (card) => card.info);
   res.send(JSON.stringify(orderedCards.map((card) => card.state.name)));
 });

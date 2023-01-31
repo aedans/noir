@@ -1,14 +1,14 @@
 // @ts-check
 /** @type {import("../../common/card").PartialCardInfoComputation} */
-exports.card = (util, game, card) => ({
+exports.card = (util, cache, game, card) => ({
   text: "Additional cost: remove an agent in your deck. Next turn, gain $7.",
   type: "operation",
   cost: { money: 3 },
   onPlay: function* () {
-    yield* util.enterCard(game, card, { target: card });
+    yield* util.enterCard(cache, game, card, { target: card });
   },
   play: function* () {
-    const cards = util.filter(game, {
+    const cards = util.filter(cache, game, {
       players: [util.self(game, card)],
       types: ["agent"],
       zones: ["deck"],
@@ -18,20 +18,20 @@ exports.card = (util, game, card) => ({
       throw "No agent cards in your deck";
     }
     const removedCard = util.random(
-      util.filter(game, {
+      util.filter(cache, game, {
         players: [util.findCard(game, card).player],
         zones: ["deck"],
         types: ["agent"],
         excludes: [card],
       })
     );
-    yield* util.removeCard(game, card, { target: removedCard });
+    yield* util.removeCard(cache, game, card, { target: removedCard });
   },
   turn: function* () {
-    yield* util.addMoney(game, card, {
+    yield* util.addMoney(cache, game, card, {
       player: util.findCard(game, card).player,
       money: 7,
     });
-    yield* util.removeCard(game, card, { target: card });
+    yield* util.removeCard(cache, game, card, { target: card });
   },
 });

@@ -1,6 +1,6 @@
 // @ts-check
 /** @type {import("../../common/card").PartialCardInfoComputation} */
-exports.card = (util, game, card) => ({
+exports.card = (util, cache, game, card) => ({
   type: "agent",
   keywords: ["protected"],
   text: "Your other agents are orange, blue, purple, and green. Your cards cost $1 more for each agent activation they require.",
