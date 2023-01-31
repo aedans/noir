@@ -4,7 +4,7 @@ exports.card = (util, cache, game, card) => ({
   text: "When you play or remove this, reveal three cards in your opponent's deck.",
   type: "operation",
   colors: ["purple"],
-  cost: { money: 2 },
+  cost: { money: 2, agents: 1 },
   onRemove: function* () {
     if (util.currentPlayer(game) == util.self(game, card)) {
       yield* util.revealRandom(cache, game, card, 3, {

@@ -3,7 +3,7 @@
 exports.card = (util, cache, game, card) => ({
   text: "Each turn: gain $4.",
   type: "agent",
-  cost: { money: 18 },
+  cost: { money: 17 },
   keywords: ["disloyal", "protected"],
   turn: function* () {
     yield* util.addMoney(cache, game, card, {

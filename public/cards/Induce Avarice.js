@@ -22,9 +22,9 @@ exports.card = (util, cache, game, card) => ({
     avaricious: (info) => ({
       text: `${info.text} Whenever this is activated, you lose $2.`,
       onExhaust: function* () {
-        yield* util.addMoney(cache, game, card, {
+        yield* util.removeMoney(cache, game, card, {
           player: util.findCard(game, card).player,
-          money: -2,
+          money: 2,
         });
       },
     }),
