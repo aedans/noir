@@ -255,6 +255,8 @@ export function updateCardInfo(
     return info;
   }
 
+  cache.set(state.id, info);
+
   for (const modifier of state.modifiers) {
     const card = getCard(game, modifier.card);
     if (card) {
