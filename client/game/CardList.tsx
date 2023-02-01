@@ -1,25 +1,22 @@
 import React, { useState } from "react";
 import { Container, PixiElement } from "react-pixi-fiber";
-import { CardState } from "../../common/card";
+import { CardStateInfo } from "../../common/card";
 import { smallCardWidth, smallCardHeight } from "../Card";
-import { useCardInfoList } from "../cards";
 import Rectangle from "../Rectangle";
 import GameCard from "./GameCard";
 
 export type CardListProps = Omit<PixiElement<Container>, "children"> & {
-  cards: CardState[];
+  cards: CardStateInfo[];
   reverse?: boolean;
 };
 
 export default function CardList(props: CardListProps) {
   const [isExpanded, setIsExpanded] = useState(false);
-  const cardInfo = useCardInfoList(props.cards, [props.cards]);
-  const cards = cardInfo.map((card) => card.state);
 
   const distance = isExpanded ? .2 : 0;
 
   function pointerdown() {
-    if (cardInfo.length > 0) {
+    if (props.cards.length > 0) {
       setIsExpanded(!isExpanded);
     }
   }
@@ -33,10 +30,11 @@ export default function CardList(props: CardListProps) {
         pointerdown={pointerdown}
         interactive
       />
-      {cards.map((state, i) => (
+      {props.cards.map(({ state, info }, i) => (
         <GameCard
           zIndex={20 + (props.reverse ? -i : i)}
           state={state}
+          info={info}
           key={state.id}
           x={smallCardWidth / 2}
           y={smallCardHeight / 2 - (props.reverse ? i : -i) * smallCardWidth * distance}

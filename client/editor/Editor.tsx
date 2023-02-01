@@ -1,9 +1,9 @@
 import React, { useEffect, useRef, useState } from "react";
-import { getCards, isLoaded, useCardInfoList } from "../cards";
+import { defaultUtil, getCards, isLoaded, useCardInfoList } from "../cards";
 import Grid from "./Grid";
 import { smallCardHeight, smallCardWidth } from "../Card";
 import { useClientDispatch, useClientSelector } from "../store";
-import { defaultCardState } from "../../common/gameSlice";
+import { defaultCardState, initialGameState } from "../../common/gameSlice";
 import { addDeckCard, removeDeckCard } from "../../common/decksSlice";
 import { targetResolution } from "../Camera";
 import Rectangle from "../Rectangle";
@@ -74,6 +74,7 @@ export default function Editor(props: { params: { deck: string } }) {
           {(data, x, y) => (
             <GridCard
               state={data}
+              info={defaultUtil.getDefaultCardInfo(data)}
               key={data.id}
               pointerdown={pointerdownAdd(data.name)}
               interactive={areCardsLoaded}
@@ -89,6 +90,7 @@ export default function Editor(props: { params: { deck: string } }) {
             i != null ? (
               <DeckCard
                 state={data}
+                info={defaultUtil.getDefaultCardInfo(data)}
                 status={status}
                 key={data.id}
                 pointerdown={pointerdownRemove(data.name)}
@@ -96,7 +98,13 @@ export default function Editor(props: { params: { deck: string } }) {
                 y={(i * smallCardHeight) / 8 ?? 0}
               />
             ) : (
-              <DeckCard state={data} status={status} key={data.id} useLastPos />
+              <DeckCard
+                state={data}
+                info={defaultUtil.getDefaultCardInfo(data)}
+                status={status}
+                key={data.id}
+                useLastPos
+              />
             )
           }
         </EnterExitAnimator>

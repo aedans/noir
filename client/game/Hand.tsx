@@ -1,11 +1,11 @@
 import React from "react";
 import { targetResolution } from "../Camera";
 import { smallCardHeight, smallCardWidth } from "../Card";
-import { CardState } from "../../common/card";
+import { CardStateInfo } from "../../common/card";
 import HandCard from "./HandCard";
 
 export type HandProps = {
-  cards: CardState[];
+  cards: CardStateInfo[];
 };
 
 export default function Hand(props: HandProps) {
@@ -19,10 +19,11 @@ export default function Hand(props: HandProps) {
 
   return (
     <>
-      {props.cards.map((state, i) => (
+      {props.cards.map(({ state, info }, i) => (
         <HandCard
           zIndex={20 + i}
           state={state}
+          info={info}
           key={state.id}
           x={x + i * offset}
           y={y + Math.abs((i - (props.cards.length - 1) / 2.0) * 10)}

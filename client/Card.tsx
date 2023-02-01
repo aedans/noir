@@ -2,13 +2,13 @@ import React, { MutableRefObject, Ref, useEffect, useImperativeHandle, useRef } 
 import { Container, Sprite } from "react-pixi-fiber";
 import Rectangle from "./Rectangle";
 import { targetResolution } from "./Camera";
-import { CardInfo, CardKeyword, CardState } from "../common/card";
+import { CardColor, CardInfo, CardKeyword, CardState } from "../common/card";
 import Text from "./Text";
 import { DropShadowFilter } from "@pixi/filter-drop-shadow";
 import { filters, Texture } from "pixi.js";
-import { useCardInfo } from "./cards";
 import anime from "animejs";
 import { GlowFilter } from "@pixi/filter-glow";
+import { isEqual } from "lodash";
 
 export const cardHeight = targetResolution.height;
 export const cardWidth = cardHeight * (1 / 1.4);
@@ -17,7 +17,7 @@ export const smallCardScale = 1 / 4;
 export const smallCardWidth = cardWidth * smallCardScale;
 export const smallCardHeight = cardHeight * smallCardScale;
 
-export function getCardColor(cardInfo: CardInfo) {
+export function getCardColor(colors: CardColor[]) {
   const colorMap = {
     orange: 0xeb6300,
     blue: 0x0087eb,
@@ -26,7 +26,7 @@ export function getCardColor(cardInfo: CardInfo) {
     any: 0x767676,
   };
 
-  return colorMap[cardInfo.colors.length == 1 ? cardInfo.colors[0] : "any"];
+  return colorMap[colors.length == 1 ? colors[0] : "any"];
 }
 
 export function getDisplayName(keyword: CardKeyword) {
@@ -41,41 +41,37 @@ export function getDisplayName(keyword: CardKeyword) {
 
 export type CardProps = {
   state: CardState;
+  info: CardInfo;
   shadow?: number;
   shouldGlow?: boolean;
   shouldDimWhenExhausted?: boolean;
 };
 
 export function isCardStateEqual(a: CardState, b: CardState) {
-  const aKeys = Object.keys(a.props);
-  const bKeys = Object.keys(b.props);
+  return (
+    a.hidden == b.hidden &&
+    a.exhausted == b.exhausted &&
+    a.name == b.name &&
+    a.protected == b.protected &&
+    isEqual(a.props, b.props) &&
+    isEqual(a.modifiers, b.modifiers)
+  );
+}
 
-  if (aKeys.length != bKeys.length) {
-    return false;
-  }
-
-  for (let i = 0; i < aKeys.length; i++) {
-    if (aKeys[i] != bKeys[i] || a.props[aKeys[i]] != b.props[aKeys[i]]) {
-      return false;
-    }
-  }
-
-  if (a.modifiers.length != b.modifiers.length) {
-    return false;
-  }
-
-  for (let i = 0; i < a.modifiers.length; i++) {
-    if (a.modifiers[i].name != b.modifiers[i].name || a.modifiers[i].card != b.modifiers[i].card) {
-      return false;
-    }
-  }
-
-  return a.hidden == b.hidden && a.exhausted == b.exhausted && a.name == b.name && a.protected == b.protected;
+export function isCardInfoEqual(a: CardInfo, b: CardInfo) {
+  return (
+    a.text == b.text &&
+    a.type == b.type &&
+    isEqual(a.colors, b.colors) &&
+    isEqual(a.cost, b.cost) &&
+    isEqual(a.keywords, b.keywords)
+  );
 }
 
 export function isCardPropsEqual(a: CardProps, b: CardProps) {
   return (
     isCardStateEqual(a.state, b.state) &&
+    isCardInfoEqual(a.info, b.info) &&
     a.shadow == b.shadow &&
     a.shouldGlow == b.shouldGlow &&
     a.shouldDimWhenExhausted == b.shouldDimWhenExhausted
@@ -84,7 +80,6 @@ export function isCardPropsEqual(a: CardProps, b: CardProps) {
 
 export default React.memo(
   React.forwardRef(function Card(props: CardProps, ref: Ref<Container>) {
-    const cardInfo = useCardInfo(props.state);
     const containerRef = useRef() as MutableRefObject<Required<Container>>;
     const dimFilterRef = useRef(new filters.ColorMatrixFilter());
     const dropShadowFilterRef = useRef(new DropShadowFilter({ alpha: 0.5, blur: 1, distance: 0 }));
@@ -116,8 +111,8 @@ export default React.memo(
     }, [props.state.exhausted]);
 
     useEffect(() => {
-      glowFilterRef.current.color = getCardColor(cardInfo);
-    }, [cardInfo]);
+      glowFilterRef.current.color = getCardColor(props.info.colors);
+    }, [props.info]);
 
     useEffect(() => {
       anime({
@@ -128,8 +123,8 @@ export default React.memo(
       });
     }, [props.shouldGlow]);
 
-    let text = cardInfo.text;
-    let keywords = cardInfo.keywords;
+    let text = props.info.text;
+    let keywords = props.info.keywords;
 
     if (!props.state.protected) {
       keywords = keywords.filter((x) => x != "protected");
@@ -157,7 +152,13 @@ export default React.memo(
         filters={[glowFilterRef.current, dimFilterRef.current, dropShadowFilterRef.current]}
         ref={containerRef}
       >
-        <Rectangle fill={getCardColor(cardInfo)} width={cardWidth - 100} height={cardHeight - 100} x={50} y={50} />
+        <Rectangle
+          fill={getCardColor(props.info.colors)}
+          width={cardWidth - 100}
+          height={cardHeight - 100}
+          x={50}
+          y={50}
+        />
         <Sprite texture={Texture.from("/border.png")} />
         <Text
           anchor={[0.5, 0]}
@@ -177,15 +178,15 @@ export default React.memo(
           anchor={[0.5, 0.5]}
           x={160}
           y={170}
-          text={Math.max(0, cardInfo.cost.money)}
+          text={Math.max(0, props.info.cost.money)}
           style={{ fontSize: 128, tint: 0 }}
         />
         <Text
           anchor={[0.5, 0.5]}
           x={160}
           y={340}
-          text={Math.max(0, cardInfo.cost.agents) || ""}
-          style={{ fontSize: 128, tint: getCardColor(cardInfo) }}
+          text={Math.max(0, props.info.cost.agents) || ""}
+          style={{ fontSize: 128, tint: getCardColor(props.info.colors) }}
         />
       </Container>
     );

@@ -3,6 +3,11 @@ import { AddCardParams, GameAction, GameState, ModifyCardParams, PlayCardParams,
 import { HistoryAction } from "./historySlice";
 import { CardInfoCache, Filter, Util } from "./util";
 
+export type CardStateInfo = {
+  state: CardState;
+  info: CardInfo;
+};
+
 export type ModifierState = {
   card: Target;
   name: string;

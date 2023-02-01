@@ -64,6 +64,7 @@ export default React.memo(
         <Container {...props} scale={0} ref={componentRef}>
           <Card
             state={{ ...props.state, exhausted: isHovered ? true : props.state.exhausted }}
+            info={props.info}
             shadow={props.shadow}
             shouldGlow={props.shouldGlow || isOver}
             shouldDimWhenExhausted={props.shouldDimWhenExhausted}

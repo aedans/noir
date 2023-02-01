@@ -2,10 +2,10 @@ import React from "react";
 import { targetResolution } from "../Camera";
 import { smallCardHeight, smallCardWidth } from "../Card";
 import CardList from "./CardList";
-import { CardState } from "../../common/card";
+import { CardStateInfo } from "../../common/card";
 
 export type DeckProps = {
-  cards: CardState[];
+  cards: CardStateInfo[];
 };
 
 export default function Deck(props: DeckProps) {

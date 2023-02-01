@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { AnyAction } from "redux";
-import { CardInfo, CardState, PartialCardInfoComputation, runPartialCardInfoComputation } from "../common/card";
+import { CardInfo, CardState, CardStateInfo, PartialCardInfoComputation, runPartialCardInfoComputation } from "../common/card";
 import util, { Util } from "../common/util";
 import { useClientSelector } from "./store";
 
@@ -62,45 +62,8 @@ export async function getCards() {
   return await fetch(`${serverOrigin}/cards.json`).then((x) => x.json());
 }
 
-export function useCardInfo(card: CardState) {
-  const game = useClientSelector((state) => state.game.current);
-  const loaded = isLoaded(card);
-
-  const [cardInfo, setCardInfo] = useState(
-    loaded
-      ? defaultUtil.getCardInfo(new Map(), game, card)
-      : runPartialCardInfoComputation(() => ({}), defaultUtil, new Map(), game, card)
-  );
-
-  useEffect(() => {
-    let isMounted = true;
-
-    if (!isLoaded(card)) {
-      (async () => {
-        await loadCard(card);
-        if (!isMounted) return;
-        setCardInfo(defaultUtil.getCardInfo(new Map(), game, card));
-      })();
-    }
-
-    return () => {
-      isMounted = false;
-    };
-  }, []);
-
-  useEffect(() => {
-    if (isLoaded(card)) {
-      setCardInfo(defaultUtil.getCardInfo(new Map(), game, card));
-    }
-  }, [game]);
-
-  return cardInfo;
-}
-
-export type CardInfoList = { state: CardState; info: CardInfo }[];
-
 export function useCardInfoList(states: CardState[], deps: ReadonlyArray<unknown>) {
-  const [cards, setCards] = useState([] as CardInfoList);
+  const [cards, setCards] = useState([] as CardStateInfo[]);
   const game = useClientSelector((state) => state.game.current);
 
   function resetCards() {

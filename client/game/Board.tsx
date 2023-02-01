@@ -7,11 +7,13 @@ import { useClientSelector } from "../store";
 import { CardState } from "../../common/card";
 import { PlayerContext, SocketContext } from "./Game";
 import BoardCard from "./BoardCard";
+import { useCardInfoList } from "../cards";
 
 export default function Board() {
   const socket = useContext(SocketContext);
   const player = useContext(PlayerContext);
-  const cards = useClientSelector((state) => state.game.current.players[player].board);
+  const board = useClientSelector((state) => state.game.current.players[player].board);
+  const cards = useCardInfoList(board, [board]);
 
   const [{}, drop] = useDrop(() => ({
     accept: "card",
@@ -32,8 +34,8 @@ export default function Board() {
         height={cardHeight * (3 / 4)}
         visible={false}
       />
-      {cards.map((state, i) => (
-        <BoardCard state={state} key={state.id} x={x + i * (smallCardWidth + 10)} y={y} />
+      {cards.map(({ state, info }, i) => (
+        <BoardCard state={state} info={info} key={state.id} x={x + i * (smallCardWidth + 10)} y={y} />
       ))}
     </>
   );

@@ -44,6 +44,7 @@ import {
   modifyCard,
   playCard,
   PlayCardParams,
+  initialGameState,
 } from "./gameSlice";
 import { v4 as uuid } from "uuid";
 import { historySlice, SetUndoneParams } from "./historySlice";
@@ -235,6 +236,11 @@ export function* revealRandom(
 
 export type CardInfoCache = Map<string, CardInfo>;
 
+const defaultCache = new Map();
+export function getDefaultCardInfo(this: Util, card: CardState) {
+  return this.getCardInfo(defaultCache, initialGameState(), card);
+}
+
 export function getCardInfo(this: Util, cache: CardInfoCache, game: GameState, card: CardState): CardInfo {
   if (cache.has(card.id)) {
     return cache.get(card.id)!;
@@ -423,6 +429,7 @@ const util = {
   canPayCost,
   revealRandom,
   updateCardInfo,
+  getDefaultCardInfo,
   getCardInfo,
   keywordModifier,
   cid,

@@ -2,8 +2,8 @@ import React, { Ref, useContext, useRef, MutableRefObject, useImperativeHandle, 
 import { useDrag } from "react-dnd";
 import { Container, Sprite } from "react-pixi-fiber";
 import { currentPlayer } from "../../common/gameSlice";
-import { getCardColor, smallCardScale } from "../Card";
-import { useCardInfo, defaultUtil } from "../cards";
+import { getCardColor } from "../Card";
+import { defaultUtil } from "../cards";
 import { useClientSelector } from "../store";
 import { HoverContext, SocketContext, PlayerContext } from "./Game";
 import GameCard, { GameCardProps } from "./GameCard";
@@ -16,13 +16,12 @@ export default React.forwardRef(function BoardCard(props: GameCardProps, ref: Re
   const game = useClientSelector((state) => state.game.current);
   const cardRef = useRef() as MutableRefObject<Required<Container>>;
   const targetRef = useRef() as MutableRefObject<Required<Sprite>>;
-  const cardInfo = useCardInfo(props.state);
 
   useImperativeHandle(ref, () => cardRef.current);
 
   const [{ isDragging, globalPosition }, drag] = useDrag(
     () => ({
-      type: cardInfo.activateTargets ? "target" : "card",
+      type: props.info.activateTargets ? "target" : "card",
       item: props.state,
       collect: (monitor) => ({
         isDragging: monitor.isDragging(),
@@ -41,13 +40,13 @@ export default React.forwardRef(function BoardCard(props: GameCardProps, ref: Re
   }, []);
 
   function pointerdown() {
-    if (!cardInfo.activateTargets) {
+    if (!props.info.activateTargets) {
       socket.emit("action", { type: "do", id: props.state.id });
     }
   }
 
   function pointerover() {
-    if (props.state.exhausted || !cardInfo.hasActivateEffect) {
+    if (props.state.exhausted || !props.info.hasActivateEffect) {
       return;
     }
 
@@ -59,9 +58,9 @@ export default React.forwardRef(function BoardCard(props: GameCardProps, ref: Re
         "activate",
         props.state.name,
         player,
-        cardInfo.colors,
-        cardInfo.activateCost,
-        cardInfo.activateTargets
+        props.info.colors,
+        props.info.activateCost,
+        props.info.activateTargets
       );
 
       if (typeof result != "string") {
@@ -78,9 +77,17 @@ export default React.forwardRef(function BoardCard(props: GameCardProps, ref: Re
 
   const shouldGlow =
     !props.state.exhausted &&
-    cardInfo.hasActivateEffect &&
+    props.info.hasActivateEffect &&
     currentPlayer(game) == player &&
-    defaultUtil.canPayCost(new Map(), game, props.state, player, cardInfo.colors, cardInfo.activateCost, cardInfo.activateTargets);
+    defaultUtil.canPayCost(
+      new Map(),
+      game,
+      props.state,
+      player,
+      props.info.colors,
+      props.info.activateCost,
+      props.info.activateTargets
+    );
 
   let x = props.x;
   let y = props.y;
@@ -104,14 +111,14 @@ export default React.forwardRef(function BoardCard(props: GameCardProps, ref: Re
     />
   );
 
-  if (cardInfo.activateTargets && !props.state.exhausted) {
+  if (props.info.activateTargets && !props.state.exhausted) {
     const target = (
       <Reticle
         x={x}
         y={y}
         ref={targetRef}
         isDragging={isDragging}
-        color={getCardColor(cardInfo)}
+        color={getCardColor(props.info.colors)}
         pointerover={pointerover}
         pointerout={pointerout}
       />

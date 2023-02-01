@@ -1,5 +1,5 @@
 import React, { useContext, useMemo } from "react";
-import { CardState } from "../../common/card";
+import { CardStateInfo } from "../../common/card";
 import { ordered } from "../../common/util";
 import { defaultUtil, useCardInfoList } from "../cards";
 import { useClientSelector } from "../store";
@@ -13,15 +13,15 @@ export default function HandAndDeck() {
   const cards = useCardInfoList(game.players[player].deck, [game.players[player].deck]);
 
   const { hand, deck } = useMemo(() => {
-    const hand = [] as CardState[];
-    const deck = [] as CardState[];
+    const hand = [] as CardStateInfo[];
+    const deck = [] as CardStateInfo[];
 
     var cache = new Map();
     for (const card of ordered(cards, ["color", "money"], (card) => card.info)) {
       if (defaultUtil.canPayCost(cache, game, card.state, player, card.info.colors, card.info.cost, card.info.targets)) {
-        hand.push(card.state);
+        hand.push(card);
       } else {
-        deck.push(card.state);
+        deck.push(card);
       }
     }
 

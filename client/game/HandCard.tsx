@@ -3,7 +3,7 @@ import { Ref, useContext, useRef, MutableRefObject, useState, useImperativeHandl
 import { useDrag } from "react-dnd";
 import { Container, Sprite } from "react-pixi-fiber";
 import { getCardColor, smallCardHeight, smallCardScale } from "../Card";
-import { useCardInfo, defaultUtil } from "../cards";
+import { defaultUtil } from "../cards";
 import { useClientSelector } from "../store";
 import { HoverContext, PlayerContext } from "./Game";
 import GameCard, { GameCardProps } from "./GameCard";
@@ -15,14 +15,13 @@ export default React.forwardRef(function HandCard(props: GameCardProps, ref: Ref
   const game = useClientSelector((state) => state.game.current);
   const cardRef = useRef() as MutableRefObject<Required<Container>>;
   const targetRef = useRef() as MutableRefObject<Required<Sprite>>;
-  const cardInfo = useCardInfo(props.state);
   const [zoom, setZoom] = useState(false);
 
   useImperativeHandle(ref, () => cardRef.current);
 
   const [{ isDragging, globalPosition }, drag] = useDrag(
     () => ({
-      type: cardInfo.targets ? "target" : "card",
+      type: props.info.targets ? "target" : "card",
       item: props.state,
       collect: (monitor) => ({
         isDragging: monitor.isDragging(),
@@ -33,7 +32,7 @@ export default React.forwardRef(function HandCard(props: GameCardProps, ref: Ref
   );
 
   useEffect(() => {
-    drag(cardInfo.targets ? targetRef : cardRef);
+    drag(props.info.targets ? targetRef : cardRef);
   });
 
   useEffect(() => {
@@ -60,9 +59,9 @@ export default React.forwardRef(function HandCard(props: GameCardProps, ref: Ref
         "play",
         props.state.name,
         player,
-        cardInfo.colors,
-        cardInfo.cost,
-        cardInfo.targets
+        props.info.colors,
+        props.info.cost,
+        props.info.targets
       );
 
       if (typeof result != "string") {
@@ -95,14 +94,14 @@ export default React.forwardRef(function HandCard(props: GameCardProps, ref: Ref
     />
   );
 
-  if (cardInfo.targets) {
+  if (props.info.targets) {
     const target = (
       <Reticle
         x={x}
         y={y}
         ref={targetRef}
         isDragging={isDragging}
-        color={getCardColor(cardInfo)}
+        color={getCardColor(props.info.colors)}
         angle={props.angle}
         pointerover={pointerover}
         pointerout={pointerout}

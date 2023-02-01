@@ -1,3 +1,4 @@
+import { isEqual } from "lodash";
 import React, { useMemo } from "react";
 import { ReactElement } from "react";
 import { CardState } from "../../common/card";
@@ -10,17 +11,7 @@ export type GridProps = {
 };
 
 export function isGridPropsEqual(a: GridProps, b: GridProps) {
-  if (a.elements.length != b.elements.length) {
-    return false;
-  }
-
-  for (let i = 0; i < a.elements.length; i++) {
-    if (!isCardStateEqual(a.elements[i], b.elements[i]) || a.elements[i].id != b.elements[i].id) {
-      return false
-    }
-  }
-
-  return a.maxWidth == b.maxWidth;
+  return a.maxWidth == b.maxWidth && isEqual(a.elements, b.elements);
 }
 
 export default React.memo(function Grid(props: GridProps) {
