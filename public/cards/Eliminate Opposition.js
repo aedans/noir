@@ -3,7 +3,7 @@
 exports.card = (util, cache, game, card) => ({
   text: "Reveal and remove the last agent your opponent played.",
   type: "operation",
-  cost: { money: 4, agents: 1 },
+  cost: { money: 5, agents: 1 },
   colors: ["purple"],
   play: function* () {
     const action = game.history.find((action) => {

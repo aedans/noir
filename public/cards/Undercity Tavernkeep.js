@@ -3,7 +3,7 @@
 exports.card = (util, cache, game, card) => ({
   text: "Every other turn: gain a Disloyal New Hire.",
   type: "agent",
-  cost: { money: 12 },
+  cost: { money: 10 },
   colors: ["purple"],
   onEnter: function* () {
     yield* util.setProp(cache, game, card, { target: card, name: "turns", value: 0 });
@@ -16,7 +16,7 @@ exports.card = (util, cache, game, card) => ({
         target: util.cid(),
         name: "New Hire",
         player: util.findCard(game, card).player,
-        zone: "board",
+        zone: "deck",
         state: {
           modifiers: [{ card, name: "disloyal" }],
         },

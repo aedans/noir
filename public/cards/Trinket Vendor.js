@@ -8,7 +8,7 @@ exports.card = (util, cache, game, card) => ({
   onExhaust: function* () {
     yield* util.addMoney(cache, game, card, {
       player: util.currentPlayer(game),
-      money: 1,
+      money: 2,
     });
   },
 });

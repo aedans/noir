@@ -3,7 +3,7 @@
 exports.card = (util, cache, game, card) => ({
   text: "Every other turn: gain a Disloyal Disruntled Civilian.",
   type: "agent",
-  cost: { money: 12 },
+  cost: { money: 10, agents: 1 },
   colors: ["orange"],
   onEnter: function* () {
     yield* util.setProp(cache, game, card, { target: card, name: "turns", value: 0 });
