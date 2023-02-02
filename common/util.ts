@@ -271,7 +271,7 @@ export function updateCardInfo(
     const card = getCard(game, modifier.card);
     if (card) {
       const modifiers = this.getCardInfo(cache, game, card).modifiers ?? {};
-      info = { ...info, ...modifiers[modifier.name](info, modifier) };
+      info = { ...info, ...modifiers[modifier.name](info, modifier, state) };
       cache.set(state.id, info);
     }
   }

@@ -40,7 +40,7 @@ export type CardCost = {
 export type CardGenerator = Generator<GameAction | HistoryAction, void, GameState>;
 export type CardAction = () => CardGenerator;
 export type CardTargetAction = (target: Target) => CardGenerator;
-export type CardModifier = (card: CardInfo, modifier: ModifierState) => Partial<CardInfo>;
+export type CardModifier = (card: CardInfo, modifier: ModifierState, state: CardState) => Partial<CardInfo>;
 export type CardEffect = (card: CardInfo, state: CardState) => Partial<CardInfo> | undefined;
 export type CardTrigger<T> = (payload: T) => CardGenerator;
 
