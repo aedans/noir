@@ -1,24 +1,21 @@
 // @ts-check
 /** @type {import("../../common/card").PartialCardInfoComputation} */
 exports.card = (util, cache, game, card) => ({
-  text: "The first card you play each turn costs $2 less.",
+  text: "The first card you play each turn costs $3 less and exhausts this.",
   type: "agent",
   cost: { money: 9 },
   colors: [],
   keywords: ["disloyal", "protected"],
-  turn: function* () {
-    yield* util.setProp(cache, game, card, { target: card, name: "ready", value: true });
-  },
   effectFilter: {
     players: [util.self(game, card)],
     zones: ["deck"],
   },
   effect: (info, state) => {
-    if (card.props.ready) {
+    if (!card.exhausted) {
       return {
-        cost: { ...info.cost, money: info.cost.money - 2 },
+        cost: { ...info.cost, money: info.cost.money - 3 },
         play: function* (target) {
-          yield* util.setProp(cache, game, card, { target: card, name: "ready", value: false });
+          yield* util.exhaustCard(cache, game, card, { target: card });
           yield* info.play(target);
         },
       };
