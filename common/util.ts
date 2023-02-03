@@ -232,6 +232,19 @@ export function* revealRandom(
   for (const target of util.randoms(cards, number)) {
     yield* this.revealCard(cache, game, card, { target });
   }
+
+  if (cards.length < number) {
+    const deckCards = this.filter(cache, game, {
+      ...filter,
+      zones: ["deck", ...(filter.zones ?? [])],
+      hidden: true,
+      excludes: [card, ...(filter.excludes ?? [])],
+    });
+
+    for (const target of util.randoms(deckCards, number - cards.length)) {
+      yield* this.revealCard(cache, game, card, { target });
+    }
+  }
 }
 
 export type CardInfoCache = Map<string, CardInfo>;
