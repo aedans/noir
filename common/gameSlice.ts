@@ -25,13 +25,13 @@ export function initialGameState(): GameState {
     history: [],
     players: [
       {
-        money: 0,
+        money: 5,
         deck: [],
         board: [],
         grave: [],
       },
       {
-        money: 0,
+        money: 6,
         deck: [],
         board: [],
         grave: [],
