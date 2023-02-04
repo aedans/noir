@@ -32,7 +32,7 @@ export default function Board() {
         ref={(current) => drop({ current })}
         width={targetResolution.width}
         height={cardHeight * (3 / 4)}
-        visible={false}
+        renderable={false}
       />
       {cards.map(({ state, info }, i) => (
         <BoardCard state={state} info={info} key={state.id} x={x + i * (smallCardWidth + 10)} y={y} />
