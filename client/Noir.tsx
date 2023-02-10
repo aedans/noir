@@ -18,9 +18,12 @@ export type NoirProps = {
   app: Application;
 };
 
+export const App = React.createContext(null as Application | null);
+
 export default function Noir(props: NoirProps) {
   const cull = new Cull({ recursive: true });
 
+  // props.app.renderer.options.
   props.app.renderer.on("prerender", () => {
     cull.clear();
     cull.addAll(props.app.stage.children);
@@ -32,18 +35,20 @@ export default function Noir(props: NoirProps) {
   Ticker.shared.add(stats.update, stats, UPDATE_PRIORITY.UTILITY);
 
   return (
-    <Camera>
-      <Provider store={store}>
-        <DndProvider backend={PIXIBackend}>
-          <Router>
-            <Route path="/play" component={Play} />
-            <Route path="/game/:queue/:deck" component={Game} />
-            <Route path="/decks" component={Decks} />
-            <Route path="/edit/:deck" component={Editor} />
-            <Route path="/" component={Menu} />
-          </Router>
-        </DndProvider>
-      </Provider>
-    </Camera>
+    <App.Provider value={props.app}>
+      <Camera>
+        <Provider store={store}>
+          <DndProvider backend={PIXIBackend}>
+            <Router>
+              <Route path="/play" component={Play} />
+              <Route path="/game/:queue/:deck" component={Game} />
+              <Route path="/decks" component={Decks} />
+              <Route path="/edit/:deck" component={Editor} />
+              <Route path="/" component={Menu} />
+            </Router>
+          </DndProvider>
+        </Provider>
+      </Camera>
+    </App.Provider>
   );
 }

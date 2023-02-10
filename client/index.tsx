@@ -1,9 +1,7 @@
-import { addStats } from "pixi-stats";
-import { Application, Loader, MIPMAP_MODES, settings, Ticker, UPDATE_PRIORITY } from "pixi.js";
+import { Application, Loader, MIPMAP_MODES, SCALE_MODES, settings } from "pixi.js";
 import * as React from "react";
 import { render } from "react-pixi-fiber";
 import Noir from "./Noir";
-import { Cull } from "@pixi-essentials/cull";
 
 settings.RENDER_OPTIONS.antialias = true;
 settings.ANISOTROPIC_LEVEL = 16;

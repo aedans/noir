@@ -1,14 +1,15 @@
-import React, { MutableRefObject, Ref, useEffect, useImperativeHandle, useRef } from "react";
-import { Container, Sprite } from "react-pixi-fiber";
+import React, { MutableRefObject, Ref, useContext, useEffect, useImperativeHandle, useRef, useState } from "react";
+import { Container, render, Sprite } from "react-pixi-fiber";
 import Rectangle from "./Rectangle";
 import { targetResolution } from "./Camera";
 import { CardColor, CardInfo, CardKeyword, CardState } from "../common/card";
 import Text from "./Text";
 import { DropShadowFilter } from "@pixi/filter-drop-shadow";
-import { filters, Texture } from "pixi.js";
+import { filters, MIPMAP_MODES, RenderTexture, Texture } from "pixi.js";
 import anime from "animejs";
 import { GlowFilter } from "@pixi/filter-glow";
 import { isEqual } from "lodash";
+import { App } from "./Noir";
 
 export const cardHeight = targetResolution.height;
 export const cardWidth = cardHeight * (1 / 1.4);
@@ -84,6 +85,32 @@ export default React.memo(
     const dimFilterRef = useRef(new filters.ColorMatrixFilter());
     const dropShadowFilterRef = useRef(new DropShadowFilter({ alpha: 0.5, blur: 1, distance: 0 }));
     const glowFilterRef = useRef(new GlowFilter({ outerStrength: 0 }));
+    const [texture, setTexture] = useState(null as RenderTexture | null);
+    const app = useContext(App)!;
+
+    useEffect(() => {
+      if (containerRef.current && texture == null) {
+        const renderTexture = RenderTexture.create({
+          width: cardWidth,
+          height: cardHeight,
+        });
+
+        renderTexture.baseTexture.mipmap = MIPMAP_MODES.ON;
+
+        setTimeout(() => {
+          containerRef.current.setTransform();
+          containerRef.current.filters = [];
+          app.renderer.render(containerRef.current, { renderTexture });
+          setTexture(renderTexture);
+        }, 300);
+
+        return () => {
+          renderTexture.destroy(true);
+        }
+      } else {
+        setTexture(null);
+      }
+    }, [props.info]);
 
     useImperativeHandle(ref, () => containerRef.current);
 
@@ -112,7 +139,7 @@ export default React.memo(
 
     useEffect(() => {
       glowFilterRef.current.color = getCardColor(props.info.colors);
-    }, [props.info]);
+    }, [props.info.colors]);
 
     useEffect(() => {
       anime({
@@ -146,50 +173,66 @@ export default React.memo(
       text = `${text}\n${propsText}`;
     }
 
-    return (
-      <Container
-        pivot={[cardWidth / 2, cardHeight / 2]}
-        filters={[glowFilterRef.current, dimFilterRef.current, dropShadowFilterRef.current]}
-        ref={containerRef}
-      >
-        <Rectangle
-          fill={getCardColor(props.info.colors)}
-          width={cardWidth - 100}
-          height={cardHeight - 100}
-          x={50}
-          y={50}
-        />
-        <Sprite texture={Texture.from("/border.png")} />
-        <Text
-          anchor={[0.5, 0]}
-          x={cardWidth / 2 + 100}
-          y={110}
-          text={props.state.name}
-          style={{ fontSize: 128, tint: 0 }}
-        />
-        <Text
-          anchor={[0.5, 0.5]}
-          x={cardWidth / 2}
-          y={cardHeight * (3 / 4) + 50}
-          text={text}
-          style={{ fontSize: 128, align: "center", maxWidth: cardWidth - 200, letterSpacing: 1 }}
-        />
-        <Text
-          anchor={[0.5, 0.5]}
-          x={160}
-          y={170}
-          text={Math.max(0, props.info.cost.money)}
-          style={{ fontSize: 128, tint: 0 }}
-        />
-        <Text
-          anchor={[0.5, 0.5]}
-          x={160}
-          y={340}
-          text={Math.max(0, props.info.cost.agents) || ""}
-          style={{ fontSize: 128, tint: getCardColor(props.info.colors) }}
-        />
-      </Container>
-    );
+    if (texture != null) {
+      return (
+        <Container
+          pivot={[cardWidth / 2, cardHeight / 2]}
+          filters={[glowFilterRef.current, dimFilterRef.current]}
+          width={cardWidth}
+          height={cardHeight}
+          ref={containerRef}
+        >
+          <Sprite width={cardWidth} height={cardHeight} texture={texture} />
+        </Container>
+      );
+    } else {
+      return (
+        <Container
+          pivot={[cardWidth / 2, cardHeight / 2]}
+          width={cardWidth}
+          height={cardHeight}
+          filters={[glowFilterRef.current, dimFilterRef.current]}
+          ref={containerRef}
+        >
+          <Rectangle
+            fill={getCardColor(props.info.colors)}
+            width={cardWidth - 100}
+            height={cardHeight - 100}
+            x={50}
+            y={50}
+          />
+          <Sprite texture={Texture.from("/border.png")} />
+          <Text
+            anchor={[0.5, 0]}
+            x={cardWidth / 2 + 100}
+            y={110}
+            text={props.state.name}
+            style={{ fontSize: 128, tint: 0 }}
+          />
+          <Text
+            anchor={[0.5, 0.5]}
+            x={cardWidth / 2}
+            y={cardHeight * (3 / 4) + 50}
+            text={text}
+            style={{ fontSize: 128, align: "center", maxWidth: cardWidth - 200, letterSpacing: 1 }}
+          />
+          <Text
+            anchor={[0.5, 0.5]}
+            x={160}
+            y={170}
+            text={Math.max(0, props.info.cost.money)}
+            style={{ fontSize: 128, tint: 0 }}
+          />
+          <Text
+            anchor={[0.5, 0.5]}
+            x={160}
+            y={340}
+            text={Math.max(0, props.info.cost.agents) || ""}
+            style={{ fontSize: 128, tint: getCardColor(props.info.colors) }}
+          />
+        </Container>
+      );
+    }
   }),
   isCardPropsEqual
 );
