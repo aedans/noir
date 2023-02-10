@@ -44,7 +44,7 @@
     "vite": "^3.2.4"
   },
   "scripts": {
-    "start": "ts-node --transpile-only server/index.ts",
+    "start": "nodemon server/index.ts",
     "server": "nodemon server/index.ts",
     "client": "vite",
     "build": "vite build",
