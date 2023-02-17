@@ -1,11 +1,11 @@
 import React, { MutableRefObject, Ref, useContext, useEffect, useImperativeHandle, useRef, useState } from "react";
-import { Container, render, Sprite } from "react-pixi-fiber";
+import { Container, Sprite } from "react-pixi-fiber";
 import Rectangle from "./Rectangle";
 import { targetResolution } from "./Camera";
 import { CardColor, CardInfo, CardKeyword, CardState } from "../common/card";
 import Text from "./Text";
 import { DropShadowFilter } from "@pixi/filter-drop-shadow";
-import { filters, MIPMAP_MODES, RenderTexture, Texture } from "pixi.js";
+import { filters as PixiFilters, MIPMAP_MODES, RenderTexture, Texture } from "pixi.js";
 import anime from "animejs";
 import { GlowFilter } from "@pixi/filter-glow";
 import { isEqual } from "lodash";
@@ -43,6 +43,7 @@ export function getDisplayName(keyword: CardKeyword) {
 export type CardProps = {
   state: CardState;
   info: CardInfo;
+  scale?: number;
   shadow?: number;
   shouldGlow?: boolean;
   shouldDimWhenExhausted?: boolean;
@@ -82,7 +83,7 @@ export function isCardPropsEqual(a: CardProps, b: CardProps) {
 export default React.memo(
   React.forwardRef(function Card(props: CardProps, ref: Ref<Container>) {
     const containerRef = useRef() as MutableRefObject<Required<Container>>;
-    const dimFilterRef = useRef(new filters.ColorMatrixFilter());
+    const dimFilterRef = useRef(new PixiFilters.ColorMatrixFilter());
     const dropShadowFilterRef = useRef(new DropShadowFilter({ alpha: 0.5, blur: 1, distance: 0 }));
     const glowFilterRef = useRef(new GlowFilter({ outerStrength: 0 }));
     const [texture, setTexture] = useState(null as RenderTexture | null);
@@ -106,7 +107,7 @@ export default React.memo(
 
         return () => {
           renderTexture.destroy(true);
-        }
+        };
       } else {
         setTexture(null);
       }
@@ -134,6 +135,9 @@ export default React.memo(
         duration: 300,
         easing: "easeOutExpo",
         alpha: props.state.exhausted && props.shouldDimWhenExhausted ? 0.5 : 0,
+        update() {
+          dimFilterRef.current.enabled = dimFilterRef.current.alpha != 0;
+        },
       });
     }, [props.state.exhausted]);
 
@@ -147,6 +151,9 @@ export default React.memo(
         duration: 300,
         easing: "easeOutExpo",
         outerStrength: props.shouldGlow ? 4 : 0,
+        update() {
+          glowFilterRef.current.enabled = glowFilterRef.current.outerStrength != 0;
+        },
       });
     }, [props.shouldGlow]);
 
