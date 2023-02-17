@@ -1,21 +1,21 @@
 import React from "react";
 import { targetResolution } from "../Camera";
-import { smallCardHeight, smallCardWidth } from "../Card";
 import { CardStateInfo } from "../../common/card";
 import HandCard from "./HandCard";
+import { cardHeight, cardWidth } from "../Card";
 
 export type HandProps = {
   cards: CardStateInfo[];
 };
 
 export default function Hand(props: HandProps) {
-  let offset = smallCardWidth - 20;
+  let offset = cardWidth - 20;
   if (offset * props.cards.length > 2500) {
     offset /= (offset * props.cards.length) / 2500;
   }
 
-  const x = (targetResolution.width - props.cards.length * offset) / 2 + smallCardWidth / 2;
-  const y = targetResolution.height * (3 / 4) + smallCardHeight / 2 + 20;
+  const x = (targetResolution.width - props.cards.length * offset) / 2 + cardWidth / 2;
+  const y = targetResolution.height * (3 / 4) + cardHeight / 2 + 20;
 
   return (
     <>

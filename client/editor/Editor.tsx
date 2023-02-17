@@ -1,9 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import { defaultUtil, getCards, isLoaded, useCardInfoList } from "../cards";
 import Grid from "./Grid";
-import { smallCardHeight, smallCardWidth } from "../Card";
 import { useClientDispatch, useClientSelector } from "../store";
-import { defaultCardState, initialGameState } from "../../common/gameSlice";
+import { defaultCardState } from "../../common/gameSlice";
 import { addDeckCard, removeDeckCard } from "../../common/decksSlice";
 import { targetResolution } from "../Camera";
 import Rectangle from "../Rectangle";
@@ -13,6 +12,7 @@ import { EnterExitAnimator } from "../EnterExitAnimation";
 import { ordered } from "../../common/util";
 import { Container } from "react-pixi-fiber";
 import DeckCard from "./DeckCard";
+import { cardHeight, cardWidth } from "../Card";
 
 export default function Editor(props: { params: { deck: string } }) {
   const dispatch = useClientDispatch();
@@ -78,13 +78,13 @@ export default function Editor(props: { params: { deck: string } }) {
               key={data.id}
               pointerdown={pointerdownAdd(data.name)}
               interactive={areCardsLoaded}
-              x={x + smallCardWidth / 2}
-              y={y + smallCardHeight / 2}
+              x={x + cardWidth / 2}
+              y={y + cardHeight / 2}
             />
           )}
         </Grid>
       </Container>
-      <Container x={targetResolution.width - smallCardWidth / 2} y={smallCardHeight / 2}>
+      <Container x={targetResolution.width - cardWidth / 2} y={cardHeight / 2}>
         <EnterExitAnimator elements={sortedDeckCards}>
           {(data, status, i) =>
             i != null ? (
@@ -95,7 +95,7 @@ export default function Editor(props: { params: { deck: string } }) {
                 key={data.id}
                 pointerdown={pointerdownRemove(data.name)}
                 interactive
-                y={(i * smallCardHeight) / 8 ?? 0}
+                y={(i * cardHeight) / 8 ?? 0}
               />
             ) : (
               <DeckCard

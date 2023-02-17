@@ -1,5 +1,5 @@
 import React, { useContext } from "react";
-import { cardHeight, smallCardHeight, smallCardWidth } from "../Card";
+import { cardHeight, cardWidth } from "../Card";
 import { useDrop } from "react-dnd";
 import Rectangle from "../Rectangle";
 import { targetResolution } from "../Camera";
@@ -23,19 +23,19 @@ export default function Board() {
     collect: () => ({}),
   }));
 
-  const x = (targetResolution.width - cards.length * (smallCardWidth + 10)) / 2 + smallCardWidth / 2;
-  const y = targetResolution.height * (2 / 4) + smallCardHeight / 2;
+  const x = (targetResolution.width - cards.length * (cardWidth + 10)) / 2 + cardWidth / 2;
+  const y = targetResolution.height * (2 / 4) + cardHeight / 2;
 
   return (
     <>
       <Rectangle
         ref={(current) => drop({ current })}
         width={targetResolution.width}
-        height={cardHeight * (3 / 4)}
+        height={targetResolution.height * (3 / 4)}
         renderable={false}
       />
       {cards.map(({ state, info }, i) => (
-        <BoardCard state={state} info={info} key={state.id} x={x + i * (smallCardWidth + 10)} y={y} />
+        <BoardCard state={state} info={info} key={state.id} x={x + i * (cardWidth + 10)} y={y} />
       ))}
     </>
   );

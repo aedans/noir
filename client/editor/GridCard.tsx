@@ -1,6 +1,6 @@
 import React, { MutableRefObject, Ref, useImperativeHandle, useRef } from "react";
 import { Container, PixiElement } from "react-pixi-fiber";
-import Card, { CardProps, smallCardScale } from "../Card";
+import Card, { CardProps } from "../Card";
 import MoveAnimation from "../MoveAnimation";
 
 export type EditorCardProps = CardProps & PixiElement<Container>;
@@ -11,8 +11,8 @@ export default React.forwardRef(function EditorCard(props: EditorCardProps, ref:
   useImperativeHandle(ref, () => componentRef.current);
 
   return (
-    <MoveAnimation skipPosition id={props.state.id} scale={smallCardScale} componentRef={componentRef}>
-      <Container {...props} scale={smallCardScale} ref={componentRef}>
+    <MoveAnimation skipPosition id={props.state.id} scale={1} componentRef={componentRef}>
+      <Container {...props} scale={1} ref={componentRef}>
         <Card state={props.state} info={props.info}  />
       </Container>
     </MoveAnimation>

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Container, PixiElement } from "react-pixi-fiber";
 import { CardStateInfo } from "../../common/card";
-import { smallCardWidth, smallCardHeight } from "../Card";
+import { cardHeight, cardWidth } from "../Card";
 import Rectangle from "../Rectangle";
 import GameCard from "./GameCard";
 
@@ -24,8 +24,8 @@ export default function CardList(props: CardListProps) {
   return (
     <Container {...props}>
       <Rectangle
-        width={smallCardWidth}
-        height={smallCardHeight}
+        width={cardWidth}
+        height={cardHeight}
         fillAlpha={0.01}
         pointerdown={pointerdown}
         interactive
@@ -36,8 +36,8 @@ export default function CardList(props: CardListProps) {
           state={state}
           info={info}
           key={state.id}
-          x={smallCardWidth / 2}
-          y={smallCardHeight / 2 - (props.reverse ? i : -i) * smallCardWidth * distance}
+          x={cardWidth / 2}
+          y={cardHeight / 2 - (props.reverse ? i : -i) * cardWidth * distance}
         />
       ))}
     </Container>

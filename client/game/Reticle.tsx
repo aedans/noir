@@ -1,8 +1,9 @@
-import { Rectangle, Texture } from "pixi.js";
+import { Rectangle as Bounds, Texture } from "pixi.js";
 import React, { Ref } from "react";
 import { PixiElement, Sprite } from "react-pixi-fiber";
 import { GlowFilter } from "@pixi/filter-glow";
-import { cardHeight, cardWidth, smallCardHeight, smallCardWidth } from "../Card";
+import { cardHeight, cardWidth} from "../Card";
+import Rectangle from "../Rectangle";
 
 export type ReticleProps = PixiElement<Sprite> & {
   x?: number;
@@ -12,7 +13,7 @@ export type ReticleProps = PixiElement<Sprite> & {
 };
 
 const texture = Texture.from("/reticle.png");
-
+  
 export default React.forwardRef(function Reticle(props: ReticleProps, ref: Ref<Sprite>) {
   const filter = new GlowFilter({
     color: props.color,
@@ -29,7 +30,7 @@ export default React.forwardRef(function Reticle(props: ReticleProps, ref: Ref<S
       alpha={props.isDragging ? 1 : 0.001}
       filters={[filter]}
       zIndex={1000}
-      hitArea={new Rectangle(-smallCardWidth - texture.width / 4, -smallCardHeight - texture.height / 2, cardWidth, cardHeight)}
+      hitArea={new Bounds(-texture.width / 2, -texture.height, texture.width * 2, texture.height * 4)}
       interactive
       ref={ref}
     />

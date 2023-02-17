@@ -35,6 +35,8 @@ app.get("/*", (req, res) => {
 });
 
 io.on("connection", (socket) => {
+  console.log("Socket " + socket.id + " connected");
+
   socket.on("queue", (queue) => {
     try {
       queues[queue].push(socket);
@@ -42,6 +44,10 @@ io.on("connection", (socket) => {
       console.error(e);
     }
   });
+
+  socket.on("disconnect", () => {
+    console.log("Socket " + socket.id + " disconnected");
+  })
 });
 
 server.listen(port, () => {

@@ -2,7 +2,7 @@ import React from "react";
 import { Ref, useContext, useRef, MutableRefObject, useState, useImperativeHandle, useEffect } from "react";
 import { useDrag } from "react-dnd";
 import { Container, Sprite } from "react-pixi-fiber";
-import { getCardColor, smallCardHeight, smallCardScale } from "../Card";
+import { cardHeight, getCardColor } from "../Card";
 import { defaultUtil } from "../cards";
 import { useClientSelector } from "../store";
 import { HoverContext, PlayerContext } from "./Game";
@@ -40,7 +40,7 @@ export default React.forwardRef(function HandCard(props: GameCardProps, ref: Ref
   }, []);
 
   let x = props.x;
-  let y = zoom ? (props.y ?? 0) - smallCardHeight / 10 : props.y;
+  let y = zoom ? (props.y ?? 0) - cardHeight / 10 : props.y;
 
   if (cardRef.current && isDragging && globalPosition) {
     const position = cardRef.current.parent.toLocal({ x: globalPosition.x, y: globalPosition.y });
@@ -77,7 +77,7 @@ export default React.forwardRef(function HandCard(props: GameCardProps, ref: Ref
     }
   }
 
-  const scale = zoom ? smallCardScale * 1.2 : smallCardScale;
+  const scale = zoom ? 1.2 : 1;
 
   const card = (
     <GameCard

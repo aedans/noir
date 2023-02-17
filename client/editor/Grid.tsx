@@ -2,7 +2,7 @@ import { isEqual } from "lodash";
 import React, { useMemo } from "react";
 import { ReactElement } from "react";
 import { CardState } from "../../common/card";
-import { isCardStateEqual, smallCardHeight, smallCardWidth } from "../Card";
+import { cardHeight, cardWidth } from "../Card";
 
 export type GridProps = {
   elements: CardState[];
@@ -23,10 +23,10 @@ export default React.memo(function Grid(props: GridProps) {
     for (const child of props.elements) {
       elements.push(props.children(child, x, y, i++));
 
-      x += smallCardWidth;
+      x += cardWidth;
       if (props.maxWidth != undefined && x > props.maxWidth) {
         x = 0;
-        y += smallCardHeight;
+        y += cardHeight;
       }
     }
     return elements;
