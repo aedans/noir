@@ -18,5 +18,13 @@ export default React.forwardRef(function Text(props: TextProps, ref: Ref<BitmapT
     style.fontSize = 100;
   }
 
-  return <BitmapText {...props} ref={ref} style={style} y={(props.y ?? 0) - style.fontSize / 2} />;
+  return (
+    <BitmapText
+      {...props}
+      ref={ref}
+      style={style}
+      x={Math.floor(props.x)}
+      y={Math.floor((props.y ?? 0) - style.fontSize / 2)}
+    />
+  );
 });

@@ -92,8 +92,6 @@ export default React.memo(
         });
 
         setTimeout(() => {
-          containerRef.current.setTransform();
-          containerRef.current.filters = [];
           app.renderer.render(containerRef.current, { renderTexture });
           setTexture(renderTexture);
         }, 0);
@@ -180,6 +178,14 @@ export default React.memo(
           filters={[glowFilterRef.current, dimFilterRef.current, dropShadowFilterRef.current]}
           ref={containerRef}
         >
+          <Rectangle
+            fill={getCardColor(props.info.colors)}
+            width={cardWidth - 40}
+            height={cardHeight - 40}
+            x={20}
+            y={12}
+          />
+          <Sprite width={cardWidth} height={cardHeight} texture={Texture.from("/border.png")} />
           <Sprite texture={texture} />
         </Container>
       );
@@ -188,7 +194,6 @@ export default React.memo(
         <Container
           pivot={[cardWidth / 2, cardHeight / 2]}
           filters={[glowFilterRef.current, dimFilterRef.current, dropShadowFilterRef.current]}
-          ref={containerRef}
         >
           <Rectangle
             fill={getCardColor(props.info.colors)}
@@ -198,34 +203,36 @@ export default React.memo(
             y={12}
           />
           <Sprite width={cardWidth} height={cardHeight} texture={Texture.from("/border.png")} />
-          <Text
-            anchor={[0.5, 0]}
-            x={cardWidth / 2 + 20}
-            y={28}
-            text={props.state.name}
-            style={{ fontSize: 32, tint: 0 }}
-          />
-          <Text
-            anchor={[0.5, 0.5]}
-            x={cardWidth / 2}
-            y={cardHeight * (3 / 4) + 5}
-            text={text}
-            style={{ fontSize: 32, align: "center", maxWidth: cardWidth - 20, letterSpacing: 1 }}
-          />
-          <Text
-            anchor={[0.5, 0.5]}
-            x={40}
-            y={40}
-            text={Math.max(0, props.info.cost.money)}
-            style={{ fontSize: 32, tint: 0 }}
-          />
-          <Text
-            anchor={[0.5, 0.5]}
-            x={40}
-            y={85}
-            text={Math.max(0, props.info.cost.agents) || ""}
-            style={{ fontSize: 32, tint: getCardColor(props.info.colors) }}
-          />
+          <Container ref={containerRef}>
+            <Text
+              anchor={[0.5, 0]}
+              x={cardWidth / 2 + 20}
+              y={28}
+              text={props.state.name}
+              style={{ fontSize: 32, tint: 0 }}
+            />
+            <Text
+              anchor={[0.5, 0.5]}
+              x={cardWidth / 2}
+              y={cardHeight * (3 / 4) + 5}
+              text={text}
+              style={{ fontSize: 32, align: "center", maxWidth: cardWidth - 20, letterSpacing: 1 }}
+            />
+            <Text
+              anchor={[0.5, 0.5]}
+              x={40}
+              y={40}
+              text={Math.max(0, props.info.cost.money)}
+              style={{ fontSize: 32, tint: 0 }}
+            />
+            <Text
+              anchor={[0.5, 0.5]}
+              x={40}
+              y={85}
+              text={Math.max(0, props.info.cost.agents) || ""}
+              style={{ fontSize: 32, tint: getCardColor(props.info.colors) }}
+            />
+          </Container>
         </Container>
       );
     }
