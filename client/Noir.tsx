@@ -11,7 +11,6 @@ import Play from "./play/Play";
 import Decks from "./decks/Decks";
 import Editor from "./editor/Editor";
 import { Application, Ticker, UPDATE_PRIORITY } from "pixi.js";
-import { Cull } from "@pixi-essentials/cull";
 import { addStats } from "pixi-stats";
 
 export type NoirProps = {
@@ -21,15 +20,6 @@ export type NoirProps = {
 export const App = React.createContext(null as Application | null);
 
 export default function Noir(props: NoirProps) {
-  const cull = new Cull({ recursive: true });
-
-  // props.app.renderer.options.
-  props.app.renderer.on("prerender", () => {
-    cull.clear();
-    cull.addAll(props.app.stage.children);
-    cull.cull(props.app.renderer.screen);
-  });
-
   const stats = addStats(document, props.app);
   (stats as any).stats.showPanel(1);
   Ticker.shared.add(stats.update, stats, UPDATE_PRIORITY.UTILITY);
