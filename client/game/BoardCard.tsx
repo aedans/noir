@@ -99,7 +99,7 @@ export default React.forwardRef(function BoardCard(props: GameCardProps, ref: Re
   let x = props.x ?? 0;
   let y = props.y ?? 0;
 
-  if (isPrepared) {
+  if (isPrepared && (hover.length == 0 || isHovered)) {
     y -= 50;
   }
 
