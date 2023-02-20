@@ -19,7 +19,7 @@ export default function Play() {
         key={name}
         y={y}
         pointerdown={() => {
-          setLocation(`/game/casual/${name}`);
+          setLocation(`/game/casual/${name}/`);
         }}
       />
     );

@@ -18,7 +18,7 @@ export default function Decks() {
         key={name}
         y={y}
         pointerdown={() => {
-          setLocation(`/edit/${name}`);
+          setLocation(`/edit/${name}/`);
         }}
       />
     );

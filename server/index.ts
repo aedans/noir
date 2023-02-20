@@ -38,9 +38,7 @@ app.get("/cards.json", (req, res) => {
   }
 });
 
-app.get("/*", (req, res) => {
-  res.redirect("/");
-});
+app.use("*", express.static("dist"));
 
 io.on("connection", (socket) => {
   console.log("Socket " + socket.id + " connected");
