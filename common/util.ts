@@ -171,7 +171,8 @@ export function tryPayCost(
   player: PlayerId,
   colors: CardColor[],
   cost: CardCost,
-  targets: Filter | undefined
+  targets: Filter | undefined,
+  prepared: Target[]
 ): string | { agents: CardState[]; money: number } {
   if (game.players[player].money < cost.money) {
     return `Not enough money to ${verb} ${name}`;
@@ -194,7 +195,15 @@ export function tryPayCost(
     return `No valid targets for ${name}`;
   }
 
-  agents.sort((a, b) => this.getCardInfo(cache, game, b).activationPriority - this.getCardInfo(cache, game, a).activationPriority);
+  agents.sort((a, b) => {
+    if (prepared.some(card => card.id == a.id)) {
+      return -1;
+    } else if (prepared.some(card => card.id == b.id)) {
+      return 1;
+    } else {
+      return this.getCardInfo(cache, game, b).activationPriority - this.getCardInfo(cache, game, a).activationPriority;
+    }
+  });
 
   return {
     agents: agents.slice(0, cost.agents),
@@ -210,9 +219,10 @@ export function canPayCost(
   player: PlayerId,
   colors: CardColor[],
   cost: CardCost,
-  targets: Filter | undefined
+  targets: Filter | undefined,
+  prepared: Target[]
 ) {
-  return typeof this.tryPayCost(cache, game, card, "play", card.name, player, colors, cost, targets) != "string";
+  return typeof this.tryPayCost(cache, game, card, "play", card.name, player, colors, cost, targets, prepared) != "string";
 }
 
 export function* revealRandom(

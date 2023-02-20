@@ -1,11 +1,10 @@
-import { Rectangle } from "pixi.js";
 import React, { MutableRefObject, Ref, useContext, useEffect, useImperativeHandle, useRef } from "react";
 import { useDrop } from "react-dnd";
 import { Container, InteractiveComponent } from "react-pixi-fiber";
 import { CardState } from "../../common/card";
-import Card, { cardHeight, CardProps, cardWidth, isCardPropsEqual } from "../Card";
+import Card, { CardProps, isCardPropsEqual } from "../Card";
 import MoveAnimation, { useLastPos } from "../MoveAnimation";
-import { HoverContext, SocketContext } from "./Game";
+import { PreparedContext, SocketContext } from "./Game";
 
 export type GameCardProps = CardProps &
   InteractiveComponent & {
@@ -33,8 +32,8 @@ export function isGameCardPropsEqual(a: GameCardProps, b: GameCardProps) {
 
 export default React.memo(
   React.forwardRef(function GameCard(props: GameCardProps, ref: Ref<Container>) {
-    const { hover } = useContext(HoverContext);
     const socket = useContext(SocketContext);
+    const { prepared } = useContext(PreparedContext);
     const componentRef = useRef() as MutableRefObject<Required<Container>>;
     const { x, y } = useLastPos(props, props.state.id, componentRef);
 
@@ -43,12 +42,12 @@ export default React.memo(
     const [{ isOver }, drop] = useDrop(() => ({
       accept: "target",
       drop: (state: CardState) => {
-        socket.emit("action", { type: "do", id: state.id, target: { id: props.state.id } });
+        socket.emit("action", { type: "do", id: state.id, target: { id: props.state.id }, prepared });
       },
       collect: (monitor) => ({
         isOver: monitor.isOver(),
       }),
-    }));
+    }), [prepared]);
 
     useEffect(() => {
       drop(componentRef);
@@ -58,13 +57,11 @@ export default React.memo(
       (componentRef.current as any).convertTo3d?.();
     }, []);
 
-    const isHovered = hover.some((agent) => agent.id == props.state.id);
-
     return (
       <MoveAnimation id={props.state.id} x={x} y={y} scale={props.scale ?? 1} componentRef={componentRef}>
         <Container {...props} scale={0} ref={componentRef}>
           <Card
-            state={{ ...props.state, exhausted: isHovered ? true : props.state.exhausted }}
+            state={props.state}
             info={props.info}
             shadow={props.shadow}
             shouldGlow={props.shouldGlow || isOver}

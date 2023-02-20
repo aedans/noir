@@ -4,26 +4,29 @@ import { Container, Sprite } from "react-pixi-fiber";
 import { currentPlayer } from "../../common/gameSlice";
 import { defaultUtil } from "../cards";
 import { useClientSelector } from "../store";
-import { HoverContext, SocketContext, PlayerContext } from "./Game";
+import { HoverContext, SocketContext, PlayerContext, PreparedContext } from "./Game";
 import GameCard, { GameCardProps } from "./GameCard";
 
 export default React.forwardRef(function BoardCard(props: GameCardProps, ref: Ref<Container>) {
-  const { setHover } = useContext(HoverContext);
+  const { hover, setHover } = useContext(HoverContext);
+  const { prepared, setPrepared } = useContext(PreparedContext);
   const socket = useContext(SocketContext);
   const player = useContext(PlayerContext);
   const game = useClientSelector((state) => state.game.current);
   const cardRef = useRef() as MutableRefObject<Required<Container>>;
   const targetRef = useRef() as MutableRefObject<Required<Sprite>>;
 
+  const isHovered = hover.some((card) => card.id == props.state.id);
+  const isPrepared = prepared.some((card) => card.id == props.state.id);
+
   useImperativeHandle(ref, () => cardRef.current);
 
-  const [{ isDragging, globalPosition }, drag] = useDrag(
+  const [{ isDragging }, drag] = useDrag(
     () => ({
       type: props.info.activateTargets ? "target" : "card",
       item: props.state,
       collect: (monitor) => ({
         isDragging: monitor.isDragging(),
-        globalPosition: monitor.getInitialClientOffset(),
       }),
     }),
     []
@@ -38,8 +41,12 @@ export default React.forwardRef(function BoardCard(props: GameCardProps, ref: Re
   }, []);
 
   function pointerdown() {
-    if (!props.info.activateTargets) {
-      socket.emit("action", { type: "do", id: props.state.id });
+    if (!props.info.hasActivateEffect && !isPrepared && !props.state.exhausted && props.info.type == "agent") {
+      setPrepared((ps) => [...ps, props.state]);
+    } else if (isPrepared) {
+      setPrepared((ps) => ps.filter((card) => card.id != props.state.id));
+    } else if (!props.info.activateTargets) {
+      socket.emit("action", { type: "do", id: props.state.id, prepared });
     }
   }
 
@@ -58,7 +65,8 @@ export default React.forwardRef(function BoardCard(props: GameCardProps, ref: Re
         player,
         props.info.colors,
         props.info.activateCost,
-        props.info.activateTargets
+        props.info.activateTargets,
+        prepared
       );
 
       if (typeof result != "string") {
@@ -84,21 +92,23 @@ export default React.forwardRef(function BoardCard(props: GameCardProps, ref: Re
       player,
       props.info.colors,
       props.info.activateCost,
-      props.info.activateTargets
+      props.info.activateTargets,
+      prepared
     );
 
-  let x = props.x;
-  let y = props.y;
+  let x = props.x ?? 0;
+  let y = props.y ?? 0;
 
-  if (cardRef.current && isDragging && globalPosition) {
-    const position = cardRef.current.parent.toLocal({ x: globalPosition.x, y: globalPosition.y });
-    x = position.x;
-    y = position.y;
+  if (isPrepared) {
+    y -= 50;
   }
 
   const card = (
     <GameCard
       {...props}
+      x={x}
+      y={y}
+      state={{ ...props.state, exhausted: isHovered ? true : props.state.exhausted }}
       shouldGlow={shouldGlow}
       shouldDimWhenExhausted
       ref={cardRef}

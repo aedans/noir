@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 import { Container } from "react-pixi-fiber";
 import Board from "./Board";
 import Rectangle from "../Rectangle";
@@ -17,23 +17,32 @@ import OpponentHand from "./OpponentHand";
 import { reset } from "../../common/historySlice";
 import Message from "./Message";
 import Grave from "./Grave";
-import { CardState } from "../../common/card";
+import { Target } from "../../common/card";
 import HandAndDeck from "./HandAndDeck";
 import OpponentGrave from "./OpponentGrave";
 
 export const SocketContext = React.createContext(null as unknown as Socket);
 export const PlayerContext = React.createContext(0 as PlayerId);
+
 export const HoverContext = React.createContext(
   {} as {
-    hover: CardState[];
-    setHover: (hover: CardState[]) => void;
+    hover: Target[];
+    setHover: Dispatch<SetStateAction<Target[]>>;
   }
 );
+
+export const PreparedContext = React.createContext(
+  {} as {
+    prepared: Target[];
+    setPrepared: Dispatch<SetStateAction<Target[]>>;
+  }
+)
 
 export default function Game(props: { params: { queue: string; deck: string } }) {
   const [player, setPlayer] = useState(null as PlayerId | null);
   const [socket, setSocket] = useState(null as Socket | null);
-  const [hover, setHover] = useState([] as CardState[]);
+  const [hover, setHover] = useState([] as Target[]);
+  const [prepared, setPrepared] = useState([] as Target[]);
   const [message, setMessage] = useState("");
   const cards = useRef({} as MoveAnimationState);
   const decks = useClientSelector((state) => state.decks);
@@ -49,6 +58,7 @@ export default function Game(props: { params: { queue: string; deck: string } })
         }
 
         dispatch(batchActions(actions, name));
+        setPrepared([]);
       })();
     });
 
@@ -84,18 +94,20 @@ export default function Game(props: { params: { queue: string; deck: string } })
       <MoveAnimationContext.Provider value={cards}>
         <PlayerContext.Provider value={player}>
           <HoverContext.Provider value={{ hover, setHover }}>
-            <Container>
-              <Rectangle fill={0x202020} width={targetResolution.width} height={targetResolution.height} />
-              <OpponentHand />
-              <OpponentBoard />
-              <Board />
-              <EndTurn />
-              <Resources />
-              <HandAndDeck />
-              <OpponentGrave />
-              <Grave />
-              <Message text={message} />
-            </Container>
+            <PreparedContext.Provider value={{ prepared, setPrepared }}>
+              <Container>
+                <Rectangle fill={0x202020} width={targetResolution.width} height={targetResolution.height} />
+                <OpponentHand />
+                <OpponentBoard />
+                <Board />
+                <EndTurn />
+                <Resources />
+                <HandAndDeck />
+                <OpponentGrave />
+                <Grave />
+                <Message text={message} />
+              </Container>
+            </PreparedContext.Provider>
           </HoverContext.Provider>
         </PlayerContext.Provider>
       </MoveAnimationContext.Provider>

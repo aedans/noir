@@ -5,11 +5,12 @@ import { Container } from "react-pixi-fiber";
 import { cardHeight } from "../Card";
 import { defaultUtil } from "../cards";
 import { useClientSelector } from "../store";
-import { HoverContext, PlayerContext } from "./Game";
+import { HoverContext, PlayerContext, PreparedContext } from "./Game";
 import GameCard, { GameCardProps } from "./GameCard";
 
 export default React.forwardRef(function HandCard(props: GameCardProps, ref: Ref<Container>) {
   const { setHover } = useContext(HoverContext);
+  const { prepared } = useContext(PreparedContext);
   const player = useContext(PlayerContext);
   const game = useClientSelector((state) => state.game.current);
   const cardRef = useRef() as MutableRefObject<Required<Container>>;
@@ -48,7 +49,8 @@ export default React.forwardRef(function HandCard(props: GameCardProps, ref: Ref
         player,
         props.info.colors,
         props.info.cost,
-        props.info.targets
+        props.info.targets,
+        prepared
       );
 
       if (typeof result != "string") {

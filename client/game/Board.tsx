@@ -5,23 +5,24 @@ import Rectangle from "../Rectangle";
 import { targetResolution } from "../Camera";
 import { useClientSelector } from "../store";
 import { CardState } from "../../common/card";
-import { PlayerContext, SocketContext } from "./Game";
+import { PlayerContext, PreparedContext, SocketContext } from "./Game";
 import BoardCard from "./BoardCard";
 import { useCardInfoList } from "../cards";
 
 export default function Board() {
   const socket = useContext(SocketContext);
   const player = useContext(PlayerContext);
+  const { prepared } = useContext(PreparedContext);
   const board = useClientSelector((state) => state.game.current.players[player].board);
   const cards = useCardInfoList(board, [board]);
 
   const [{}, drop] = useDrop(() => ({
     accept: "card",
     drop: (state: CardState) => {
-      socket.emit("action", { type: "do", id: state.id });
+      socket.emit("action", { type: "do", id: state.id, prepared });
     },
     collect: () => ({}),
-  }));
+  }), [prepared]);
 
   const x = (targetResolution.width - cards.length * (cardWidth + 10)) / 2 + cardWidth / 2;
   const y = targetResolution.height * (2 / 4) + cardHeight / 2;
