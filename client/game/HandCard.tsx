@@ -33,7 +33,7 @@ export default React.forwardRef(function HandCard(props: GameCardProps, ref: Ref
     if (props.info.targets) {
       dragPreview(cardRef);
     } else {
-      drag(cardRef)
+      drag(cardRef);
     }
   });
 
@@ -50,7 +50,7 @@ export default React.forwardRef(function HandCard(props: GameCardProps, ref: Ref
         props.info.cost,
         props.info.targets
       );
-  
+
       if (typeof result != "string") {
         setHover(result.agents);
       }
@@ -60,8 +60,8 @@ export default React.forwardRef(function HandCard(props: GameCardProps, ref: Ref
   }, [isDragging]);
 
   useEffect(() => {
-    return () => setHover([])
-  })
+    return () => setHover([]);
+  }, []);
 
   let x = props.x;
   let y = zoom ? (props.y ?? 0) - cardHeight / 10 : props.y;
