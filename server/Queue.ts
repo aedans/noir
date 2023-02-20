@@ -8,5 +8,5 @@ export const queues: { [name: string]: Queue } = {
 };
 
 export default interface Queue {
-  push(socket: Socket): void;
+  push(socket: Socket): Promise<void>;
 }

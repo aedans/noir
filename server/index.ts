@@ -23,11 +23,19 @@ app.use(express.static("dist"));
 app.use(express.json());
 
 app.get("/cards.json", (req, res) => {
-  const cards = fs.readdirSync("./public/cards").map((file) => file.substring(0, file.lastIndexOf(".")));
-  const cardStates = cards.map((name) => defaultCardState(name, name));
-  const allCards = cardStates.map((state) => ({ state, info: defaultUtil.getCardInfo(new Map(), initialGameState(), state) }));
-  const orderedCards = ordered(allCards, ["color", "money"], (card) => card.info);
-  res.send(JSON.stringify(orderedCards.map((card) => card.state.name)));
+  try {
+    const cards = fs.readdirSync("./public/cards").map((file) => file.substring(0, file.lastIndexOf(".")));
+    const cardStates = cards.map((name) => defaultCardState(name, name));
+    const allCards = cardStates.map((state) => ({
+      state,
+      info: defaultUtil.getCardInfo(new Map(), initialGameState(), state),
+    }));
+    const orderedCards = ordered(allCards, ["color", "money"], (card) => card.info);
+    res.json(orderedCards.map((card) => card.state.name));
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: (e as Error).message });
+  }
 });
 
 app.get("/*", (req, res) => {
@@ -37,17 +45,18 @@ app.get("/*", (req, res) => {
 io.on("connection", (socket) => {
   console.log("Socket " + socket.id + " connected");
 
-  socket.on("queue", (queue) => {
+  socket.on("queue", async (queue) => {
     try {
-      queues[queue].push(socket);
+      await queues[queue].push(socket);
     } catch (e) {
+      socket.emit("error", (e as Error).message);
       console.error(e);
     }
   });
 
   socket.on("disconnect", () => {
     console.log("Socket " + socket.id + " disconnected");
-  })
+  });
 });
 
 server.listen(port, () => {
