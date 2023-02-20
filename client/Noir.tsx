@@ -28,7 +28,7 @@ export default function Noir(props: NoirProps) {
     <App.Provider value={props.app}>
       <Camera>
         <Provider store={store}>
-          <DndProvider backend={PIXIBackend}>
+          <DndProvider backend={PIXIBackend(props.app)}>
             <Router>
               <Route path="/play" component={Play} />
               <Route path="/game/:queue/:deck" component={Game} />

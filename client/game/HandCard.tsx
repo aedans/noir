@@ -1,25 +1,23 @@
 import React from "react";
 import { Ref, useContext, useRef, MutableRefObject, useState, useImperativeHandle, useEffect } from "react";
 import { useDrag } from "react-dnd";
-import { Container, Sprite } from "react-pixi-fiber";
-import { cardHeight, getCardColor } from "../Card";
+import { Container } from "react-pixi-fiber";
+import { cardHeight } from "../Card";
 import { defaultUtil } from "../cards";
 import { useClientSelector } from "../store";
 import { HoverContext, PlayerContext } from "./Game";
 import GameCard, { GameCardProps } from "./GameCard";
-import Reticle from "./Reticle";
 
 export default React.forwardRef(function HandCard(props: GameCardProps, ref: Ref<Container>) {
   const { setHover } = useContext(HoverContext);
   const player = useContext(PlayerContext);
   const game = useClientSelector((state) => state.game.current);
   const cardRef = useRef() as MutableRefObject<Required<Container>>;
-  const targetRef = useRef() as MutableRefObject<Required<Sprite>>;
   const [zoom, setZoom] = useState(false);
 
   useImperativeHandle(ref, () => cardRef.current);
 
-  const [{ isDragging, globalPosition }, drag] = useDrag(
+  const [{ isDragging, globalPosition }, drag, dragPreview] = useDrag(
     () => ({
       type: props.info.targets ? "target" : "card",
       item: props.state,
@@ -32,12 +30,38 @@ export default React.forwardRef(function HandCard(props: GameCardProps, ref: Ref
   );
 
   useEffect(() => {
-    drag(props.info.targets ? targetRef : cardRef);
+    if (props.info.targets) {
+      dragPreview(cardRef);
+    } else {
+      drag(cardRef)
+    }
   });
 
   useEffect(() => {
-    return () => setHover([]);
-  }, []);
+    if (isDragging) {
+      const result = defaultUtil.tryPayCost(
+        new Map(),
+        game,
+        props.state,
+        "play",
+        props.state.name,
+        player,
+        props.info.colors,
+        props.info.cost,
+        props.info.targets
+      );
+  
+      if (typeof result != "string") {
+        setHover(result.agents);
+      }
+    } else {
+      setHover([]);
+    }
+  }, [isDragging]);
+
+  useEffect(() => {
+    return () => setHover([])
+  })
 
   let x = props.x;
   let y = zoom ? (props.y ?? 0) - cardHeight / 10 : props.y;
@@ -51,29 +75,12 @@ export default React.forwardRef(function HandCard(props: GameCardProps, ref: Ref
   function pointerover() {
     if (!isDragging) {
       setZoom(true);
-
-      const result = defaultUtil.tryPayCost(
-        new Map(),
-        game,
-        props.state,
-        "play",
-        props.state.name,
-        player,
-        props.info.colors,
-        props.info.cost,
-        props.info.targets
-      );
-
-      if (typeof result != "string") {
-        setHover(result.agents);
-      }
     }
   }
 
   function pointerout() {
     if (!isDragging) {
       setZoom(false);
-      setHover([]);
     }
   }
 
@@ -86,34 +93,12 @@ export default React.forwardRef(function HandCard(props: GameCardProps, ref: Ref
       x={x}
       y={y}
       scale={scale}
-      zIndex={zoom ? 100 : props.zIndex}
       ref={cardRef}
-      interactive
+      interactive={!isDragging || !props.info.targets}
       pointerover={pointerover}
       pointerout={pointerout}
     />
   );
 
-  if (props.info.targets) {
-    const target = (
-      <Reticle
-        x={x}
-        y={y}
-        ref={targetRef}
-        isDragging={isDragging}
-        color={getCardColor(props.info.colors)}
-        angle={props.angle}
-        pointerover={pointerover}
-        pointerout={pointerout}
-      />
-    );
-    return (
-      <>
-        {card}
-        {target}
-      </>
-    );
-  } else {
-    return card;
-  }
+  return card;
 });

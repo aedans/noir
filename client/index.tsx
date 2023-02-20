@@ -10,7 +10,6 @@ settings.SORTABLE_CHILDREN = true;
 
 Loader.shared
   .add("Oswald", "/Oswald.fnt")
-  .add("Border", "/border.png")
   .load(() => {
     const canvasElement = document.getElementById("root") as HTMLCanvasElement;
 

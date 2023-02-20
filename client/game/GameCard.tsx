@@ -1,8 +1,9 @@
+import { Rectangle } from "pixi.js";
 import React, { MutableRefObject, Ref, useContext, useEffect, useImperativeHandle, useRef } from "react";
 import { useDrop } from "react-dnd";
 import { Container, InteractiveComponent } from "react-pixi-fiber";
 import { CardState } from "../../common/card";
-import Card, { CardProps, isCardPropsEqual } from "../Card";
+import Card, { cardHeight, CardProps, cardWidth, isCardPropsEqual } from "../Card";
 import MoveAnimation, { useLastPos } from "../MoveAnimation";
 import { HoverContext, SocketContext } from "./Game";
 

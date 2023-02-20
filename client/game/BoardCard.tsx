@@ -2,12 +2,10 @@ import React, { Ref, useContext, useRef, MutableRefObject, useImperativeHandle, 
 import { useDrag } from "react-dnd";
 import { Container, Sprite } from "react-pixi-fiber";
 import { currentPlayer } from "../../common/gameSlice";
-import { getCardColor } from "../Card";
 import { defaultUtil } from "../cards";
 import { useClientSelector } from "../store";
 import { HoverContext, SocketContext, PlayerContext } from "./Game";
 import GameCard, { GameCardProps } from "./GameCard";
-import Reticle from "./Reticle";
 
 export default React.forwardRef(function BoardCard(props: GameCardProps, ref: Ref<Container>) {
   const { setHover } = useContext(HoverContext);
@@ -111,25 +109,5 @@ export default React.forwardRef(function BoardCard(props: GameCardProps, ref: Re
     />
   );
 
-  if (props.info.activateTargets && !props.state.exhausted) {
-    const target = (
-      <Reticle
-        x={x}
-        y={y}
-        ref={targetRef}
-        isDragging={isDragging}
-        color={getCardColor(props.info.colors)}
-        pointerover={pointerover}
-        pointerout={pointerout}
-      />
-    );
-    return (
-      <>
-        {card}
-        {target}
-      </>
-    );
-  } else {
-    return card;
-  }
+  return card;
 });
