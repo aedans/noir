@@ -1,3 +1,4 @@
+import { GlowFilter } from "@pixi/filter-glow";
 import anime from "animejs";
 import { BackendFactory, DragDropManager } from "dnd-core";
 import { IDisplayObject3d } from "pixi-projection";
@@ -24,7 +25,6 @@ const PIXIBackend: (app: Application) => BackendFactory = (app: Application) => 
         initIndex = node.zIndex;
         initVisible = reticle.visible;
         node.zIndex = 10000;
-        reticle.visible = true;
         node.parent.sortChildren();
 
         if (!manager.getMonitor().isDragging()) {
@@ -41,6 +41,7 @@ const PIXIBackend: (app: Application) => BackendFactory = (app: Application) => 
         anime.remove(reticle.transform.position);
         ddx += e.x - reticle.getGlobalPosition().x;
         ddy += e.y - reticle.getGlobalPosition().y;
+        reticle.visible = true;
 
         const pos = reticle.parent.toLocal(e);
         if (manager.getMonitor().isDragging()) {
@@ -128,6 +129,7 @@ const PIXIBackend: (app: Application) => BackendFactory = (app: Application) => 
       reticle.height = 100;
       reticle.anchor.set(.5);
       reticle.visible = false;
+      reticle.filters = [new GlowFilter({ color: 0x767676, quality: .2 })]
       app.stage.addChild(reticle);
       return dragify(sourceId, node, reticle);
     },

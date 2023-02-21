@@ -14,14 +14,13 @@ export default React.forwardRef(function BoardCard(props: GameCardProps, ref: Re
   const player = useContext(PlayerContext);
   const game = useClientSelector((state) => state.game.current);
   const cardRef = useRef() as MutableRefObject<Required<Container>>;
-  const targetRef = useRef() as MutableRefObject<Required<Sprite>>;
 
   const isHovered = hover.some((card) => card.id == props.state.id);
   const isPrepared = prepared.some((card) => card.id == props.state.id);
 
   useImperativeHandle(ref, () => cardRef.current);
 
-  const [{ isDragging }, drag] = useDrag(
+  const [{ isDragging }, drag, dragPreview] = useDrag(
     () => ({
       type: props.info.activateTargets ? "target" : "card",
       item: props.state,
@@ -33,7 +32,9 @@ export default React.forwardRef(function BoardCard(props: GameCardProps, ref: Re
   );
 
   useEffect(() => {
-    drag(targetRef);
+    if (props.info.activateTargets) {
+      dragPreview(cardRef);
+    }
   });
 
   useEffect(() => {
