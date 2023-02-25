@@ -1,7 +1,4 @@
 {
-  "Test": {
-    "cards": {}
-  },
   "Green": {
     "cards": {"Brief Investigation": 1, "Induce Avarice": 1, "Assassinate":1, "Information Dealer":1, "Studious Planner":1, "Strike Down":1, "Local Merchant":1, "Trade Secrets": 2, "Stake Capital":2, "Eager Salesman":1, "Company Salesman":1, "Trinket Vendor":1, "Careful Speculation":1, "Bold Investor":1, "Flaunting Aristocrat":1, "Tantalizing Offer":2, "Charismatic Industrialist":1}
   },

@@ -3,6 +3,10 @@ import { Target } from "../common/card";
 import { Deck } from "../common/decksSlice";
 import { PlayerId } from "../common/gameSlice";
 import { HistoryAction } from "../common/historySlice";
+import fs from "fs";
+import { random } from "lodash";
+
+const decks = JSON.parse(fs.readFileSync("./common/decks.json").toString());
 
 export type PlayerInit = {
   deck: Deck;
@@ -14,6 +18,7 @@ export default interface Player {
   init(player: PlayerId): Promise<PlayerInit>;
   send(actions: HistoryAction[], name: string): void;
   error(message: string): void;
+  end(winner: number): void;
   receive(): Promise<PlayerAction>;
 }
 
@@ -39,6 +44,10 @@ export class SocketPlayer implements Player {
     this.socket.emit("error", message);
   }
 
+  end(winner: number): void {
+    this.socket.emit("end", winner);
+  }
+
   receive(): Promise<PlayerAction> {
     return new Promise((resolve, reject) => {
       this.socket.once("action", (action) => resolve(action));
@@ -48,12 +57,14 @@ export class SocketPlayer implements Player {
 
 export class UnitPlayer implements Player {
   init(): Promise<PlayerInit> {
-    return Promise.resolve({ deck: { cards: {} } });
+    return Promise.resolve({ deck: Object.values(decks)[random(0, 3, false)] as Deck });
   }
 
   send() {}
 
   error() {}
+
+  end() {}
 
   receive(): Promise<PlayerAction> {
     return new Promise((resolve, reject) => {

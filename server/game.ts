@@ -27,7 +27,13 @@ function* doEndTurn(cache: CardInfoCache, game: GameState): CardGenerator {
   yield* defaultUtil.endTurn(cache, game, null, {});
 }
 
-function validateTargets(cache: CardInfoCache, game: GameState, card: CardState, targets: Filter | undefined, target: Target | undefined) {
+function validateTargets(
+  cache: CardInfoCache,
+  game: GameState,
+  card: CardState,
+  targets: Filter | undefined,
+  target: Target | undefined
+) {
   if (targets) {
     if (!target) {
       throw `${card.name} requires a target`;
@@ -69,7 +75,13 @@ function* payCost(
   }
 }
 
-function* playCard(cache: CardInfoCache, game: GameState, card: CardState, target: Target | undefined, prepared: Target[], ): CardGenerator {
+function* playCard(
+  cache: CardInfoCache,
+  game: GameState,
+  card: CardState,
+  target: Target | undefined,
+  prepared: Target[]
+): CardGenerator {
   const info = defaultUtil.getCardInfo(cache, game, card);
 
   validateTargets(cache, game, card, info.targets, target);
@@ -79,7 +91,13 @@ function* playCard(cache: CardInfoCache, game: GameState, card: CardState, targe
   yield* info.play(target!);
 }
 
-function* activateCard(cache: CardInfoCache, game: GameState, card: CardState, target: Target | undefined, prepared: Target[]): CardGenerator {
+function* activateCard(
+  cache: CardInfoCache,
+  game: GameState,
+  card: CardState,
+  target: Target | undefined,
+  prepared: Target[]
+): CardGenerator {
   if (card.exhausted) {
     throw `${card.name} is exhausted`;
   }
@@ -93,11 +111,27 @@ function* activateCard(cache: CardInfoCache, game: GameState, card: CardState, t
   validateTargets(cache, game, card, info.activateTargets, target);
 
   yield* defaultUtil.exhaustCard(cache, game, card, { target: card });
-  yield* payCost(cache, game, card, "activate", card.name, info.colors, info.activateCost, info.activateTargets, prepared);
+  yield* payCost(
+    cache,
+    game,
+    card,
+    "activate",
+    card.name,
+    info.colors,
+    info.activateCost,
+    info.activateTargets,
+    prepared
+  );
   yield* info.activate(target!);
 }
 
-function* doCard(cache: CardInfoCache, game: GameState, id: string, target: Target | undefined, prepared: Target[]): CardGenerator {
+function* doCard(
+  cache: CardInfoCache,
+  game: GameState,
+  id: string,
+  target: Target | undefined,
+  prepared: Target[]
+): CardGenerator {
   const info = findCard(game, { id });
   if (info) {
     const { player, zone, index } = info;
@@ -121,7 +155,33 @@ function* doAction(cache: CardInfoCache, game: GameState, action: PlayerAction):
   }
 }
 
-function* initalizePlayer(cache: CardInfoCache, state: HistoryState, player: PlayerId, init: PlayerInit): CardGenerator {
+function hasLost(cache: CardInfoCache, game: GameState, player: PlayerId) {
+  return (
+    defaultUtil.filter(cache, game, {
+      players: [player],
+      zones: ["deck", "board"],
+      types: ["agent"],
+    }).length == 0
+  );
+}
+
+function hasEnded(game: GameState): PlayerId | null {
+  const cache = new Map();
+  if (hasLost(cache, game, 0)) {
+    return 1;
+  } else if (hasLost(cache, game, 1)) {
+    return 0;
+  } else {
+    return null;
+  }
+}
+
+function* initalizePlayer(
+  cache: CardInfoCache,
+  state: HistoryState,
+  player: PlayerId,
+  init: PlayerInit
+): CardGenerator {
   for (const [name, number] of Object.entries(init.deck.cards)) {
     for (let i = 0; i < number; i++) {
       yield* defaultUtil.addCard(cache, state.current, null, {
@@ -210,6 +270,12 @@ export async function createGame(players: [Player, Player]) {
     try {
       const generator = doAction(new Map(), state.current, playerAction);
       sendActions(generator, player, `player${player}/${playerAction.type}Action`);
+
+      const winner = hasEnded(state.current);
+      if (winner != null) {
+        players[0].end(winner);
+        players[1].end(winner);
+      }
     } catch (e) {
       if (typeof e == "string") {
         players[player].error(e);

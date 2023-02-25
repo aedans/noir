@@ -20,6 +20,7 @@ import Grave from "./Grave";
 import { Target } from "../../common/card";
 import HandAndDeck from "./HandAndDeck";
 import OpponentGrave from "./OpponentGrave";
+import { useLocation } from "wouter";
 
 export const SocketContext = React.createContext(null as unknown as Socket);
 export const PlayerContext = React.createContext(0 as PlayerId);
@@ -36,14 +37,15 @@ export const PreparedContext = React.createContext(
     prepared: Target[];
     setPrepared: Dispatch<SetStateAction<Target[]>>;
   }
-)
+);
 
 export default function Game(props: { params: { queue: string; deck: string } }) {
-  const [player, setPlayer] = useState(null as PlayerId | null);
+  let [player, setPlayer] = useState(null as PlayerId | null);
   const [socket, setSocket] = useState(null as Socket | null);
   const [hover, setHover] = useState([] as Target[]);
   const [prepared, setPrepared] = useState([] as Target[]);
   const [message, setMessage] = useState("");
+  const [_, setLocation] = useLocation();
   const cards = useRef({} as MoveAnimationState);
   const decks = useClientSelector((state) => state.decks);
   const dispatch = useClientDispatch();
@@ -67,8 +69,21 @@ export default function Game(props: { params: { queue: string; deck: string } })
       setMessage(message);
     });
 
-    socket.on("init", (player) => {
-      setPlayer(player);
+    socket.on("end", (winner) => {
+      setMessage("");
+      if (winner == player) {
+        setMessage("You Win!");
+      } else {
+        setMessage("You Lose.");
+      }
+
+      setTimeout(() => {
+        setLocation("/");
+      }, 2000);
+    });
+
+    socket.on("init", (p) => {
+      setPlayer(player = p);
 
       socket.emit("init", {
         deck: decks[decodeURIComponent(props.params.deck)],

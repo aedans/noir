@@ -40,6 +40,7 @@ export default React.memo(function Message(props: MessageProps) {
       ref={ref}
       anchor={[0.5, 0.5]}
       text={props.text}
+      fontSize={150}
       x={targetResolution.width / 2}
       y={targetResolution.height / 2}
     />
