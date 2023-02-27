@@ -6,12 +6,13 @@ exports.card = (util, cache, game, card) => ({
   cost: { money: 4 },
   colors: ["blue"],
   onEnter: function* () {
-    yield* util.setProp(cache, game, card, { target: card, name: "exhausted", value: true });
+    yield* util.setProp(cache, game, card, { target: card, name: "training", value: (card.props.training ?? 0) + 1 });
   },
   turn: function* () {
-    if (card.props.exhausted == true) {
-      yield* util.setProp(cache, game, card, { target: card, name: "exhausted", value: undefined });
+    if (card.props.training > 0 ) {
+      yield* util.setProp(cache, game, card, { target: card, name: "training", value: card.props.training - 1 });
       yield* util.exhaustCard(cache, game, card, { target: card });
-    }
+    } else {
+      yield* util.setProp(cache, game, card, { target: card, name: "training", value: undefined })}
   },
 });

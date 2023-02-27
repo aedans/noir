@@ -28,7 +28,7 @@ exports.card = (util, cache, game, card) => ({
               name: "processing",
             },
           });
-          yield* util.setProp(cache, game, affectedCard, {target: affectedCard, name: "underReview", value: true})
+          yield* util.setProp(cache, game, affectedCard, {target: affectedCard, name: "training", value: (card.props.training ?? 0) + 1 })
           yield* util.setProp(cache, game, card, {target: card, name: "processingPaperwork", value: undefined})
           yield* affectedInfo.play(target)
         }
@@ -38,10 +38,10 @@ exports.card = (util, cache, game, card) => ({
   modifiers: {
     processing: (modifiedInfo,proc,modifiedCard) => ({
       turn: function* (){
-        if(modifiedCard.props.underReview==true){
+        if(modifiedCard.props.training > 0){
           yield* util.exhaustCard(cache, game, card, {target: modifiedCard})
+          yield* util.setProp(cache, game, card, {target: modifiedCard, name: "training", value: card.props.training - 1})
         }
-        yield* util.setProp(cache, game, card, {target: modifiedCard, name: "underReview", value: undefined})
       }
     }),
   },

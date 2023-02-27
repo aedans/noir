@@ -28,7 +28,7 @@ exports.card = (util, cache, game, card) => ({
                 name: "training",
               },
             });
-            yield* util.setProp(cache, game, affectedCard, {target: affectedCard, name: "inTraining", value: true})
+            yield* util.setProp(cache, game, affectedCard, {target: affectedCard, name: "training", value: (card.props.training ?? 0) + 1 })
             yield* util.setProp(cache, game, card, {target: card, name: "awaitingTrainee", value: false})
             yield* affectedInfo.play(target)
           }
@@ -38,10 +38,10 @@ exports.card = (util, cache, game, card) => ({
     modifiers: {
       training: (modifiedInfo,tran,modifiedCard) => ({
         turn: function* (){
-          if(modifiedCard.props.inTraining==true){
+          if(modifiedCard.props.training > 0){
             yield* util.exhaustCard(cache, game, card, {target: modifiedCard})
+            yield* util.setProp(cache, game, card, {target: modifiedCard, name: "training", value: card.props.training - 1})
           }
-          yield* util.setProp(cache, game, card, {target: modifiedCard, name: "inTraining", value: undefined})
           yield* util.setProp(cache, game, card, {target: card, name: "awaitingTrainee", value: undefined})
           yield* util.removeCard(cache, game, card, {target:card})
         }
