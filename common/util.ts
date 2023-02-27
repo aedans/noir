@@ -45,6 +45,7 @@ import {
   playCard,
   PlayCardParams,
   initialGameState,
+  noop,
 } from "./gameSlice";
 import { v4 as uuid } from "uuid";
 import { historySlice, SetUndoneParams } from "./historySlice";
@@ -458,6 +459,7 @@ const util = {
   cid,
   random,
   randoms,
+  noop,
 };
 
 export type GetCardInfo = {

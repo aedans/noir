@@ -156,6 +156,7 @@ export function opponent(game: GameState, card: Target) {
 }
 
 export const gameReducers = {
+  noop: (state: GameState, action: PayloadAction<{}>) => {},
   hidden: (state: GameState, action: PayloadAction<TargetCardParams>) => {
     state.history.unshift(action as GameAction);
   },
@@ -277,6 +278,7 @@ export const gameSlice = createSlice({
 });
 
 export const {
+  noop,
   endTurn,
   addCard,
   playCard,
