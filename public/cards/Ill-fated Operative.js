@@ -6,11 +6,11 @@ exports.card = (util, cache, game, card) => ({
     cost: { money: 3 },
     colors: ["orange"],
     onEnter: function* (){
-        yield* util.setProp(cache, game, card, { target: card, name: "actionsLeft", value: 2 })
+        yield* util.setProp(cache, game, card, { target: card, name: "actionsLeft", value: 3 })
     },
     onExhaust: function* () {
         yield* util.setProp(cache, game, card, { target: card, name: "actionsLeft", value: (card.props.actionsLeft-1) })
-        if(card.props.actionsLeft == -1){
+        if(card.props.actionsLeft == 0){
             yield* util.removeCard(cache, game, card, { target: card });
         }
     },
