@@ -19,7 +19,7 @@ exports.card = (util, cache, game, card) => ({
     });
   },
   modifiers: {
-    avaricious: (info) => ({
+    avaricious: (info, modifier, card) => ({
       text: `${info.text} Whenever this is activated, you lose $2.`,
       onExhaust: function* () {
         yield* util.removeMoney(cache, game, card, {
