@@ -2,7 +2,7 @@
 /** @type {import("../../common/card").PartialCardInfoComputation} */
 exports.card = (util, cache, game, card) => ({
   type: "agent",
-  text: "Activate this: your next agent costs $2 less. It comes into play a turn later.",
+  text: "Activate this: your next agent costs $3 less. It comes into play a turn later.",
   cost: { money: 6 },
   colors: ["blue"],
   turn: function* (){

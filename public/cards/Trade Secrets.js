@@ -2,7 +2,7 @@
 /** @type {import("../../common/card").PartialCardInfoComputation} */
 exports.card = (util, cache, game, card) => ({
   type: "operation",
-  text: "Additional cost: reveal the lowest cost card in your deck. Reveal three of your opponent's cards.",
+  text: "Additional cost: reveal the highest cost card in your deck. Reveal three of your opponent's cards.",
   cost: { money: 1, agents: 1 },
   colors: ["green"],
   play: function* () {
@@ -25,6 +25,7 @@ exports.card = (util, cache, game, card) => ({
       players: [util.self(game, card)],
       zones: ["deck"],
       ordering: ["money"],
+      reversed: true,
       excludes: [card],
     });
     yield* util.revealCard(cache, game, card, { target: deckards[0] });

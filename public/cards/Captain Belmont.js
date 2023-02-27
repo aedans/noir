@@ -3,7 +3,7 @@
 exports.card = (util, cache, game, card) => ({
   type: "agent",
   text: "The first time an opponent's card is removed on each of your turns, gain $3.",
-  cost: { money: 10, agents: 1 },
+  cost: { money: 7, agents: 2 },
   colors: ["blue"],
   turn: function* () {
     yield* util.setProp(cache, game, card, { target: card, name: "the_law", value: true });

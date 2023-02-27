@@ -2,23 +2,13 @@
 /** @type {import("../../common/card").PartialCardInfoComputation} */
 exports.card = (util, cache, game, card) => ({
   type: "agent",
-  text: "When this is played, reveal the lowest cost card in each player's deck.",
+  text: "When this is revealed on the board, gain $1.",
   cost: { money: 6 },
   colors: ["green"],
-  play: function* (){
-    const deckards = util.filter(cache, game, {
-      players: [util.self(game, card)],
-      zones: ["deck"],
-      ordering: ["money"],
-      excludes: [card],
+  onReveal: function* () {
+    yield* util.addMoney(cache, game, card, {
+      player: util.self(game, card),
+      money: 1,
     });
-    yield* util.revealCard(cache, game, card, { target: deckards[0] });
-    const opdeckards = util.filter(cache, game, {
-      players: [util.opponent(game, card)],
-      zones: ["deck"],
-      ordering: ["money"],
-      excludes: [card],
-    });
-    yield* util.revealCard(cache, game, card, { target: opdeckards[0] });
-  }
+  },
 });
