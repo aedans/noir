@@ -161,6 +161,7 @@ function hasLost(cache: CardInfoCache, game: GameState, player: PlayerId) {
       players: [player],
       zones: ["deck", "board"],
       types: ["agent"],
+      disloyal: true
     }).length == 0
   );
 }
