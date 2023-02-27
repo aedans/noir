@@ -9,7 +9,7 @@ import { useCardInfoList } from "../cards";
 export default function OpponentGrave() {
   const player = useContext(PlayerContext);
   const grave = useClientSelector((state) => state.game.current.players[opponentOf(player)].grave);
-  const cards = useCardInfoList([...grave].reverse(), [grave]);
+  const cards = useCardInfoList([...grave], [grave]);
 
   const x = 0;
   const y = 0;
