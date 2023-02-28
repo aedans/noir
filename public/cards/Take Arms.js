@@ -15,18 +15,13 @@ exports.card = (util, cache, game, card) => ({
   },
   colors: ["orange"],
   play: function* () {
-    for (let i = 0; i < (this.cost?.agents ?? 0); i++) {
-      util.exhaustCard(cache, game, card, { target: card });
-      if (util.filter(cache, game, { players: [util.opponent(game, card)], zones: ["board"], hidden: false }).length > 0) {
-        const cards = util.filter(cache, game, {
-          hidden: false,
-          players: [util.opponent(game, card)],
-          zones: ["board"],
-        });
-        for (const target of util.randoms(cards, 1)) {
-          yield* util.removeCard(cache, game, card, { target });
-        }
-      }
+    const cards = util.filter(cache, game, {
+      hidden: false,
+      players: [util.opponent(game, card)],
+      zones: ["board"],
+    });
+    for (const target of util.randoms(cards, (this.cost?.agents ?? 0))) {
+      yield* util.removeCard(cache, game, card, { target });
     }
   },
 });

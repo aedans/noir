@@ -14,16 +14,19 @@ exports.card = (util, cache, game, card) => ({
     if (card.props.turns == 0) {
       yield* util.addCard(cache, game, card, {
         target: util.cid(),
-        name: "Civic Servant",
+        name: "Random Citizen",
         player: util.findCard(game, card).player,
         zone: "board",
         state: {
-          modifiers: [{ card, name: "disloyal" }],
+          modifiers: [{ card, name: "disloyalblue" }],
         },
       });
     }
   },
   modifiers: {
-    disloyal: util.keywordModifier("disloyal"),
+    disloyalblue: (info) => ({
+      keywords: ["disloyal"],
+      colors: ["blue"],
+    }),
   },
 });
