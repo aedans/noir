@@ -420,6 +420,14 @@ function* onRemove(info: CardInfo, game: GameState, payload: TargetCardParams): 
   }
 }
 
+function* onReveal(info: CardInfo, game: GameState, payload: TargetCardParams): CardGenerator {
+  const state = getCard(game, payload.target);
+  
+  if (state && state.hidden) {
+    yield* info.onReveal(payload);
+  }
+}
+
 function setUndone(game: GameState, payload: SetUndoneParams) {
   return historySlice.actions.setUndone({ index: game.history.length - payload.index - 1 });
 }
@@ -432,7 +440,7 @@ const util = {
   enterCard: onTrigger(enterCard, (info, game) => triggerReveal(info, game, info.onEnter)),
   bounceCard: onTrigger(bounceCard, (info, game) => triggerReveal(info, game, info.onBounce)),
   stealCard: onTrigger(stealCard, (info, game) => triggerReveal(info, game, info.onSteal)),
-  revealCard: onTrigger(revealCard, (info, game) => triggerReveal(info, game, info.onReveal)),
+  revealCard: onTrigger(revealCard, (info, game) => triggerReveal(info, game, (p) => onReveal(info, game, p))),
   refreshCard: onTrigger(refreshCard, (info, game) => triggerReveal(info, game, info.onRefresh)),
   exhaustCard: onTrigger(exhaustCard, (info, game) => triggerReveal(info, game, info.onExhaust)),
   setProp: onTrigger(setProp, (info, game) => triggerReveal(info, game, info.onSetProp)),
