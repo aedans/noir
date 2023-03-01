@@ -2,18 +2,18 @@
 /** @type {import("../../common/card").PartialCardInfoComputation} */
 exports.card = (util, cache, game, card) => ({
   type: "operation",
-  text: "Remove each agent that's green, orange, or purple.",
-  cost: { money: 24, agents: 6 },
+  text: "Remove each of your opponent's revealed cards that cost 6 or less.",
+  cost: { money: 10, agents: 5 },
   colors: ["blue"],
   play: function* () {
-    const dudes = util.filter(cache, game, {
+    const cards = util.filter(cache, game, {
       hidden: false,
-      types: ["agent"],
-      colors: ["orange", "green", "purple"],
+      players: [util.opponent(game,card)],
+      maxMoney: 6,
     });
 
-    for (const dude of dudes) {
-      yield* util.removeCard(cache, game, card, { target: dude });
+    for (const card of cards) {
+      yield* util.removeCard(cache, game, card, { target: card });
     }
   },
 });

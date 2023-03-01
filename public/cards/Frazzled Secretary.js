@@ -19,7 +19,7 @@ exports.card = (util, cache, game, card) => ({
   effect: (affectedInfo, affectedCard) => {
     if(card.props.processingPaperwork == true){
       return{
-        cost: {money: affectedInfo.cost.money-2, agents: affectedInfo.cost.agents},
+        cost: {money: affectedInfo.cost.money-3, agents: affectedInfo.cost.agents},
         play: function* (target){
           yield* util.modifyCard(cache, game, affectedCard, {
             target: affectedCard,
