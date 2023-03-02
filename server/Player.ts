@@ -4,7 +4,7 @@ import { Deck } from "../common/decksSlice";
 import { PlayerId } from "../common/gameSlice";
 import { HistoryAction } from "../common/historySlice";
 import fs from "fs";
-import { random } from "lodash";
+import { random } from "../common/util";
 
 const decks = JSON.parse(fs.readFileSync("./common/decks.json").toString());
 
@@ -57,7 +57,7 @@ export class SocketPlayer implements Player {
 
 export class UnitPlayer implements Player {
   init(): Promise<PlayerInit> {
-    return Promise.resolve({ deck: Object.values(decks)[random(0, 3, false)] as Deck });
+    return Promise.resolve({ deck: decks[random(["Green", "Blue", "Orange", "Purple"])] as Deck });
   }
 
   send() {}
