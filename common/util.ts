@@ -1,3 +1,4 @@
+import { nanoid } from "nanoid/non-secure";
 import {
   CardColor,
   CardCost,
@@ -47,7 +48,6 @@ import {
   initialGameState,
   noop,
 } from "./gameSlice";
-import { v4 as uuid } from "uuid";
 import { historySlice, SetUndoneParams } from "./historySlice";
 
 export type Filter = {
@@ -325,7 +325,7 @@ export function keywordModifier(keyword: CardKeyword): CardModifier {
 }
 
 export function cid() {
-  return { id: uuid() };
+  return { id: nanoid() };
 }
 
 export function random<T>(ts: T[]) {
