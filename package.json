@@ -8,8 +8,11 @@
     "@pixi/graphics-smooth": "0.0.29",
     "@reduxjs/toolkit": "^1.9.0",
     "animejs": "^3.2.1",
+    "dotenv": "^16.0.3",
     "express": "^4.17.3",
     "lodash": "^4.17.21",
+    "moize": "^6.1.5",
+    "mongodb": "^5.1.0",
     "pixi-projection": "^0.4.4",
     "pixi-stats": "^1.0.7",
     "pixi.js": "^6.5.8",
@@ -28,7 +31,6 @@
     "wouter": "^2.9.0"
   },
   "devDependencies": {
-    "@redux-devtools/core": "^3.13.1",
     "@types/animejs": "^3.1.6",
     "@types/express": "^4.17.13",
     "@types/lodash": "^4.14.191",

@@ -59,7 +59,7 @@ export function getCardInfoImpl(card: { name: string }) {
 }
 
 export async function getCards() {
-  return await fetch(`${serverOrigin}/cards.json`).then((x) => x.json());
+  return await fetch(`${serverOrigin}/cards`).then((x) => x.json());
 }
 
 export function useCardInfoList(states: CardState[], deps: ReadonlyArray<unknown>) {

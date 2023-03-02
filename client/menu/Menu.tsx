@@ -22,6 +22,13 @@ export default function Menu() {
           setLocation("/decks/");
         }}
       />
+      <Button
+        text="Replays"
+        y={400}
+        pointerdown={() => {
+          setLocation("/replays/");
+        }}
+      />
     </Container>
   );
 }

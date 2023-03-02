@@ -7,6 +7,7 @@ import { queues } from "./Queue";
 import { defaultCardState, initialGameState } from "../common/gameSlice";
 import { ordered } from "../common/util";
 import { defaultUtil } from "./card";
+import { findReplayIds } from "./db";
 
 const app = express();
 const port = 8080;
@@ -22,7 +23,7 @@ app.use(express.static("public"));
 app.use(express.static("dist"));
 app.use(express.json());
 
-app.get("/cards.json", (req, res) => {
+app.get("/cards", (req, res) => {
   try {
     const cards = fs.readdirSync("./public/cards").map((file) => file.substring(0, file.lastIndexOf(".")));
     const cardStates = cards.map((name) => defaultCardState(name, name));
@@ -32,6 +33,16 @@ app.get("/cards.json", (req, res) => {
     }));
     const orderedCards = ordered(allCards, ["color", "money"], (card) => card.info);
     res.json(orderedCards.map((card) => card.state.name));
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: (e as Error).message });
+  }
+});
+
+app.get("/replays", async (req, res) => {
+  try {
+    const replays = await findReplayIds();
+    res.json(replays);
   } catch (e) {
     console.error(e);
     res.status(500).json({ error: (e as Error).message });
