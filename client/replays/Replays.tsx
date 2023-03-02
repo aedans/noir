@@ -16,8 +16,13 @@ export default function Replays() {
       .then(setReplays);
   }, []);
 
-  const gameButtons = replays.map((game) => (
-    <Button key={game._id.toString()} text={game._id} pointerdown={() => setLocation(`/replays/${game._id}`)} />
+  const gameButtons = replays.map((game, index) => (
+    <Button
+      key={game._id.toString()}
+      y={index * 100}
+      text={game._id}
+      pointerdown={() => setLocation(`/replays/${game._id}`)}
+    />
   ));
 
   return (
