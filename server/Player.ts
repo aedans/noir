@@ -37,7 +37,7 @@ export class SocketPlayer implements Player {
     this.socket.emit("error", message);
   }
 
-  end(winner: number): void {
+  end(winner: PlayerId): void {
     this.socket.emit("end", winner);
   }
 

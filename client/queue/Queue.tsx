@@ -20,7 +20,7 @@ export default function Queue(props: { params: { queue: string; deck: string } }
   const dispatch = useClientDispatch();
 
   useEffect(() => {
-    const socket = io(serverOrigin);
+    const socket: NoirClientSocket = io(serverOrigin);
 
     socket.on("actions", (actions, name) => {
       (async () => {
@@ -53,9 +53,7 @@ export default function Queue(props: { params: { queue: string; deck: string } }
     socket.on("init", (p) => {
       setPlayer((player = p));
 
-      socket.emit("init", {
-        deck: decks[decodeURIComponent(props.params.deck)],
-      });
+      socket.emit("init", decks[decodeURIComponent(props.params.deck)]);
     });
 
     setSocket(socket);

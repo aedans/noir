@@ -2,6 +2,7 @@ import { Server, Socket as ServerSocket } from "socket.io";
 import { Socket as ClientSocket } from "socket.io-client";
 import { Target } from "./card";
 import { Deck } from "./decksSlice";
+import { PlayerId } from "./gameSlice";
 import { HistoryAction } from "./historySlice";
 
 export type PlayerAction = { type: "end" } | { type: "do"; id: string; target?: Target; prepared: Target[] };
@@ -9,10 +10,10 @@ export type PlayerAction = { type: "end" } | { type: "do"; id: string; target?: 
 export type PlayerInit = { deck: Deck };
 
 export type ServerToClientEvents = {
-  init: (player: number) => void;
+  init: (player: PlayerId) => void;
   actions: (actions: HistoryAction[], name: string) => void;
   error: (error: string) => void;
-  end: (winner: number) => void;
+  end: (winner: PlayerId) => void;
 };
 
 export type ClientToServerEvents = {
