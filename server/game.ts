@@ -9,7 +9,8 @@ import {
   initialHistoryState,
   setAction,
   setHidden,
-  liftAction
+  liftAction,
+  cleanAction
 } from "../common/historySlice";
 import { CardInfoCache, Filter } from "../common/util";
 import { insertReplay } from "./db";
@@ -208,7 +209,7 @@ export async function createGame(players: [Player, Player]) {
     let next = generator.next(state.current);
     const historyActions: HistoryAction[] = [];
     while (!next.done) {
-      const action = liftAction(newState.history.length, next.value);
+      const action = cleanAction(liftAction(newState.history.length, next.value));
       historyActions.push(action);
       newState = historySlice.reducer(newState, action);
       next = generator.next(newState.current);

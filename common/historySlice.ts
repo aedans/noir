@@ -1,4 +1,5 @@
-import { createSlice, current, PayloadAction } from "@reduxjs/toolkit";
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import produce from "immer";
 import { Target } from "./card";
 import { GameAction, gameReducers, GameState, initialGameState } from "./gameSlice";
 
@@ -31,6 +32,27 @@ export type SetHiddenParams = {
 export type SetUndoneParams = {
   index: number;
 };
+
+export function cleanAction(action: HistoryAction) {
+  return produce(action, (action) => {
+    if (action.type == "history/setHidden") {
+      const payload = action.payload as SetHiddenParams;
+      payload.target = { id: payload.target.id };
+    }
+  
+    if (action.type == "history/setAction") {
+      const payload = action.payload as SetActionParams;
+      
+      if (payload.action.payload.source) {
+        payload.action.payload.source = { id: payload.action.payload.source.id };
+      }
+  
+      if (payload.action.payload.target) {
+        payload.action.payload.target = { id: payload.action.payload.target.id };
+      }
+    }  
+  });
+}
 
 export function liftAction(index: number, action: GameAction | HistoryAction): HistoryAction {
   if (action.type.startsWith("history")) {
