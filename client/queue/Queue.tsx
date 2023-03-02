@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { batchActions } from "redux-batched-actions";
-import { io, Socket } from "socket.io-client";
+import { io } from "socket.io-client";
 import { useLocation } from "wouter";
 import { PlayerId } from "../../common/gameSlice";
 import { reset } from "../../common/historySlice";
+import { NoirClientSocket } from "../../common/network";
 import Button from "../Button";
 import { targetResolution } from "../Camera";
 import { loadCardsFromAction, serverOrigin } from "../cards";
@@ -12,7 +13,7 @@ import { useClientDispatch, useClientSelector } from "../store";
 
 export default function Queue(props: { params: { queue: string; deck: string } }) {
   let [player, setPlayer] = useState(null as PlayerId | null);
-  const [socket, setSocket] = useState(null as Socket | null);
+  const [socket, setSocket] = useState(null as NoirClientSocket | null);
   const decks = useClientSelector((state) => state.decks);
   const [message, setMessage] = useState("");
   const [_, setLocation] = useLocation();

@@ -11,8 +11,9 @@ import {
   setHidden,
   liftAction
 } from "../common/historySlice";
-import { CardInfoCache, Filter, PlayerAction, PlayerInit } from "../common/util";
+import { CardInfoCache, Filter } from "../common/util";
 import { insertReplay } from "./db";
+import { PlayerAction, PlayerInit } from "../common/network";
 
 function* doEndTurn(cache: CardInfoCache, game: GameState): CardGenerator {
   const player = currentPlayer(game);
@@ -267,7 +268,8 @@ export async function createGame(players: [Player, Player]) {
       if (winner != null) {
         players[0].end(winner);
         players[1].end(winner);
-        break;
+        await insertReplay(state.history);
+        return;
       }
     } catch (e) {
       if (typeof e == "string") {
@@ -277,6 +279,4 @@ export async function createGame(players: [Player, Player]) {
       }
     }
   }
-
-  await insertReplay(state.history);
 }

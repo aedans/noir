@@ -14,8 +14,8 @@ import Grave from "./Grave";
 import { Target } from "../../common/card";
 import HandAndDeck from "./HandAndDeck";
 import OpponentGrave from "./OpponentGrave";
-import { PlayerAction } from "../../common/util";
-import { useClientDispatch, useClientSelector } from "../store";
+import { PlayerAction } from "../../common/network";
+import { useClientSelector } from "../store";
 
 export const PlayerContext = React.createContext(0 as PlayerId);
 export const ConnectionContext = React.createContext({ emit: (action: PlayerAction) => {} });

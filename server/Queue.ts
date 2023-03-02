@@ -1,6 +1,6 @@
-import { Socket } from "socket.io";
 import Test from "./queue/Test";
 import Casual from "./queue/Casual";
+import { NoirServerSocket } from "../common/network";
 
 export const queues: { [name: string]: Queue } = {
   test: new Test(),
@@ -8,5 +8,5 @@ export const queues: { [name: string]: Queue } = {
 };
 
 export default interface Queue {
-  push(socket: Socket): Promise<void>;
+  push(socket: NoirServerSocket): Promise<void>;
 }

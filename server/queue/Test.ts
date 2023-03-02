@@ -1,10 +1,10 @@
-import { Socket } from "socket.io";
+import { NoirServerSocket } from "../../common/network";
 import { createGame } from "../game";
 import { SocketPlayer, UnitPlayer } from "../Player";
 import Queue from "../Queue";
 
 export default class Test implements Queue {
-  async push(socket: Socket): Promise<void> {
+  async push(socket: NoirServerSocket): Promise<void> {
     await createGame([new SocketPlayer(socket), new UnitPlayer()]);
   }
 }

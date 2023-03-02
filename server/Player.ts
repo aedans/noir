@@ -1,9 +1,9 @@
-import { Socket } from "socket.io";
 import { Deck } from "../common/decksSlice";
 import { PlayerId } from "../common/gameSlice";
 import { HistoryAction } from "../common/historySlice";
 import fs from "fs";
-import { PlayerAction, PlayerInit, random } from "../common/util";
+import { random } from "../common/util";
+import { PlayerInit, PlayerAction, NoirServerSocket } from "../common/network";
 
 const decks = JSON.parse(fs.readFileSync("./common/decks.json").toString());
 
@@ -16,15 +16,15 @@ export default interface Player {
 }
 
 export class SocketPlayer implements Player {
-  socket: Socket;
+  socket: NoirServerSocket;
 
-  constructor(socket: Socket) {
+  constructor(socket: NoirServerSocket) {
     this.socket = socket;
   }
 
   init(player: PlayerId): Promise<PlayerInit> {
     return new Promise((resolve, reject) => {
-      this.socket.once("init", (action) => resolve(action));
+      this.socket.once("init", (deck) => resolve({ deck }));
       this.socket.emit("init", player);
     });
   }

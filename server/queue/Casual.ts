@@ -1,12 +1,12 @@
-import { Socket } from "socket.io";
+import { NoirServerSocket } from "../../common/network";
 import { createGame } from "../game";
 import { SocketPlayer } from "../Player";
 import Queue from "../Queue";
 
 export default class Casual implements Queue {
-  sockets: Socket[] = [];
+  sockets: NoirServerSocket[] = [];
 
-  async push(socket: Socket): Promise<void> {
+  async push(socket: NoirServerSocket): Promise<void> {
     socket.on("disconnect", () => {
       this.sockets = this.sockets.filter(s => s != socket);
     });

@@ -9,11 +9,12 @@ import { ordered } from "../common/util";
 import { defaultUtil } from "./card";
 import { findReplay, findReplayIds } from "./db";
 import { ObjectId } from "mongodb";
+import { NoirServer } from "../common/network";
 
 const app = express();
 const port = 8080;
 const server = http.createServer(app);
-const io = new Server(server, {
+const io: NoirServer = new Server(server, {
   cors: {
     origin: "*",
   },
