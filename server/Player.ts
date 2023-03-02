@@ -1,18 +1,11 @@
 import { Socket } from "socket.io";
-import { Target } from "../common/card";
 import { Deck } from "../common/decksSlice";
 import { PlayerId } from "../common/gameSlice";
 import { HistoryAction } from "../common/historySlice";
 import fs from "fs";
-import { random } from "../common/util";
+import { PlayerAction, PlayerInit, random } from "../common/util";
 
 const decks = JSON.parse(fs.readFileSync("./common/decks.json").toString());
-
-export type PlayerInit = {
-  deck: Deck;
-};
-
-export type PlayerAction = { type: "end" } | { type: "do"; id: string; target?: Target; prepared: Target[] };
 
 export default interface Player {
   init(player: PlayerId): Promise<PlayerInit>;

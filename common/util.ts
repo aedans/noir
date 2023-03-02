@@ -49,6 +49,13 @@ import {
 } from "./gameSlice";
 import { v4 as uuid } from "uuid";
 import { historySlice, SetUndoneParams } from "./historySlice";
+import { Deck } from "./decksSlice";
+
+export type PlayerAction = { type: "end" } | { type: "do"; id: string; target?: Target; prepared: Target[] };
+
+export type PlayerInit = {
+  deck: Deck;
+};
 
 export type Filter = {
   excludes?: Target[];

@@ -3,12 +3,12 @@ import { Container } from "react-pixi-fiber";
 import Text from "../Text";
 import Rectangle from "../Rectangle";
 import { targetResolution } from "../Camera";
-import { PlayerContext, SocketContext } from "./Game";
+import { ConnectionContext, PlayerContext } from "./Game";
 import { useClientSelector } from "../store";
 import { currentPlayer } from "../../common/gameSlice";
 
 export default function EndTurn() {
-  const socket = useContext(SocketContext);
+  const connection = useContext(ConnectionContext);
   const player = useContext(PlayerContext);
   const turn = useClientSelector((state) => state.game.current.turn);
 
@@ -19,7 +19,7 @@ export default function EndTurn() {
   const isTurn = currentPlayer({ turn }) == player;
 
   function pointerdown() {
-    socket.emit("action", { type: "end" });
+    connection.emit({ type: "end" });
   }
 
   return (

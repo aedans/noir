@@ -1,16 +1,16 @@
 import React, { Ref, useContext, useRef, MutableRefObject, useImperativeHandle, useEffect } from "react";
 import { useDrag } from "react-dnd";
-import { Container, Sprite } from "react-pixi-fiber";
+import { Container } from "react-pixi-fiber";
 import { currentPlayer } from "../../common/gameSlice";
 import { defaultUtil } from "../cards";
 import { useClientSelector } from "../store";
-import { HoverContext, SocketContext, PlayerContext, PreparedContext } from "./Game";
+import { ConnectionContext, HoverContext, PlayerContext, PreparedContext } from "./Game";
 import GameCard, { GameCardProps } from "./GameCard";
 
 export default React.forwardRef(function BoardCard(props: GameCardProps, ref: Ref<Container>) {
   const { hover, setHover } = useContext(HoverContext);
   const { prepared, setPrepared } = useContext(PreparedContext);
-  const socket = useContext(SocketContext);
+  const connection = useContext(ConnectionContext);
   const player = useContext(PlayerContext);
   const game = useClientSelector((state) => state.game.current);
   const cardRef = useRef() as MutableRefObject<Required<Container>>;
@@ -47,7 +47,7 @@ export default React.forwardRef(function BoardCard(props: GameCardProps, ref: Re
     } else if (isPrepared) {
       setPrepared((ps) => ps.filter((card) => card.id != props.state.id));
     } else if (!props.info.activateTargets) {
-      socket.emit("action", { type: "do", id: props.state.id, prepared });
+      connection.emit({ type: "do", id: props.state.id, prepared });
     }
   }
 

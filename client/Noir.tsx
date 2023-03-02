@@ -14,6 +14,7 @@ import { Application, Ticker, UPDATE_PRIORITY } from "pixi.js";
 import { addStats } from "pixi-stats";
 import Replays from "./replays/Replays";
 import Replay from "./replays/Replay";
+import Queue from "./queue/Queue";
 
 export type NoirProps = {
   app: Application;
@@ -33,11 +34,11 @@ export default function Noir(props: NoirProps) {
           <DndProvider backend={PIXIBackend(props.app)}>
             <Router>
               <Route path="/play" component={Play} />
-              <Route path="/game/:queue/:deck" component={Game} />
+              <Route path="/queue/:queue/:deck" component={Queue} />
               <Route path="/decks" component={Decks} />
               <Route path="/edit/:deck" component={Editor} />
               <Route path="/replays" component={Replays} />
-              <Route path="/replays/:replay" component={Replay} />
+              <Route path="/replays/:id" component={Replay} />
               <Route path="/" component={Menu} />
             </Router>
           </DndProvider>

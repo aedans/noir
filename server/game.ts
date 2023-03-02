@@ -1,4 +1,4 @@
-import Player, { PlayerAction, PlayerInit } from "./Player";
+import Player from "./Player";
 import { currentPlayer, findCard, GameAction, GameState, getCard, PlayerId } from "../common/gameSlice";
 import { defaultUtil } from "./card";
 import { CardColor, CardCost, CardGenerator, CardState, Target } from "../common/card";
@@ -9,8 +9,9 @@ import {
   initialHistoryState,
   setAction,
   setHidden,
+  liftAction
 } from "../common/historySlice";
-import { CardInfoCache, Filter } from "../common/util";
+import { CardInfoCache, Filter, PlayerAction, PlayerInit } from "../common/util";
 import { insertReplay } from "./db";
 
 function* doEndTurn(cache: CardInfoCache, game: GameState): CardGenerator {
@@ -196,17 +197,6 @@ function* initalizePlayer(
   }
 }
 
-function liftAction(state: HistoryState, action: GameAction | HistoryAction): HistoryAction {
-  if (action.type.startsWith("history")) {
-    return action as HistoryAction;
-  } else {
-    return setAction({
-      index: state.history.length,
-      action: action as GameAction,
-    });
-  }
-}
-
 export async function createGame(players: [Player, Player]) {
   let state = initialHistoryState();
 
@@ -217,7 +207,7 @@ export async function createGame(players: [Player, Player]) {
     let next = generator.next(state.current);
     const historyActions: HistoryAction[] = [];
     while (!next.done) {
-      const action = liftAction(newState, next.value);
+      const action = liftAction(newState.history.length, next.value);
       historyActions.push(action);
       newState = historySlice.reducer(newState, action);
       next = generator.next(newState.current);

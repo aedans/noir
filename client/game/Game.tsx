@@ -3,27 +3,22 @@ import { Container } from "react-pixi-fiber";
 import Board from "./Board";
 import Rectangle from "../Rectangle";
 import { targetResolution } from "../Camera";
-import { useClientDispatch, useClientSelector } from "../store";
 import EndTurn from "./EndTurn";
 import { MoveAnimationContext, MoveAnimationState } from "../MoveAnimation";
 import { PlayerId } from "../../common/gameSlice";
 import Resources from "./Resources";
-import { batchActions } from "redux-batched-actions";
-import { loadCardsFromAction, serverOrigin } from "../cards";
 import OpponentBoard from "./OpponentBoard";
-import { io, Socket } from "socket.io-client";
-import Button from "../Button";
 import OpponentHand from "./OpponentHand";
-import { reset } from "../../common/historySlice";
 import Message from "./Message";
 import Grave from "./Grave";
 import { Target } from "../../common/card";
 import HandAndDeck from "./HandAndDeck";
 import OpponentGrave from "./OpponentGrave";
-import { useLocation } from "wouter";
+import { PlayerAction } from "../../common/util";
+import { useClientDispatch, useClientSelector } from "../store";
 
-export const SocketContext = React.createContext(null as unknown as Socket);
 export const PlayerContext = React.createContext(0 as PlayerId);
+export const ConnectionContext = React.createContext({ emit: (action: PlayerAction) => {} });
 
 export const HoverContext = React.createContext(
   {} as {
@@ -39,93 +34,34 @@ export const PreparedContext = React.createContext(
   }
 );
 
-export default function Game(props: { params: { queue: string; deck: string } }) {
-  let [player, setPlayer] = useState(null as PlayerId | null);
-  const [socket, setSocket] = useState(null as Socket | null);
+export default function Game(props: { message: string }) {
   const [hover, setHover] = useState([] as Target[]);
   const [prepared, setPrepared] = useState([] as Target[]);
-  const [message, setMessage] = useState("");
-  const [_, setLocation] = useLocation();
+  const game = useClientSelector((state) => state.game);
   const cards = useRef({} as MoveAnimationState);
-  const decks = useClientSelector((state) => state.decks);
-  const dispatch = useClientDispatch();
 
   useEffect(() => {
-    const socket = io(serverOrigin);
-
-    socket.on("actions", (actions, name) => {
-      (async () => {
-        for (const action of actions) {
-          await loadCardsFromAction(action);
-        }
-
-        dispatch(batchActions(actions, name));
-        setPrepared([]);
-      })();
-    });
-
-    socket.on("error", (message) => {
-      setMessage("");
-      setMessage(message);
-    });
-
-    socket.on("end", (winner) => {
-      setMessage("");
-      if (winner == player) {
-        setMessage("You Win!");
-      } else {
-        setMessage("You Lose.");
-      }
-
-      setTimeout(() => {
-        setLocation("/");
-      }, 2000);
-    });
-
-    socket.on("init", (p) => {
-      setPlayer(player = p);
-
-      socket.emit("init", {
-        deck: decks[decodeURIComponent(props.params.deck)],
-      });
-    });
-
-    setSocket(socket);
-
-    socket.emit("queue", decodeURIComponent(props.params.queue));
-
-    return () => {
-      socket?.close();
-      dispatch(reset());
-    };
-  }, []);
-
-  if (player == null || socket == null) {
-    return <Button text={"Waiting for player"} x={targetResolution.width / 2} y={targetResolution.height / 2} />;
-  }
+    setPrepared([]);
+  }, [game]);
 
   return (
-    <SocketContext.Provider value={socket}>
-      <MoveAnimationContext.Provider value={cards}>
-        <PlayerContext.Provider value={player}>
-          <HoverContext.Provider value={{ hover, setHover }}>
-            <PreparedContext.Provider value={{ prepared, setPrepared }}>
-              <Container>
-                <Rectangle fill={0x202020} width={targetResolution.width} height={targetResolution.height} />
-                <OpponentHand />
-                <OpponentBoard />
-                <Board />
-                <EndTurn />
-                <Resources />
-                <HandAndDeck />
-                <OpponentGrave />
-                <Grave />
-                <Message text={message} />
-              </Container>
-            </PreparedContext.Provider>
-          </HoverContext.Provider>
-        </PlayerContext.Provider>
-      </MoveAnimationContext.Provider>
-    </SocketContext.Provider>
+    <MoveAnimationContext.Provider value={cards}>
+      <HoverContext.Provider value={{ hover, setHover }}>
+        <PreparedContext.Provider value={{ prepared, setPrepared }}>
+          <Container>
+            <Rectangle fill={0x202020} width={targetResolution.width} height={targetResolution.height} />
+            <OpponentHand />
+            <OpponentBoard />
+            <Board />
+            <EndTurn />
+            <Resources />
+            <HandAndDeck />
+            <OpponentGrave />
+            <Grave />
+            <Message text={props.message} />
+          </Container>
+        </PreparedContext.Provider>
+      </HoverContext.Provider>
+    </MoveAnimationContext.Provider>
   );
 }

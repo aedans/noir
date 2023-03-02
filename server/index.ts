@@ -7,7 +7,8 @@ import { queues } from "./Queue";
 import { defaultCardState, initialGameState } from "../common/gameSlice";
 import { ordered } from "../common/util";
 import { defaultUtil } from "./card";
-import { findReplayIds } from "./db";
+import { findReplay, findReplayIds } from "./db";
+import { ObjectId } from "mongodb";
 
 const app = express();
 const port = 8080;
@@ -41,8 +42,16 @@ app.get("/cards", (req, res) => {
 
 app.get("/replays", async (req, res) => {
   try {
-    const replays = await findReplayIds();
-    res.json(replays);
+    res.json(await findReplayIds());
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: (e as Error).message });
+  }
+});
+
+app.get("/replays/:replay", async (req, res) => {
+  try {
+    res.json(await findReplay(new ObjectId(req.params.replay)));
   } catch (e) {
     console.error(e);
     res.status(500).json({ error: (e as Error).message });

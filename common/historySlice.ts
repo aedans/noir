@@ -32,6 +32,17 @@ export type SetUndoneParams = {
   index: number;
 };
 
+export function liftAction(index: number, action: GameAction | HistoryAction): HistoryAction {
+  if (action.type.startsWith("history")) {
+    return action as HistoryAction;
+  } else {
+    return setAction({
+      index,
+      action: action as GameAction,
+    });
+  }
+}
+
 function reduce(history: GameAction[], state: GameState) {
   for (const action of history) {
     if (action) {

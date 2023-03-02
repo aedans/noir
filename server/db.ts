@@ -1,6 +1,6 @@
 import * as dotenv from "dotenv";
 import moize from "moize";
-import { MongoClient } from "mongodb";
+import { MongoClient, ObjectId } from "mongodb";
 import { GameAction } from "../common/gameSlice";
 
 const replayCollection = moize.promise(async () => {
@@ -11,12 +11,18 @@ const replayCollection = moize.promise(async () => {
 });
 
 export async function insertReplay(history: GameAction[]) {
-  const games = await replayCollection();
-  games.insertOne({ history });
+  const replays = await replayCollection();
+  replays.insertOne({ history });
 }
 
 export async function findReplayIds() {
-  const games = await replayCollection();
-  const results = await games.find({}, { limit: 10 }).project({ _id: 1 }).toArray();
+  const replays = await replayCollection();
+  const results = await replays.find({}, { limit: 10 }).project({ _id: 1 }).toArray();
   return results;
+}
+
+export async function findReplay(id: ObjectId) {
+  const replays = await replayCollection();
+  const result = await replays.findOne({ _id: id });
+  return result;
 }

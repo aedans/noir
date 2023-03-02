@@ -8,15 +8,15 @@ import { WithId } from "mongodb";
 
 export default function Replays() {
   const [_, setLocation] = useLocation();
-  const [games, setGames] = useState([] as WithId<{}>[]);
+  const [replays, setReplays] = useState([] as WithId<{}>[]);
 
   useEffect(() => {
     fetch(`${serverOrigin}/replays`)
       .then((x) => x.json())
-      .then(setGames);
+      .then(setReplays);
   }, []);
 
-  const gameButtons = games.map((game) => (
+  const gameButtons = replays.map((game) => (
     <Button key={game._id.toString()} text={game._id} pointerdown={() => setLocation(`/replays/${game._id}`)} />
   ));
 

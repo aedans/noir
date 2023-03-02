@@ -4,7 +4,7 @@ import { Container, InteractiveComponent } from "react-pixi-fiber";
 import { CardState } from "../../common/card";
 import Card, { CardProps, isCardPropsEqual } from "../Card";
 import MoveAnimation, { useLastPos } from "../MoveAnimation";
-import { PreparedContext, SocketContext } from "./Game";
+import { ConnectionContext, PreparedContext } from "./Game";
 
 export type GameCardProps = CardProps &
   InteractiveComponent & {
@@ -32,22 +32,25 @@ export function isGameCardPropsEqual(a: GameCardProps, b: GameCardProps) {
 
 export default React.memo(
   React.forwardRef(function GameCard(props: GameCardProps, ref: Ref<Container>) {
-    const socket = useContext(SocketContext);
+    const connection = useContext(ConnectionContext);
     const { prepared } = useContext(PreparedContext);
     const componentRef = useRef() as MutableRefObject<Required<Container>>;
     const { x, y } = useLastPos(props, props.state.id, componentRef);
 
     useImperativeHandle(ref, () => componentRef.current);
 
-    const [{ isOver }, drop] = useDrop(() => ({
-      accept: "target",
-      drop: (state: CardState) => {
-        socket.emit("action", { type: "do", id: state.id, target: { id: props.state.id }, prepared });
-      },
-      collect: (monitor) => ({
-        isOver: monitor.isOver(),
+    const [{ isOver }, drop] = useDrop(
+      () => ({
+        accept: "target",
+        drop: (state: CardState) => {
+          connection.emit({ type: "do", id: state.id, target: { id: props.state.id }, prepared });
+        },
+        collect: (monitor) => ({
+          isOver: monitor.isOver(),
+        }),
       }),
-    }), [prepared]);
+      [prepared]
+    );
 
     useEffect(() => {
       drop(componentRef);
