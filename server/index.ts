@@ -24,7 +24,7 @@ app.use(express.static("public"));
 app.use(express.static("dist"));
 app.use(express.json());
 
-app.get("/cards", (req, res) => {
+app.get("/api/cards", (req, res) => {
   try {
     const cards = fs.readdirSync("./public/cards").map((file) => file.substring(0, file.lastIndexOf(".")));
     const cardStates = cards.map((name) => defaultCardState(name, name));
@@ -40,7 +40,7 @@ app.get("/cards", (req, res) => {
   }
 });
 
-app.get("/replays", async (req, res) => {
+app.get("/api/replays", async (req, res) => {
   try {
     res.json(await findReplayIds());
   } catch (e) {
@@ -49,7 +49,7 @@ app.get("/replays", async (req, res) => {
   }
 });
 
-app.get("/replays/:replay", async (req, res) => {
+app.get("/api/replays/:replay", async (req, res) => {
   try {
     res.json(await findReplay(new ObjectId(req.params.replay)));
   } catch (e) {

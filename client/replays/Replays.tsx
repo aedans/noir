@@ -11,7 +11,7 @@ export default function Replays() {
   const [replays, setReplays] = useState([] as WithId<{}>[]);
 
   useEffect(() => {
-    fetch(`${serverOrigin}/replays`)
+    fetch(`${serverOrigin}/api/replays`)
       .then((x) => x.json())
       .then(setReplays);
   }, []);

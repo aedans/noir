@@ -12,7 +12,7 @@ export default function Replay(props: { params: { id: string } }) {
 
   useEffect(() => {
     (async () => {
-      const res = await fetch(`${serverOrigin}/replays/${props.params.id}`);
+      const res = await fetch(`${serverOrigin}/api/replays/${props.params.id}`);
       const replay = (await res.json()) as WithId<{ history: GameAction[] }>;
 
       let index = 0;
