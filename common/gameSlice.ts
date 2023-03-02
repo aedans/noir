@@ -56,7 +56,7 @@ export type GameParams = Partial<TargetCardParams> &
   );
 
 export type TargetCardParams = {
-  source: Target | null;
+  source?: Target;
   target: Target;
 };
 

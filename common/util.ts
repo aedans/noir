@@ -350,7 +350,7 @@ export function onTrigger<T extends GameParams>(
     this: GetCardInfo,
     cache: CardInfoCache,
     game: GameState,
-    source: Target | null,
+    source: Target | undefined,
     sourceless: Omit<T, "source">
   ): CardGenerator {
     const payload = { ...sourceless, source } as T;

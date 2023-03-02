@@ -17,7 +17,7 @@ import { PlayerAction, PlayerInit } from "../common/network";
 
 function* doEndTurn(cache: CardInfoCache, game: GameState): CardGenerator {
   const player = currentPlayer(game);
-  yield* defaultUtil.addMoney(cache, game, null, { player, money: 2 });
+  yield* defaultUtil.addMoney(cache, game, undefined, { player, money: 2 });
 
   for (const card of game.players[player].board) {
     if (card.exhausted) {
@@ -27,7 +27,7 @@ function* doEndTurn(cache: CardInfoCache, game: GameState): CardGenerator {
     yield* defaultUtil.getCardInfo(cache, game, card).turn();
   }
 
-  yield* defaultUtil.endTurn(cache, game, null, {});
+  yield* defaultUtil.endTurn(cache, game, undefined, {});
 }
 
 function validateTargets(
@@ -188,7 +188,7 @@ function* initalizePlayer(
 ): CardGenerator {
   for (const [name, number] of Object.entries(init.deck.cards)) {
     for (let i = 0; i < number; i++) {
-      yield* defaultUtil.addCard(cache, state.current, null, {
+      yield* defaultUtil.addCard(cache, state.current, undefined, {
         target: defaultUtil.cid(),
         name,
         player,
