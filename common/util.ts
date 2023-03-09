@@ -395,11 +395,13 @@ function triggerReveal<T extends GameParams>(
 }
 
 function* onAdd(info: CardInfo, payload: AddCardParams): CardGenerator {
-  yield* info.onAdd(payload);
-
-  if (info.keywords.includes("protected")) {
-    yield protectCard(payload);
-  }
+  yield* info.onAdd({
+    ...payload,
+    state: {
+      ...payload.state,
+      protected: true,
+    }
+  });
 }
 
 function* onPlay(info: CardInfo, payload: PlayCardParams): CardGenerator {
