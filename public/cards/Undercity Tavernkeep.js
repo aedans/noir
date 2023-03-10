@@ -1,7 +1,7 @@
 // @ts-check
 /** @type {import("../../common/card").PartialCardInfoComputation} */
 exports.card = (util, cache, game, card) => ({
-  text: "Every other turn: gain a Disloyal New Hire.",
+  text: "Every other turn: add a Disloyal New Hire to your deck.",
   type: "agent",
   cost: { money: 10 },
   colors: ["purple"],
