@@ -17,6 +17,15 @@ export type ClientDispatch = typeof store.dispatch;
 export const useClientDispatch: () => ClientDispatch = useDispatch;
 export const useClientSelector: TypedUseSelectorHook<ClientState> = useSelector;
 
-store.subscribe(() => {
+export function updateLocalStorage() {
+  if (localStorage.getItem("v") == null) {
+    localStorage.clear();
+  }
+
+  localStorage.setItem("v", "1");
   localStorage.setItem("decks", JSON.stringify(store.getState().decks));
+}
+
+store.subscribe(() => {
+  updateLocalStorage();
 });
