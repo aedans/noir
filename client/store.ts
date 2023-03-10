@@ -23,9 +23,8 @@ export function updateLocalStorage() {
   }
 
   localStorage.setItem("v", "1");
-  localStorage.setItem("decks", JSON.stringify(store.getState().decks));
 }
 
 store.subscribe(() => {
-  updateLocalStorage();
+  localStorage.setItem("decks", JSON.stringify(store.getState().decks));
 });
