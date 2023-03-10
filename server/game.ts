@@ -1,5 +1,5 @@
 import Player from "./Player";
-import { currentPlayer, findCard, GameAction, GameState, getCard, PlayerId } from "../common/gameSlice";
+import { currentPlayer, defaultCardState, findCard, GameAction, GameState, getCard, PlayerId } from "../common/gameSlice";
 import { defaultUtil } from "./card";
 import { CardColor, CardCost, CardGenerator, CardState, Target } from "../common/card";
 import {

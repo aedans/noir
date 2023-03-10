@@ -212,9 +212,16 @@ export default React.memo(
               style={{ fontSize: 32, tint: 0 }}
             />
             <Text
+              anchor={[0.5, 0]}
+              x={cardWidth / 2}
+              y={283}
+              text={props.info.type.toUpperCase()}
+              style={{ fontSize: 28, tint: 0 }}
+            />
+            <Text
               anchor={[0.5, 0.5]}
               x={cardWidth / 2}
-              y={cardHeight * (3 / 4) + 5}
+              y={cardHeight * (3 / 4) + 15}
               text={text}
               style={{ fontSize: 32, align: "center", maxWidth: cardWidth - 20, letterSpacing: 1 }}
             />
