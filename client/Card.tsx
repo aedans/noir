@@ -159,6 +159,10 @@ export default React.memo(
       text = `${keywords.map(getDisplayName).join(", ")}\n${text}`.trim();
     }
 
+    if (!props.state.hidden) {
+      text = `Revealed\n ${text}`;
+    }
+
     let propsText = "";
     for (const [name, value] of Object.entries(props.state.props)) {
       if (value != undefined) {
