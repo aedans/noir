@@ -1,5 +1,5 @@
 import Player from "./Player";
-import { currentPlayer, defaultCardState, findCard, GameAction, GameState, getCard, PlayerId } from "../common/gameSlice";
+import { currentPlayer, findCard, GameAction, GameState, getCard, opponentOf, PlayerId } from "../common/gameSlice";
 import { defaultUtil } from "./card";
 import { CardColor, CardCost, CardGenerator, CardState, Target } from "../common/card";
 import {
@@ -10,11 +10,12 @@ import {
   setAction,
   setHidden,
   liftAction,
-  cleanAction
+  cleanAction,
 } from "../common/historySlice";
-import { CardInfoCache, Filter } from "../common/util";
+import util, { CardInfoCache, Filter } from "../common/util";
 import { insertReplay } from "./db";
 import { PlayerAction, PlayerInit } from "../common/network";
+import { QueueName } from "./Queue";
 
 function* doEndTurn(cache: CardInfoCache, game: GameState): CardGenerator {
   const player = currentPlayer(game);
@@ -165,7 +166,7 @@ function hasLost(cache: CardInfoCache, game: GameState, player: PlayerId) {
       players: [player],
       zones: ["deck", "board"],
       types: ["agent"],
-      disloyal: false
+      disloyal: false,
     }).length == 0
   );
 }
@@ -199,7 +200,24 @@ function* initalizePlayer(
   }
 }
 
-export async function createGame(players: [Player, Player]) {
+function endGame(
+  winner: PlayerId,
+  players: [Player, Player],
+  state: HistoryState,
+  queue: QueueName,
+  onEnd: () => void
+) {
+  players[0].end(winner);
+  players[1].end(winner);
+
+  onEnd();
+
+  if (queue != "test") {
+    insertReplay(state.history);
+  }
+}
+
+export async function createGame(players: [Player, Player], queue: QueueName, onEnd: () => void) {
   let state = initialHistoryState();
 
   function sendActions(generator: CardGenerator, source: PlayerId, name: string) {
@@ -252,32 +270,38 @@ export async function createGame(players: [Player, Player]) {
 
   var cache = new Map();
   for (const player of [0, 1] as const) {
-    const init = await players[player].init(player);
+    const init = await players[player].init();
     const generator = initalizePlayer(cache, state, player, init);
     sendActions(generator, player, `player${player}/init`);
   }
 
-  while (true) {
-    const player = currentPlayer(state.current);
-    const playerAction = await players[player].receive();
-
-    try {
-      const generator = doAction(new Map(), state.current, playerAction);
-      sendActions(generator, player, `player${player}/${playerAction.type}Action`);
-
-      const winner = hasEnded(state.current);
-      if (winner != null) {
-        players[0].end(winner);
-        players[1].end(winner);
-        await insertReplay(state.history);
+  for (const player of [0, 1] as const) {
+    players[player].onAction((action) => {
+      if (action == "concede") {
+        endGame(opponentOf(player), players, state, queue, onEnd);
         return;
       }
-    } catch (e) {
-      if (typeof e == "string") {
-        players[player].error(e);
-      } else {
-        console.error(e);
+
+      if (player != currentPlayer(state.current)) {
+        players[player].error("Not your turn");
+        return;
       }
-    }
+
+      try {
+        const generator = doAction(new Map(), state.current, action);
+        sendActions(generator, player, `player${player}/${action.type}Action`);
+
+        const winner = hasEnded(state.current);
+        if (winner != null) {
+          endGame(winner, players, state, queue, onEnd);
+        }
+      } catch (e) {
+        if (typeof e == "string") {
+          players[player].error(e);
+        } else {
+          console.error(e);
+        }
+      }
+    });
   }
 }

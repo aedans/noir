@@ -5,11 +5,12 @@ import { useLocation } from "wouter";
 import { PlayerId } from "../../common/gameSlice";
 import { reset } from "../../common/historySlice";
 import { NoirClientSocket } from "../../common/network";
+import { QueueName } from "../../server/Queue";
 import Button from "../Button";
 import { targetResolution } from "../Camera";
 import { loadCardsFromAction, serverOrigin } from "../cards";
 import Game, { ConnectionContext, PlayerContext } from "../game/Game";
-import { useClientDispatch, useClientSelector } from "../store";
+import { getUsername, useClientDispatch, useClientSelector } from "../store";
 
 export default function Queue(props: { params: { queue: string; deck: string } }) {
   let [player, setPlayer] = useState(null as PlayerId | null);
@@ -58,7 +59,7 @@ export default function Queue(props: { params: { queue: string; deck: string } }
 
     setSocket(socket);
 
-    socket.emit("queue", decodeURIComponent(props.params.queue));
+    socket.emit("queue", decodeURIComponent(props.params.queue) as QueueName, getUsername());
 
     return () => {
       socket?.close();
@@ -70,7 +71,12 @@ export default function Queue(props: { params: { queue: string; deck: string } }
     return <Button text={"Waiting for player"} x={targetResolution.width / 2} y={targetResolution.height / 2} />;
   } else {
     return (
-      <ConnectionContext.Provider value={{ emit: (action) => socket.emit("action", action) }}>
+      <ConnectionContext.Provider
+        value={{
+          emit: (action) => socket.emit("action", action),
+          concede: () => socket.emit("concede"),
+        }}
+      >
         <PlayerContext.Provider value={player}>
           <Game message={message} />
         </PlayerContext.Provider>

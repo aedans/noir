@@ -16,9 +16,13 @@ import HandAndDeck from "./HandAndDeck";
 import OpponentGrave from "./OpponentGrave";
 import { PlayerAction } from "../../common/network";
 import { useClientSelector } from "../store";
+import Concede from "./Concede";
 
 export const PlayerContext = React.createContext(0 as PlayerId);
-export const ConnectionContext = React.createContext({ emit: (action: PlayerAction) => {} });
+export const ConnectionContext = React.createContext({
+  emit: (_: PlayerAction) => {},
+  concede: () => {},
+});
 
 export const HoverContext = React.createContext(
   {} as {
@@ -55,6 +59,7 @@ export default function Game(props: { message: string }) {
             <Board />
             <EndTurn />
             <Resources />
+            <Concede />
             <HandAndDeck />
             <OpponentGrave />
             <Grave />

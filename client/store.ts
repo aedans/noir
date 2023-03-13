@@ -25,6 +25,21 @@ export function updateLocalStorage() {
   localStorage.setItem("v", "1");
 }
 
+export function getUsername(): string {
+  const user = localStorage.getItem("user")
+  if (user != null) {
+    return user;
+  } else {
+    while (true) {
+      const name = window.prompt("Username");
+      if (name != null) {
+        localStorage.setItem("user", name);
+        return name;
+      }
+    }
+  }
+}
+
 store.subscribe(() => {
   localStorage.setItem("decks", JSON.stringify(store.getState().decks));
 });

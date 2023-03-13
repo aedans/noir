@@ -22,14 +22,7 @@ export default function CardList(props: CardListProps) {
   }
 
   return (
-    <Container {...props}>
-      <Rectangle
-        width={cardWidth}
-        height={cardHeight}
-        fillAlpha={0.01}
-        pointerdown={pointerdown}
-        interactive
-      />
+    <Container {...props} pointerdown={pointerdown} interactive>
       {props.cards.map(({ state, info }, i) => (
         <GameCard
           zIndex={20 + (props.reverse ? -i : i)}

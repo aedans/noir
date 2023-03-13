@@ -1,5 +1,6 @@
 import { Server, Socket as ServerSocket } from "socket.io";
 import { Socket as ClientSocket } from "socket.io-client";
+import { QueueName } from "../server/Queue";
 import { Target } from "./card";
 import { Deck } from "./decksSlice";
 import { PlayerId } from "./gameSlice";
@@ -17,11 +18,16 @@ export type ServerToClientEvents = {
 };
 
 export type ClientToServerEvents = {
-  queue: (queue: string) => void;
+  queue: (queue: QueueName, user: string) => void;
   init: (deck: Deck) => void;
   action: (action: PlayerAction) => void;
+  concede: () => void;
 };
 
-export type NoirServer = Server<ClientToServerEvents, ServerToClientEvents, {}, {}>;
-export type NoirServerSocket = ServerSocket<ClientToServerEvents, ServerToClientEvents, {}, {}>;
+export type SocketData = {
+  user: string;
+};
+
+export type NoirServer = Server<ClientToServerEvents, ServerToClientEvents, {}, SocketData>;
+export type NoirServerSocket = ServerSocket<ClientToServerEvents, ServerToClientEvents, {}, SocketData>;
 export type NoirClientSocket = ClientSocket<ServerToClientEvents, ClientToServerEvents>;

@@ -2,7 +2,9 @@ import Test from "./queue/Test";
 import Casual from "./queue/Casual";
 import { NoirServerSocket } from "../common/network";
 
-export const queues: { [name: string]: Queue } = {
+export type QueueName = "test" | "casual";
+
+export const queues: { [T in QueueName]: Queue } = {
   test: new Test(),
   casual: new Casual(),
 };

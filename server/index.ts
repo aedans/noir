@@ -62,19 +62,14 @@ app.get("/api/replays/:replay", async (req, res) => {
 app.use("*", express.static("dist"));
 
 io.on("connection", (socket) => {
-  console.log("Socket " + socket.id + " connected");
-
-  socket.on("queue", async (queue) => {
+  socket.on("queue", async (queue, user) => {
     try {
+      socket.data.user = user;
       await queues[queue].push(socket);
     } catch (e) {
       socket.emit("error", (e as Error).message);
       console.error(e);
     }
-  });
-
-  socket.on("disconnect", () => {
-    console.log("Socket " + socket.id + " disconnected");
   });
 });
 
