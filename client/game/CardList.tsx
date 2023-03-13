@@ -12,13 +12,17 @@ export type CardListProps = Omit<PixiElement<Container>, "children"> & {
 
 export default function CardList(props: CardListProps) {
   const [isExpanded, setIsExpanded] = useState(false);
-
-  const distance = isExpanded ? .2 : 0;
+  const [expandedIndex, setExpandedIndex] = useState(0);
 
   function pointerdown() {
     if (props.cards.length > 0) {
       setIsExpanded(!isExpanded);
+      setExpandedIndex(0);
     }
+  }
+
+  function pointerover(index: number) {
+    setExpandedIndex(index);
   }
 
   return (
@@ -30,7 +34,13 @@ export default function CardList(props: CardListProps) {
           info={info}
           key={state.id}
           x={cardWidth / 2}
-          y={cardHeight / 2 - (props.reverse ? i : -i) * cardWidth * distance}
+          y={
+            cardHeight / 2 -
+            (props.reverse ? i : -i) * cardHeight * (isExpanded ? 0.15 : 0) +
+            (isExpanded && i < expandedIndex ? cardHeight * 0.8 : 0)
+          }
+          pointerover={() => pointerover(i)}
+          interactive
         />
       ))}
     </Container>
