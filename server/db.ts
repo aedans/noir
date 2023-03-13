@@ -17,7 +17,7 @@ export async function insertReplay(history: GameAction[]) {
 
 export async function findReplayIds() {
   const replays = await replayCollection();
-  const results = await replays.find({}, { limit: 10 }).project({ _id: 1 }).toArray();
+  const results = await replays.find({}, { limit: 10 }).sort({ _id: -1 }).project({ _id: 1 }).toArray();
   return results;
 }
 
