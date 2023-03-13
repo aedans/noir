@@ -27,22 +27,23 @@ export default function CardList(props: CardListProps) {
 
   return (
     <Container {...props} pointerdown={pointerdown} interactive>
-      {props.cards.map(({ state, info }, i) => (
-        <GameCard
-          zIndex={20 + (props.reverse ? -i : i)}
-          state={state}
-          info={info}
-          key={state.id}
-          x={cardWidth / 2}
-          y={
-            cardHeight / 2 -
-            (props.reverse ? i : -i) * cardHeight * (isExpanded ? 0.15 : 0) +
-            (isExpanded && i < expandedIndex ? cardHeight * 0.8 : 0)
-          }
-          pointerover={() => pointerover(i)}
-          interactive
-        />
-      ))}
+      {props.cards.map(({ state, info }, i) => {
+        const heightOffset = (props.reverse ? i : -i) * cardHeight * (isExpanded ? 0.12 : 0);
+        const shouldHoverOffset = isExpanded && (props.reverse ? i < expandedIndex : i > expandedIndex);
+        const hoverOffset = shouldHoverOffset ? cardHeight * 0.8 : 0;
+        return (
+          <GameCard
+            zIndex={20 + (props.reverse ? -i : i)}
+            state={state}
+            info={info}
+            key={state.id}
+            x={cardWidth / 2}
+            y={cardHeight / 2 - heightOffset + hoverOffset}
+            pointerover={() => pointerover(i)}
+            interactive
+          />
+        );
+      })}
     </Container>
   );
 }

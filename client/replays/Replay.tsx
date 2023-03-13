@@ -27,11 +27,11 @@ export default function Replay(props: { params: { id: string } }) {
 
     return () => {
       dispatch(reset());
-    }
+    };
   }, []);
 
   return (
-    <ConnectionContext.Provider value={{ emit: () => {} }}>
+    <ConnectionContext.Provider value={{ emit: () => {}, concede: () => {} }}>
       <PlayerContext.Provider value={1}>
         <Game message={replay == null ? "Loading Replay" : "Loaded Replay"} />
       </PlayerContext.Provider>
