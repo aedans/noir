@@ -25,7 +25,7 @@ exports.card = (util, cache, game, card) => ({
   },
   modifiers: {
     disloyalorange: (info) => ({
-      keywords: ["disloyal"],
+      keywords: [["disloyal"]],
       colors: ["orange"],
     }),
   },

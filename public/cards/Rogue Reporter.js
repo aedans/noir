@@ -4,7 +4,7 @@ exports.card = (util, cache, game, card) => ({
   text: "Each turn, reveal the highest cost hidden card.",
   type: "agent",
   cost: { money: 10 },
-  keywords: ["disloyal", "protected"],
+  keywords: [["disloyal"], ["protected"]],
   turn: function* () {
     const cards = util.filter(cache, game, {
       hidden: true,

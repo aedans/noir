@@ -21,7 +21,7 @@ exports.card = (util, cache, game, card) => ({
   modifiers: {
     spooked: (info) => ({
       text: `${info.text} This is spooked.`,
-      keywords: [...info.keywords, "disloyal"],
+      keywords: [...info.keywords, ["disloyal"]],
       colors: [],
     }),
   },

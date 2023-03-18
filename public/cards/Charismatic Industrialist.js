@@ -5,7 +5,7 @@ exports.card = (util, cache, game, card) => ({
   text: "Activate this: steal an agent from your opponent, putting it onto your board revealed. It gains Disloyal.",
   cost: { money: 30, agents: 1 },
   colors: ["green"],
-  keywords: ["vip"],
+  keywords: [["vip"]],
   activateTargets: {
     zones: ["deck", "board"],
     types: ["agent"],
@@ -22,7 +22,7 @@ exports.card = (util, cache, game, card) => ({
   },
   modifiers: {
     disloyal: (info, modifier, card) => ({
-      keywords: ["disloyal"],
+      keywords: [["disloyal"]],
     }),
   },
 });

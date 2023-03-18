@@ -5,7 +5,7 @@ exports.card = (util, cache, game, card) => ({
   type: "agent",
   text: "Activate this and three agents: remove a revealed card and refresh this.",
   cost: { money: 18 },
-  keywords: ["disloyal", "protected"],
+  keywords: [["disloyal"], ["protected"]],
   activateCost: { agents: 3 },
   activateTargets: {
     zones: ["board", "deck"],

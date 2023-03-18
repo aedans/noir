@@ -2,47 +2,30 @@
 /** @type {import("../../common/card").PartialCardInfoComputation} */
 exports.card = (util, cache, game, card) => ({
   type: "agent",
-  text: "Activate this: your next agent costs $3 less. It comes into play a turn later.",
+  text: "Activate this: your next agent costs $3 less and has Delay 1.",
   cost: { money: 6 },
   colors: ["blue"],
-  turn: function* (){
-    yield* util.setProp(cache, game, card, {target: card, name: "processingPaperwork", value: false})
+  turn: function* () {
+    yield* util.setProp(cache, game, card, { target: card, name: "processingPaperwork", value: undefined });
   },
-  activate: function* (){
-    yield* util.setProp(cache, game, card, {target: card, name: "processingPaperwork", value: true})
+  activate: function* () {
+    yield* util.setProp(cache, game, card, { target: card, name: "processingPaperwork", value: true });
   },
   effectFilter: {
     zones: ["deck"],
-    players: [util.self(game,card)],
+    players: [util.self(game, card)],
     types: ["agent"],
   },
   effect: (affectedInfo, affectedCard) => {
-    if(card.props.processingPaperwork == true){
-      return{
-        cost: {money: affectedInfo.cost.money-3, agents: affectedInfo.cost.agents},
-        play: function* (target){
-          yield* util.modifyCard(cache, game, affectedCard, {
-            target: affectedCard,
-            modifier: {
-              card,
-              name: "processing",
-            },
-          });
-          yield* util.setProp(cache, game, affectedCard, {target: affectedCard, name: "training", value: (card.props.training ?? 0) + 1 })
-          yield* util.setProp(cache, game, card, {target: card, name: "processingPaperwork", value: undefined})
-          yield* affectedInfo.play(target)
-        }
-      }
+    if (card.props.processingPaperwork == true) {
+      return {
+        cost: { money: affectedInfo.cost.money - 3, agents: affectedInfo.cost.agents },
+        keywords: [...affectedInfo.keywords, ["delay", 1]],
+        play: function* (target) {
+          yield* util.setProp(cache, game, card, { target: card, name: "processingPaperwork", value: undefined });
+          yield* affectedInfo.play(target);
+        },
+      };
     }
-  },
-  modifiers: {
-    processing: (modifiedInfo,proc,modifiedCard) => ({
-      turn: function* (){
-        if(modifiedCard.props.training > 0){
-          yield* util.exhaustCard(cache, game, card, {target: modifiedCard})
-          yield* util.setProp(cache, game, card, {target: modifiedCard, name: "training", value: card.props.training - 1})
-        }
-      }
-    }),
   },
 });

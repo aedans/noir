@@ -5,7 +5,7 @@ exports.card = (util, cache, game, card) => ({
   type: "agent",
   cost: { money: 9 },
   colors: [],
-  keywords: ["disloyal", "protected"],
+  keywords: [["disloyal"], ["protected"]],
   effectFilter: {
     players: [util.self(game, card)],
     zones: ["deck"],

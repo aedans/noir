@@ -5,7 +5,7 @@ exports.card = (util, cache, game, card) => ({
   type: "agent",
   cost: { money: 14 },
   colors: ["green"],
-  keywords: ["vip"],
+  keywords: [["vip"]],
   turn: function* () {
     if (game.players[util.self(game, card)].money >= 7) {
       yield* util.revealRandom(cache, game, card, 2, {

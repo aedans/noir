@@ -47,6 +47,7 @@ import {
   PlayCardParams,
   initialGameState,
   noop,
+  NoActionParams,
 } from "./gameSlice";
 import { historySlice, SetUndoneParams } from "./historySlice";
 
@@ -62,7 +63,7 @@ export type Filter = {
   minMoney?: number;
   ordering?: Order[];
   reversed?: boolean;
-} & { [key in CardKeyword]?: boolean };
+} & { [key in CardKeyword[0]]?: boolean };
 
 export function filter(this: Util, cache: CardInfoCache, game: GameState, filter: Filter) {
   let cards: CardState[] = [];
@@ -100,8 +101,11 @@ export function filter(this: Util, cache: CardInfoCache, game: GameState, filter
       }
 
       for (const keyword of cardKeywords) {
-        if (filter[keyword] != undefined) {
-          f = f.filter((card) => this.getCardInfo(cache, game, card).keywords.includes(keyword) == filter[keyword]!);
+        var name = keyword()[0];
+        if (filter[name] != undefined) {
+          f = f.filter(
+            (card) => this.getCardInfo(cache, game, card).keywords.some((k) => k[0] == name) == filter[name]!
+          );
         }
       }
 
@@ -197,9 +201,9 @@ export function tryPayCost(
   }
 
   agents.sort((a, b) => {
-    if (prepared.some(card => card.id == a.id)) {
+    if (prepared.some((card) => card.id == a.id)) {
       return -1;
-    } else if (prepared.some(card => card.id == b.id)) {
+    } else if (prepared.some((card) => card.id == b.id)) {
       return 1;
     } else {
       return this.getCardInfo(cache, game, b).activationPriority - this.getCardInfo(cache, game, a).activationPriority;
@@ -223,7 +227,9 @@ export function canPayCost(
   targets: Filter | undefined,
   prepared: Target[]
 ) {
-  return typeof this.tryPayCost(cache, game, card, "play", card.name, player, colors, cost, targets, prepared) != "string";
+  return (
+    typeof this.tryPayCost(cache, game, card, "play", card.name, player, colors, cost, targets, prepared) != "string"
+  );
 }
 
 export function* revealRandom(
@@ -269,7 +275,10 @@ export function getCardInfo(this: Util, cache: CardInfoCache, game: GameState, c
   if (cache.has(card.id)) {
     return cache.get(card.id)!;
   } else {
-    cache.set(card.id, runPartialCardInfoComputation(() => ({}), this, cache, game, card));
+    cache.set(
+      card.id,
+      runPartialCardInfoComputation(() => ({}), this, cache, game, card)
+    );
     const baseInfo = runPartialCardInfoComputation(this.getCardInfoImpl(card), this, cache, game, card);
     cache.set(card.id, baseInfo);
     const info = this.updateCardInfo(cache, game, card, baseInfo);
@@ -278,13 +287,7 @@ export function getCardInfo(this: Util, cache: CardInfoCache, game: GameState, c
   }
 }
 
-export function updateCardInfo(
-  this: Util,
-  cache: CardInfoCache,
-  game: GameState,
-  state: CardState,
-  info: CardInfo,
-) {
+export function updateCardInfo(this: Util, cache: CardInfoCache, game: GameState, state: CardState, info: CardInfo) {
   if (!findCard(game, state)) {
     return info;
   }
@@ -394,16 +397,36 @@ function triggerReveal<T extends GameParams>(
   };
 }
 
+function* onEndTurn(this: Util, cache: CardInfoCache, game: GameState, payload: NoActionParams): CardGenerator {
+  for (const card of this.filter(cache, game, { zones: ["board"], players: [currentPlayer(game)] })) {
+    if (card.props.delayed != undefined) {
+      yield* this.setProp(cache, game, card, {
+        target: card,
+        name: "delayed",
+        value: card.props.delayed > 1 ? card.props.delayed - 1 : undefined,
+      });
+      yield* this.exhaustCard(cache, game, card, { target: card });
+    }
+  }
+
+  yield endTurn(payload);
+}
+
 function* onAdd(info: CardInfo, payload: AddCardParams): CardGenerator {
   yield* info.onAdd(payload);
 
-  if (info.keywords.includes("protected")) {
+  if (info.keywords.some((k) => k[0] == "protected")) {
     yield protectCard(payload);
   }
 }
 
 function* onPlay(info: CardInfo, payload: PlayCardParams): CardGenerator {
   yield* info.onPlay(payload);
+
+  const totalDelay = info.keywords.filter((k): k is ["delay", number] => k[0] == "delay").reduce((a, b) => a + b[1], 0);
+  if (totalDelay > 0) {
+    yield setProp({ target: payload.target, name: "delayed", value: totalDelay });
+  }
 
   if (payload.type == "operation") {
     yield* info.onRemove(payload);
@@ -422,7 +445,7 @@ function* onRemove(info: CardInfo, game: GameState, payload: TargetCardParams): 
 
 function* onReveal(info: CardInfo, game: GameState, payload: TargetCardParams): CardGenerator {
   const state = getCard(game, payload.target);
-  
+
   if (state && state.hidden) {
     yield* info.onReveal(payload);
   }
@@ -433,7 +456,7 @@ function setUndone(game: GameState, payload: SetUndoneParams) {
 }
 
 const util = {
-  endTurn: onTrigger(endTurn),
+  endTurn: onEndTurn,
   addCard: onTrigger(addCard, (info, game) => triggerReveal(info, game, (p) => onAdd(info, p)), true),
   playCard: onTrigger(playCard, (info, game) => triggerReveal(info, game, (p) => onPlay(info, p))),
   removeCard: onTrigger(removeCard, (info, game) => triggerReveal(info, game, (p) => onRemove(info, game, p))),

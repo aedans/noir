@@ -4,7 +4,7 @@ exports.card = (util, cache, game, card) => ({
   type: "agent",
   text: "Activate this: remove the highest cost card in your opponent's deck and the highest cost card on your opponent's board.",
   cost: { money: 36 },
-  keywords: ["vip", "protected"],
+  keywords: [["vip"], ["protected"]],
   activate: function* () {
     const deckstuff = util.filter(cache, game, {
       hidden: false,

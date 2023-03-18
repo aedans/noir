@@ -29,7 +29,7 @@ function* doEndTurn(cache: CardInfoCache, game: GameState): CardGenerator {
     yield* defaultUtil.getCardInfo(cache, game, card).turn();
   }
 
-  yield* defaultUtil.endTurn(cache, game, undefined, {});
+  yield* defaultUtil.endTurn(cache, game, {});
 }
 
 function validateTargets(

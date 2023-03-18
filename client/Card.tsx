@@ -26,14 +26,42 @@ export function getCardColor(colors: CardColor[]) {
   return colorMap[colors.length == 1 ? colors[0] : "any"];
 }
 
+export function combineKeywords(a: CardKeyword, b: CardKeyword): CardKeyword {
+  if (a[0] == "delay" && b[0] == "delay") {
+    return ["delay", a[1] + b[1]];
+  } else {
+    return a;
+  }
+}
+
+export function collapseKeywords(keywords: CardKeyword[]) {
+  const newKeywords: CardKeyword[] = [];
+  for (const keyword of keywords) {
+    const keywordIndex = newKeywords.findIndex(k => k[0] == keyword[0]);
+    if (keywordIndex == -1) {
+      newKeywords.push(keyword);
+    } else {
+      newKeywords[keywordIndex] = combineKeywords(keyword, newKeywords[keywordIndex]);
+    }
+  }
+
+  return newKeywords;
+}
+
 export function getDisplayName(keyword: CardKeyword) {
-  const displayNameMap: { [T in CardKeyword]: string } = {
+  const displayNameMap: { [T in CardKeyword[0]]: string } = {
     disloyal: "Disloyal",
     protected: "Protected",
     vip: "VIP",
+    delay: "Delay"
   };
 
-  return displayNameMap[keyword];
+  let string = displayNameMap[keyword[0]];
+  for (const value of keyword.slice(1)) {
+    string += ` ${value}`;
+  }
+
+  return string;
 }
 
 export type CardProps = {
@@ -149,10 +177,10 @@ export default React.memo(
     }, [props.shouldGlow]);
 
     let text = props.info.text;
-    let keywords = props.info.keywords;
+    let keywords = collapseKeywords(props.info.keywords);
 
     if (!props.state.protected) {
-      keywords = keywords.filter((x) => x != "protected");
+      keywords = keywords.filter((x) => x[0] != "protected");
     }
 
     if (keywords.length > 0) {

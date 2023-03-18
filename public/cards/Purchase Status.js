@@ -21,7 +21,7 @@ exports.card = (util, cache, game, card) => ({
   modifiers: {
     powerful: (info) => ({
       text: `${info.text} This is high status.`,
-      keywords: [...info.keywords, "vip", "protected"],
+      keywords: [...info.keywords, ["vip"], ["protected"]],
     }),
   },
 });

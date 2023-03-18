@@ -25,11 +25,16 @@ export type CardState = {
 
 export const cardColors = ["orange", "blue", "green", "purple"] as const;
 export const cardTypes = ["agent", "operation"] as const;
-export const cardKeywords = ["disloyal", "protected", "vip"] as const;
+export const cardKeywords = [
+  () => ["disloyal"] as const,
+  () => ["protected"] as const,
+  () => ["vip"] as const,
+  (n?: number) => ["delay", n ?? 0] as const,
+] as const;
 
 export type CardColor = (typeof cardColors)[number];
 export type CardType = (typeof cardTypes)[number];
-export type CardKeyword = (typeof cardKeywords)[number];
+export type CardKeyword = ReturnType<(typeof cardKeywords)[number]>;
 export type CardColorFilter = CardColor | "any";
 
 export type CardCost = {
