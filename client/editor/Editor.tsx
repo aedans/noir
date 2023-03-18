@@ -13,6 +13,7 @@ import { ordered } from "../../common/util";
 import { Container } from "react-pixi-fiber";
 import DeckCard from "./DeckCard";
 import { cardHeight, cardWidth } from "../Card";
+import Text from "../Text";
 
 export default function Editor(props: { params: { deck: string } }) {
   const dispatch = useClientDispatch();
@@ -69,6 +70,7 @@ export default function Editor(props: { params: { deck: string } }) {
   return (
     <MoveAnimationContext.Provider value={cards}>
       <Rectangle fill={0x202020} width={targetResolution.width} height={targetResolution.height} />
+      <Text x={3800} text={Object.values(deck.cards).reduce((a, b) => a + b, 0) + " / 20"} />
       <Container y={scroll}>
         <Grid elements={sortedAllCards} maxWidth={3000}>
           {(data, x, y) => (
@@ -84,7 +86,7 @@ export default function Editor(props: { params: { deck: string } }) {
           )}
         </Grid>
       </Container>
-      <Container x={targetResolution.width - cardWidth / 2} y={cardHeight / 2}>
+      <Container x={targetResolution.width - cardWidth / 2} y={cardHeight / 2 + 100}>
         <EnterExitAnimator elements={sortedDeckCards}>
           {(data, status, i) =>
             i != null ? (
