@@ -188,6 +188,11 @@ export const gameReducers = {
         state.players[player].grave.push(card);
       } else {
         state.players[player].board.push(card);
+
+        while (state.players[player].board.length > 8) {
+          state.players[player].grave.push(state.players[player].board[0]);
+          state.players[player].board = state.players[player].board.slice(1);
+        }
       }
       state.players[player][zone].splice(index, 1);
     }
