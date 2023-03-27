@@ -1,7 +1,7 @@
 // @ts-check
 /** @type {import("../../common/card").PartialCardInfoComputation} */
 exports.card = (util, cache, game, card) => ({
-  text: "Additional cost: remove one of your orange agents. Reveal five cards from your opponent's deck",
+  text: "Additional cost: remove an orange agent on your board. Reveal five cards from your opponent's deck",
   type: "operation",
   cost: { money: 1, agents: 1 },
   colors: ["orange"],

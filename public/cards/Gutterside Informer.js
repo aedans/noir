@@ -3,7 +3,7 @@
 exports.card = (util, cache, game, card) => ({
   text: "Activate this: reveal your opponent's lowest cost card.",
   type: "agent",
-  cost: { money: 10 },
+  cost: { money: 8 },
   colors: ["purple"],
   activate: function* () {
     const cards = util.filter(cache, game, {
