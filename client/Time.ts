@@ -79,9 +79,6 @@ export function useTimeShadowFilter(shadow: number) {
       distance: distance * shadow,
       rotation,
       alpha,
-      update() {
-        console.log(shadowFilterRef);
-      },
     });
   }, [turn]);
 
