@@ -1,8 +1,6 @@
 import React, { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 import { Container } from "react-pixi-fiber";
 import Board from "./Board";
-import Rectangle from "../Rectangle";
-import { targetResolution } from "../Camera";
 import EndTurn from "./EndTurn";
 import { MoveAnimationContext, MoveAnimationState } from "../MoveAnimation";
 import { PlayerId } from "../../common/gameSlice";
@@ -53,10 +51,9 @@ export default function Game(props: { message: string }) {
       <HoverContext.Provider value={{ hover, setHover }}>
         <PreparedContext.Provider value={{ prepared, setPrepared }}>
           <Container>
-            <Rectangle fill={0x202020} width={targetResolution.width} height={targetResolution.height} />
+            <Board />
             <OpponentHand />
             <OpponentBoard />
-            <Board />
             <EndTurn />
             <Resources />
             <Concede />

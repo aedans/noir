@@ -23,9 +23,9 @@ export type NoirProps = {
 export const App = React.createContext(null as Application | null);
 
 export default function Noir(props: NoirProps) {  
-  // const stats = addStats(document, props.app);
-  // (stats as any).stats.showPanel(1);
-  // Ticker.shared.add(stats.update, stats, UPDATE_PRIORITY.UTILITY);
+  const stats = addStats(document, props.app);
+  (stats as any).stats.showPanel(1);
+  Ticker.shared.add(stats.update, stats, UPDATE_PRIORITY.UTILITY);
 
   return (
     <App.Provider value={props.app}>

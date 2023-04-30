@@ -8,6 +8,7 @@ import { CardState } from "../../common/card";
 import { ConnectionContext, PlayerContext, PreparedContext } from "./Game";
 import BoardCard from "./BoardCard";
 import { useCardInfoList } from "../cards";
+import { useTimeColorFilter } from "../Time";
 
 export default function Board() {
   const connection = useContext(ConnectionContext);
@@ -15,20 +16,30 @@ export default function Board() {
   const { prepared } = useContext(PreparedContext);
   const board = useClientSelector((state) => state.game.current.players[player].board);
   const cards = useCardInfoList(board, [board]);
+  const colorFilterRef = useTimeColorFilter();
 
-  const [{}, drop] = useDrop(() => ({
-    accept: "card",
-    drop: (state: CardState) => {
-      connection.emit({ type: "do", id: state.id, prepared });
-    },
-    collect: () => ({}),
-  }), [prepared]);
+  const [{}, drop] = useDrop(
+    () => ({
+      accept: "card",
+      drop: (state: CardState) => {
+        connection.emit({ type: "do", id: state.id, prepared });
+      },
+      collect: () => ({}),
+    }),
+    [prepared]
+  );
 
   const x = (targetResolution.width - cards.length * (cardWidth + 10)) / 2 + cardWidth / 2;
   const y = targetResolution.height * (2 / 4) + cardHeight / 2;
 
   return (
     <>
+      <Rectangle
+        fill={0x202020}
+        width={targetResolution.width}
+        height={targetResolution.height}
+        filters={[colorFilterRef.current]}
+      />
       <Rectangle
         ref={(current) => drop({ current })}
         width={targetResolution.width}

@@ -4,12 +4,12 @@ import Rectangle from "./Rectangle";
 import { targetResolution } from "./Camera";
 import { CardColor, CardInfo, CardKeyword, CardState } from "../common/card";
 import Text from "./Text";
-import { DropShadowFilter } from "@pixi/filter-drop-shadow";
 import { filters as PixiFilters, RenderTexture, Texture } from "pixi.js";
 import anime from "animejs";
 import { GlowFilter } from "@pixi/filter-glow";
 import { isEqual } from "lodash";
 import { App } from "./Noir";
+import { useTimeColorFilter, useTimeShadowFilter } from "./Time";
 
 export const cardHeight = targetResolution.height / 4;
 export const cardWidth = cardHeight * (1 / 1.4);
@@ -37,7 +37,7 @@ export function combineKeywords(a: CardKeyword, b: CardKeyword): CardKeyword {
 export function collapseKeywords(keywords: CardKeyword[]) {
   const newKeywords: CardKeyword[] = [];
   for (const keyword of keywords) {
-    const keywordIndex = newKeywords.findIndex(k => k[0] == keyword[0]);
+    const keywordIndex = newKeywords.findIndex((k) => k[0] == keyword[0]);
     if (keywordIndex == -1) {
       newKeywords.push(keyword);
     } else {
@@ -53,7 +53,7 @@ export function getDisplayName(keyword: CardKeyword) {
     disloyal: "Disloyal",
     protected: "Protected",
     vip: "VIP",
-    delay: "Delay"
+    delay: "Delay",
   };
 
   let string = displayNameMap[keyword[0]];
@@ -70,6 +70,7 @@ export type CardProps = {
   shadow?: number;
   shouldGlow?: boolean;
   shouldDimWhenExhausted?: boolean;
+  shouldIgnoreTime?: boolean;
 };
 
 export function isCardStateEqual(a: CardState, b: CardState) {
@@ -106,9 +107,10 @@ export function isCardPropsEqual(a: CardProps, b: CardProps) {
 export default React.memo(
   React.forwardRef(function Card(props: CardProps, ref: Ref<Container>) {
     const containerRef = useRef() as MutableRefObject<Required<Container>>;
-    const dimFilterRef = useRef(new PixiFilters.ColorMatrixFilter());
-    const dropShadowFilterRef = useRef(new DropShadowFilter({ alpha: 0.5, blur: 1, distance: 0 }));
     const glowFilterRef = useRef(new GlowFilter({ outerStrength: 0 }));
+    const dimFilterRef = useRef(new PixiFilters.ColorMatrixFilter());
+    const timeShadowFilterRef = useTimeShadowFilter(props.shadow ?? 0);
+    const timeColorFilterRef = useTimeColorFilter();
     const [texture, setTexture] = useState(null as RenderTexture | null);
     const app = useContext(App)!;
 
@@ -140,11 +142,11 @@ export default React.memo(
     }, []);
 
     useEffect(() => {
-      if (props.shadow) {
-        dropShadowFilterRef.current.distance = props.shadow;
-      } else {
-        dropShadowFilterRef.current.enabled = false;
-      }
+      timeColorFilterRef.current.enabled = !props.shouldIgnoreTime;
+    }, [props.shouldIgnoreTime]);
+
+    useEffect(() => {
+      timeShadowFilterRef.current.enabled = !props.shouldIgnoreTime && props.shadow != undefined && props.shadow > 0;
     }, [props.shadow]);
 
     useEffect(() => {
@@ -207,7 +209,12 @@ export default React.memo(
       return (
         <Container
           pivot={[cardWidth / 2, cardHeight / 2]}
-          filters={[glowFilterRef.current, dimFilterRef.current, dropShadowFilterRef.current]}
+          filters={[
+            glowFilterRef.current,
+            dimFilterRef.current,
+            timeShadowFilterRef.current,
+            timeColorFilterRef.current,
+          ]}
           ref={containerRef}
         >
           <Rectangle
@@ -225,7 +232,12 @@ export default React.memo(
       return (
         <Container
           pivot={[cardWidth / 2, cardHeight / 2]}
-          filters={[glowFilterRef.current, dimFilterRef.current, dropShadowFilterRef.current]}
+          filters={[
+            glowFilterRef.current,
+            dimFilterRef.current,
+            timeShadowFilterRef.current,
+            timeColorFilterRef.current,
+          ]}
         >
           <Rectangle
             fill={getCardColor(props.info.colors)}
