@@ -91,7 +91,7 @@ export default React.forwardRef(function HandCard(props: GameCardProps, ref: Ref
   const card = (
     <GameCard
       {...props}
-      shadow={20}
+      shadow={0}
       x={x}
       y={y}
       scale={scale}
