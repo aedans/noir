@@ -1,14 +1,15 @@
-import { useEffect, useLayoutEffect, useRef } from "react";
+import { useContext, useEffect, useLayoutEffect, useRef } from "react";
 import { filters as PixiFilters } from "pixi.js";
 import { useClientSelector } from "./store";
 import anime from "animejs";
 import { DropShadowFilter } from "@pixi/filter-drop-shadow";
+import { PlayerContext } from "./game/Game";
 
 const colors = [
   // day
-  0xfff2bd, 0xf4d797, 0xebb58a, 0xda7f7d, 0xb5728e,
+  0xfff2bd, 0xfff2bd, 0xfff2bd, 0xfff2bd, 0xb5728e,
   // night
-  0x2d1b5a, 0x673D78, 0x985784, 0xce675f, 0xE38E71,
+  0x2d1b5a, 0x2d1b5a, 0x2d1b5a, 0x2d1b5a, 0xE38E71,
 ];
 
 const shadows = [
@@ -27,7 +28,8 @@ const shadows = [
 ];
 
 export function useTimeColorFilter() {
-  const turn = useClientSelector((state) => Math.floor(state.game.current.turn / 2) % colors.length);
+  const player = useContext(PlayerContext);
+  const turn = useClientSelector((state) => Math.floor((state.game.current.turn - player + 1) / 2) % colors.length);
   const colorFilterRef = useRef(new PixiFilters.ColorMatrixFilter());
   const lastColor = useRef({
     r: (colors[turn] & 0xff0000) >> 16,
@@ -60,7 +62,8 @@ export function useTimeColorFilter() {
 }
 
 export function useTimeShadowFilter(shadow: number) {
-  const turn = useClientSelector((state) => Math.floor(state.game.current.turn / 2) % shadows.length);
+  const player = useContext(PlayerContext);
+  const turn = useClientSelector((state) => Math.floor((state.game.current.turn - player + 1) / 2) % shadows.length);
   const shadowFilterRef = useRef(new DropShadowFilter({ blur: 1 }));
 
   useLayoutEffect(() => {
