@@ -407,6 +407,21 @@ function* onEndTurn(this: Util, cache: CardInfoCache, game: GameState, payload: 
       });
       yield* this.exhaustCard(cache, game, card, { target: card });
     }
+
+    if (card.props.collection != undefined) {
+      yield* this.setProp(cache, game, card, {
+        target: card,
+        name: "collection",
+        value: card.props.collection > 1 ? card.props.collection - 1 : undefined,
+      });
+
+      if (card.props.collection <= 1) {
+        const player = util.findCard(game, card)?.player;
+        const info = this.getCardInfo(cache, game, card);
+        const money = info.keywords.filter((k): k is ["debt", number] => k[0] == "debt").reduce((a, b) => a + b[1], 0);
+        yield* this.removeMoney(cache, game, card, { player, money });
+      }
+    }
   }
 
   yield endTurn(payload);
@@ -426,6 +441,10 @@ function* onPlay(info: CardInfo, payload: PlayCardParams): CardGenerator {
   const totalDelay = info.keywords.filter((k): k is ["delay", number] => k[0] == "delay").reduce((a, b) => a + b[1], 0);
   if (totalDelay > 0) {
     yield setProp({ target: payload.target, name: "delayed", value: totalDelay });
+  }
+
+  if (info.keywords.find((k) => k[0] == "debt")) {
+    yield setProp({ target: payload.target, name: "collection", value: 2 });
   }
 
   if (payload.type == "operation") {

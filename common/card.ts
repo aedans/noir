@@ -30,6 +30,7 @@ export const cardKeywords = [
   () => ["protected"] as const,
   () => ["vip"] as const,
   (n?: number) => ["delay", n ?? 0] as const,
+  (n?: number) => ["debt", n ?? 0] as const,
 ] as const;
 
 export type CardColor = (typeof cardColors)[number];

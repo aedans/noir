@@ -29,6 +29,8 @@ export function getCardColor(colors: CardColor[]) {
 export function combineKeywords(a: CardKeyword, b: CardKeyword): CardKeyword {
   if (a[0] == "delay" && b[0] == "delay") {
     return ["delay", a[1] + b[1]];
+  } else if (a[0] == "debt" && b[0] == "debt") {
+    return ["debt", a[1] + b[1]];
   } else {
     return a;
   }
@@ -54,6 +56,7 @@ export function getDisplayName(keyword: CardKeyword) {
     protected: "Protected",
     vip: "VIP",
     delay: "Delay",
+    debt: "Debt",
   };
 
   let string = displayNameMap[keyword[0]];
