@@ -443,8 +443,12 @@ function* onPlay(info: CardInfo, payload: PlayCardParams): CardGenerator {
     yield setProp({ target: payload.target, name: "delayed", value: totalDelay });
   }
 
-  if (info.keywords.find((k) => k[0] == "debt")) {
+  if (info.keywords.some((k) => k[0] == "debt")) {
     yield setProp({ target: payload.target, name: "collection", value: 2 });
+  }
+
+  if (info.keywords.some((k) => k[0] == "flammable")) {
+    yield setProp({ target: payload.target, name: "aflame", value: undefined });
   }
 
   if (payload.type == "operation") {
@@ -459,6 +463,10 @@ function* onRemove(info: CardInfo, game: GameState, payload: TargetCardParams): 
 
   if (state && !state.protected) {
     yield* info.onRemove(payload);
+
+    if (info.keywords.some((k) => k[0] == "flammable")) {
+      yield setProp({ target: payload.target, name: "aflame", value: undefined });
+    }
   }
 }
 
