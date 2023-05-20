@@ -1,7 +1,7 @@
 // @ts-check
 /** @type {import("../../common/card").PartialCardInfoComputation} */
 exports.card = (util, cache, game, card) => ({
-  text: "Reveal one cards in your opponent's deck.",
+  text: "Reveal a card in your opponent's deck.",
   type: "operation",
   cost: { money: 0 },
   play: function* () {
