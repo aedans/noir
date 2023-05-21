@@ -12,10 +12,10 @@ exports.card = (util, cache, game, card) => ({
       hidden: true,
       exhausted: false,
       ordering: ["money"],
-      reversed: true
+      reversed: true,
     });
-    if(util.findCard(game,agentos[0]).player == util.opponent(game,card)){
-      yield* util.revealCard(cache, game, card, {target: agentos[0]})
+    if (util.findCard(game, agentos[0]).player == util.opponent(game, card)) {
+      yield* util.revealCard(cache, game, card, { target: agentos[0] });
     }
   },
 });

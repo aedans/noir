@@ -26,7 +26,7 @@ export function updateLocalStorage() {
 }
 
 export function getUsername(): string {
-  const user = localStorage.getItem("user")
+  const user = localStorage.getItem("user");
   if (user != null) {
     return user;
   } else {

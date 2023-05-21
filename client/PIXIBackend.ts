@@ -127,9 +127,9 @@ const PIXIBackend: (app: Application) => BackendFactory = (app: Application) => 
       var reticle = new Sprite(reticleTexture);
       reticle.width = 100;
       reticle.height = 100;
-      reticle.anchor.set(.5);
+      reticle.anchor.set(0.5);
       reticle.visible = false;
-      reticle.filters = [new GlowFilter({ color: 0x767676, quality: .2 })]
+      reticle.filters = [new GlowFilter({ color: 0x767676, quality: 0.2 })];
       app.stage.addChild(reticle);
       return dragify(sourceId, node, reticle);
     },

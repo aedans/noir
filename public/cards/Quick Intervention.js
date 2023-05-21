@@ -28,7 +28,7 @@ exports.card = (util, cache, game, card) => ({
 
       for (let index = 0; index < game.history.length; index++) {
         if (game.history[index].payload.source == target && game.history[index].type != "game/playCard") {
-          yield util.setUndone( game, { index });
+          yield util.setUndone(game, { index });
         }
       }
     }

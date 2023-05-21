@@ -39,18 +39,18 @@ export function cleanAction(action: HistoryAction) {
       const payload = action.payload as SetHiddenParams;
       payload.target = { id: payload.target.id };
     }
-  
+
     if (action.type == "history/setAction") {
       const payload = action.payload as SetActionParams;
-      
+
       if (payload.action.payload.source) {
         payload.action.payload.source = { id: payload.action.payload.source.id };
       }
-  
+
       if (payload.action.payload.target) {
         payload.action.payload.target = { id: payload.action.payload.target.id };
       }
-    }  
+    }
   });
 }
 

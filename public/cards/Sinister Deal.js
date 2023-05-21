@@ -26,13 +26,12 @@ exports.card = (util, cache, game, card) => ({
       excludes: [card],
     });
     yield* util.removeCard(cache, game, card, { target: purplecards[0] });
-    const index = game.history.findIndex((action) => action.type == "game/endTurn")
+    const index = game.history.findIndex((action) => action.type == "game/endTurn");
     const actions = game.history.slice(0, index);
     const removals = actions.filter((action) => action.type == "game/removeCard").length;
     yield* util.addMoney(cache, game, card, {
-        player: util.self(game,card),
-        money: 3 + 3*removals
-      })
-    
+      player: util.self(game, card),
+      money: 3 + 3 * removals,
+    });
   },
 });

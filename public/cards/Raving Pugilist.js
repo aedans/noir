@@ -6,7 +6,14 @@ exports.card = (util, cache, game, card) => ({
   cost: { money: 8 },
   colors: ["orange"],
   turn: function* () {
-    if (util.filter(cache, game, { hidden: false, zones: ["board", "deck"], players: [util.opponent(game,card)], types: ["agent"] }).length >= 5) {
+    if (
+      util.filter(cache, game, {
+        hidden: false,
+        zones: ["board", "deck"],
+        players: [util.opponent(game, card)],
+        types: ["agent"],
+      }).length >= 5
+    ) {
       const cards = util.filter(cache, game, {
         hidden: false,
         players: [util.opponent(game, card)],

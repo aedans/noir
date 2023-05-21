@@ -5,9 +5,9 @@ exports.card = (util, cache, game, card) => ({
   type: "agent",
   cost: { money: 4 },
   colors: ["purple"],
-  play: function *(){
-    util.setProp(cache,game,card,{target: card, name: "onboard", value: true})
-  }, 
+  play: function* () {
+    util.setProp(cache, game, card, { target: card, name: "onboard", value: true });
+  },
   onRemove: function* () {
     const removedCard = util.random(
       util.filter(cache, game, {
@@ -17,8 +17,8 @@ exports.card = (util, cache, game, card) => ({
         excludes: [card],
       })
     );
-    if(card.props.onboard == true){
-      yield* util.removeCard(cache,game, card, { target: removedCard });
+    if (card.props.onboard == true) {
+      yield* util.removeCard(cache, game, card, { target: removedCard });
     }
   },
 });

@@ -12,7 +12,8 @@ exports.card = (util, cache, game, card) => ({
       0
     ) {
       yield* util.revealRandom(
-        cache, game,
+        cache,
+        game,
         card,
         util.filter(cache, game, { types: ["agent"], zones: ["board"], players: [util.self(game, card)] }).length -
           util.filter(cache, game, { types: ["agent"], zones: ["board"], players: [util.opponent(game, card)] }).length,
@@ -28,7 +29,8 @@ exports.card = (util, cache, game, card) => ({
       0
     ) {
       yield* util.revealRandom(
-        cache, game,
+        cache,
+        game,
         card,
         util.filter(cache, game, { types: ["agent"], zones: ["board"], players: [util.opponent(game, card)] }).length -
           util.filter(cache, game, { types: ["agent"], zones: ["board"], players: [util.self(game, card)] }).length,

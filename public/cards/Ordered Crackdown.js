@@ -8,7 +8,7 @@ exports.card = (util, cache, game, card) => ({
   play: function* () {
     const cards = util.filter(cache, game, {
       hidden: false,
-      players: [util.opponent(game,card)],
+      players: [util.opponent(game, card)],
       maxMoney: 6,
     });
 
