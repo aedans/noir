@@ -5,7 +5,7 @@ exports.card = (util, cache, game, card) => ({
   type: "operation",
   cost: { money: 3, agents: 1 },
   colors: ["purple"],
-  play: function* (target) {
+  play: function* () {
     const cards = util.filter(cache, game, {
       players: [util.self(game, card)],
       colors: ["purple"],
@@ -26,14 +26,7 @@ exports.card = (util, cache, game, card) => ({
       zones: ["board"],
     });
 
-    const removedCard = util.random(
-      util.filter(cache, game, {
-        players: [util.findCard(game, card).player],
-        zones: ["deck"],
-        types: ["agent"],
-        excludes: [card],
-      })
-    );
+    const removedCard = util.random(cards);
     yield* util.removeCard(cache, game, card, { target: removedCard });
   },
 });
