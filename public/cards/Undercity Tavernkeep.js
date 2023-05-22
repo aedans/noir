@@ -24,6 +24,6 @@ exports.card = (util, cache, game, card) => ({
     }
   },
   modifiers: {
-    disloyal: util.keywordModifier("disloyal"),
+    disloyal: util.keywordModifier(["disloyal"]),
   },
 });
