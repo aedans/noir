@@ -31,11 +31,11 @@ exports.card = (util, cache, game, card) => ({
   },
   modifiers: {
     mydebt: (info, modifier, card) => ({
-      keywords: [["debt", 3]],
+      keywords: [["debt", 3], ...info.keywords],
       cost: { money: info.cost.money - 3, agents: info.cost.agents },
     }),
     yourdebt: (info, modifier, card) => ({
-      keywords: [["debt", 3]],
+      keywords: [["debt", 3], ...info.keywords],
     }),
   },
 });
