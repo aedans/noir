@@ -2,26 +2,20 @@
 /** @type {import("../../common/card").PartialCardInfoComputation} */
 exports.card = (util, cache, game, card) => ({
   type: "agent",
-  text: "The first time an opponent's card is removed on each of your turns, gain $3.",
-  cost: { money: 7, agents: 2 },
+  text: "The first agent your opponent plays each turn has Delay 1 and exhausts this.",
+  cost: { money: 9, agents: 1 },
   colors: ["blue"],
-  turn: function* () {
-    yield* util.setProp(cache, game, card, { target: card, name: "the_law", value: true });
-  },
   effectFilter: {
     players: [util.opponent(game, card)],
+    zones: ["deck"],
   },
   effect: (info, state) => {
-    if (card.props.the_law == true) {
+    if (!card.exhausted) {
       return {
-        onRemove: function* () {
-          if (util.currentPlayer(game) == util.self(game, card)) {
-            yield* util.addMoney(cache, game, card, {
-              player: util.findCard(game, card).player,
-              money: 4,
-            }),
-              yield* util.setProp(cache, game, card, { target: card, name: "the_law", value: false });
-          }
+        keywords: [ ...info.keywords, ["delay", 1]],
+        play: function* (target) {
+          yield* util.exhaustCard(cache, game, card, { target: card });
+          yield* info.play(target);
         },
       };
     }
