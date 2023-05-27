@@ -43,19 +43,27 @@ export function useTimeColorFilter() {
   }, []);
 
   useEffect(() => {
-    anime({
-      targets: lastColor.current,
-      duration: 500,
-      easing: "linear",
+    const { r, g, b } = {
       r: (colors[turn] & 0xff0000) >> 16,
       g: (colors[turn] & 0x00ff00) >> 8,
       b: colors[turn] & 0x0000ff,
-      update() {
-        const currentColor = (lastColor.current.r << 16) | (lastColor.current.g << 8) | lastColor.current.b;
-        colorFilterRef.current.reset();
-        colorFilterRef.current.tint(currentColor, true);
-      },
-    });
+    };
+
+    if (lastColor.current.r != r || lastColor.current.g != g || lastColor.current.b != b) {
+      anime({
+        targets: lastColor.current,
+        duration: 500,
+        easing: "linear",
+        r,
+        g,
+        b,
+        update() {
+          const currentColor = (lastColor.current.r << 16) | (lastColor.current.g << 8) | lastColor.current.b;
+          colorFilterRef.current.reset();
+          colorFilterRef.current.tint(currentColor, true);
+        },
+      });
+    }
   }, [turn]);
 
   return colorFilterRef;

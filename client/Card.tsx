@@ -156,16 +156,19 @@ export default React.memo(
     }, [props.shadow]);
 
     useEffect(() => {
-      dimFilterRef.current.greyscale(0, true);
-      anime({
-        targets: dimFilterRef.current,
-        duration: 300,
-        easing: "easeOutExpo",
-        alpha: props.state.exhausted && props.shouldDimWhenExhausted ? 0.5 : 0,
-        update() {
-          dimFilterRef.current.enabled = dimFilterRef.current.alpha != 0;
-        },
-      });
+      const alpha = props.state.exhausted && props.shouldDimWhenExhausted ? 0.5 : 0;
+      if (alpha != dimFilterRef.current.alpha) {
+        dimFilterRef.current.greyscale(0, true);
+        anime({
+          targets: dimFilterRef.current,
+          duration: 300,
+          easing: "easeOutExpo",
+          alpha,
+          update() {
+            dimFilterRef.current.enabled = dimFilterRef.current.alpha != 0;
+          },
+        });
+      }
     }, [props.state.exhausted]);
 
     useEffect(() => {
@@ -173,15 +176,18 @@ export default React.memo(
     }, [props.info.colors]);
 
     useEffect(() => {
-      anime({
-        targets: glowFilterRef.current,
-        duration: 300,
-        easing: "easeOutExpo",
-        outerStrength: props.shouldGlow ? 4 : 0,
-        update() {
-          glowFilterRef.current.enabled = glowFilterRef.current.outerStrength != 0;
-        },
-      });
+      const outerStrength = props.shouldGlow ? 4 : 0;
+      if (glowFilterRef.current.outerStrength != outerStrength) {
+        anime({
+          targets: glowFilterRef.current,
+          duration: 300,
+          easing: "easeOutExpo",
+          outerStrength,
+          update() {
+            glowFilterRef.current.enabled = glowFilterRef.current.outerStrength != 0;
+          },
+        });  
+      }
     }, [props.shouldGlow]);
 
     let text = props.info.text;

@@ -72,30 +72,42 @@ export default function MoveAnimation(props: MoveAnimationProps) {
     if (!component) {
       return;
     }
-    
-    if (!props.skipPosition) {
+
+    const noAnimate =
+      component.transform.position.x == (props.x ?? 0) && component.transform.position.y == (props.y ?? 0);
+    if (!props.skipPosition && !noAnimate) {
       anime.remove(component.transform.position);
       anime({
         targets: component.transform.position,
-        duration: 300,
+        duration: 700,
         easing: "easeOutExpo",
         x: props.x ?? 0,
         y: props.y ?? 0,
       });
     }
+  }, [props.x, props.y]);
 
-    if (!props.skipScale) {
+  useEffect(() => {
+    const component = props.componentRef.current;
+
+    if (!component) {
+      return;
+    }
+
+    const noAnimate =
+      component.transform.scale.x == (props.scale ?? 0) && component.transform.scale.y == (props.scale ?? 0);
+    if (!props.skipScale && !noAnimate) {
       anime.remove(component.transform.scale);
       anime({
         targets: component.transform.scale,
-        duration: 300,
+        duration: 700,
         delay: -20,
         easing: "easeOutExpo",
         x: props.scale ?? 0,
         y: props.scale ?? 0,
       });
     }
-  });
+  }, [props.scale]);
 
   useLayoutEffect(() => {
     const prev = state.current[props.id];
@@ -104,7 +116,7 @@ export default function MoveAnimation(props: MoveAnimationProps) {
       component.position = component.parent.toLocal(prev);
       component.scale = { x: prev.scaleX, y: prev.scaleY };
     }
-  });
+  }, [props.x, props.y, props.scale]);
 
   return <>{props.children}</>;
 }
