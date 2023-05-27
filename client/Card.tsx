@@ -9,7 +9,6 @@ import anime from "animejs";
 import { GlowFilter } from "@pixi/filter-glow";
 import { isEqual } from "lodash";
 import { App } from "./Noir";
-import { useTimeColorFilter } from "./Time";
 
 export const cardHeight = targetResolution.height / 4;
 export const cardWidth = cardHeight * (1 / 1.4);
@@ -75,7 +74,6 @@ export type CardProps = {
   info: CardInfo;
   shouldGlow?: boolean;
   shouldDimWhenExhausted?: boolean;
-  shouldIgnoreTime?: boolean;
 };
 
 export function isCardStateEqual(a: CardState, b: CardState) {
@@ -113,7 +111,6 @@ export default React.memo(
     const containerRef = useRef() as MutableRefObject<Required<Container>>;
     const glowFilterRef = useRef(new GlowFilter({ outerStrength: 0 }));
     const dimFilterRef = useRef(new PixiFilters.ColorMatrixFilter());
-    const timeColorFilterRef = useTimeColorFilter();
     const [texture, setTexture] = useState(null as RenderTexture | null);
     const app = useContext(App)!;
 
@@ -143,10 +140,6 @@ export default React.memo(
       (containerRef.current as any).convertTo3d?.();
       dimFilterRef.current.alpha = 0;
     }, []);
-
-    useEffect(() => {
-      timeColorFilterRef.current.enabled = !props.shouldIgnoreTime;
-    }, [props.shouldIgnoreTime]);
 
     useEffect(() => {
       const alpha = props.state.exhausted && props.shouldDimWhenExhausted ? 0.5 : 0;
@@ -217,7 +210,6 @@ export default React.memo(
           filters={[
             glowFilterRef.current,
             dimFilterRef.current,
-            timeColorFilterRef.current,
           ]}
           ref={containerRef}
         >
@@ -239,7 +231,6 @@ export default React.memo(
           filters={[
             glowFilterRef.current,
             dimFilterRef.current,
-            timeColorFilterRef.current,
           ]}
         >
           <Rectangle

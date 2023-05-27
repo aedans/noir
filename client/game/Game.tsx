@@ -15,6 +15,7 @@ import OpponentGrave from "./OpponentGrave";
 import { PlayerAction } from "../../common/network";
 import { useClientSelector } from "../store";
 import Concede from "./Concede";
+import { useTimeColorFilter } from "../Time";
 
 export const PlayerContext = React.createContext(0 as PlayerId);
 export const ConnectionContext = React.createContext({
@@ -41,6 +42,7 @@ export default function Game(props: { message: string }) {
   const [prepared, setPrepared] = useState([] as Target[]);
   const game = useClientSelector((state) => state.game);
   const cards = useRef({} as MoveAnimationState);
+  const timeColorFilterRef = useTimeColorFilter();
 
   useEffect(() => {
     setPrepared([]);
@@ -50,7 +52,7 @@ export default function Game(props: { message: string }) {
     <MoveAnimationContext.Provider value={cards}>
       <HoverContext.Provider value={{ hover, setHover }}>
         <PreparedContext.Provider value={{ prepared, setPrepared }}>
-          <Container>
+          <Container filters={[timeColorFilterRef.current]}>
             <Board />
             <OpponentHand />
             <OpponentBoard />
