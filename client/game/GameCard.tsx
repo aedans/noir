@@ -66,7 +66,6 @@ export default React.memo(
           <Card
             state={props.state}
             info={props.info}
-            shadow={props.shadow}
             shouldGlow={props.shouldGlow || isOver}
             shouldDimWhenExhausted={props.shouldDimWhenExhausted}
           />
