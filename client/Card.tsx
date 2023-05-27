@@ -106,6 +106,73 @@ export function isCardPropsEqual(a: CardProps, b: CardProps) {
   );
 }
 
+const CardImpl = React.forwardRef(function CardImpl(props: CardProps, ref: Ref<Container>) {
+  const containerRef = useRef() as MutableRefObject<Required<Container>>;
+
+  useImperativeHandle(ref, () => containerRef.current);
+
+  let text = props.info.text;
+  let keywords = collapseKeywords(props.info.keywords);
+
+  if (!props.state.protected) {
+    keywords = keywords.filter((x) => x[0] != "protected");
+  }
+
+  if (keywords.length > 0) {
+    text = `${keywords.map(getDisplayName).join(", ")}\n${text}`.trim();
+  }
+
+  if (!props.state.hidden) {
+    text = `Revealed\n ${text}`;
+  }
+
+  let propsText = "";
+  for (const [name, value] of Object.entries(props.state.props)) {
+    if (value != undefined) {
+      const upperName = name.charAt(0).toUpperCase() + name.slice(1);
+      propsText += `${upperName}: ${value}`;
+    }
+  }
+
+  if (propsText != "") {
+    text = `${text}\n${propsText}`;
+  }
+
+  return (
+    <Container ref={containerRef}>
+      <Text anchor={[0.5, 0]} x={cardWidth / 2 + 20} y={28} text={props.state.name} style={{ fontSize: 32, tint: 0 }} />
+      <Text
+        anchor={[0.5, 0]}
+        x={cardWidth / 2}
+        y={283}
+        text={props.info.type.toUpperCase()}
+        style={{ fontSize: 28, tint: 0 }}
+      />
+      <Text
+        anchor={[0.5, 0.5]}
+        x={cardWidth / 2}
+        y={cardHeight * (3 / 4) + 15}
+        text={text}
+        style={{ fontSize: 32, align: "center", maxWidth: cardWidth - 20, letterSpacing: 1 }}
+      />
+      <Text
+        anchor={[0.5, 0.5]}
+        x={40}
+        y={40}
+        text={Math.max(0, props.info.cost.money)}
+        style={{ fontSize: 32, tint: 0 }}
+      />
+      <Text
+        anchor={[0.5, 0.5]}
+        x={40}
+        y={85}
+        text={Math.max(0, props.info.cost.agents) || ""}
+        style={{ fontSize: 32, tint: getCardColor(props.info.colors) }}
+      />
+    </Container>
+  );
+});
+
 export default React.memo(
   React.forwardRef(function Card(props: CardProps, ref: Ref<Container>) {
     const containerRef = useRef() as MutableRefObject<Required<Container>>;
@@ -115,7 +182,7 @@ export default React.memo(
     const app = useContext(App)!;
 
     useEffect(() => {
-      if (containerRef.current && texture == null) {
+      if (containerRef.current) {
         const renderTexture: RenderTexture | null = RenderTexture.create({
           width: cardWidth,
           height: cardHeight,
@@ -172,115 +239,25 @@ export default React.memo(
           update() {
             glowFilterRef.current.enabled = glowFilterRef.current.outerStrength != 0;
           },
-        });  
+        });
       }
     }, [props.shouldGlow]);
 
-    let text = props.info.text;
-    let keywords = collapseKeywords(props.info.keywords);
+    const info = texture ? <Sprite texture={texture} /> : <CardImpl {...props} ref={containerRef} />;
 
-    if (!props.state.protected) {
-      keywords = keywords.filter((x) => x[0] != "protected");
-    }
-
-    if (keywords.length > 0) {
-      text = `${keywords.map(getDisplayName).join(", ")}\n${text}`.trim();
-    }
-
-    if (!props.state.hidden) {
-      text = `Revealed\n ${text}`;
-    }
-
-    let propsText = "";
-    for (const [name, value] of Object.entries(props.state.props)) {
-      if (value != undefined) {
-        const upperName = name.charAt(0).toUpperCase() + name.slice(1);
-        propsText += `${upperName}: ${value}`;
-      }
-    }
-
-    if (propsText != "") {
-      text = `${text}\n${propsText}`;
-    }
-
-    if (texture != null) {
-      return (
-        <Container
-          pivot={[cardWidth / 2, cardHeight / 2]}
-          filters={[
-            glowFilterRef.current,
-            dimFilterRef.current,
-          ]}
-          ref={containerRef}
-        >
-          <Rectangle
-            fill={getCardColor(props.info.colors)}
-            width={cardWidth - 40}
-            height={cardHeight - 40}
-            x={20}
-            y={12}
-          />
-          <Sprite width={cardWidth} height={cardHeight} texture={Texture.from("/border.png")} />
-          <Sprite texture={texture} />
-        </Container>
-      );
-    } else {
-      return (
-        <Container
-          pivot={[cardWidth / 2, cardHeight / 2]}
-          filters={[
-            glowFilterRef.current,
-            dimFilterRef.current,
-          ]}
-        >
-          <Rectangle
-            fill={getCardColor(props.info.colors)}
-            width={cardWidth - 40}
-            height={cardHeight - 40}
-            x={20}
-            y={12}
-          />
-          <Sprite width={cardWidth} height={cardHeight} texture={Texture.from("/border.png")} />
-          <Container ref={containerRef}>
-            <Text
-              anchor={[0.5, 0]}
-              x={cardWidth / 2 + 20}
-              y={28}
-              text={props.state.name}
-              style={{ fontSize: 32, tint: 0 }}
-            />
-            <Text
-              anchor={[0.5, 0]}
-              x={cardWidth / 2}
-              y={283}
-              text={props.info.type.toUpperCase()}
-              style={{ fontSize: 28, tint: 0 }}
-            />
-            <Text
-              anchor={[0.5, 0.5]}
-              x={cardWidth / 2}
-              y={cardHeight * (3 / 4) + 15}
-              text={text}
-              style={{ fontSize: 32, align: "center", maxWidth: cardWidth - 20, letterSpacing: 1 }}
-            />
-            <Text
-              anchor={[0.5, 0.5]}
-              x={40}
-              y={40}
-              text={Math.max(0, props.info.cost.money)}
-              style={{ fontSize: 32, tint: 0 }}
-            />
-            <Text
-              anchor={[0.5, 0.5]}
-              x={40}
-              y={85}
-              text={Math.max(0, props.info.cost.agents) || ""}
-              style={{ fontSize: 32, tint: getCardColor(props.info.colors) }}
-            />
-          </Container>
-        </Container>
-      );
-    }
+    return (
+      <Container pivot={[cardWidth / 2, cardHeight / 2]} filters={[glowFilterRef.current, dimFilterRef.current]}>
+        <Rectangle
+          fill={getCardColor(props.info.colors)}
+          width={cardWidth - 40}
+          height={cardHeight - 40}
+          x={20}
+          y={12}
+        />
+        <Sprite width={cardWidth} height={cardHeight} texture={Texture.from("/border.png")} />
+        {info}
+      </Container>
+    );
   }),
   isCardPropsEqual
 );
