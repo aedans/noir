@@ -179,7 +179,7 @@ export function tryPayCost(
   targets: Filter | undefined,
   prepared: Target[]
 ): string | { agents: CardState[]; money: number } {
-  if (game.players[player].money < cost.money) {
+  if (cost.money > 0 && game.players[player].money < cost.money) {
     return `Not enough money to ${verb} ${name}`;
   }
 
