@@ -288,7 +288,7 @@ export default React.memo(
           y={12}
         />
         <Sprite
-          width={cardWidth - 60}
+          width={cardWidth - 55}
           height={cardHeight / 2 - 40}
           x={30}
           y={60}
