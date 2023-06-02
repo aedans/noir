@@ -63,11 +63,13 @@ export type CardInfo = {
   activateCost: CardCost;
   activateTargets?: Filter;
   activate: CardTargetAction;
-  hasActivateEffect: boolean;
+  hasActivate: boolean;
   activationPriority: number;
   turn: CardAction;
+  hasEffect: boolean;
   effectFilter: Filter;
   effect: CardEffect;
+  hasSecondaryEffect: boolean;
   secondaryEffectFilter: Filter;
   secondaryEffect: CardEffect;
   modifiers: { [name: string]: CardModifier };
@@ -132,7 +134,7 @@ export function runPartialCardInfoComputation(
     agents: partial.activateCost?.agents ?? 0,
   };
 
-  const hasActivateEffect = partial.hasActivateEffect ?? partial.activate != undefined;
+  const hasActivateEffect = partial.hasActivate ?? partial.activate != undefined;
   let activationPriority = partial.activationPriority ?? 0;
 
   if (partial.colors && partial.colors.length > 0) {
@@ -142,6 +144,9 @@ export function runPartialCardInfoComputation(
   if (hasActivateEffect) {
     activationPriority -= 1000;
   }
+  
+  const hasEffect = partial.hasEffect ?? partial.effect != undefined;
+  const hasSecondaryEffect = partial.hasSecondaryEffect ?? partial.secondaryEffect != undefined;
 
   return {
     text: partial.text ?? "",
@@ -154,11 +159,13 @@ export function runPartialCardInfoComputation(
     activateCost,
     activateTargets: partial.activateTargets,
     activate: partial.activate ?? function* () {},
-    hasActivateEffect,
+    hasActivate: hasActivateEffect,
     activationPriority,
     turn: partial.turn ?? function* () {},
+    hasEffect,
     effect: partial.effect ?? (() => ({})),
     effectFilter: partial.effectFilter ?? {},
+    hasSecondaryEffect,
     secondaryEffect: partial.secondaryEffect ?? (() => ({})),
     secondaryEffectFilter: partial.secondaryEffectFilter ?? {},
     modifiers: partial.modifiers ?? {},

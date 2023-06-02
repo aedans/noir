@@ -8,6 +8,7 @@ import {
   opponentOf,
   PlayerId,
   removeCard,
+  revealCard,
 } from "../common/gameSlice";
 import { defaultUtil } from "./card";
 import { CardColor, CardCost, CardGenerator, CardState, Target } from "../common/card";
@@ -136,7 +137,7 @@ function* activateCard(
 
   const info = defaultUtil.getCardInfo(cache, game, card);
 
-  if (!info.hasActivateEffect) {
+  if (!info.hasActivate) {
     throw `${card.name} has no activation effect`;
   }
 
@@ -184,6 +185,29 @@ function* doAction(cache: CardInfoCache, game: GameState, action: PlayerAction):
     yield* doEndTurn(cache, game);
   } else if (action.type == "do") {
     yield* doCard(cache, game, action.id, action.target, action.prepared);
+  }
+
+  const toReveal: Target[] = [];
+  for (const card of defaultUtil.filter(cache, game, { zones: ["board"], hidden: true })) {
+    if (toReveal.some((c) => c.id == card.id)) {
+      continue;
+    }
+
+    const player = findCard(game, card)?.player;
+    if (player) {
+      const opponent = opponentOf(player);
+      const info = defaultUtil.getCardInfo(cache, game, card);
+      const effectsOpponent = info.hasEffect && (info.effectFilter.players?.includes(opponent) ?? true);
+      const secondaryEffectsOpponent =
+        info.hasSecondaryEffect && (info.secondaryEffectFilter.players?.includes(opponent) ?? true);
+      if (effectsOpponent || secondaryEffectsOpponent) {
+        toReveal.push(card);
+      }
+    }
+  }
+
+  for (const target of toReveal) {
+    yield revealCard({ target });
   }
 }
 
@@ -266,7 +290,12 @@ export async function createGame(players: [Player, Player], queue: QueueName, on
 
     for (const player of [0, 1] as const) {
       function hide(action: GameAction, i: number) {
-        if (action.payload.target && player != source && getCard(state.current, action.payload.target)?.hidden) {
+        if (
+          source != null &&
+          action.payload.target &&
+          player != source &&
+          getCard(state.current, action.payload.target)?.hidden
+        ) {
           return setHidden({ target: { id: action.payload.target.id }, index: length + i });
         } else {
           return setAction({ action, index: length + i });
