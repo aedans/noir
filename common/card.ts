@@ -134,14 +134,14 @@ export function runPartialCardInfoComputation(
     agents: partial.activateCost?.agents ?? 0,
   };
 
-  const hasActivateEffect = partial.hasActivate ?? partial.activate != undefined;
+  const hasActivate = partial.hasActivate ?? partial.activate != undefined;
   let activationPriority = partial.activationPriority ?? 0;
 
   if (partial.colors && partial.colors.length > 0) {
     activationPriority -= partial.colors.length * 100;
   }
 
-  if (hasActivateEffect) {
+  if (hasActivate) {
     activationPriority -= 1000;
   }
   
@@ -159,7 +159,7 @@ export function runPartialCardInfoComputation(
     activateCost,
     activateTargets: partial.activateTargets,
     activate: partial.activate ?? function* () {},
-    hasActivate: hasActivateEffect,
+    hasActivate: hasActivate,
     activationPriority,
     turn: partial.turn ?? function* () {},
     hasEffect,

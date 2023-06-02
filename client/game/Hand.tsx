@@ -11,7 +11,7 @@ export type HandProps = {
 };
 
 export default function Hand(props: HandProps) {
-  const timeShadowFilterRef = useTimeShadowFilter(20);
+  const timeShadowFilterRef = useTimeShadowFilter(10);
 
   let offset = cardWidth - 20;
   if (offset * props.cards.length > 2500) {

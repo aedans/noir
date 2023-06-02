@@ -42,7 +42,7 @@ export default React.forwardRef(function BoardCard(props: GameCardProps, ref: Re
   }, []);
 
   function pointerdown() {
-    if (!props.info.hasActivateEffect && !isPrepared && !props.state.exhausted && props.info.type == "agent") {
+    if (!props.info.hasActivate && !isPrepared && !props.state.exhausted && props.info.type == "agent") {
       setPrepared((ps) => [...ps, props.state]);
     } else if (isPrepared) {
       setPrepared((ps) => ps.filter((card) => card.id != props.state.id));
@@ -52,7 +52,7 @@ export default React.forwardRef(function BoardCard(props: GameCardProps, ref: Re
   }
 
   function pointerover() {
-    if (props.state.exhausted || !props.info.hasActivateEffect) {
+    if (props.state.exhausted || !props.info.hasActivate) {
       return;
     }
 
@@ -84,7 +84,7 @@ export default React.forwardRef(function BoardCard(props: GameCardProps, ref: Re
 
   const shouldGlow =
     !props.state.exhausted &&
-    props.info.hasActivateEffect &&
+    props.info.hasActivate &&
     currentPlayer(game) == player &&
     defaultUtil.canPayCost(
       new Map(),
