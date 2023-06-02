@@ -29,7 +29,7 @@ export const hex = {
   purple: 0xd800eb,
   multicolor: 0x767676,
   colorless: 0x767676,
-}
+};
 
 export function combineColors(colors: CardColors[]) {
   return colors.reduce((a, b) => {
@@ -286,6 +286,13 @@ export default React.memo(
           height={cardHeight - 40}
           x={20}
           y={12}
+        />
+        <Sprite
+          width={cardWidth - 60}
+          height={cardHeight / 2 - 40}
+          x={30}
+          y={60}
+          texture={Texture.from(`/art/${props.state.name}.png`)}
         />
         <Sprite width={cardWidth} height={cardHeight} texture={Texture.from("/border.png")} />
         {borderTintSprite}
