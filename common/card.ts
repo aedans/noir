@@ -38,6 +38,7 @@ export type CardColor = (typeof cardColors)[number];
 export type CardType = (typeof cardTypes)[number];
 export type CardKeyword = ReturnType<(typeof cardKeywords)[number]>;
 export type CardColorFilter = CardColor | "any";
+export type CardColors = CardColor | "multicolor" | "colorless";
 
 export type CardCost = {
   money: number;

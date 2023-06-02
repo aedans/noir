@@ -20,7 +20,7 @@ export default React.forwardRef(function EditorCard(props: EditorCardProps, ref:
     <EnterExitAnimation status={props.status} componentRef={componentRef}>
       <MoveAnimation id={props.state.id} x={x} y={y} scale={1} componentRef={componentRef}>
         <Container {...props} scale={1} ref={componentRef}>
-          <Card state={props.state} info={props.info} shouldIgnoreTime />
+          <Card state={props.state} info={props.info} />
         </Container>
       </MoveAnimation>
     </EnterExitAnimation>

@@ -1,10 +1,13 @@
 import React, { MutableRefObject, Ref, useContext, useEffect, useImperativeHandle, useRef } from "react";
 import { useDrop } from "react-dnd";
 import { Container, InteractiveComponent } from "react-pixi-fiber";
-import { CardState } from "../../common/card";
-import Card, { CardProps, isCardPropsEqual } from "../Card";
+import { CardColors, CardState } from "../../common/card";
+import Card, { CardProps, combineColors, hex, isCardPropsEqual } from "../Card";
 import MoveAnimation, { useLastPos } from "../MoveAnimation";
 import { ConnectionContext, PreparedContext } from "./Game";
+import { getCard } from "../../common/gameSlice";
+import { useClientSelector } from "../store";
+import { defaultUtil } from "../cards";
 
 export type GameCardProps = CardProps &
   InteractiveComponent & {
@@ -32,6 +35,7 @@ export function isGameCardPropsEqual(a: GameCardProps, b: GameCardProps) {
 
 export default React.memo(
   React.forwardRef(function GameCard(props: GameCardProps, ref: Ref<Container>) {
+    const game = useClientSelector((state) => state.game.current);
     const connection = useContext(ConnectionContext);
     const { prepared } = useContext(PreparedContext);
     const componentRef = useRef() as MutableRefObject<Required<Container>>;
@@ -60,6 +64,31 @@ export default React.memo(
       (componentRef.current as any).convertTo3d?.();
     }, []);
 
+    const cache = new Map();
+    const borderColors: CardColors[] = [];
+    for (const modifier of props.state.modifiers) {
+      const card = getCard(game, modifier.card);
+      if (card) {
+        const info = defaultUtil.getCardInfo(cache, game, card);
+        borderColors.push(combineColors(info.colors));
+      }
+    }
+
+    for (const card of defaultUtil.filter(cache, game, { zones: ["board"] })) {
+      const info = defaultUtil.getCardInfo(cache, game, card);
+      if (defaultUtil.filter(cache, game, info.effectFilter).find((c) => c.id == props.state.id)) {
+        if (Object.entries(info.effect(props.info, props.state) ?? {}).length > 0) {
+          borderColors.push(combineColors(info.colors));
+        }
+      }
+
+      if (defaultUtil.filter(cache, game, info.secondaryEffectFilter).find((c) => c.id == props.state.id)) {
+        if (Object.entries(info.secondaryEffect(props.info, props.state) ?? {}).length > 0) {
+          borderColors.push(combineColors(info.colors));
+        }
+      }
+    }
+
     return (
       <MoveAnimation id={props.state.id} x={x} y={y} scale={props.scale ?? 1} componentRef={componentRef}>
         <Container {...props} scale={0} ref={componentRef}>
@@ -68,6 +97,7 @@ export default React.memo(
             info={props.info}
             shouldGlow={props.shouldGlow || isOver}
             shouldDimWhenExhausted={props.shouldDimWhenExhausted}
+            borderTint={borderColors.length == 0 ? undefined : hex[combineColors(borderColors)]}
           />
         </Container>
       </MoveAnimation>

@@ -1,8 +1,17 @@
-import React, { MutableRefObject, Ref, useContext, useEffect, useImperativeHandle, useRef, useState } from "react";
+import React, {
+  MutableRefObject,
+  ReactElement,
+  Ref,
+  useContext,
+  useEffect,
+  useImperativeHandle,
+  useRef,
+  useState,
+} from "react";
 import { Container, Sprite } from "react-pixi-fiber";
 import Rectangle from "./Rectangle";
 import { targetResolution } from "./Camera";
-import { CardColor, CardInfo, CardKeyword, CardState } from "../common/card";
+import { CardColor, CardColorFilter, CardColors, CardInfo, CardKeyword, CardState } from "../common/card";
 import Text from "./Text";
 import { filters as PixiFilters, RenderTexture, Texture } from "pixi.js";
 import anime from "animejs";
@@ -13,16 +22,27 @@ import { App } from "./Noir";
 export const cardHeight = targetResolution.height / 4;
 export const cardWidth = cardHeight * (1 / 1.4);
 
-export function getCardColor(colors: CardColor[]) {
-  const colorMap = {
-    orange: 0xeb6300,
-    blue: 0x0087eb,
-    green: 0x12eb00,
-    purple: 0xd800eb,
-    any: 0x767676,
-  };
+export const hex = {
+  orange: 0xeb6300,
+  blue: 0x0087eb,
+  green: 0x12eb00,
+  purple: 0xd800eb,
+  multicolor: 0x767676,
+  colorless: 0x767676,
+}
 
-  return colorMap[colors.length == 1 ? colors[0] : "any"];
+export function combineColors(colors: CardColors[]) {
+  return colors.reduce((a, b) => {
+    if (a == "colorless") {
+      return b;
+    } else if (b == "colorless") {
+      return a;
+    } else if (a == b) {
+      return a;
+    } else {
+      return "multicolor";
+    }
+  }, "colorless");
 }
 
 export function combineKeywords(a: CardKeyword, b: CardKeyword): CardKeyword {
@@ -74,6 +94,7 @@ export type CardProps = {
   info: CardInfo;
   shouldGlow?: boolean;
   shouldDimWhenExhausted?: boolean;
+  borderTint?: number;
 };
 
 export function isCardStateEqual(a: CardState, b: CardState) {
@@ -167,7 +188,7 @@ const CardImpl = React.forwardRef(function CardImpl(props: CardProps, ref: Ref<C
         x={40}
         y={85}
         text={Math.max(0, props.info.cost.agents) || ""}
-        style={{ fontSize: 32, tint: getCardColor(props.info.colors) }}
+        style={{ fontSize: 32, tint: hex[combineColors(props.info.colors)] }}
       />
     </Container>
   );
@@ -225,7 +246,7 @@ export default React.memo(
     }, [props.state.exhausted]);
 
     useEffect(() => {
-      glowFilterRef.current.color = getCardColor(props.info.colors);
+      glowFilterRef.current.color = hex[combineColors(props.info.colors)];
     }, [props.info.colors]);
 
     useEffect(() => {
@@ -245,16 +266,29 @@ export default React.memo(
 
     const info = texture ? <Sprite texture={texture} /> : <CardImpl {...props} ref={containerRef} />;
 
+    let borderTintSprite: ReactElement | undefined;
+    if (props.borderTint) {
+      borderTintSprite = (
+        <Sprite
+          width={cardWidth}
+          height={cardHeight}
+          texture={Texture.from("/border_tint.png")}
+          tint={props.borderTint}
+        />
+      );
+    }
+
     return (
       <Container pivot={[cardWidth / 2, cardHeight / 2]} filters={[glowFilterRef.current, dimFilterRef.current]}>
         <Rectangle
-          fill={getCardColor(props.info.colors)}
+          fill={hex[combineColors(props.info.colors)]}
           width={cardWidth - 40}
           height={cardHeight - 40}
           x={20}
           y={12}
         />
         <Sprite width={cardWidth} height={cardHeight} texture={Texture.from("/border.png")} />
+        {borderTintSprite}
         {info}
       </Container>
     );
