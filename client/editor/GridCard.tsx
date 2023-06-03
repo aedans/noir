@@ -13,7 +13,7 @@ export default React.forwardRef(function EditorCard(props: EditorCardProps, ref:
   return (
     <MoveAnimation skipPosition id={props.state.id} scale={1} componentRef={componentRef}>
       <Container {...props} scale={1} ref={componentRef}>
-        <Card state={props.state} info={props.info} shouldIgnoreTime />
+        <Card state={props.state} info={props.info} />
       </Container>
     </MoveAnimation>
   );
