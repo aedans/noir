@@ -5,6 +5,7 @@ import React, {
   useContext,
   useEffect,
   useImperativeHandle,
+  useLayoutEffect,
   useRef,
   useState,
 } from "react";
@@ -197,7 +198,7 @@ const CardImpl = React.forwardRef(function CardImpl(props: CardProps, ref: Ref<C
 export default React.memo(
   React.forwardRef(function Card(props: CardProps, ref: Ref<Container>) {
     const containerRef = useRef() as MutableRefObject<Required<Container>>;
-    const glowFilterRef = useRef(new GlowFilter({ outerStrength: 0 }));
+    const glowFilterRef = useRef(new GlowFilter());
     const dimFilterRef = useRef(new PixiFilters.ColorMatrixFilter());
     const [texture, setTexture] = useState(null as RenderTexture | null);
     const app = useContext(App)!;
@@ -224,9 +225,12 @@ export default React.memo(
 
     useImperativeHandle(ref, () => containerRef.current);
 
-    useEffect(() => {
+    useLayoutEffect(() => {
       (containerRef.current as any).convertTo3d?.();
+      glowFilterRef.current.outerStrength = 0;
+      glowFilterRef.current.enabled = false;
       dimFilterRef.current.alpha = 0;
+      dimFilterRef.current.enabled = false;
     }, []);
 
     useEffect(() => {
