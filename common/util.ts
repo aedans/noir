@@ -50,6 +50,7 @@ import {
   NoActionParams,
 } from "./gameSlice";
 import { historySlice, SetUndoneParams } from "./historySlice";
+import { shuffle } from "lodash";
 
 export type Filter = {
   excludes?: Target[];
@@ -61,6 +62,7 @@ export type Filter = {
   exhausted?: boolean;
   maxMoney?: number;
   minMoney?: number;
+  random?: boolean;
   ordering?: Order[];
   reversed?: boolean;
 } & { [key in CardKeyword[0]]?: boolean };
@@ -111,6 +113,10 @@ export function filter(this: Util, cache: CardInfoCache, game: GameState, filter
 
       cards.push(...f);
     }
+  }
+
+  if (filter.random != undefined && filter.random) {
+    cards = shuffle(cards);
   }
 
   if (filter.ordering != undefined) {
@@ -435,29 +441,6 @@ function* onAdd(info: CardInfo, payload: AddCardParams): CardGenerator {
   }
 }
 
-function* onPlay(info: CardInfo, payload: PlayCardParams): CardGenerator {
-  yield* info.onPlay(payload);
-
-  const totalDelay = info.keywords.filter((k): k is ["delay", number] => k[0] == "delay").reduce((a, b) => a + b[1], 0);
-  if (totalDelay > 0) {
-    yield setProp({ target: payload.target, name: "delayed", value: totalDelay });
-  }
-
-  if (info.keywords.some((k) => k[0] == "debt")) {
-    yield setProp({ target: payload.target, name: "collection", value: 2 });
-  }
-
-  if (info.keywords.some((k) => k[0] == "flammable")) {
-    yield setProp({ target: payload.target, name: "aflame", value: undefined });
-  }
-
-  if (payload.type == "operation") {
-    yield* info.onRemove(payload);
-  } else {
-    yield* info.onEnter(payload);
-  }
-}
-
 function* onRemove(info: CardInfo, game: GameState, payload: TargetCardParams): CardGenerator {
   const state = getCard(game, payload.target);
 
@@ -482,10 +465,99 @@ function setUndone(game: GameState, payload: SetUndoneParams) {
   return historySlice.actions.setUndone({ index: game.history.length - payload.index - 1 });
 }
 
+function* onPlayCard(
+  this: Util,
+  cache: CardInfoCache,
+  game: GameState,
+  source: Target | undefined,
+  payload: Omit<PlayCardParams, "source">
+): CardGenerator {
+  yield playCard({ source, ...payload });
+
+  const state = getCard(game, payload.target);
+  if (state) {
+    const info = this.getCardInfo(cache, game, state);
+    yield* info.onPlay({ ...payload, source });
+
+    const totalDelay = info.keywords
+      .filter((k): k is ["delay", number] => k[0] == "delay")
+      .reduce((a, b) => a + b[1], 0);
+    if (totalDelay > 0) {
+      yield setProp({ target: payload.target, name: "delayed", value: totalDelay });
+    }
+
+    if (info.keywords.some((k) => k[0] == "debt")) {
+      yield setProp({ target: payload.target, name: "collection", value: 2 });
+    }
+
+    if (info.keywords.some((k) => k[0] == "flammable")) {
+      yield setProp({ target: payload.target, name: "aflame", value: undefined });
+    }
+
+    const totalExpunge = {
+      agents: info.keywords.filter(([name, type]) => name == "expunge" && type == "agent").length,
+      operations: info.keywords.filter(([name, type]) => name == "expunge" && type == "operation").length,
+    };
+
+    const lowestAgents = this.filter(cache, game, {
+      players: [util.self(game, state)],
+      zones: ["deck"],
+      types: ["agent"],
+      random: true,
+      ordering: ["money"],
+    });
+
+    const lowestOperations = this.filter(cache, game, {
+      players: [util.self(game, state)],
+      zones: ["deck"],
+      types: ["operation"],
+      random: true,
+      ordering: ["money"],
+    });
+
+    if (lowestAgents.length < totalExpunge.agents) {
+      throw "Not enough agents to expunge";
+    }
+
+    if (lowestOperations.length < totalExpunge.operations) {
+      throw "Not enough agents to expunge";
+    }
+
+    for (const target of [
+      ...lowestAgents.slice(0, totalExpunge.agents),
+      ...lowestOperations.slice(0, totalExpunge.operations),
+    ]) {
+      yield* this.removeCard(cache, game, state, { target });
+    }
+
+    if (payload.type == "operation") {
+      yield* info.onRemove(payload);
+    } else {
+      yield* info.onEnter(payload);
+    }
+  }
+
+  if (source) {
+    const sourcePlayer = findCard(game, source)?.player;
+    const targetPlayer = findCard(game, payload.target)?.player;
+
+    if (sourcePlayer != targetPlayer) {
+      const reveal: TargetCardParams = { source: source, target: source };
+      yield* this.revealCard(cache, game, source, { target: source });
+
+      const state = getCard(game, source);
+      if (state) {
+        const info = this.getCardInfo(cache, game, state);
+        yield* info.onReveal(reveal);
+      }
+    }
+  }
+}
+
 const util = {
   endTurn: onEndTurn,
   addCard: onTrigger(addCard, (info, game) => triggerReveal(info, game, (p) => onAdd(info, p)), true),
-  playCard: onTrigger(playCard, (info, game) => triggerReveal(info, game, (p) => onPlay(info, p))),
+  playCard: onPlayCard,
   removeCard: onTrigger(removeCard, (info, game) => triggerReveal(info, game, (p) => onRemove(info, game, p))),
   enterCard: onTrigger(enterCard, (info, game) => triggerReveal(info, game, info.onEnter)),
   bounceCard: onTrigger(bounceCard, (info, game) => triggerReveal(info, game, info.onBounce)),

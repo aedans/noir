@@ -80,6 +80,7 @@ export function getDisplayName(keyword: CardKeyword) {
     delay: "Delay",
     debt: "Debt",
     flammable: "Flammable",
+    expunge: "Expunge",
   };
 
   let string = displayNameMap[keyword[0]];
