@@ -294,15 +294,6 @@ export function updateCardInfo(this: Util, cache: CardInfoCache, game: GameState
 
   cache.set(state.id, info);
 
-  for (const modifier of state.modifiers) {
-    const card = getCard(game, modifier.card);
-    if (card) {
-      const modifiers = this.getCardInfo(cache, game, card).modifiers ?? {};
-      info = { ...info, ...modifiers[modifier.name](info, modifier, state) };
-      cache.set(state.id, info);
-    }
-  }
-
   for (const card of this.filter(cache, game, { zones: ["board"] })) {
     const cardInfo = this.getCardInfo(cache, game, card);
     if (this.filter(cache, game, cardInfo.effectFilter).find((c) => c.id == state.id)) {
@@ -312,6 +303,15 @@ export function updateCardInfo(this: Util, cache: CardInfoCache, game: GameState
 
     if (this.filter(cache, game, cardInfo.secondaryEffectFilter).find((c) => c.id == state.id)) {
       info = { ...info, ...cardInfo.secondaryEffect(info, state) };
+      cache.set(state.id, info);
+    }
+  }
+
+  for (const modifier of state.modifiers) {
+    const card = getCard(game, modifier.card);
+    if (card) {
+      const modifiers = this.getCardInfo(cache, game, card).modifiers ?? {};
+      info = { ...info, ...modifiers[modifier.name](info, modifier, state) };
       cache.set(state.id, info);
     }
   }
