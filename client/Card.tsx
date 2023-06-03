@@ -9,7 +9,7 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { Container, Sprite } from "react-pixi-fiber";
+import { Container, Sprite, render } from "react-pixi-fiber";
 import Rectangle from "./Rectangle";
 import { targetResolution } from "./Camera";
 import { CardColor, CardColorFilter, CardColors, CardInfo, CardKeyword, CardState } from "../common/card";
@@ -203,21 +203,25 @@ export default React.memo(
     const [texture, setTexture] = useState(null as RenderTexture | null);
     const app = useContext(App)!;
 
-    useEffect(() => {
+    function rerenderTexture(container: Required<Container>) {
+      const renderTexture: RenderTexture | null = RenderTexture.create({
+        width: cardWidth,
+        height: cardHeight,
+      });
+      
+      setTimeout(() => {
+        app.renderer.render(container, { renderTexture });
+        setTexture(renderTexture);
+      }, 0);
+
+      return () => {
+        renderTexture.destroy(true);
+      };
+    }
+
+    useLayoutEffect(() => {
       if (containerRef.current) {
-        const renderTexture: RenderTexture | null = RenderTexture.create({
-          width: cardWidth,
-          height: cardHeight,
-        });
-
-        setTimeout(() => {
-          app.renderer.render(containerRef.current, { renderTexture });
-          setTexture(renderTexture);
-        }, 0);
-
-        return () => {
-          renderTexture.destroy(true);
-        };
+        rerenderTexture(containerRef.current);
       } else {
         setTexture(null);
       }
@@ -268,7 +272,20 @@ export default React.memo(
       }
     }, [props.shouldGlow]);
 
-    const info = texture ? <Sprite texture={texture} /> : <CardImpl {...props} ref={containerRef} />;
+    const info = texture ? (
+      <Sprite texture={texture} />
+    ) : (
+      <CardImpl
+        {...props}
+        ref={(ref: Required<Container>) => {
+          if (ref && containerRef.current == null) {
+            rerenderTexture(ref);
+          }
+
+          containerRef.current = ref;
+        }}
+      />
+    );
 
     let borderTintSprite: ReactElement | undefined;
     if (props.borderTint) {
