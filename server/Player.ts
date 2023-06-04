@@ -1,9 +1,12 @@
 import { Deck } from "../common/decksSlice";
-import { PlayerId } from "../common/gameSlice";
-import { HistoryAction } from "../common/historySlice";
+import { PlayerId, currentPlayer } from "../common/gameSlice";
+import { HistoryAction, historySlice } from "../common/historySlice";
 import fs from "fs";
 import { random } from "../common/util";
 import { PlayerInit, PlayerAction, NoirServerSocket } from "../common/network";
+import { HistoryState } from "../common/historySlice";
+import { initialHistoryState } from "../common/historySlice";
+import { Goal, GoalState, runGoals } from "./Goal";
 
 const decks = JSON.parse(fs.readFileSync("./common/decks.json").toString());
 
@@ -16,14 +19,10 @@ export default interface Player {
 }
 
 export class SocketPlayer implements Player {
-  socket: NoirServerSocket;
   callbacks: ((action: PlayerAction | "concede") => void)[] = [];
   actions: HistoryAction[] = [];
-  player: PlayerId;
 
-  constructor(socket: NoirServerSocket, player: PlayerId) {
-    this.socket = socket;
-    this.player = player;
+  constructor(public socket: NoirServerSocket, public player: PlayerId) {
     this.connect(socket);
   }
 
@@ -74,26 +73,54 @@ export class SocketPlayer implements Player {
   }
 }
 
-export class UnitPlayer implements Player {
+export abstract class ComputerPlayer implements Player {
   callbacks: ((action: PlayerAction) => void)[] = [];
+  history: HistoryState = initialHistoryState();
+  state: GoalState = { lastPlay: {} };
+
+  constructor(public player: PlayerId) {}
 
   init(): Promise<PlayerInit> {
-    return Promise.resolve({ deck: decks[random(["Green", "Blue", "Orange", "Purple"])] as Deck });
+    return Promise.resolve({ deck: this.deck });
   }
 
-  send() {
-    setTimeout(() => {
-      for (const callback of this.callbacks) {
-        callback({ type: "end" });
-      }
-    }, 100);
+  async send(history: HistoryAction[]): Promise<void> {
+    for (const action of history) {
+      this.history = historySlice.reducer(this.history, action);
+    }
+
+    if (currentPlayer(this.history.current) != this.player) {
+      return;
+    }
+
+    let action = runGoals(this.history.current, this.player, this.goals, this.state);
+
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+
+    if (action == null) {
+      action = { type: "end" };
+    }
+
+    for (const callback of this.callbacks) {
+      callback(action);
+    }
+  }
+
+  onAction(callback: (action: PlayerAction) => void): void {
+    this.callbacks.push(callback);
   }
 
   error() {}
 
   end() {}
 
-  onAction(callback: (action: PlayerAction) => void): void {
-    this.callbacks.push(callback);
-  }
+  abstract deck: Deck;
+
+  abstract goals: Goal[];
+}
+
+export class UnitPlayer extends ComputerPlayer {
+  deck = decks[random(["Green", "Blue", "Orange", "Purple"])] as Deck;
+
+  goals = [];
 }

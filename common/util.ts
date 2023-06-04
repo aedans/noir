@@ -56,15 +56,19 @@ export type Filter = {
   excludes?: Target[];
   players?: PlayerId[];
   zones?: Zone[];
+  names?: string[];
   types?: CardType[];
   colors?: CardColor[];
   hidden?: boolean;
   exhausted?: boolean;
+  playable?: boolean;
+  activatable?: boolean;
   maxMoney?: number;
   minMoney?: number;
   random?: boolean;
   ordering?: Order[];
   reversed?: boolean;
+  number?: number;
 } & { [key in CardKeyword[0]]?: boolean };
 
 export function filter(this: Util, cache: CardInfoCache, game: GameState, filter: Filter) {
@@ -73,6 +77,10 @@ export function filter(this: Util, cache: CardInfoCache, game: GameState, filter
   for (const player of filter.players ?? ([0, 1] as const)) {
     for (const zone of filter.zones ?? zones) {
       let f = game.players[player][zone];
+
+      if (filter.names != undefined && filter.names.length > 0) {
+        f = f.filter((card) => filter.names!.includes(card.name));
+      }
 
       if (filter.excludes != undefined && filter.excludes.length > 0) {
         f = f.filter((card) => filter.excludes!.every((c) => c.id != card.id));
@@ -92,6 +100,24 @@ export function filter(this: Util, cache: CardInfoCache, game: GameState, filter
 
       if (filter.exhausted != undefined) {
         f = f.filter((card) => filter.exhausted! == card.exhausted);
+      }
+
+      if (filter.playable != undefined && filter.playable) {
+        f = f.filter((card) => {
+          const info = this.getCardInfo(cache, game, card);
+          return this.canPayCost(cache, game, card, player, info.colors, info.cost, info.targets, []);
+        });
+      }
+
+      if (filter.activatable != undefined && filter.activatable) {
+        f = f.filter((card) => {
+          const info = this.getCardInfo(cache, game, card);
+          return (
+            !card.exhausted &&
+            info.hasActivate &&
+            this.canPayCost(cache, game, card, player, info.colors, info.activateCost, info.activateTargets, [])
+          );
+        });
       }
 
       if (filter.maxMoney != undefined) {
@@ -125,6 +151,10 @@ export function filter(this: Util, cache: CardInfoCache, game: GameState, filter
 
   if (filter.reversed != undefined && filter.reversed) {
     cards = cards.reverse();
+  }
+
+  if (filter.number != undefined) {
+    cards = cards.slice(0, filter.number);
   }
 
   return cards;
@@ -249,23 +279,42 @@ export function* revealRandom(
   const cards = this.filter(cache, game, {
     ...filter,
     hidden: true,
+    random: true,
+    number: number,
     excludes: [card, ...(filter.excludes ?? [])],
   });
 
-  for (const target of util.randoms(cards, number)) {
+  for (const target of cards) {
     yield* this.revealCard(cache, game, card, { target });
   }
 
   if (cards.length < number) {
-    const deckCards = this.filter(cache, game, {
+    const aliveCards = this.filter(cache, game, {
       ...filter,
-      zones: ["deck", ...(filter.zones ?? [])],
       hidden: true,
-      excludes: [card, ...(filter.excludes ?? [])],
+      random: true,
+      number: number - cards.length,
+      zones: ["deck", "board"],
+      excludes: [card, ...cards, ...(filter.excludes ?? [])],
     });
 
-    for (const target of util.randoms(deckCards, number - cards.length)) {
+    for (const target of aliveCards) {
       yield* this.revealCard(cache, game, card, { target });
+    }
+
+    if (cards.length + aliveCards.length < number) {
+      const allCards = this.filter(cache, game, {
+        ...filter,
+        hidden: true,
+        random: true,
+        number: number - cards.length,
+        zones: ["deck", "board", "grave"],
+        excludes: [card, ...cards, ...aliveCards, ...(filter.excludes ?? [])],
+      });
+
+      for (const target of allCards) {
+        yield* this.revealCard(cache, game, card, { target });
+      }
     }
   }
 }
