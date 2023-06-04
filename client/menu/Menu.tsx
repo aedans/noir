@@ -16,7 +16,7 @@ export default function Menu() {
         }}
       />
       <Button
-        text="Solo"
+        text="DaphrilBot9000"
         y={200}
         pointerdown={() => {
           setLocation("/solo/");
