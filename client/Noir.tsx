@@ -15,6 +15,7 @@ import { addStats } from "pixi-stats";
 import Replays from "./replays/Replays";
 import Replay from "./replays/Replay";
 import Queue from "./queue/Queue";
+import Solo from "./solo/Solo";
 
 export type NoirProps = {
   app: Application;
@@ -35,6 +36,7 @@ export default function Noir(props: NoirProps) {
             <Router>
               <Route path="/play" component={Play} />
               <Route path="/queue/:queue/:deck" component={Queue} />
+              <Route path="/solo" component={Solo} />
               <Route path="/decks" component={Decks} />
               <Route path="/edit/:deck" component={Editor} />
               <Route path="/replays" component={Replays} />

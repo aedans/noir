@@ -54,8 +54,8 @@ export default function Game(props: { message: string }) {
         <PreparedContext.Provider value={{ prepared, setPrepared }}>
           <Container filters={[timeColorFilterRef.current]}>
             <Board />
-            <OpponentHand />
             <OpponentBoard />
+            <OpponentHand />
             <EndTurn />
             <Resources />
             <Concede />
