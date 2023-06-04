@@ -2,7 +2,7 @@ import { Deck } from "../../common/decksSlice";
 import { activateCard, afterLosing, afterPlaying, afterTurn, afterWait, playCard } from "../Goal";
 import { ComputerPlayer } from "../Player";
 
-export default class Dapril extends ComputerPlayer {
+export default class Daphril extends ComputerPlayer {
   deck: Deck = {
     cards: {
       // Win
