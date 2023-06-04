@@ -45,6 +45,8 @@ export const playCard =
     }
 
     const targets = defaultUtil.filter(cache, game, {
+      ordering: ["money"],
+      reversed: true,
       ...targetFilter,
       ...info.targets,
       players: [negative ? opponentOf(playerId) : playerId],
@@ -82,6 +84,8 @@ export const activateCard =
     }
 
     const targets = defaultUtil.filter(cache, game, {
+      ordering: ["money"],
+      reversed: true,
       ...targetFilter,
       ...info.activateTargets,
       players: [negative ? opponentOf(playerId) : playerId],
