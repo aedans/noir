@@ -16,15 +16,22 @@ export default function Menu() {
         }}
       />
       <Button
-        text="Decks"
+        text="Solo"
         y={200}
+        pointerdown={() => {
+          setLocation("/solo/");
+        }}
+      />
+      <Button
+        text="Decks"
+        y={400}
         pointerdown={() => {
           setLocation("/decks/");
         }}
       />
       <Button
         text="Replays"
-        y={400}
+        y={600}
         pointerdown={() => {
           setLocation("/replays/");
         }}
