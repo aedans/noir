@@ -1,22 +1,12 @@
 // @ts-check
 /** @type {import("../../common/card").PartialCardInfoComputation} */
 exports.card = (util, cache, game, card) => ({
-  text: "Additonal cost: Expunge an agent. Reveal two cards from your opponent's deck and two from their board.",
+  text: "Expunge: agent. Reveal two cards from your opponent's deck and two from their board.",
   type: "operation",
   cost: { money: 3, agents: 1 },
+  keywords: [["expunge","agent"]],
   colors: ["purple"],
   play: function* () {
-    const cards = util.filter(cache, game, {
-      players: [util.self(game, card)],
-      colors: ["purple"],
-      zones: ["deck"],
-      excludes: [card],
-    });
-
-    if (cards.length == 0) {
-      throw "No agents in your deck";
-    }
-
     yield* util.revealRandom(cache, game, card, 2, {
       players: [util.opponent(game, card)],
       zones: ["deck"],
@@ -25,8 +15,5 @@ exports.card = (util, cache, game, card) => ({
       players: [util.opponent(game, card)],
       zones: ["board"],
     });
-
-    const removedCard = util.random(cards);
-    yield* util.removeCard(cache, game, card, { target: removedCard });
   },
 });
