@@ -1,9 +1,9 @@
 import { PlayerId } from "../common/gameSlice";
 import Player from "./Player";
-import Dapril from "./solo/Daphril";
+import Daphril from "./solo/Daphril";
 
 export type MissionName = "daphril";
 
 export const missions: { [T in MissionName]: (playerId: PlayerId) => Player } = {
-  daphril: (playerId) => new Dapril(playerId),
+  daphril: (playerId) => new Daphril(playerId),
 }
