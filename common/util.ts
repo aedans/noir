@@ -544,9 +544,18 @@ function* onPlayCard(
     }
 
     const totalExpunge = {
+      cards: info.keywords.filter(([name, type]) => name == "expunge" && type == "card").length,
       agents: info.keywords.filter(([name, type]) => name == "expunge" && type == "agent").length,
       operations: info.keywords.filter(([name, type]) => name == "expunge" && type == "operation").length,
     };
+
+    const lowestCards = this.filter(cache, game, {
+      players: [util.self(game, state)],
+      zones: ["deck"],
+      types: ["operation"],
+      random: true,
+      ordering: ["money"],
+    });
 
     const lowestAgents = this.filter(cache, game, {
       players: [util.self(game, state)],
@@ -564,15 +573,20 @@ function* onPlayCard(
       ordering: ["money"],
     });
 
+    if (lowestCards.length < totalExpunge.cards) {
+      throw "Not enough cards to expunge";
+    }
+
     if (lowestAgents.length < totalExpunge.agents) {
       throw "Not enough agents to expunge";
     }
 
     if (lowestOperations.length < totalExpunge.operations) {
-      throw "Not enough agents to expunge";
+      throw "Not enough operations to expunge";
     }
 
     for (const target of [
+      ...lowestCards.slice(0, totalExpunge.cards),
       ...lowestAgents.slice(0, totalExpunge.agents),
       ...lowestOperations.slice(0, totalExpunge.operations),
     ]) {
