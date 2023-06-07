@@ -31,7 +31,7 @@ export const cardKeywords = [
   () => ["vip"] as const,
   (n?: number) => ["delay", n ?? 0] as const,
   (n?: number) => ["debt", n ?? 0] as const,
-  (n?: number) => ["flammable", n ?? 0] as const,
+  (n?: number) => ["abscond", n ?? 0] as const,
   (n?: CardType) => ["expunge", n ?? "card"] as const,
 ] as const;
 

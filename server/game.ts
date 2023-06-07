@@ -40,15 +40,11 @@ function* doEndTurn(cache: CardInfoCache, game: GameState): CardGenerator {
   }
 
   for (const card of game.players[player].deck) {
-    const info = defaultUtil.getCardInfo(cache, game, card);
-    if (info.keywords.some((k) => k[0] == "flammable")) {
-      const totalAflame = info.keywords
-        .filter((k): k is ["flammable", number] => k[0] == "flammable")
-        .reduce((a, b) => a + b[1], 0);
+    if (card.props.aflame > 0) {
       yield* defaultUtil.setProp(cache, game, card, {
         target: card,
         name: "aflame",
-        value: card.props.aflame == undefined ? totalAflame : card.props.aflame > 1 ? card.props.aflame - 1 : undefined,
+        value: card.props.aflame > 1 ? card.props.aflame - 1 : undefined,
       });
 
       if (card.props.aflame <= 1) {

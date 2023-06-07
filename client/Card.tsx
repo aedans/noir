@@ -51,8 +51,8 @@ export function combineKeywords(a: CardKeyword, b: CardKeyword): CardKeyword {
     return ["delay", a[1] + b[1]];
   } else if (a[0] == "debt" && b[0] == "debt") {
     return ["debt", a[1] + b[1]];
-  } else if (a[0] == "flammable" && b[0] == "flammable") {
-    return ["flammable", Math.min(a[1], b[1])];
+  } else if (a[0] == "abscond" && b[0] == "abscond") {
+    return ["abscond", a[1] + b[1]];
   } else {
     return a;
   }
@@ -79,7 +79,7 @@ export function getDisplayName(keyword: CardKeyword) {
     vip: "VIP",
     delay: "Delay",
     debt: "Debt",
-    flammable: "Flammable",
+    abscond: "Abscond",
     expunge: "Expunge",
   };
 

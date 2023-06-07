@@ -2,7 +2,7 @@
 /** @type {import("../../common/card").PartialCardInfoComputation} */
 exports.card = (util, cache, game, card) => ({
   type: "agent",
-  text: "Activate this: set a card in your opponent's deck Aflame.",
+  text: "Activate this: set a card in your opponent's deck aflame.",
   keywords: [["vip"]],
   cost: { money: 9 },
   colors: ["orange"],
@@ -11,17 +11,10 @@ exports.card = (util, cache, game, card) => ({
     players: [util.opponent(game, card)],
   },
   activate: function* (target) {
-    yield* util.modifyCard(cache, game, card, {
+    yield* util.setProp(cache, game, card, {
       target,
-      modifier: {
-        card,
-        name: "fired",
-      },
+      name: "aflame",
+      value: 2
     });
-  },
-  modifiers: {
-    fired: (info, modifier, card) => ({
-      keywords: [["flammable", 1]],
-    }),
   },
 });

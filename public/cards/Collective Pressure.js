@@ -1,7 +1,7 @@
 // @ts-check
 /** @type {import("../../common/card").PartialCardInfoComputation} */
 exports.card = (util, cache, game, card) => ({
-  text: "Set a card in your opponent's deck Alight.",
+  text: "Give an opponent's card Abscond 2.",
   type: "operation",
   cost: { money: 0, agents: 2 },
   colors: ["orange"],
@@ -14,13 +14,11 @@ exports.card = (util, cache, game, card) => ({
       target,
       modifier: {
         card,
-        name: "fired",
+        name: "absconded",
       },
     });
   },
   modifiers: {
-    fired: (info, modifier, card) => ({
-      keywords: [["flammable", 1]],
-    }),
+    absconded: util.keywordModifier(["abscond", 2])
   },
 });

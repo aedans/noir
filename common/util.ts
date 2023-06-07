@@ -50,7 +50,8 @@ import {
   NoActionParams,
 } from "./gameSlice";
 import { historySlice, SetUndoneParams } from "./historySlice";
-import { shuffle } from "lodash";
+import { remove, shuffle } from "lodash";
+import { defaultUtil } from "../client/cards";
 
 export type Filter = {
   excludes?: Target[];
@@ -495,11 +496,24 @@ function* onRemove(info: CardInfo, game: GameState, payload: TargetCardParams): 
 
   if (state && !state.protected) {
     yield* info.onRemove(payload);
+  }
+}
 
-    if (info.keywords.some((k) => k[0] == "flammable")) {
-      yield setProp({ target: payload.target, name: "aflame", value: undefined });
+function* onExhaust(info: CardInfo, game: GameState, payload: TargetCardParams): CardGenerator {
+  const state = getCard(game, payload.target);
+  if (state && state.props.absconding > 0) {
+    yield setProp({
+      target: payload.target,
+      name: "absconding",
+      value: state.props.absconding > 1 ? state.props.absconding - 1 : undefined,
+    });
+
+    if (state.props.absconding <= 1) {
+      yield removeCard({ source: payload.target, target: payload.target });
     }
   }
+
+  yield* info.onExhaust(payload);
 }
 
 function* onReveal(info: CardInfo, game: GameState, payload: TargetCardParams): CardGenerator {
@@ -535,12 +549,16 @@ function* onPlayCard(
       yield setProp({ target: payload.target, name: "delayed", value: totalDelay });
     }
 
-    if (info.keywords.some((k) => k[0] == "debt")) {
-      yield setProp({ target: payload.target, name: "collection", value: 2 });
+    const minAbscond = info.keywords
+      .filter((k): k is ["abscond", number] => k[0] == "abscond")
+      .reduce((a, b) => Math.min(a, b[1]), 1000);
+
+    if (minAbscond < 1000) {
+      yield setProp({ target: payload.target, name: "absconding", value: minAbscond });
     }
 
-    if (info.keywords.some((k) => k[0] == "flammable")) {
-      yield setProp({ target: payload.target, name: "aflame", value: undefined });
+    if (info.keywords.some((k) => k[0] == "debt")) {
+      yield setProp({ target: payload.target, name: "collection", value: 2 });
     }
 
     const totalExpunge = {
@@ -627,7 +645,7 @@ const util = {
   stealCard: onTrigger(stealCard, (info, game) => triggerReveal(info, game, info.onSteal)),
   revealCard: onTrigger(revealCard, (info, game) => triggerReveal(info, game, (p) => onReveal(info, game, p))),
   refreshCard: onTrigger(refreshCard, (info, game) => triggerReveal(info, game, info.onRefresh)),
-  exhaustCard: onTrigger(exhaustCard, (info, game) => triggerReveal(info, game, info.onExhaust)),
+  exhaustCard: onTrigger(exhaustCard, (info, game) => triggerReveal(info, game, (p) => onExhaust(info, game, p))),
   setProp: onTrigger(setProp, (info, game) => triggerReveal(info, game, info.onSetProp)),
   modifyCard: onTrigger(modifyCard, (info, game) => triggerReveal(info, game, info.onModify)),
   addMoney: onTrigger(addMoney, (info, game) => triggerReveal(info, game, undefined, (p) => p.player)),
