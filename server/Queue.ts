@@ -13,5 +13,5 @@ export const queues: { [T in QueueName]: Queue } = {
 };
 
 export default interface Queue {
-  push(socket: NoirServerSocket): Promise<void>;
+  push(socket: NoirServerSocket, name: string): Promise<void>;
 }

@@ -1,7 +1,16 @@
 import * as dotenv from "dotenv";
 import moize from "moize";
 import { MongoClient, ObjectId } from "mongodb";
-import { GameAction } from "../common/gameSlice";
+import { GameAction, PlayerId } from "../../common/gameSlice";
+import { PlayerInit } from "../../common/network";
+
+export type Replay = {
+  winner: PlayerId;
+  queue: string;
+  names: [string, string];
+  inits: [PlayerInit, PlayerInit];
+  history: GameAction[];
+};
 
 const replayCollection = moize.promise(async () => {
   dotenv.config();
@@ -10,9 +19,12 @@ const replayCollection = moize.promise(async () => {
   return client.db("noir").collection("replays");
 });
 
-export async function insertReplay(history: GameAction[]) {
+export async function insertReplay(replay: Replay) {
   const replays = await replayCollection();
-  replays.insertOne({ history });
+  replays.insertOne({
+    timestamp: new Date(),
+    ...replay,
+  });
 }
 
 export async function findReplayIds() {
