@@ -1,6 +1,7 @@
 import cors from "cors";
 import express from "express";
 import http from "http";
+import dotenv from "dotenv";
 import fs from "fs";
 import { Server } from "socket.io";
 import { queues } from "./Queue";
@@ -11,8 +12,9 @@ import { findReplay, findReplayIds } from "./db/replay";
 import { ObjectId } from "mongodb";
 import { NoirServer } from "../common/network";
 
+dotenv.config();
+
 const app = express();
-const port = 8080;
 const server = http.createServer(app);
 const io: NoirServer = new Server(server, {
   cors: {
@@ -72,6 +74,7 @@ io.on("connection", (socket) => {
   });
 });
 
+const port = process.env.PORT ?? 8080;
 server.listen(port, () => {
   console.log(`Server listening at http://localhost:${port}`);
 });

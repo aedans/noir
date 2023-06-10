@@ -1,4 +1,3 @@
-import * as dotenv from "dotenv";
 import moize from "moize";
 import { MongoClient, ObjectId } from "mongodb";
 import { GameAction, PlayerId } from "../../common/gameSlice";
@@ -13,7 +12,6 @@ export type Replay = {
 };
 
 const replayCollection = moize.promise(async () => {
-  dotenv.config();
   const client = new MongoClient(process.env.DB_CONN_STRING as string);
   await client.connect();
   return client.db("noir").collection("replays");
