@@ -73,9 +73,7 @@ export default function MoveAnimation(props: MoveAnimationProps) {
       return;
     }
 
-    const noAnimate =
-      component.transform.position.x == (props.x ?? 0) && component.transform.position.y == (props.y ?? 0);
-    if (!props.skipPosition && !noAnimate) {
+    if (!props.skipPosition) {
       anime.remove(component.transform.position);
       anime({
         targets: component.transform.position,
@@ -94,9 +92,7 @@ export default function MoveAnimation(props: MoveAnimationProps) {
       return;
     }
 
-    const noAnimate =
-      component.transform.scale.x == (props.scale ?? 0) && component.transform.scale.y == (props.scale ?? 0);
-    if (!props.skipScale && !noAnimate) {
+    if (!props.skipScale) {
       anime.remove(component.transform.scale);
       anime({
         targets: component.transform.scale,
