@@ -94,29 +94,6 @@ export default function Editor(props: { params: { deck: string } }) {
         expanded
         collapseOnPointerOut
       />
-      {/* <EnterExitAnimator elements={sortedDeckCards}>
-          {(data, status, i) =>
-            i != null ? (
-              <DeckCard
-                state={data}
-                info={defaultUtil.getDefaultCardInfo(data)}
-                status={status}
-                key={data.id}
-                pointerdown={pointerdownRemove(data.name)}
-                interactive
-                y={(i * cardHeight) / 8 ?? 0}
-              />
-            ) : (
-              <DeckCard
-                state={data}
-                info={defaultUtil.getDefaultCardInfo(data)}
-                status={status}
-                key={data.id}
-                useLastPos
-              />
-            )
-          }
-        </EnterExitAnimator> */}
     </MoveAnimationContext.Provider>
   );
 }

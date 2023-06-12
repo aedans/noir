@@ -137,7 +137,7 @@ const ColoredImage = React.memo(function ColoredImage(props: { name: string; col
   const url = `/images/${props.name}.png`;
 
   const filter = new ColorReplaceFilter();
-  filter.epsilon = 0;
+  filter.epsilon = 0.01;
   filter.originalColor = 0x767676;
   filter.newColor = props.color;
 
@@ -228,7 +228,7 @@ const CardImpl = React.forwardRef(function CardImpl(props: CardProps, ref: Ref<C
       <Text
         anchor={[0.5, 0.5]}
         x={40}
-        y={85}
+        y={92}
         text={Math.max(0, props.info.cost.agents) || ""}
         style={{ fontSize: 32, tint: hex[combineColors(props.info.colors)] }}
       />
@@ -332,6 +332,7 @@ export default React.memo(
         />
         <ColoredImage name={props.state.name} color={hex[combineColors(props.info.colors)]} />
         <Sprite width={cardWidth} height={cardHeight} texture={Texture.from("/border.png")} />
+        <Sprite width={cardWidth} height={cardHeight} texture={Texture.from("/border_agents.png")} />
         {borderTintSprite}
         {info}
       </Container>
