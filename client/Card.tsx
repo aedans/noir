@@ -9,16 +9,17 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { Container, Sprite, render } from "react-pixi-fiber";
+import { Container, Sprite } from "react-pixi-fiber";
 import Rectangle from "./Rectangle";
 import { targetResolution } from "./Camera";
-import { CardColor, CardColorFilter, CardColors, CardInfo, CardKeyword, CardState } from "../common/card";
+import { CardColors, CardInfo, CardKeyword, CardState } from "../common/card";
 import Text from "./Text";
-import { filters as PixiFilters, RenderTexture, Texture } from "pixi.js";
+import { MIPMAP_MODES, filters as PixiFilters, Sprite as PixiSprite, RenderTexture, Texture } from "pixi.js";
 import anime from "animejs";
 import { GlowFilter } from "@pixi/filter-glow";
 import { isEqual } from "lodash";
 import { App } from "./Noir";
+import { ColorReplaceFilter } from "@pixi/filter-color-replace";
 
 export const cardHeight = targetResolution.height / 4;
 export const cardWidth = cardHeight * (1 / 1.4);
@@ -129,6 +130,45 @@ export function isCardPropsEqual(a: CardProps, b: CardProps) {
   );
 }
 
+const ColoredImage = React.memo(function ColoredImage(props: { name: string; color: number }) {
+  const [texture, setTexture] = useState(null as RenderTexture | null);
+  const app = useContext(App)!;
+
+  const url = `/images/${props.name}.png`;
+
+  const filter = new ColorReplaceFilter();
+  filter.epsilon = 0;
+  filter.originalColor = 0x767676;
+  filter.newColor = props.color;
+
+  useEffect(() => {
+    let renderTexture: RenderTexture | null = null;
+
+    Texture.fromURL(url).then((grayTexture) => {
+      const sprite = new PixiSprite(grayTexture);
+      sprite.filters = [filter];
+
+      renderTexture = RenderTexture.create({
+        width: grayTexture.width,
+        height: grayTexture.height,
+      });
+
+      renderTexture.baseTexture.mipmap = MIPMAP_MODES.ON;
+
+      app.renderer.render(sprite, { renderTexture });
+      setTexture(renderTexture);
+    });
+
+    return () => {
+      renderTexture?.destroy(true);
+    };
+  }, [props.color, props.name]);
+
+  return (
+    <Sprite width={cardWidth - 55} height={cardHeight / 2 - 40} x={30} y={60} texture={texture ?? Texture.from(url)} />
+  );
+});
+
 const CardImpl = React.forwardRef(function CardImpl(props: CardProps, ref: Ref<Container>) {
   const containerRef = useRef() as MutableRefObject<Required<Container>>;
 
@@ -204,25 +244,19 @@ export default React.memo(
     const [texture, setTexture] = useState(null as RenderTexture | null);
     const app = useContext(App)!;
 
-    function rerenderTexture(container: Required<Container>) {
-      const renderTexture: RenderTexture | null = RenderTexture.create({
-        width: cardWidth,
-        height: cardHeight,
-      });
-      
-      setTimeout(() => {
-        app.renderer.render(container, { renderTexture });
-        setTexture(renderTexture);
-      }, 0);
-
-      return () => {
-        renderTexture.destroy(true);
-      };
-    }
-
-    useLayoutEffect(() => {
+    useEffect(() => {
       if (containerRef.current) {
-        rerenderTexture(containerRef.current);
+        const renderTexture = RenderTexture.create({
+          width: cardWidth,
+          height: cardHeight,
+        });
+
+        app.renderer.render(containerRef.current, { renderTexture });
+        setTexture(renderTexture);
+
+        return () => {
+          renderTexture.destroy(true);
+        };
       } else {
         setTexture(null);
       }
@@ -273,20 +307,7 @@ export default React.memo(
       }
     }, [props.shouldGlow]);
 
-    const info = texture ? (
-      <Sprite texture={texture} />
-    ) : (
-      <CardImpl
-        {...props}
-        ref={(ref: Required<Container>) => {
-          if (ref && containerRef.current == null) {
-            rerenderTexture(ref);
-          }
-
-          containerRef.current = ref;
-        }}
-      />
-    );
+    const info = texture ? <Sprite texture={texture} /> : <CardImpl {...props} ref={containerRef} />;
 
     let borderTintSprite: ReactElement | undefined;
     if (props.borderTint) {
@@ -309,13 +330,7 @@ export default React.memo(
           x={20}
           y={12}
         />
-        <Sprite
-          width={cardWidth - 55}
-          height={cardHeight / 2 - 40}
-          x={30}
-          y={60}
-          texture={Texture.from(`/art/${props.state.name}.png`)}
-        />
+        <ColoredImage name={props.state.name} color={hex[combineColors(props.info.colors)]} />
         <Sprite width={cardWidth} height={cardHeight} texture={Texture.from("/border.png")} />
         {borderTintSprite}
         {info}
