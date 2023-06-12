@@ -1,11 +1,12 @@
 import React from "react";
 import { useContext } from "react";
 import { targetResolution } from "../Camera";
-import CardList from "./CardList";
 import { useClientSelector } from "../store";
 import { PlayerContext } from "./Game";
 import { useCardInfoList } from "../cards";
 import { cardHeight } from "../Card";
+import GameCard from "./GameCard";
+import { ExpandableCardList } from "../ExpandableCardList";
 
 export default function Grave() {
   const player = useContext(PlayerContext);
@@ -15,5 +16,5 @@ export default function Grave() {
   const x = 0;
   const y = targetResolution.height - cardHeight;
 
-  return <CardList reverse cards={cards} x={x} y={y} />;
+  return <ExpandableCardList reversed cards={cards} x={x} y={y} card={(props) => <GameCard {...props} />} />;
 }

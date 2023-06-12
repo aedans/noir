@@ -1,13 +1,11 @@
 import React, { MutableRefObject, Ref, useImperativeHandle, useRef } from "react";
 import { Container, PixiElement } from "react-pixi-fiber";
 import Card, { CardProps } from "../Card";
-import EnterExitAnimation, { EnterExitAnimationStatus } from "../EnterExitAnimation";
 import MoveAnimation, { useLastPos } from "../MoveAnimation";
 
 export type EditorCardProps = CardProps &
   PixiElement<Container> & {
     useLastPos?: boolean;
-    status: EnterExitAnimationStatus;
   };
 
 export default React.forwardRef(function EditorCard(props: EditorCardProps, ref: Ref<Container>) {
@@ -17,12 +15,10 @@ export default React.forwardRef(function EditorCard(props: EditorCardProps, ref:
   useImperativeHandle(ref, () => componentRef.current);
 
   return (
-    <EnterExitAnimation status={props.status} componentRef={componentRef}>
-      <MoveAnimation id={props.state.id} x={x} y={y} scale={1} componentRef={componentRef}>
-        <Container {...props} scale={1} ref={componentRef}>
-          <Card state={props.state} info={props.info} />
-        </Container>
-      </MoveAnimation>
-    </EnterExitAnimation>
+    <MoveAnimation id={props.state.id} x={x} y={y} scale={1} componentRef={componentRef}>
+      <Container {...props} scale={1} ref={componentRef}>
+        <Card state={props.state} info={props.info} />
+      </Container>
+    </MoveAnimation>
   );
 });
