@@ -32,7 +32,7 @@ export function getUsername(): string {
   } else {
     while (true) {
       const name = window.prompt("Username");
-      if (name != null) {
+      if (name != null && name != "") {
         localStorage.setItem("user", name);
         return name;
       }

@@ -1,4 +1,4 @@
-import { Application, Loader, MIPMAP_MODES, settings } from "pixi.js";
+import { Application, InteractionManager, Loader, MIPMAP_MODES, settings } from "pixi.js";
 import * as React from "react";
 import { render as renderPixi } from "react-pixi-fiber";
 import Noir from "./Noir";

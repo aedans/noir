@@ -4,5 +4,5 @@ exports.card = (util, cache, game, card) => ({
   type: "agent",
   cost: { money: 3 },
   colors: ["orange"],
-  keywords: [["abscond", 3]],
+  keywords: [["depart", 3]]
 });

@@ -11,6 +11,7 @@ import { Goal, GoalState, runGoals } from "./Goal";
 const decks = JSON.parse(fs.readFileSync("./common/decks.json").toString());
 
 export default interface Player {
+  name: string;
   init(): Promise<PlayerInit>;
   send(actions: HistoryAction[], name: string): void;
   error(message: string): void;
@@ -22,7 +23,7 @@ export class SocketPlayer implements Player {
   callbacks: ((action: PlayerAction | "concede") => void)[] = [];
   actions: HistoryAction[] = [];
 
-  constructor(public socket: NoirServerSocket, public player: PlayerId) {
+  constructor(public socket: NoirServerSocket, public player: PlayerId, public name: string) {
     this.connect(socket);
   }
 
@@ -78,7 +79,7 @@ export abstract class ComputerPlayer implements Player {
   history: HistoryState = initialHistoryState();
   state: GoalState = { lastPlay: {} };
 
-  constructor(public player: PlayerId) {}
+  constructor(public player: PlayerId, public name: string) {}
 
   init(): Promise<PlayerInit> {
     return Promise.resolve({ deck: this.deck });
@@ -120,6 +121,8 @@ export abstract class ComputerPlayer implements Player {
 }
 
 export class UnitPlayer extends ComputerPlayer {
+  name = "unit";
+
   deck = decks[random(["Green", "Blue", "Orange", "Purple"])] as Deck;
 
   goals = [];

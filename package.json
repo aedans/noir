@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "dependencies": {
+    "@pixi/filter-color-replace": "^4.2.0",
     "@pixi/filter-drop-shadow": "^4.1.5",
     "@pixi/filter-glow": "^4.2.0",
     "@pixi/graphics-smooth": "0.0.29",

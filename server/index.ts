@@ -1,18 +1,20 @@
 import cors from "cors";
 import express from "express";
 import http from "http";
+import dotenv from "dotenv";
 import fs from "fs";
 import { Server } from "socket.io";
 import { queues } from "./Queue";
 import { defaultCardState, initialGameState } from "../common/gameSlice";
 import { ordered } from "../common/util";
 import { defaultUtil } from "./card";
-import { findReplay, findReplayIds } from "./db";
+import { findReplay, findReplayIds } from "./db/replay";
 import { ObjectId } from "mongodb";
 import { NoirServer } from "../common/network";
 
+dotenv.config();
+
 const app = express();
-const port = 8080;
 const server = http.createServer(app);
 const io: NoirServer = new Server(server, {
   cors: {
@@ -62,10 +64,9 @@ app.get("/api/replays/:replay", async (req, res) => {
 app.use("*", express.static("dist"));
 
 io.on("connection", (socket) => {
-  socket.on("queue", async (queue, user) => {
+  socket.on("queue", async (queue, name) => {
     try {
-      socket.data.user = user;
-      await queues[queue].push(socket);
+      await queues[queue].push(socket, name);
     } catch (e) {
       socket.emit("error", (e as Error).message);
       console.error(e);
@@ -73,6 +74,7 @@ io.on("connection", (socket) => {
   });
 });
 
+const port = process.env.PORT ?? 8080;
 server.listen(port, () => {
   console.log(`Server listening at http://localhost:${port}`);
 });

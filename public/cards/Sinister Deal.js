@@ -1,11 +1,11 @@
 // @ts-check
 /** @type {import("../../common/card").PartialCardInfoComputation} */
 exports.card = (util, cache, game, card) => ({
-  text: "Expunge: agent. Gain $3 for each agent removed anywhere this turn.",
+  text: "Tribute: agent. Gain $3 for each agent removed anywhere this turn.",
   type: "operation",
   cost: { money: 0, agents: 1 },
   colors: ["purple"],
-  keywords: [["expunge", "agent"]],
+  keywords: [["tribute","agent"]],
   play: function* () {
     const purplecards = util.filter(cache, game, {
       players: [util.self(game, card)],

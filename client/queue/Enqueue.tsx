@@ -6,7 +6,7 @@ import { useLocation } from "wouter";
 import { Container } from "react-pixi-fiber";
 import { targetResolution } from "../Camera";
 
-export default function Play() {
+export default function Enqueue(props: { params: { queue: string } }) {
   const decks = useClientSelector((game) => game.decks);
   const [_, setLocation] = useLocation();
 
@@ -19,7 +19,7 @@ export default function Play() {
         key={name}
         y={y}
         pointerdown={() => {
-          setLocation(`/queue/casual/${name}/`);
+          setLocation(`/queue/${props.params.queue}/${name}/`);
         }}
       />
     );

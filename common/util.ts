@@ -501,14 +501,14 @@ function* onRemove(info: CardInfo, game: GameState, payload: TargetCardParams): 
 
 function* onExhaust(info: CardInfo, game: GameState, payload: TargetCardParams): CardGenerator {
   const state = getCard(game, payload.target);
-  if (state && state.props.absconding > 0) {
+  if (state && state.props.departing > 0) {
     yield setProp({
       target: payload.target,
-      name: "absconding",
-      value: state.props.absconding > 1 ? state.props.absconding - 1 : undefined,
+      name: "departing",
+      value: state.props.departing > 1 ? state.props.departing - 1 : undefined,
     });
 
-    if (state.props.absconding <= 1) {
+    if (state.props.departing <= 1) {
       yield removeCard({ source: payload.target, target: payload.target });
     }
   }
@@ -549,22 +549,22 @@ function* onPlayCard(
       yield setProp({ target: payload.target, name: "delayed", value: totalDelay });
     }
 
-    const minAbscond = info.keywords
-      .filter((k): k is ["abscond", number] => k[0] == "abscond")
+    const minDepart = info.keywords
+      .filter((k): k is ["depart", number] => k[0] == "depart")
       .reduce((a, b) => Math.min(a, b[1]), 1000);
 
-    if (minAbscond < 1000) {
-      yield setProp({ target: payload.target, name: "absconding", value: minAbscond });
+    if (minDepart < 1000) {
+      yield setProp({ target: payload.target, name: "departing", value: minDepart });
     }
 
     if (info.keywords.some((k) => k[0] == "debt")) {
       yield setProp({ target: payload.target, name: "collection", value: 2 });
     }
 
-    const totalExpunge = {
-      cards: info.keywords.filter(([name, type]) => name == "expunge" && type == "card").length,
-      agents: info.keywords.filter(([name, type]) => name == "expunge" && type == "agent").length,
-      operations: info.keywords.filter(([name, type]) => name == "expunge" && type == "operation").length,
+    const totalTribute = {
+      cards: info.keywords.filter(([name, type]) => name == "tribute" && type == "card").length,
+      agents: info.keywords.filter(([name, type]) => name == "tribute" && type == "agent").length,
+      operations: info.keywords.filter(([name, type]) => name == "tribute" && type == "operation").length,
     };
 
     const lowestCards = this.filter(cache, game, {
@@ -591,22 +591,22 @@ function* onPlayCard(
       ordering: ["money"],
     });
 
-    if (lowestCards.length < totalExpunge.cards) {
-      throw "Not enough cards to expunge";
+    if (lowestCards.length < totalTribute.cards) {
+      throw "Not enough cards to tribute";
     }
 
-    if (lowestAgents.length < totalExpunge.agents) {
-      throw "Not enough agents to expunge";
+    if (lowestAgents.length < totalTribute.agents) {
+      throw "Not enough agents to tribute";
     }
 
-    if (lowestOperations.length < totalExpunge.operations) {
-      throw "Not enough operations to expunge";
+    if (lowestOperations.length < totalTribute.operations) {
+      throw "Not enough operations to tribute";
     }
 
     for (const target of [
-      ...lowestCards.slice(0, totalExpunge.cards),
-      ...lowestAgents.slice(0, totalExpunge.agents),
-      ...lowestOperations.slice(0, totalExpunge.operations),
+      ...lowestCards.slice(0, totalTribute.cards),
+      ...lowestAgents.slice(0, totalTribute.agents),
+      ...lowestOperations.slice(0, totalTribute.operations),
     ]) {
       yield* this.removeCard(cache, game, state, { target });
     }

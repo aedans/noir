@@ -1,39 +1,49 @@
 import { NoirServerSocket } from "../../common/network";
+import { insertReplay } from "../db/replay";
 import { createGame } from "../game";
 import { SocketPlayer } from "../Player";
 import Queue from "../Queue";
 
 export default class Casual implements Queue {
-  sockets: NoirServerSocket[] = [];
-  players: Map<string, SocketPlayer> = new Map();
+  queue: Map<string, NoirServerSocket> = new Map();
+  games: Map<string, SocketPlayer> = new Map();
 
-  async push(socket: NoirServerSocket): Promise<void> {
-    if (this.players.has(socket.data.user!)) {
-      this.players.get(socket.data.user!)!.connect(socket);
+  async push(socket: NoirServerSocket, name: string): Promise<void> {
+    if (this.games.has(name)) {
+      this.games.get(name)!.connect(socket);
       return;
     }
 
     socket.on("disconnect", () => {
-      this.sockets = this.sockets.filter((s) => s != socket);
+      this.queue.delete(name);
     });
 
-    this.sockets.push(socket);
+    this.queue.set(name, socket);
 
-    if (this.sockets.length >= 2) {
-      const [first, second] = this.sockets;
-      this.sockets = this.sockets.slice(2);
+    if (this.queue.size >= 2) {
+      const [[firstName, first], [secondName, second]] = this.queue;
+      this.queue.delete(firstName);
+      this.queue.delete(secondName);
 
-      if (first.data.user == second.data.user) {
-        first.data.user += " the First";
-        second.data.user += " the Second";
-      }
+      const players: [SocketPlayer, SocketPlayer] = [
+        new SocketPlayer(first, 0, firstName),
+        new SocketPlayer(second, 1, secondName)
+      ];
 
-      this.players.set(first.data.user!, new SocketPlayer(first, 0));
-      this.players.set(second.data.user!, new SocketPlayer(second, 1));
+      this.games.set(firstName, players[0])
+      this.games.set(secondName, players[1]);
 
-      await createGame([this.players.get(first.data.user!)!, this.players.get(second.data.user!)!], "casual", () => {
-        this.players.delete(first.data.user!);
-        this.players.delete(second.data.user!);
+      await createGame(players, (winner, players, inits, state) => {
+        this.games.delete(firstName);
+        this.games.delete(secondName);
+
+        insertReplay({
+          winner,
+          queue: "casual",
+          names: [players[0].name, players[1].name],
+          inits,
+          history: state.history,
+        });
       });
     }
   }

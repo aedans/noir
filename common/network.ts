@@ -18,14 +18,14 @@ export type ServerToClientEvents = {
 };
 
 export type ClientToServerEvents = {
-  queue: (queue: QueueName, user: string) => void;
+  queue: (queue: QueueName, name: string) => void;
   init: (deck: Deck) => void;
   action: (action: PlayerAction) => void;
   concede: () => void;
 };
 
 export type SocketData = {
-  user: string;
+  name: string;
 };
 
 export type NoirServer = Server<ClientToServerEvents, ServerToClientEvents, {}, SocketData>;

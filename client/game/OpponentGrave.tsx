@@ -1,10 +1,11 @@
 import React from "react";
 import { useContext } from "react";
-import CardList from "./CardList";
 import { useClientSelector } from "../store";
 import { PlayerContext } from "./Game";
 import { opponentOf } from "../../common/gameSlice";
 import { useCardInfoList } from "../cards";
+import GameCard from "./GameCard";
+import { ExpandableCardList } from "../ExpandableCardList";
 
 export default function OpponentGrave() {
   const player = useContext(PlayerContext);
@@ -14,5 +15,5 @@ export default function OpponentGrave() {
   const x = 0;
   const y = 0;
 
-  return <CardList cards={cards} x={x} y={y} />;
+  return <ExpandableCardList cards={cards} x={x} y={y} card={(props) => <GameCard {...props} />} />;
 }

@@ -12,14 +12,14 @@ export default function Menu() {
       <Button
         text="Play"
         pointerdown={() => {
-          setLocation("/play/");
+          setLocation("/enqueue/casual");
         }}
       />
       <Button
         text="DaphrilBot9000"
         y={200}
         pointerdown={() => {
-          setLocation("/solo/");
+          setLocation("/enqueue/daphril");
         }}
       />
       <Button
