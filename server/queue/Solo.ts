@@ -7,10 +7,21 @@ import { PlayerId } from "../../common/gameSlice";
 import { insertReplay } from "../db/replay";
 
 export default class Solo implements Queue {
+  games: Map<string, SocketPlayer> = new Map();
+
   constructor(public name: MissionName, public player: (playerId: PlayerId) => Player) {}
 
   async push(socket: NoirServerSocket, name: string): Promise<void> {
-    await createGame([new SocketPlayer(socket, 0, name), this.player(1)], (winner, players, inits, state) => {
+    if (this.games.has(name)) {
+      this.games.get(name)!.connect(socket);
+      return;
+    }
+
+    const player = new SocketPlayer(socket, 0, name);
+    this.games.set(name, player);
+
+    await createGame([player, this.player(1)], (winner, players, inits, state) => {
+      this.games.delete(name);
       insertReplay({
         winner,
         queue: "solo",
