@@ -5,10 +5,12 @@ import { targetResolution } from "../Camera";
 import { serverOrigin } from "../cards";
 import Button from "../Button";
 import { WithId } from "mongodb";
+import { Replay } from '../../server/db/replay';
+import { opponentOf } from "../../common/gameSlice";
 
 export default function Replays() {
   const [_, setLocation] = useLocation();
-  const [replays, setReplays] = useState([] as WithId<{}>[]);
+  const [replays, setReplays] = useState([] as WithId<Replay>[]);
 
   useEffect(() => {
     fetch(`${serverOrigin}/api/replays`)
@@ -19,14 +21,14 @@ export default function Replays() {
   const gameButtons = replays.map((game, index) => (
     <Button
       key={game._id.toString()}
-      y={index * 100}
-      text={game._id}
+      y={index * 150}
+      text={`${game.names[game.winner]} defeats ${game.names[opponentOf(game.winner)]} in ${game.queue} queue`}
       pointerdown={() => setLocation(`/replays/${game._id}`)}
     />
   ));
 
   return (
-    <Container x={targetResolution.width / 2} y={targetResolution.height / 2}>
+    <Container x={targetResolution.width / 2} y={150}>
       {gameButtons}
     </Container>
   );
