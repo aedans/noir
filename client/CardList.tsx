@@ -47,7 +47,7 @@ export default React.memo(function CardList(props: CardListProps) {
   return (
     <Container {...props} pointerout={pointerout} interactive>
       {props.cards.map(({ state, info }, i) => {
-        const heightOffset = (props.reversed ? i : -i) * cardHeight * (props.expanded ? 0.12 : 0);
+        const heightOffset = (props.reversed ? i : -i) * cardHeight * (props.expanded ? 0.1 : 0);
         const shouldHoverOffset = props.expanded && (props.reversed ? i < expandedIndex : i > expandedIndex);
         const hoverOffset = shouldHoverOffset ? cardHeight * 0.8 : 0;
         return (

@@ -4,12 +4,19 @@ import { useClientSelector } from "./store";
 import anime from "animejs";
 import { DropShadowFilter } from "@pixi/filter-drop-shadow";
 import { PlayerContext } from "./game/Game";
+import { afternoonColor, dayColor, getColor, getRGB, morningColor, nightColor } from "./color";
 
 const colors = [
-  // day
-  0xfff2bd, 0xfff2bd, 0xfff2bd, 0xfff2bd, 0xe68eb3,
-  // night
-  0x9681cc, 0x9681cc, 0x9681cc, 0x9681cc, 0xe68f73,
+  dayColor,
+  dayColor,
+  dayColor,
+  dayColor,
+  afternoonColor,
+  nightColor,
+  nightColor,
+  nightColor,
+  nightColor,
+  morningColor,
 ];
 
 const shadows = [
@@ -31,11 +38,7 @@ export function useTimeColorFilter() {
   const player = useContext(PlayerContext);
   const turn = useClientSelector((state) => Math.floor((state.game.current.turn - player + 1) / 2) % colors.length);
   const colorFilterRef = useRef(new PixiFilters.ColorMatrixFilter());
-  const lastColor = useRef({
-    r: (colors[turn] & 0xff0000) >> 16,
-    g: (colors[turn] & 0x00ff00) >> 8,
-    b: colors[turn] & 0x0000ff,
-  });
+  const lastColor = useRef(getRGB(colors[turn]));
 
   useLayoutEffect(() => {
     colorFilterRef.current.alpha = 0.6;
@@ -43,11 +46,7 @@ export function useTimeColorFilter() {
   }, []);
 
   useEffect(() => {
-    const { r, g, b } = {
-      r: (colors[turn] & 0xff0000) >> 16,
-      g: (colors[turn] & 0x00ff00) >> 8,
-      b: colors[turn] & 0x0000ff,
-    };
+    const { r, g, b } = getRGB(colors[turn]);
 
     if (lastColor.current.r != r || lastColor.current.g != g || lastColor.current.b != b) {
       anime({
@@ -58,7 +57,7 @@ export function useTimeColorFilter() {
         g,
         b,
         update() {
-          const currentColor = (lastColor.current.r << 16) | (lastColor.current.g << 8) | lastColor.current.b;
+          const currentColor = getColor(lastColor.current);
           colorFilterRef.current.reset();
           colorFilterRef.current.tint(currentColor, true);
         },
