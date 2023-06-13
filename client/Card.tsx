@@ -233,6 +233,7 @@ export default React.memo(
       borderHiddenRef.current.alpha = props.state.hidden ? 1 : 0;
       borderAgentsRef.current.tint = color;
       borderTintRef.current.alpha = props.borderTint ? 1 : 0;
+      borderTintRef.current.tint = props.borderTint ?? colorlessColor;
       glowFilterRef.current.outerStrength = 0;
       glowFilterRef.current.enabled = false;
       dimFilterRef.current.alpha = 0;
@@ -276,15 +277,17 @@ export default React.memo(
 
     useEffect(() => {
       const alpha = props.borderTint ? 1 : 0;
-      if (alpha != borderTintRef.current.alpha || props.borderTint != borderTintRef.current.tint) {
-        const { r, g, b } = getRGB(props.borderTint ?? colorlessColor);
+      if (alpha != borderTintRef.current.alpha) {
         anime({
           targets: borderTintRef.current,
           duration: 700,
           easing: "easeOutExpo",
           alpha,
         });
+      }
 
+      if (props.borderTint != borderTintRef.current.tint) {
+        const { r, g, b } = getRGB(props.borderTint ?? colorlessColor);
         anime({
           targets: lastBorderTint.current,
           duration: 700,
