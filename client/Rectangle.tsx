@@ -1,4 +1,4 @@
-import { Container, CustomPIXIComponent, CustomPIXIComponentBehavior, PixiElement } from "react-pixi-fiber";
+import { Container, CustomPIXIComponent, CustomPIXIComponentBehavior, Graphics, PixiElement } from "react-pixi-fiber";
 import * as PIXI from "pixi.js";
 import React, { Ref } from "react";
 
@@ -22,7 +22,7 @@ export const behavior: CustomPIXIComponentBehavior<PIXI.Graphics, RectangleProps
 
 const CustomRectangle = CustomPIXIComponent(behavior, "Rectangle");
 
-export default React.forwardRef(function Rectangle(props: RectangleProps, ref: Ref<RectangleProps>) {
+export default React.forwardRef(function Rectangle(props: RectangleProps, ref: Ref<RectangleProps & Graphics>) {
   return (
     <Container {...props}>
       <CustomRectangle

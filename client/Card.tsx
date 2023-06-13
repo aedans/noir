@@ -9,11 +9,11 @@ import React, {
   useState,
 } from "react";
 import { Container, Sprite } from "react-pixi-fiber";
-import Rectangle from "./Rectangle";
+import Rectangle, { RectangleProps } from "./Rectangle";
 import { targetResolution } from "./Camera";
 import { CardColors, CardInfo, CardKeyword, CardState } from "../common/card";
 import Text from "./Text";
-import { filters as PixiFilters, RenderTexture, Texture } from "pixi.js";
+import { Graphics, filters as PixiFilters, RenderTexture, Texture } from "pixi.js";
 import anime from "animejs";
 import { GlowFilter } from "@pixi/filter-glow";
 import { isEqual } from "lodash";
@@ -197,7 +197,7 @@ export default React.memo(
     const color = hex[combineColors(props.info.colors)];
     const lastColor = useRef(getRGB(color));
     const containerRef = useRef() as MutableRefObject<Required<Container>>;
-    const colorRef = useRef() as MutableRefObject<Sprite>;
+    const colorRef = useRef() as MutableRefObject<RectangleProps & Graphics>;
     const borderHiddenRef = useRef() as MutableRefObject<Sprite>;
     const borderAgentsRef = useRef() as MutableRefObject<Sprite>;
     const borderTintRef = useRef() as MutableRefObject<Sprite>;
