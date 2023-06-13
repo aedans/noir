@@ -1,11 +1,11 @@
 // @ts-check
 /** @type {import("../../common/card").PartialCardInfoComputation} */
 exports.card = (util, cache, game, card) => ({
-  text: "Expunge. Steal an operation and put it hidden into your deck.",
+  text: "Tribute. Steal an operation and put it hidden into your deck.",
   type: "operation",
   cost: { money: 0 },
   colors: ["purple"],
-  keywords: [["expunge","operation"]],
+  keywords: [["tribute","operation"]],
   targets: {
     players: [util.opponent(game, card)],
     types: ["operation"],

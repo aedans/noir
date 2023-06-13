@@ -1,7 +1,7 @@
 // @ts-check
 /** @type {import("../../common/card").PartialCardInfoComputation} */
 exports.card = (util, cache, game, card) => ({
-  text: "When this is removed while on your board, Expunge an agent.",
+  text: "When this is removed while on your board, Tribute an agent.",
   type: "agent",
   cost: { money: 4 },
   colors: ["purple"],
