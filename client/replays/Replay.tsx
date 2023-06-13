@@ -20,7 +20,8 @@ export default function Replay(props: { params: { id: string } }) {
 
       let index = 0;
       while (history.length > 0) {
-        const length = history.findIndex((x) => x.type == "game/endTurn" || x.type == "game/playCard");
+        const nextIndex = history.findIndex((x) => x.type == "game/endTurn" || x.type == "game/playCard");
+        const length = nextIndex < 0 ? history.length : 0;
         const actions = history.slice(0, length + 1);
         history = history.slice(actions.length);
 
