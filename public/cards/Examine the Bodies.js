@@ -4,7 +4,7 @@ exports.card = (util, cache, game, card) => ({
   text: "Expunge: agent. Reveal two cards from your opponent's deck and two from their board.",
   type: "operation",
   cost: { money: 3, agents: 1 },
-  keywords: [["expunge","agent"]],
+  keywords: [["expunge", "agent"]],
   colors: ["purple"],
   play: function* () {
     yield* util.revealRandom(cache, game, card, 2, {

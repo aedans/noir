@@ -5,12 +5,12 @@ exports.card = (util, cache, game, card) => ({
   type: "operation",
   cost: { money: 0 },
   colors: ["purple"],
-  keywords: [["expunge","operation"]],
+  keywords: [["expunge", "operation"]],
   targets: {
     players: [util.opponent(game, card)],
     types: ["operation"],
   },
-  play: 
-    function* (target){yield* util.stealCard(cache, game, card, { target, zone: "deck" });
+  play: function* (target) {
+    yield* util.stealCard(cache, game, card, { target, zone: "deck" });
   },
 });

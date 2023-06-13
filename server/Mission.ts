@@ -6,4 +6,4 @@ export type MissionName = "daphril";
 
 export const missions: { [T in MissionName]: (playerId: PlayerId) => Player } = {
   daphril: (playerId) => new Daphril(playerId),
-}
+};

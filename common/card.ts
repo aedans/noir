@@ -145,7 +145,7 @@ export function runPartialCardInfoComputation(
   if (hasActivate) {
     activationPriority -= 1000;
   }
-  
+
   const hasEffect = partial.hasEffect ?? partial.effect != undefined;
   const hasSecondaryEffect = partial.hasSecondaryEffect ?? partial.secondaryEffect != undefined;
 

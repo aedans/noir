@@ -5,7 +5,7 @@ exports.card = (util, cache, game, card) => ({
   type: "operation",
   cost: { money: 0, agents: 1 },
   colors: ["purple"],
-  keywords: [["expunge","agent"]],
+  keywords: [["expunge", "agent"]],
   play: function* () {
     const purplecards = util.filter(cache, game, {
       players: [util.self(game, card)],

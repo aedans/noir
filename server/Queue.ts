@@ -9,7 +9,7 @@ export type QueueName = "test" | "casual" | MissionName;
 export const queues: { [T in QueueName]: Queue } = {
   test: new Test(),
   casual: new Casual(),
-  daphril: new Solo("daphril", missions.daphril)
+  daphril: new Solo("daphril", missions.daphril),
 };
 
 export default interface Queue {

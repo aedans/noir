@@ -6,7 +6,7 @@ exports.card = (util, cache, game, card) => ({
   cost: { money: 2, agents: 1 },
   targets: {
     types: ["operation"],
-    zones: ["deck","board"],
+    zones: ["deck", "board"],
     players: [util.opponent(game, card)],
   },
   play: function* (target) {
