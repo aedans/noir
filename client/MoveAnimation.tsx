@@ -96,7 +96,7 @@ export default function MoveAnimation(props: MoveAnimationProps) {
       anime.remove(component.transform.scale);
       anime({
         targets: component.transform.scale,
-        duration: 100,
+        duration: 700,
         delay: -20,
         easing: "easeOutExpo",
         x: props.scale ?? 0,
