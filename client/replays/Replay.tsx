@@ -5,6 +5,8 @@ import { liftAction, reset } from "../../common/historySlice";
 import { loadCardsFromAction, serverOrigin } from "../cards";
 import Game, { ConnectionContext, PlayerContext } from "../game/Game";
 import { useClientDispatch } from "../store";
+import { takeWhile } from "lodash";
+import { batchActions } from "redux-batched-actions";
 
 export default function Replay(props: { params: { id: string } }) {
   const [replay, setReplay] = useState(null as WithId<{ history: GameAction[] }> | null);
@@ -14,12 +16,20 @@ export default function Replay(props: { params: { id: string } }) {
     (async () => {
       const res = await fetch(`${serverOrigin}/api/replays/${props.params.id}`);
       const replay = (await res.json()) as WithId<{ history: GameAction[] }>;
+      let history = replay.history;
 
       let index = 0;
-      for (const action of replay.history) {
-        await loadCardsFromAction(action);
-        dispatch(liftAction(index++, action));
-        await new Promise((resolve) => setTimeout(resolve, 100));
+      while (history.length > 0) {
+        const length = history.findIndex((x) => x.type == "game/endTurn" || x.type == "game/playCard");
+        const actions = history.slice(0, length + 1);
+        history = history.slice(actions.length);
+
+        for (const action of actions) {
+          await loadCardsFromAction(action);
+        }
+
+        dispatch(batchActions(actions.map((action) => liftAction(index++, action))));
+        await new Promise((resolve) => setTimeout(resolve, 1000));
       }
 
       setReplay(replay);
