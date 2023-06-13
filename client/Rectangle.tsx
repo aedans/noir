@@ -22,10 +22,18 @@ export const behavior: CustomPIXIComponentBehavior<PIXI.Graphics, RectangleProps
 
 const CustomRectangle = CustomPIXIComponent(behavior, "Rectangle");
 
-export default React.forwardRef(function Rectangle(props: RectangleProps, ref: Ref<Container>) {
+export default React.forwardRef(function Rectangle(props: RectangleProps, ref: Ref<RectangleProps>) {
   return (
-    <Container {...props} ref={ref}>
-      <CustomRectangle x={props.x} y={props.y} width={props.width} height={props.height} fill={props.fill} fillAlpha={props.fillAlpha}>
+    <Container {...props}>
+      <CustomRectangle
+        x={props.x}
+        y={props.y}
+        width={props.width}
+        height={props.height}
+        fill={props.fill}
+        fillAlpha={props.fillAlpha}
+        ref={ref}
+      >
         {props.children}
       </CustomRectangle>
     </Container>

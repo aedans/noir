@@ -340,7 +340,7 @@ export default React.memo(
 
     return (
       <Container pivot={[cardWidth / 2, cardHeight / 2]} filters={[glowFilterRef.current, dimFilterRef.current]}>
-        <Rectangle fill={color} width={cardWidth - 20} height={cardHeight - 40} x={10} y={12} ref={colorRef} />
+        <Rectangle fill={0xffffff} width={cardWidth - 20} height={cardHeight - 40} x={10} y={12} ref={colorRef} />
         <Sprite
           width={cardWidth - 55}
           height={cardHeight / 2 - 40}
