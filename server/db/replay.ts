@@ -30,7 +30,7 @@ export async function findReplayIds() {
   const results = await replays
     .find({}, { limit: 10 })
     .sort({ _id: -1 })
-    .project({ _id: 1, names: 1, queue: 1, winner: 1 })
+    .project({ _id: 1, names: 1, queue: 1, winner: 1, timestamp: 1 })
     .toArray();
   return results;
 }
