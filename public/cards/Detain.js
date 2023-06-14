@@ -3,7 +3,14 @@
 exports.card = (util, cache, game, card) => ({
   text: "Put a card on your opponent's board back into their deck. It gains delay 2. If you have at least three blue agents, this costs no money.",
   type: "operation",
-  cost: { money: 5, agents: 1 },
+  cost: { 
+    money: util.filter(cache,game,{
+      players: [util.self(game,card)],
+      types: ["agent"],
+      zones: ["board"],
+    }).length > 2 ? 0 : 5,
+    agents: 1
+  },
   targets: {
     players: [util.opponent(game, card)],
     types: ["agent", "operation"],

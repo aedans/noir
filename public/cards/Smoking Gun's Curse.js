@@ -1,7 +1,7 @@
 // @ts-check
 /** @type {import("../../common/card").PartialCardInfoComputation} */
 exports.card = (util, cache, game, card) => ({
-  text: "Give one of your opponent’s agents “whenever this is exhausted, two random card in your deck gain Expunge: Agent”.",
+  text: "Give one of your opponent’s agents “whenever this is exhausted, two random card in your deck gain Tribute: Agent”.",
   type: "operation",
   cost: { money: 2, agents: 1 },
   colors: ["purple"],
@@ -18,9 +18,9 @@ exports.card = (util, cache, game, card) => ({
     });
   },
   modifiers: {
-    Expunge: util.keywordModifier(["expunge", "agent"]),
+    Tribute: util.keywordModifier(["tribute", "agent"]),
     Smoking: (info, modifier, modifiedCard) => ({
-      text: `${info.text} whenever this is exhausted, two random cards in your deck gain Expunge: Agent`,
+      text: `${info.text} whenever this is exhausted, two random cards in your deck gain Tribute: Agent`,
       onExhaust: function* () {
         const cards = util.filter(cache, game, {
           players: [util.self(game, modifiedCard)],
@@ -32,14 +32,14 @@ exports.card = (util, cache, game, card) => ({
           target: deckards[0],
           modifier: {
             card: card,
-            name: "Expunge",
+            name: "Tribute",
           },
         });
         yield* util.modifyCard(cache, game, modifiedCard, {
           target: deckards[1],
           modifier: {
             card: card,
-            name: "Expunge",
+            name: "Tribute",
           },
         });
       },
