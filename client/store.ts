@@ -18,11 +18,11 @@ export const useClientDispatch: () => ClientDispatch = useDispatch;
 export const useClientSelector: TypedUseSelectorHook<ClientState> = useSelector;
 
 export function updateLocalStorage() {
-  if (localStorage.getItem("v") == null) {
+  if (localStorage.getItem("v") != "2") {
     localStorage.clear();
   }
 
-  localStorage.setItem("v", "1");
+  localStorage.setItem("v", "2");
 }
 
 export function getUsername(): string {
