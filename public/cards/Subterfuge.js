@@ -10,7 +10,7 @@ exports.card = (util, cache, game, card) => ({
     players: [util.opponent(game, card)],
     types: ["operation"],
   },
-  play: 
-    function* (target){yield* util.stealCard(cache, game, card, { target, zone: "deck" });
+  play: function* (target) {
+    yield* util.stealCard(cache, game, card, { target, zone: "deck" });
   },
 });

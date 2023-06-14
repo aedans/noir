@@ -119,7 +119,5 @@ export const afterTurn =
 export const afterWait =
   (name: string, turns: number, goal: Goal): Goal =>
   (game: GameState, playerId: PlayerId, state: GoalState) => {
-    return !state.lastPlay[name] || game.turn / 2 > state.lastPlay[name] + turns
-      ? goal(game, playerId, state)
-      : null;
+    return !state.lastPlay[name] || game.turn / 2 > state.lastPlay[name] + turns ? goal(game, playerId, state) : null;
   };

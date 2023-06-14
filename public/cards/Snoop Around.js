@@ -3,7 +3,7 @@
 exports.card = (util, cache, game, card) => ({
   text: "Reveal two of your opponent's cards.",
   type: "operation",
-  cost: { money: 2 },
+  cost: { money: 2, agents: 1 },
   play: function* () {
     yield* util.revealRandom(cache, game, card, 2, {
       players: [util.opponent(game, card)],
