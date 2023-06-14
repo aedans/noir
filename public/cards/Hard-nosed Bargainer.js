@@ -11,10 +11,14 @@ exports.card = (util, cache, game, card) => ({
     players: [util.opponent(game, card)],
   },
   activate: function* (target) {
+    yield* util.modifyCard(cache, game, card, { target, modifier: { name: "aflame", card } });
     yield* util.setProp(cache, game, card, {
       target,
       name: "aflame",
       value: 2,
     });
+  },
+  modifiers: {
+    aflame: (info) => info,
   },
 });
