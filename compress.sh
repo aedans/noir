@@ -4,7 +4,7 @@ for in in ./public/art/*.png
 do
   name=$(basename -- "$in")
   echo "Processing $name"
-  convert "$in" -resize 960x540 +dither -remap ./public/cmap.png -transparent '#767676ff' "./public/images/$name"
+  convert "$in" -resize 960x540 +dither -fill '#767676ff' -opaque '#12eb00ff' -remap ./public/cmap.png -transparent '#767676ff' "./public/images/$name"
   optipng "./public/images/$name" -quiet -clobber
 done
 
