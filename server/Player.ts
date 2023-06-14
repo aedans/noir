@@ -90,10 +90,6 @@ export abstract class ComputerPlayer implements Player {
       this.history = historySlice.reducer(this.history, action);
     }
 
-    if (currentPlayer(this.history.current) != this.player) {
-      return;
-    }
-
     let action = runGoals(this.history.current, this.player, this.goals, this.state);
 
     await new Promise((resolve) => setTimeout(resolve, 1000));

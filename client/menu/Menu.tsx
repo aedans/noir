@@ -8,7 +8,7 @@ export default function Menu() {
   const [_, setLocation] = useLocation();
 
   return (
-    <Container x={targetResolution.width / 2} y={targetResolution.height / 2}>
+    <Container x={targetResolution.width / 2} y={targetResolution.height / 2 - 500}>
       <Button
         text="Play"
         pointerdown={() => {
@@ -16,22 +16,36 @@ export default function Menu() {
         }}
       />
       <Button
-        text="DaphrilBot9000"
+        text="Daphril the Daunted"
         y={200}
         pointerdown={() => {
-          setLocation("/enqueue/daphril");
+          setLocation("/enqueue/daphril1");
+        }}
+      />
+      <Button
+        text="Daphril the Dauntless"
+        y={400}
+        pointerdown={() => {
+          setLocation("/enqueue/daphril2");
+        }}
+      />
+      <Button
+        text="DaphrilBot9000"
+        y={600}
+        pointerdown={() => {
+          setLocation("/enqueue/daphril3");
         }}
       />
       <Button
         text="Decks"
-        y={400}
+        y={800}
         pointerdown={() => {
           setLocation("/decks/");
         }}
       />
       <Button
         text="Replays"
-        y={600}
+        y={1000}
         pointerdown={() => {
           setLocation("/replays/");
         }}
