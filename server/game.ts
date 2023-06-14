@@ -194,7 +194,7 @@ function* doAction(cache: CardInfoCache, game: GameState, action: PlayerAction):
     }
 
     const player = findCard(game, card)?.player;
-    if (player) {
+    if (player != undefined) {
       const opponent = opponentOf(player);
       const info = defaultUtil.getCardInfo(cache, game, card);
       const effectsOpponent = info.hasEffect && (info.effectFilter.players?.includes(opponent) ?? true);
