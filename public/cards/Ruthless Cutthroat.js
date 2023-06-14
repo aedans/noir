@@ -2,7 +2,7 @@
 /** @type {import("../../common/card").PartialCardInfoComputation} */
 exports.card = (util, cache, game, card) => ({
   type: "agent",
-  text: "Activate this: remove one of your opponent's cards. Give two purple cards in your deck Tribute.",
+  text: "Activate this: remove one of your opponent's agents. Give two purple cards in your deck Tribute.",
   cost: { money: 14 },
   keywords: [["protected"]],
   colors: ["purple"],
