@@ -186,10 +186,6 @@ export function ordered<T>(array: T[], ordering: Order[], map: (t: T) => CardInf
 export function getTargets(this: Util, cache: CardInfoCache, game: GameState, card: Target, targetFilter: Filter) {
   const opponent = this.opponent(game, card);
 
-  if (this.findCard(game, card).player != opponent) {
-    return this.filter(cache, game, targetFilter);
-  }
-
   const bodyguards = this.filter(cache, game, {
     players: [opponent],
     zones: ["board"],
@@ -201,10 +197,17 @@ export function getTargets(this: Util, cache: CardInfoCache, game: GameState, ca
   if (bodyguards.length == 0) {
     return this.filter(cache, game, targetFilter);
   } else {
-    return this.filter(cache, game, {
-      ...targetFilter,
-      vip: false,
-    });
+    return [
+      ...this.filter(cache, game, {
+        ...targetFilter,
+        vip: false,
+      }),
+      ...this.filter(cache, game, {
+        ...targetFilter,
+        vip: true,
+        players: [this.opponent(game, card)],
+      }),
+    ];
   }
 }
 
@@ -336,10 +339,6 @@ export function getCardInfo(this: Util, cache: CardInfoCache, game: GameState, c
   if (cache.has(card.id)) {
     return cache.get(card.id)!;
   } else {
-    cache.set(
-      card.id,
-      runPartialCardInfoComputation(() => ({}), this, cache, game, card)
-    );
     const baseInfo = runPartialCardInfoComputation(this.getCardInfoImpl(card), this, cache, game, card);
     cache.set(card.id, baseInfo);
     const info = this.updateCardInfo(cache, game, card, baseInfo);
@@ -372,6 +371,10 @@ export function updateCardInfo(this: Util, cache: CardInfoCache, game: GameState
     const card = getCard(game, modifier.card);
     if (card) {
       const modifiers = this.getCardInfo(cache, game, card).modifiers ?? {};
+      if (!(modifier.name in modifiers)) {
+        console.log(state);
+        console.log(this.getCardInfo(cache, game, card));
+      }
       info = { ...info, ...modifiers[modifier.name](info, modifier, state) };
       cache.set(state.id, info);
     }
