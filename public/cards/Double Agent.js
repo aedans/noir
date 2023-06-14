@@ -2,6 +2,7 @@
 /** @type {import("../../common/card").PartialCardInfoComputation} */
 exports.card = (util, cache, game, card) => ({
   type: "agent",
+  text: "This gains the color of the most common color in your opponent's deck.",
   cost: { money: 4 },
   colors: card.props.colors ?? [],
   onPlay: function* () {
