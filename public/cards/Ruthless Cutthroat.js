@@ -2,7 +2,7 @@
 /** @type {import("../../common/card").PartialCardInfoComputation} */
 exports.card = (util, cache, game, card) => ({
   type: "agent",
-  text: "Activate this: remove one of your opponent's cards. Give two purple cards in your deck Expunge.",
+  text: "Activate this: remove one of your opponent's cards. Give two purple cards in your deck Tribute.",
   cost: { money: 14 },
   keywords: [["protected"]],
   colors: ["purple"],
@@ -29,18 +29,18 @@ exports.card = (util, cache, game, card) => ({
       target: punger[0],
       modifier: {
         card,
-        name: "Expunge",
+        name: "Tribute",
       },
     });
     yield* util.modifyCard(cache, game, card, {
       target: punger[1],
       modifier: {
         card,
-        name: "Expunge",
+        name: "Tribute",
       },
     });
   },
   modifiers: {
-    Expunge: util.keywordModifier(["expunge", "agent"]),
+    Tribute: util.keywordModifier(["tribute", "agent"]),
   },
 });
