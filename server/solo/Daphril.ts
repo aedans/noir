@@ -39,9 +39,10 @@ export default class Daphril extends ComputerPlayer {
 
     if (this.difficulty < 2) {
       delete cards["Bodyguard"];
-      delete cards["Crispy Dollar"];
-      delete cards["Banker"];
+      delete cards["Eager Employer"];
+      cards["Crispy Dollar"] -= 1;
       cards["Debt Collection"] -= 1;
+      cards["Writ of Recall"] -= 1;
     }
 
     return cards;
