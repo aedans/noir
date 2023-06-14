@@ -4,7 +4,7 @@ exports.card = (util, cache, game, card) => ({
   text: "Exhaust each of your orange agents. Remove that many of your opponent's cards on board at random.",
   type: "operation",
   cost: {
-    money: 11,
+    money: 10,
     agents: util.filter(cache, game, {
       players: [util.self(game, card)],
       types: ["agent"],

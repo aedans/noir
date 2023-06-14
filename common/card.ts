@@ -31,8 +31,8 @@ export const cardKeywords = [
   () => ["vip"] as const,
   (n?: number) => ["delay", n ?? 0] as const,
   (n?: number) => ["debt", n ?? 0] as const,
-  (n?: number) => ["abscond", n ?? 0] as const,
-  (n?: CardType) => ["expunge", n ?? "card"] as const,
+  (n?: number) => ["depart", n ?? 0] as const,
+  (n?: CardType) => ["tribute", n ?? "card"] as const,
 ] as const;
 
 export type CardColor = (typeof cardColors)[number];
@@ -145,7 +145,7 @@ export function runPartialCardInfoComputation(
   if (hasActivate) {
     activationPriority -= 1000;
   }
-  
+
   const hasEffect = partial.hasEffect ?? partial.effect != undefined;
   const hasSecondaryEffect = partial.hasSecondaryEffect ?? partial.secondaryEffect != undefined;
 

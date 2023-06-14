@@ -2,8 +2,9 @@
 /** @type {import("../../common/card").PartialCardInfoComputation} */
 exports.card = (util, cache, game, card) => ({
   type: "agent",
-  text: "Activate this, remove the lowest cost purple card in your deck: remove one of your opponent's revealed agents.",
+  text: "Activate this: remove one of your opponent's cards. Give two purple cards in your deck Tribute.",
   cost: { money: 14 },
+  keywords: [["protected"]],
   colors: ["purple"],
   activateTargets: {
     zones: ["deck", "board"],
@@ -18,18 +19,28 @@ exports.card = (util, cache, game, card) => ({
       excludes: [card],
     });
 
-    if (cards.length == 0) {
-      throw "No purple cards in your deck";
+    if (cards.length <= 1) {
+      throw "Not enough purple cards in your deck";
     }
 
     yield* util.removeCard(cache, game, card, { target });
-    const purplecards = util.filter(cache, game, {
-      players: [util.self(game, card)],
-      zones: ["deck"],
-      colors: ["purple"],
-      ordering: ["money"],
-      excludes: [card],
+    const punger = util.randoms(cards, 2);
+    yield* util.modifyCard(cache, game, card, {
+      target: punger[0],
+      modifier: {
+        card,
+        name: "Tribute",
+      },
     });
-    yield* util.removeCard(cache, game, card, { target: purplecards[0] });
+    yield* util.modifyCard(cache, game, card, {
+      target: punger[1],
+      modifier: {
+        card,
+        name: "Tribute",
+      },
+    });
+  },
+  modifiers: {
+    Tribute: util.keywordModifier(["tribute", "agent"]),
   },
 });

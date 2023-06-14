@@ -5,9 +5,7 @@ import PIXIBackend from "./PIXIBackend";
 import Camera from "./Camera";
 import { Provider } from "react-redux";
 import { store } from "./store";
-import Game from "./game/Game";
 import Menu from "./menu/Menu";
-import Play from "./play/Play";
 import Decks from "./decks/Decks";
 import Editor from "./editor/Editor";
 import { Application, Ticker, UPDATE_PRIORITY } from "pixi.js";
@@ -15,7 +13,7 @@ import { addStats } from "pixi-stats";
 import Replays from "./replays/Replays";
 import Replay from "./replays/Replay";
 import Queue from "./queue/Queue";
-import Solo from "./solo/Solo";
+import Enqueue from "./queue/Enqueue";
 
 export type NoirProps = {
   app: Application;
@@ -36,9 +34,8 @@ export default function Noir(props: NoirProps) {
         <Provider store={store}>
           <DndProvider backend={PIXIBackend(props.app)}>
             <Router>
-              <Route path="/play" component={Play} />
+              <Route path="/enqueue/:queue" component={Enqueue} />
               <Route path="/queue/:queue/:deck" component={Queue} />
-              <Route path="/solo" component={Solo} />
               <Route path="/decks" component={Decks} />
               <Route path="/edit/:deck" component={Editor} />
               <Route path="/replays" component={Replays} />
