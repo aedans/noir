@@ -205,7 +205,7 @@ export function getTargets(this: Util, cache: CardInfoCache, game: GameState, ca
       ...this.filter(cache, game, {
         ...targetFilter,
         vip: true,
-        players: [this.opponent(game, card)],
+        players: [this.opponentOf(opponent)],
       }),
     ];
   }
