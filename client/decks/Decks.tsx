@@ -27,7 +27,7 @@ export default function Decks() {
   }
 
   return (
-    <Container x={targetResolution.width / 2} y={targetResolution.height / 2}>
+    <Container x={targetResolution.width / 2} y={targetResolution.height / 2 - 400}>
       {buttons}
     </Container>
   );

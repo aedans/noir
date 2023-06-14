@@ -185,6 +185,11 @@ export function ordered<T>(array: T[], ordering: Order[], map: (t: T) => CardInf
 
 export function getTargets(this: Util, cache: CardInfoCache, game: GameState, card: Target, targetFilter: Filter) {
   const opponent = this.opponent(game, card);
+
+  if (this.findCard(game, card).player != opponent) {
+    return this.filter(cache, game, targetFilter);
+  }
+
   const bodyguards = this.filter(cache, game, {
     players: [opponent],
     zones: ["board"],
