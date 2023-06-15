@@ -234,90 +234,80 @@ export default React.memo(
       borderAgentsRef.current.tint = color;
       borderTintRef.current.alpha = props.borderTint ? 1 : 0;
       borderTintRef.current.tint = props.borderTint ?? colorlessColor;
-      glowFilterRef.current.outerStrength = 0;
-      glowFilterRef.current.enabled = false;
+      glowFilterRef.current.outerStrength = props.shouldGlow ? 4 : 0;
+      glowFilterRef.current.enabled = props.shouldGlow ? true : false;
       dimFilterRef.current.alpha = 0;
       dimFilterRef.current.enabled = false;
     }, []);
 
     useEffect(() => {
-      if (color != getColor(lastColor.current)) {
-        const { r, g, b } = getRGB(color);
-        anime({
-          targets: lastColor.current,
-          duration: 700,
-          easing: "easeOutExpo",
-          r,
-          g,
-          b,
-          update() {
-            if (colorRef.current) {
-              colorRef.current.tint = getColor(lastColor.current);
-            }
+      const { r, g, b } = getRGB(color);
+      anime({
+        targets: lastColor.current,
+        duration: 700,
+        easing: "easeOutExpo",
+        r,
+        g,
+        b,
+        update() {
+          if (colorRef.current) {
+            colorRef.current.tint = getColor(lastColor.current);
+          }
 
-            if (borderHiddenRef.current) {
-              borderAgentsRef.current.tint = getColor(lastColor.current);
-            }
-          },
-        });
-      }
+          if (borderHiddenRef.current) {
+            borderAgentsRef.current.tint = getColor(lastColor.current);
+          }
+        },
+      });
     }, [props.info.colors]);
 
     useEffect(() => {
       const alpha = props.state.hidden ? 1 : 0;
-      if (alpha != borderHiddenRef.current.alpha) {
-        anime({
-          targets: borderHiddenRef.current,
-          duration: 700,
-          easing: "easeOutExpo",
-          alpha,
-        });
-      }
+      anime({
+        targets: borderHiddenRef.current,
+        duration: 700,
+        easing: "easeOutExpo",
+        alpha,
+      });
     }, [props.state.hidden]);
 
     useEffect(() => {
       const alpha = props.borderTint ? 1 : 0;
-      if (alpha != borderTintRef.current.alpha) {
-        anime({
-          targets: borderTintRef.current,
-          duration: 700,
-          easing: "easeOutExpo",
-          alpha,
-        });
-      }
+      anime({
+        targets: borderTintRef.current,
+        duration: 700,
+        easing: "easeOutExpo",
+        alpha,
+      });
 
-      if (props.borderTint != borderTintRef.current.tint) {
-        const { r, g, b } = getRGB(props.borderTint ?? colorlessColor);
-        anime({
-          targets: lastBorderTint.current,
-          duration: 700,
-          easing: "easeOutExpo",
-          r,
-          g,
-          b,
-          update() {
-            if (borderTintRef.current) {
-              borderTintRef.current.tint = getColor(lastBorderTint.current);
-            }
-          },
-        });
-      }
+      const { r, g, b } = getRGB(props.borderTint ?? colorlessColor);
+      anime({
+        targets: lastBorderTint.current,
+        duration: 700,
+        easing: "easeOutExpo",
+        r,
+        g,
+        b,
+        update() {
+          if (borderTintRef.current) {
+            borderTintRef.current.tint = getColor(lastBorderTint.current);
+          }
+        },
+      });
     }, [props.borderTint]);
 
     useEffect(() => {
       const alpha = props.state.exhausted && props.shouldDimWhenExhausted ? 0.5 : 0;
-      if (alpha != dimFilterRef.current.alpha) {
-        dimFilterRef.current.greyscale(0, true);
-        anime({
-          targets: dimFilterRef.current,
-          duration: 700,
-          easing: "easeOutExpo",
-          alpha,
-          update() {
-            dimFilterRef.current.enabled = dimFilterRef.current.alpha != 0;
-          },
-        });
-      }
+      dimFilterRef.current.greyscale(0, true);
+      anime({
+        targets: dimFilterRef.current,
+        duration: 700,
+        easing: "easeOutExpo",
+        alpha,
+        update() {
+          dimFilterRef.current.enabled = dimFilterRef.current.alpha != 0;
+        },
+      });
     }, [props.state.exhausted]);
 
     useEffect(() => {
@@ -326,17 +316,15 @@ export default React.memo(
 
     useEffect(() => {
       const outerStrength = props.shouldGlow ? 4 : 0;
-      if (glowFilterRef.current.outerStrength != outerStrength) {
-        anime({
-          targets: glowFilterRef.current,
-          duration: 700,
-          easing: "easeOutExpo",
-          outerStrength,
-          update() {
-            glowFilterRef.current.enabled = glowFilterRef.current.outerStrength != 0;
-          },
-        });
-      }
+      anime({
+        targets: glowFilterRef.current,
+        duration: 700,
+        easing: "easeOutExpo",
+        outerStrength,
+        update() {
+          glowFilterRef.current.enabled = glowFilterRef.current.outerStrength != 0;
+        },
+      });
     }, [props.shouldGlow]);
 
     const info = texture ? <Sprite texture={texture} /> : <CardImpl {...props} ref={containerRef} />;
