@@ -1,0 +1,76 @@
+import { CardKeyword, Target } from "../common/card";
+import { GameState, PlayerId, opponentOf } from "../common/gameSlice";
+import { CardInfoCache } from "../common/util";
+import { defaultUtil } from "./cards";
+
+export interface Explanation {
+  id: string;
+  relevantCards(cache: CardInfoCache, game: GameState, player: PlayerId): Target[];
+  text: string;
+}
+
+class KeywordExplanation implements Explanation {
+  get id() {
+    return this.keyword;
+  }
+
+  constructor(
+    public keyword: CardKeyword[0],
+    public text: string,
+    public you: boolean = true,
+    public opponent: boolean = true
+  ) {}
+
+  relevantCards(cache: CardInfoCache, game: GameState, player: PlayerId): Target[] {
+    const cards: Target[] = [];
+
+    if (this.you) {
+      cards.push(...defaultUtil.filter(cache, game, {
+        players: [player],
+        zones: ["deck"],
+        playable: true,
+        text: this.keyword,
+      }));
+  
+      cards.push(...defaultUtil.filter(cache, game, {
+        players: [player],
+        zones: ["board"],
+        text: this.keyword,
+      }));  
+    }
+
+    if (this.opponent) {
+      cards.push(...defaultUtil.filter(cache, game, {
+        players: [opponentOf(player)],
+        hidden: false,
+        text: this.keyword,
+      }));
+    }
+
+    return cards;
+  }
+}
+
+export const explanations = [
+  new KeywordExplanation("protected", "Protected agents prevent the first time they would be removed", false, true),
+  new KeywordExplanation("disloyal", "Disloyal agents don't prevent you from losing", true, false),
+  new KeywordExplanation("vip", "VIP agents cannot be targeted as long as you have a loyal agent on board"),
+  new KeywordExplanation("delay", "Delay agents are exhausted for X turns after being played"),
+  new KeywordExplanation("debt", "Debt cards remove X money after two turns"),
+  new KeywordExplanation("depart", "Depart agents are removed after they are exhausted X times"),
+  new KeywordExplanation("tribute", "Tribute cards remove the lowest cost card in your deck when played"),
+];
+
+export function explain(game: GameState, player: PlayerId): Explanation[] {
+  const cache = new Map();
+  return explanations.filter((e) => e.relevantCards(cache, game, player).length > 0);
+}
+
+export function setExplained(explanation: Explanation) {
+  const explained = JSON.parse(localStorage.getItem("explained") ?? "{}");
+  localStorage.setItem("explained", JSON.stringify({ ...explained, [explanation.id]: true }));
+}
+
+export function isExplained(explanation: Explanation) {
+  return JSON.parse(localStorage.getItem("explained") ?? "{}")[explanation.id];
+}

@@ -15,7 +15,8 @@ import OpponentGrave from "./OpponentGrave";
 import { PlayerAction } from "../../common/network";
 import { useClientSelector } from "../store";
 import Concede from "./Concede";
-import { useTimeColorFilter } from "../Time";
+import { useTimeColorFilter } from "../time";
+import Explanations from "./Explanations";
 
 export const PlayerContext = React.createContext(0 as PlayerId);
 export const ConnectionContext = React.createContext({
@@ -37,10 +38,18 @@ export const PreparedContext = React.createContext(
   }
 );
 
+export const HighlightContext = React.createContext(
+  {} as {
+    highlight: Target[];
+    setHighlight: Dispatch<SetStateAction<Target[]>>;
+  }
+);
+
 export default function Game(props: { message: string }) {
   const [hover, setHover] = useState([] as Target[]);
   const [prepared, setPrepared] = useState([] as Target[]);
-  const game = useClientSelector((state) => state.game);
+  const [highlight, setHighlight] = useState([] as Target[]);
+  const game = useClientSelector((state) => state.game.current);
   const cards = useRef({} as MoveAnimationState);
   const timeColorFilterRef = useTimeColorFilter();
 
@@ -52,18 +61,21 @@ export default function Game(props: { message: string }) {
     <MoveAnimationContext.Provider value={cards}>
       <HoverContext.Provider value={{ hover, setHover }}>
         <PreparedContext.Provider value={{ prepared, setPrepared }}>
-          <Container filters={[timeColorFilterRef.current]}>
-            <Board />
-            <OpponentBoard />
-            <OpponentHand />
-            <EndTurn />
-            <Resources />
-            <Concede />
-            <HandAndDeck />
-            <OpponentGrave />
-            <Grave />
-            <Message text={props.message} />
-          </Container>
+          <HighlightContext.Provider value={{ highlight, setHighlight }}>
+            <Container filters={[timeColorFilterRef.current]}>
+              <Explanations />
+              <Board />
+              <OpponentBoard />
+              <OpponentHand />
+              <EndTurn />
+              <Resources />
+              <Concede />
+              <HandAndDeck />
+              <OpponentGrave />
+              <Grave />
+              <Message text={props.message} />
+            </Container>
+          </HighlightContext.Provider>
         </PreparedContext.Provider>
       </HoverContext.Provider>
     </MoveAnimationContext.Provider>

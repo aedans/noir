@@ -70,6 +70,7 @@ export type Filter = {
   ordering?: Order[];
   reversed?: boolean;
   number?: number;
+  text?: string;
 } & { [key in CardKeyword[0]]?: boolean };
 
 export function filter(this: Util, cache: CardInfoCache, game: GameState, filter: Filter) {
@@ -127,6 +128,14 @@ export function filter(this: Util, cache: CardInfoCache, game: GameState, filter
 
       if (filter.minMoney != undefined) {
         f = f.filter((card) => this.getCardInfo(cache, game, card).cost.money >= filter.minMoney!);
+      }
+
+      if (filter.text != undefined) {
+        f = f.filter(
+          (card) =>
+            this.getCardInfo(cache, game, card).text.toLowerCase().includes(filter.text!.toLowerCase()) ||
+            this.getCardInfo(cache, game, card).keywords.some((k) => k[0].includes(filter.text!.toLowerCase()))
+        );
       }
 
       for (const keyword of cardKeywords) {

@@ -4,7 +4,7 @@ import { Container, InteractiveComponent } from "react-pixi-fiber";
 import { CardColors, CardState } from "../../common/card";
 import Card, { CardProps, combineColors, hex, isCardPropsEqual } from "../Card";
 import MoveAnimation, { useLastPos } from "../MoveAnimation";
-import { ConnectionContext, PreparedContext } from "./Game";
+import { ConnectionContext, HighlightContext, PreparedContext } from "./Game";
 import { getCard } from "../../common/gameSlice";
 import { useClientSelector } from "../store";
 import { defaultUtil } from "../cards";
@@ -38,6 +38,7 @@ export default React.memo(
     const game = useClientSelector((state) => state.game.current);
     const connection = useContext(ConnectionContext);
     const { prepared } = useContext(PreparedContext);
+    const { highlight } = useContext(HighlightContext);
     const componentRef = useRef() as MutableRefObject<Required<Container>>;
     const { x, y } = useLastPos(props, props.state.id, componentRef);
 
@@ -89,13 +90,16 @@ export default React.memo(
       }
     }
 
+    const shouldHighlight = highlight.findIndex((h) => h.id == props.state.id) != -1
+    const scale = (props.scale ?? 1) * (shouldHighlight ? 1.1 : 1);
+
     return (
-      <MoveAnimation id={props.state.id} x={x} y={y} scale={props.scale ?? 1} componentRef={componentRef}>
+      <MoveAnimation id={props.state.id} x={x} y={y} scale={scale} componentRef={componentRef}>
         <Container {...props} scale={0} ref={componentRef}>
           <Card
             state={props.state}
             info={props.info}
-            shouldGlow={props.shouldGlow || isOver}
+            shouldGlow={props.shouldGlow || isOver || shouldHighlight}
             shouldDimWhenExhausted={props.shouldDimWhenExhausted}
             borderTint={borderColors.length == 0 ? undefined : hex[combineColors(borderColors)]}
           />

@@ -3,7 +3,7 @@ import { targetResolution } from "../Camera";
 import { CardStateInfo } from "../../common/card";
 import HandCard from "./HandCard";
 import { cardHeight, cardWidth } from "../Card";
-import { useTimeShadowFilter } from "../Time";
+import { useTimeShadowFilter } from "../time";
 import { Container } from "react-pixi-fiber";
 
 export type HandProps = {

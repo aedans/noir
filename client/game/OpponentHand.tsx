@@ -7,7 +7,7 @@ import { useClientSelector } from "../store";
 import { PlayerContext } from "./Game";
 import GameCard from "./GameCard";
 import { Container } from "react-pixi-fiber";
-import { useTimeShadowFilter } from "../Time";
+import { useTimeShadowFilter } from "../time";
 
 export default function OpponentHand() {
   const player = useContext(PlayerContext);
