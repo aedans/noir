@@ -90,7 +90,7 @@ export default React.memo(
       }
     }
 
-    const shouldHighlight = highlight.findIndex((h) => h.id == props.state.id) != -1
+    const shouldHighlight = (highlight?.findIndex((h) => h.id == props.state.id) ?? -1) != -1
     const scale = (props.scale ?? 1) * (shouldHighlight ? 1.1 : 1);
 
     return (

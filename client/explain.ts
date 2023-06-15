@@ -1,6 +1,6 @@
 import { CardKeyword, Target } from "../common/card";
 import { GameState, PlayerId, opponentOf } from "../common/gameSlice";
-import { CardInfoCache } from "../common/util";
+import util, { CardInfoCache } from "../common/util";
 import { defaultUtil } from "./cards";
 
 export interface Explanation {
@@ -25,30 +25,40 @@ class KeywordExplanation implements Explanation {
     const cards: Target[] = [];
 
     if (this.you) {
-      cards.push(...defaultUtil.filter(cache, game, {
-        players: [player],
-        zones: ["deck"],
-        playable: true,
-        text: this.keyword,
-      }));
-  
-      cards.push(...defaultUtil.filter(cache, game, {
-        players: [player],
-        zones: ["board"],
-        text: this.keyword,
-      }));  
+      cards.push(
+        ...defaultUtil.filter(cache, game, {
+          players: [player],
+          zones: ["deck"],
+          playable: true,
+          text: this.keyword,
+        })
+      );
+
+      cards.push(
+        ...defaultUtil.filter(cache, game, {
+          players: [player],
+          zones: ["board"],
+          text: this.keyword,
+        })
+      );
     }
 
     if (this.opponent) {
-      cards.push(...defaultUtil.filter(cache, game, {
-        players: [opponentOf(player)],
-        hidden: false,
-        text: this.keyword,
-      }));
+      cards.push(
+        ...defaultUtil.filter(cache, game, {
+          players: [opponentOf(player)],
+          hidden: false,
+          text: this.keyword,
+        })
+      );
     }
 
     return cards;
   }
+}
+
+class SituationExplanation implements Explanation {
+  constructor(public id: string, public text: string, public relevantCards: Explanation["relevantCards"]) {}
 }
 
 export const explanations = [
@@ -59,6 +69,13 @@ export const explanations = [
   new KeywordExplanation("debt", "Debt cards remove X money after two turns"),
   new KeywordExplanation("depart", "Depart agents are removed after they are exhausted X times"),
   new KeywordExplanation("tribute", "Tribute cards remove the lowest cost card in your deck when played"),
+  new SituationExplanation("revealBoard", "Reveal will prioritize your opponent's board, then deck, then grave", (cache, game, player) => {
+    return defaultUtil.filter(cache, game, {
+      players: [opponentOf(player)],
+      zones: ["board"],
+      hidden: false,
+    });
+  }),
 ];
 
 export function explain(game: GameState, player: PlayerId): Explanation[] {

@@ -7,7 +7,6 @@ exports.card = (util, cache, game, card) => ({
   colors: ["blue"],
   play: function* () {
     yield* util.revealRandom(cache, game, card, 3, {
-      players: [util.opponent(game, card)],
       zones: ["deck"],
       maxMoney: 6,
     });

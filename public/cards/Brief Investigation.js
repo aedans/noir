@@ -6,7 +6,6 @@ exports.card = (util, cache, game, card) => ({
   cost: { money: 0 },
   play: function* () {
     yield* util.revealRandom(cache, game, card, 1, {
-      players: [util.opponent(game, card)],
       zones: ["deck"],
     });
   },

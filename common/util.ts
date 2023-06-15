@@ -292,45 +292,53 @@ export function* revealRandom(
   game: GameState,
   card: CardState,
   number: number,
-  filter: Omit<Filter, "hidden">
+  filter: Omit<Filter, "hidden"> = {}
 ): CardGenerator {
+  const opponent = util.opponent(game, card);
   const cards = this.filter(cache, game, {
-    ...filter,
+    zones: ["board"],
+    players: [opponent],
     hidden: true,
     random: true,
     number: number,
     excludes: [card, ...(filter.excludes ?? [])],
+    ...filter,
   });
 
   for (const target of cards) {
+    console.log(target);
     yield* this.revealCard(cache, game, card, { target });
   }
 
   if (cards.length < number) {
     const aliveCards = this.filter(cache, game, {
-      ...filter,
+      zones: ["deck", "board"],
+      players: [opponent],
       hidden: true,
       random: true,
       number: number - cards.length,
-      zones: ["deck", "board"],
       excludes: [card, ...cards, ...(filter.excludes ?? [])],
+      ...filter,
     });
 
     for (const target of aliveCards) {
+      console.log(target);
       yield* this.revealCard(cache, game, card, { target });
     }
 
     if (cards.length + aliveCards.length < number) {
       const allCards = this.filter(cache, game, {
-        ...filter,
+        zones: ["deck", "board", "grave"],
+        players: [opponent],
         hidden: true,
         random: true,
-        number: number - cards.length,
-        zones: ["deck", "board", "grave"],
+        number: number - cards.length - aliveCards.length,
         excludes: [card, ...cards, ...aliveCards, ...(filter.excludes ?? [])],
+        ...filter,
       });
 
       for (const target of allCards) {
+        console.log(target);
         yield* this.revealCard(cache, game, card, { target });
       }
     }
