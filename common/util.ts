@@ -48,10 +48,10 @@ import {
   initialGameState,
   noop,
   NoActionParams,
+  activateCard,
 } from "./gameSlice";
 import { historySlice, SetUndoneParams } from "./historySlice";
-import { remove, shuffle } from "lodash";
-import { defaultUtil } from "../client/cards";
+import { shuffle } from "lodash";
 
 export type Filter = {
   excludes?: Target[];
@@ -664,6 +664,7 @@ const util = {
   endTurn: onEndTurn,
   addCard: onTrigger(addCard, (info, game) => triggerReveal(info, game, (p) => onAdd(info, p)), true),
   playCard: onPlayCard,
+  activateCard: onTrigger(activateCard, (info, game) => triggerReveal(info, game, (p) => onExhaust(info, game, p))),
   removeCard: onTrigger(removeCard, (info, game) => triggerReveal(info, game, (p) => onRemove(info, game, p))),
   enterCard: onTrigger(enterCard, (info, game) => triggerReveal(info, game, info.onEnter)),
   bounceCard: onTrigger(bounceCard, (info, game) => triggerReveal(info, game, info.onBounce)),

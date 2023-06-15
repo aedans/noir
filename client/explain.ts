@@ -1,5 +1,5 @@
 import { CardKeyword, Target } from "../common/card";
-import { GameState, PlayerId, opponentOf } from "../common/gameSlice";
+import { GameState, PlayerId, findCard, isPlayerAction, opponentOf } from "../common/gameSlice";
 import util, { CardInfoCache } from "../common/util";
 import { defaultUtil } from "./cards";
 
@@ -69,13 +69,27 @@ export const explanations = [
   new KeywordExplanation("debt", "Debt cards remove X money after two turns"),
   new KeywordExplanation("depart", "Depart agents are removed after they are exhausted X times"),
   new KeywordExplanation("tribute", "Tribute cards remove the lowest cost card in your deck when played"),
-  new SituationExplanation("revealBoard", "Reveal will prioritize your opponent's board, then deck, then grave", (cache, game, player) => {
-    return defaultUtil.filter(cache, game, {
-      players: [opponentOf(player)],
-      zones: ["board"],
-      hidden: false,
-    });
-  }),
+  new SituationExplanation(
+    "revealBoard",
+    "Reveal will prioritize your opponent's board, then deck, then grave",
+    (cache, game, player) => {
+      const opponent = opponentOf(player);
+      const actionIndex = game.history.findIndex((action) => isPlayerAction(action));
+      const refs = game.history
+        .slice(0, actionIndex)
+        .filter((action) => action.type == "game/revealCard")
+        .map((reveal) => (reveal.payload.target ? findCard(game, reveal.payload.target) : null))
+        .flatMap((x) => (x == null ? [] : [x]));
+      if (
+        refs.some((x) => x.player == opponent && x.zone == "board") &&
+        refs.some((x) => x.player == opponent && x.zone != "board")
+      ) {
+        return refs.map((x) => game.players[x.player][x.zone][x.index]);
+      } else {
+        return [];
+      }
+    }
+  ),
 ];
 
 export function explain(game: GameState, player: PlayerId): Explanation[] {

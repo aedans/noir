@@ -155,6 +155,10 @@ export function opponent(game: GameState, card: Target) {
   return opponentOf(self(game, card));
 }
 
+export function isPlayerAction(action: PayloadAction<{}>) {
+  return action.type == "game/endTurn" || action.type == "game/playCard" || action.type == "game/activateCard";
+}
+
 export const gameReducers = {
   noop: (state: GameState, action: PayloadAction<{}>) => {},
   hidden: (state: GameState, action: PayloadAction<TargetCardParams>) => {
@@ -196,6 +200,10 @@ export const gameReducers = {
       }
       state.players[player][zone].splice(index, 1);
     }
+  },
+  activateCard: (state: GameState, action: PayloadAction<TargetCardParams>) => {
+    state.history.unshift(action as GameAction);
+    updateCard(state, action.payload.target, (card) => (card.exhausted = true));
   },
   removeCard: (state: GameState, action: PayloadAction<TargetCardParams>) => {
     state.history.unshift(action as GameAction);
@@ -287,6 +295,7 @@ export const {
   endTurn,
   addCard,
   playCard,
+  activateCard,
   removeCard,
   enterCard,
   bounceCard,

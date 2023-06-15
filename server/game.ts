@@ -143,7 +143,7 @@ function* activateCard(
 
   validateTargets(cache, game, card, info.activateTargets, target);
 
-  yield* defaultUtil.exhaustCard(cache, game, card, { target: card });
+  yield* defaultUtil.activateCard(cache, game, card, { target: card });
   yield* payCost(
     cache,
     game,

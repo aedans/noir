@@ -1,11 +1,10 @@
 import { WithId } from "mongodb";
 import React, { useEffect, useState } from "react";
-import { GameAction } from "../../common/gameSlice";
+import { GameAction, isPlayerAction } from "../../common/gameSlice";
 import { liftAction, reset } from "../../common/historySlice";
 import { loadCardsFromAction, serverOrigin } from "../cards";
 import Game, { ConnectionContext, PlayerContext } from "../game/Game";
 import { useClientDispatch } from "../store";
-import { takeWhile } from "lodash";
 import { batchActions } from "redux-batched-actions";
 
 export default function Replay(props: { params: { id: string } }) {
@@ -20,7 +19,7 @@ export default function Replay(props: { params: { id: string } }) {
 
       let index = 0;
       while (history.length > 0) {
-        const nextIndex = history.slice(1).findIndex((x) => x.type == "game/endTurn" || x.type == "game/playCard") + 1;
+        const nextIndex = history.slice(1).findIndex((action) => isPlayerAction(action)) + 1;
         const length = nextIndex <= 0 ? history.length : nextIndex;
         const actions = history.slice(0, length);
         history = history.slice(actions.length);
