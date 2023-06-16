@@ -90,16 +90,19 @@ export abstract class ComputerPlayer implements Player {
       this.history = historySlice.reducer(this.history, action);
     }
 
-    let action = runGoals(this.history.current, this.player, this.goals, this.state);
-
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-
-    if (action == null) {
-      action = { type: "end" };
-    }
-
-    for (const callback of this.callbacks) {
-      callback(action);
+    const current = currentPlayer(this.history.current);
+    if (current == this.player) {
+      let action = runGoals(this.history.current, this.player, this.goals, this.state);
+  
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+  
+      if (action == null) {
+        action = { type: "end" };
+      }
+  
+      for (const callback of this.callbacks) {
+        callback(action);
+      }
     }
   }
 
