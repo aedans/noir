@@ -90,6 +90,22 @@ export const explanations = [
       }
     }
   ),
+  new SituationExplanation("doubleVIP", "VIP agents will not protect other VIP agents", (cache, game, player) => {
+    for (const player of [0, 1] as const) {
+      const vipBoard = defaultUtil.filter(cache, game, { players: [player], zones: ["board"], vip: true });
+      const vipDeck = defaultUtil.filter(cache, game, { players: [player], zones: ["deck"], vip: true });
+      const otherBoard = defaultUtil.filter(cache, game, {
+        players: [player],
+        zones: ["board"],
+        vip: false,
+        disloyal: false,
+      });
+      if (vipBoard.length > 0 && vipDeck.length > 0 && otherBoard.length == 0) {
+        return [...vipBoard, ...vipDeck];
+      }
+    }
+    return [];
+  }),
 ];
 
 export function explain(game: GameState, player: PlayerId): Explanation[] {
