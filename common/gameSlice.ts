@@ -233,6 +233,7 @@ export const gameReducers = {
     const info = findCard(state, action.payload.target);
     if (info) {
       const { player, zone, index } = info;
+      state.players[player][zone][index].exhausted = true;
       state.players[player].deck.push(state.players[player][zone][index]);
       state.players[player][zone].splice(index, 1);
     }
