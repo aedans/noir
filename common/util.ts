@@ -66,6 +66,8 @@ export type Filter = {
   activatable?: boolean;
   maxMoney?: number;
   minMoney?: number;
+  maxAgents?: number;
+  minAgents?: number;
   random?: boolean;
   ordering?: Order[];
   reversed?: boolean;
@@ -128,6 +130,14 @@ export function filter(this: Util, cache: CardInfoCache, game: GameState, filter
 
       if (filter.minMoney != undefined) {
         f = f.filter((card) => this.getCardInfo(cache, game, card).cost.money >= filter.minMoney!);
+      }
+
+      if (filter.maxAgents != undefined) {
+        f = f.filter((card) => this.getCardInfo(cache, game, card).cost.agents <= filter.maxAgents!);
+      }
+
+      if (filter.minAgents != undefined) {
+        f = f.filter((card) => this.getCardInfo(cache, game, card).cost.agents >= filter.minAgents!);
       }
 
       if (filter.text != undefined) {
