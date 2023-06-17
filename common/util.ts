@@ -316,7 +316,6 @@ export function* revealRandom(
   });
 
   for (const target of cards) {
-    console.log(target);
     yield* this.revealCard(cache, game, card, { target });
   }
 
@@ -332,7 +331,6 @@ export function* revealRandom(
     });
 
     for (const target of aliveCards) {
-      console.log(target);
       yield* this.revealCard(cache, game, card, { target });
     }
 
@@ -348,7 +346,6 @@ export function* revealRandom(
       });
 
       for (const target of allCards) {
-        console.log(target);
         yield* this.revealCard(cache, game, card, { target });
       }
     }
@@ -398,10 +395,6 @@ export function updateCardInfo(this: Util, cache: CardInfoCache, game: GameState
     const card = getCard(game, modifier.card);
     if (card) {
       const modifiers = this.getCardInfo(cache, game, card).modifiers ?? {};
-      if (!(modifier.name in modifiers)) {
-        console.log(state);
-        console.log(this.getCardInfo(cache, game, card));
-      }
       info = { ...info, ...modifiers[modifier.name](info, modifier, state) };
       cache.set(state.id, info);
     }
