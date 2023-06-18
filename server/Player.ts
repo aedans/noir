@@ -7,6 +7,7 @@ import { PlayerInit, PlayerAction, NoirServerSocket } from "../common/network";
 import { HistoryState } from "../common/historySlice";
 import { initialHistoryState } from "../common/historySlice";
 import { Goal, GoalState, runGoals } from "./Goal";
+import { Difficulty } from "./Mission";
 
 const decks = JSON.parse(fs.readFileSync("./common/decks.json").toString());
 
@@ -93,13 +94,13 @@ export abstract class ComputerPlayer implements Player {
     const current = currentPlayer(this.history.current);
     if (current == this.player) {
       let action = runGoals(this.history.current, this.player, this.goals, this.state);
-  
+
       await new Promise((resolve) => setTimeout(resolve, 1000));
-  
+
       if (action == null) {
         action = { type: "end" };
       }
-  
+
       for (const callback of this.callbacks) {
         callback(action);
       }
@@ -125,4 +126,18 @@ export class UnitPlayer extends ComputerPlayer {
   deck = decks[random(["Green", "Blue", "Orange", "Purple"])] as Deck;
 
   goals = [];
+}
+
+export abstract class MissionPlayer extends ComputerPlayer {
+  constructor(public player: PlayerId, name: string, public difficulty: Difficulty) {
+    super(player, `${name} level ${difficulty}`);
+  }
+
+  abstract deck1: Deck;
+
+  abstract deck2: Deck;
+
+  get deck(): Deck {
+    return this.difficulty == 1 ? this.deck1 : this.deck2;
+  }
 }

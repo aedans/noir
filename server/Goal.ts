@@ -7,11 +7,11 @@ export type GoalState = {
   lastPlay: { [name: string]: number };
 };
 
-export type Goal = (game: GameState, playerId: PlayerId, state: GoalState) => PlayerAction | null;
+export type Goal = (game: GameState, player: PlayerId, state: GoalState) => PlayerAction | null;
 
-export function runGoals(game: GameState, playerId: PlayerId, goals: Goal[], state: GoalState): PlayerAction | null {
+export function runGoals(game: GameState, player: PlayerId, goals: Goal[], state: GoalState): PlayerAction | null {
   for (const goal of goals) {
-    const action = goal(game, playerId, state);
+    const action = goal(game, player, state);
     if (action != null) {
       return action;
     }
@@ -22,11 +22,11 @@ export function runGoals(game: GameState, playerId: PlayerId, goals: Goal[], sta
 
 export const playCard =
   (name: string, targetFilter: Filter = { ordering: ["money"] }, negative: boolean = false): Goal =>
-  (game: GameState, playerId: PlayerId, state: GoalState) => {
+  (game: GameState, player: PlayerId, state: GoalState) => {
     const cache = new Map();
     const cards = defaultUtil.filter(cache, game, {
       names: [name],
-      players: [playerId],
+      players: [player],
       zones: ["deck"],
       playable: true,
       random: true,
@@ -49,7 +49,7 @@ export const playCard =
       reversed: true,
       ...targetFilter,
       ...info.targets,
-      players: [negative ? opponentOf(playerId) : playerId],
+      players: [negative ? opponentOf(player) : player],
     });
 
     if (targets.length == 0) {
@@ -62,11 +62,11 @@ export const playCard =
 
 export const activateCard =
   (name: string, targetFilter: Filter = { ordering: ["money"] }, negative: boolean = false): Goal =>
-  (game: GameState, playerId: PlayerId) => {
+  (game: GameState, player: PlayerId) => {
     const cache = new Map();
     const cards = defaultUtil.filter(cache, game, {
       names: [name],
-      players: [playerId],
+      players: [player],
       zones: ["board"],
       activatable: true,
       random: true,
@@ -88,7 +88,7 @@ export const activateCard =
       reversed: true,
       ...targetFilter,
       ...info.activateTargets,
-      players: [negative ? opponentOf(playerId) : playerId],
+      players: [negative ? opponentOf(player) : player],
     });
 
     if (targets.length == 0) {
@@ -100,24 +100,33 @@ export const activateCard =
 
 export const afterPlaying =
   (name: string, goal: Goal): Goal =>
-  (game: GameState, playerId: PlayerId, state: GoalState) => {
-    return game.players[playerId].deck.some((x) => x.name == name) ? null : goal(game, playerId, state);
+  (game: GameState, player: PlayerId, state: GoalState) => {
+    return game.players[player].deck.some((x) => x.name == name) ? null : goal(game, player, state);
   };
 
 export const afterLosing =
   (name: string, goal: Goal): Goal =>
-  (game: GameState, playerId: PlayerId, state: GoalState) => {
-    return game.players[playerId].grave.some((x) => x.name == name) ? goal(game, playerId, state) : null;
+  (game: GameState, player: PlayerId, state: GoalState) => {
+    return game.players[player].grave.some((x) => x.name == name) ? goal(game, player, state) : null;
   };
 
 export const afterTurn =
   (turn: number, goal: Goal): Goal =>
-  (game: GameState, playerId: PlayerId, state: GoalState) => {
-    return game.turn / 2 < turn ? null : goal(game, playerId, state);
+  (game: GameState, player: PlayerId, state: GoalState) => {
+    return game.turn / 2 < turn ? null : goal(game, player, state);
   };
 
 export const afterWait =
   (name: string, turns: number, goal: Goal): Goal =>
-  (game: GameState, playerId: PlayerId, state: GoalState) => {
-    return !state.lastPlay[name] || game.turn / 2 > state.lastPlay[name] + turns ? goal(game, playerId, state) : null;
+  (game: GameState, player: PlayerId, state: GoalState) => {
+    return !state.lastPlay[name] || game.turn / 2 > state.lastPlay[name] + turns ? goal(game, player, state) : null;
+  };
+
+export const ifRevealLeft =
+  (goal: Goal): Goal =>
+  (game: GameState, player: PlayerId, state: GoalState) => {
+    const cache = new Map();
+    return defaultUtil.filter(cache, game, { players: [opponentOf(player)], hidden: false }).length < 20
+      ? goal(game, player, state)
+      : null;
   };

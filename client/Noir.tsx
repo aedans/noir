@@ -14,6 +14,8 @@ import Replays from "./replays/Replays";
 import Replay from "./replays/Replay";
 import Queue from "./queue/Queue";
 import Enqueue from "./queue/Enqueue";
+import Play from "./play/Play";
+import Solo from "./solo/Solo";
 
 export type NoirProps = {
   app: Application;
@@ -34,6 +36,8 @@ export default function Noir(props: NoirProps) {
         <Provider store={store}>
           <DndProvider backend={PIXIBackend(props.app)}>
             <Router>
+              <Route path="/play" component={Play} />
+              <Route path="/solo" component={Solo} />
               <Route path="/enqueue/:queue" component={Enqueue} />
               <Route path="/queue/:queue/:deck" component={Queue} />
               <Route path="/decks" component={Decks} />

@@ -9,9 +9,10 @@ export type QueueName = "test" | "casual" | `${MissionName}${Difficulty}`;
 export const queues: { [T in QueueName]: Queue } = {
   test: new Test(),
   casual: new Casual(),
+  randomCitizens1: new Solo("randomCitizens", (id) => missions.randomCitizens(id, 1)),
+  randomCitizens2: new Solo("randomCitizens", (id) => missions.randomCitizens(id, 2)),
   daphril1: new Solo("daphril", (id) => missions.daphril(id, 1)),
   daphril2: new Solo("daphril", (id) => missions.daphril(id, 2)),
-  daphril3: new Solo("daphril", (id) => missions.daphril(id, 3)),
 };
 
 export default interface Queue {
