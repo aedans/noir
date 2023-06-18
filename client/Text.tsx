@@ -1,4 +1,4 @@
-import { BitmapText, DisplayObjectProps } from "react-pixi-fiber";
+import { BitmapText, Container, DisplayObjectProps } from "react-pixi-fiber";
 import React, { Ref } from "react";
 import { IBitmapTextStyle } from "pixi.js";
 
@@ -7,7 +7,7 @@ export type TextProps = DisplayObjectProps<BitmapText> & {
   style?: Partial<IBitmapTextStyle>;
 };
 
-export default React.forwardRef(function Text(props: TextProps, ref: Ref<BitmapText>) {
+export default React.forwardRef(function Text(props: TextProps, ref: Ref<Container>) {
   const style = props.style ?? {};
 
   if (!style.fontName) {

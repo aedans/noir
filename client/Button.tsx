@@ -1,12 +1,18 @@
-import React, { MutableRefObject, useRef } from "react";
+import React, { MutableRefObject, useEffect, useRef } from "react";
 import Text, { TextProps } from "./Text";
-import { BitmapText } from "react-pixi-fiber";
+import { Container } from "react-pixi-fiber";
 import anime from "animejs";
+import { Graphics, Rectangle } from "pixi.js";
 
 export type ButtonProps = TextProps;
 
 export default function Button(props: ButtonProps) {
-  const textRef = useRef() as MutableRefObject<BitmapText>;
+  const textRef = useRef() as MutableRefObject<Required<Container>>;
+
+  useEffect(() => {
+    const { width } = textRef.current;
+    textRef.current.hitArea = new Rectangle(-width / 2, 0, width, 85);
+  }, [props]);
 
   return (
     <Text
@@ -16,7 +22,7 @@ export default function Button(props: ButtonProps) {
       interactive
       mouseover={() => {
         anime({
-          targets: textRef.current.scale,
+          targets: textRef.current.transform.scale,
           duration: 100,
           easing: "linear",
           x: 1.25,
@@ -25,7 +31,7 @@ export default function Button(props: ButtonProps) {
       }}
       mouseout={() => {
         anime({
-          targets: textRef.current.scale,
+          targets: textRef.current.transform.scale,
           duration: 100,
           easing: "linear",
           x: 1,
