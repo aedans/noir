@@ -20,7 +20,7 @@ function MissionButton(props: { mission: MissionName; difficulty: Difficulty; y:
         if (canPlay) {
           setLocation(`/enqueue/${name}`);
         } else {
-          alert(`Defeat ${props.mission} on Normal to unlock Heroic`);
+          alert(`Defeat ${props.mission} on Normal to unlock Heroic ${props.mission}`);
         }
       }}
     />
