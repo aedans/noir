@@ -11,7 +11,7 @@ export type PlayerAction = { type: "end" } | { type: "do"; id: string; target?: 
 export type PlayerInit = { deck: Deck };
 
 export type ServerToClientEvents = {
-  init: (player: PlayerId) => void;
+  init: (player: PlayerId, names: readonly [string, string]) => void;
   actions: (actions: HistoryAction[], name: string) => void;
   error: (error: string) => void;
   end: (winner: PlayerId) => void;

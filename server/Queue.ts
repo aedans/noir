@@ -1,18 +1,18 @@
 import Test from "./queue/Test";
 import Casual from "./queue/Casual";
 import { NoirServerSocket } from "../common/network";
-import { Difficulty, MissionName, missions } from "./Mission";
+import { Difficulty, MissionName } from "./Mission";
 import Solo from "./queue/Solo";
 
-export type QueueName = "test" | "casual" | `${MissionName}${Difficulty}`;
+export type QueueName = "test" | "casual" | `${MissionName} level ${Difficulty}`;
 
 export const queues: { [T in QueueName]: Queue } = {
   test: new Test(),
   casual: new Casual(),
-  randomCitizens1: new Solo("randomCitizens", (id) => missions.randomCitizens(id, 1)),
-  randomCitizens2: new Solo("randomCitizens", (id) => missions.randomCitizens(id, 2)),
-  daphril1: new Solo("daphril", (id) => missions.daphril(id, 1)),
-  daphril2: new Solo("daphril", (id) => missions.daphril(id, 2)),
+  "Random Citizens level 1": new Solo("Random Citizens", 1),
+  "Random Citizens level 2": new Solo("Random Citizens", 2),
+  "Daphril the Dauntless level 1": new Solo("Daphril the Dauntless", 1),
+  "Daphril the Dauntless level 2": new Solo("Daphril the Dauntless", 2),
 };
 
 export default interface Queue {

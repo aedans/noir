@@ -1,14 +1,12 @@
-import React, { MutableRefObject, Ref, useImperativeHandle, useRef } from "react";
+import React, { MutableRefObject, useRef } from "react";
 import Text, { TextProps } from "./Text";
-import { BitmapText, Container } from "react-pixi-fiber";
+import { BitmapText } from "react-pixi-fiber";
 import anime from "animejs";
 
 export type ButtonProps = TextProps;
 
-export default React.forwardRef(function Button(props: ButtonProps, ref: Ref<Container>) {
+export default function Button(props: ButtonProps) {
   const textRef = useRef() as MutableRefObject<BitmapText>;
-
-  useImperativeHandle(ref, () => textRef.current);
 
   return (
     <Text
@@ -38,4 +36,4 @@ export default React.forwardRef(function Button(props: ButtonProps, ref: Ref<Con
       {props.children}
     </Text>
   );
-});
+}

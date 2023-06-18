@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { batchActions } from "redux-batched-actions";
 import { io } from "socket.io-client";
 import { useLocation } from "wouter";
-import { PlayerId } from "../../common/gameSlice";
+import { PlayerId, opponentOf } from "../../common/gameSlice";
 import { reset } from "../../common/historySlice";
 import { NoirClientSocket } from "../../common/network";
 import { QueueName } from "../../server/Queue";
@@ -11,9 +11,11 @@ import { targetResolution } from "../Camera";
 import { loadCardsFromAction, serverOrigin } from "../cards";
 import Game, { ConnectionContext, PlayerContext } from "../game/Game";
 import { getUsername, useClientDispatch, useClientSelector } from "../store";
+import { setWon } from "../wins";
 
 export default function Queue(props: { params: { queue: string; deck: string } }) {
   let [player, setPlayer] = useState(null as PlayerId | null);
+  let [names, setNames] = useState(["", ""] as readonly [string, string]);
   const [socket, setSocket] = useState(null as NoirClientSocket | null);
   const decks = useClientSelector((state) => state.decks);
   const [message, setMessage] = useState("");
@@ -42,6 +44,7 @@ export default function Queue(props: { params: { queue: string; deck: string } }
       setMessage("");
       if (winner == player) {
         setMessage("You Win!");
+        setWon(names[opponentOf(player)]);
       } else {
         setMessage("You Lose.");
       }
@@ -51,8 +54,9 @@ export default function Queue(props: { params: { queue: string; deck: string } }
       }, 2000);
     });
 
-    socket.on("init", (p) => {
+    socket.on("init", (p, ns) => {
       setPlayer((player = p));
+      setNames((names = ns));
 
       socket.emit("init", decks[decodeURIComponent(props.params.deck)]);
     });

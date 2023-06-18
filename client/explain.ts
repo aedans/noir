@@ -201,10 +201,12 @@ export function explain(game: GameState, player: PlayerId): Explanation[] {
 }
 
 export function setExplained(explanation: { id: string }) {
-  const explained = JSON.parse(localStorage.getItem("explained") ?? "{}");
-  localStorage.setItem("explained", JSON.stringify({ ...explained, [explanation.id]: true }));
+  const explained = JSON.parse(localStorage.getItem("explained") ?? "[]") as string[];
+  if (explained.find((id) => id == explanation.id) == null) {
+    localStorage.setItem("explained", JSON.stringify([...explained, explanation.id]));
+  }
 }
 
 export function isExplained(explanation: { id: string }) {
-  return JSON.parse(localStorage.getItem("explained") ?? "{}")[explanation.id];
+  return (JSON.parse(localStorage.getItem("explained") ?? "[]") as string[]).find((id) => id == explanation.id) != null;
 }

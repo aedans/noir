@@ -7,7 +7,7 @@ import { PlayerInit, PlayerAction, NoirServerSocket } from "../common/network";
 import { HistoryState } from "../common/historySlice";
 import { initialHistoryState } from "../common/historySlice";
 import { Goal, GoalState, runGoals } from "./Goal";
-import { Difficulty } from "./Mission";
+import { Difficulty, MissionName } from "./Mission";
 
 const decks = JSON.parse(fs.readFileSync("./common/decks.json").toString());
 
@@ -23,8 +23,9 @@ export default interface Player {
 export class SocketPlayer implements Player {
   callbacks: ((action: PlayerAction | "concede") => void)[] = [];
   actions: HistoryAction[] = [];
+  name: string = this.names[this.player];
 
-  constructor(public socket: NoirServerSocket, public player: PlayerId, public name: string) {
+  constructor(public socket: NoirServerSocket, public player: PlayerId, public names: readonly [string, string]) {
     this.connect(socket);
   }
 
@@ -43,7 +44,7 @@ export class SocketPlayer implements Player {
       }
     });
 
-    this.socket.emit("init", this.player);
+    this.socket.emit("init", this.player, this.names);
     this.socket.emit("actions", this.actions, `player${this.player}/load`);
 
     return this;
@@ -52,7 +53,7 @@ export class SocketPlayer implements Player {
   init(): Promise<PlayerInit> {
     return new Promise((resolve, reject) => {
       this.socket.once("init", (deck) => resolve({ deck }));
-      this.socket.emit("init", this.player);
+      this.socket.emit("init", this.player, this.names);
     });
   }
 
@@ -120,8 +121,8 @@ export abstract class ComputerPlayer implements Player {
   abstract goals: Goal[];
 }
 
-export class UnitPlayer extends ComputerPlayer {
-  name = "unit";
+export class TestPlayer extends ComputerPlayer {
+  name = "Unit";
 
   deck = decks[random(["Green", "Blue", "Orange", "Purple"])] as Deck;
 
@@ -129,7 +130,7 @@ export class UnitPlayer extends ComputerPlayer {
 }
 
 export abstract class MissionPlayer extends ComputerPlayer {
-  constructor(public player: PlayerId, name: string, public difficulty: Difficulty) {
+  constructor(public player: PlayerId, name: MissionName, public difficulty: Difficulty) {
     super(player, `${name} level ${difficulty}`);
   }
 

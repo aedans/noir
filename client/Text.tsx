@@ -23,6 +23,12 @@ export default React.forwardRef(function Text(props: TextProps, ref: Ref<BitmapT
       {...props}
       ref={ref}
       style={style}
+      fontName={style.fontName}
+      fontSize={style.fontSize}
+      tint={style.tint}
+      align={style.align}
+      letterSpacing={style.letterSpacing}
+      maxWidth={style.maxWidth}
       x={Math.floor(props.x)}
       y={Math.floor((props.y ?? 0) - style.fontSize / 2)}
     />
