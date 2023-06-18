@@ -9,18 +9,21 @@ import { hasWon } from "../wins";
 function MissionButton(props: { mission: MissionName; difficulty: Difficulty; y: number }) {
   const [_, setLocation] = useLocation();
   const name = `${props.mission} level ${props.difficulty}`;
-  const canPlay = props.difficulty == 1 || hasWon(`${props.mission} level 1`);
+  const wonRandomCitizens = hasWon("Random Citizens level 1") || props.mission == "Random Citizens";
+  const wonBase = props.difficulty == 1 || hasWon(`${props.mission} level 1`);
 
   return (
     <Button
       text={props.mission}
       y={props.y}
-      style={{ tint: canPlay ? 0xffffff : 0x767676 }}
+      style={{ tint: wonRandomCitizens && wonBase ? 0xffffff : 0x767676 }}
       pointerdown={() => {
-        if (canPlay) {
-          setLocation(`/enqueue/${name}`);
-        } else {
+        if (!wonRandomCitizens) {
+          alert("Defeat Random Citizens to play other missions");
+        } else if (!wonBase) {
           alert(`Defeat ${props.mission} on Normal to unlock Heroic ${props.mission}`);
+        } else {
+          setLocation(`/enqueue/${name}`);
         }
       }}
     />
