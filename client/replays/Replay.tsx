@@ -15,7 +15,7 @@ export default function Replay(props: { params: { id: string } }) {
     (async () => {
       const res = await fetch(`${serverOrigin}/api/replays/${props.params.id}`);
       const replay = (await res.json()) as WithId<{ history: GameAction[] }>;
-      let history = replay.history;
+      let history = replay.history.filter(x => x.type as any != "game/protectCard");
 
       let index = 0;
       while (history.length > 0) {
