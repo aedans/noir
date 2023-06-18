@@ -104,7 +104,6 @@ export function isCardStateEqual(a: CardState, b: CardState) {
     a.hidden == b.hidden &&
     a.exhausted == b.exhausted &&
     a.name == b.name &&
-    a.protected == b.protected &&
     isEqual(a.props, b.props) &&
     isEqual(a.modifiers, b.modifiers)
   );
@@ -136,10 +135,6 @@ const CardImpl = React.forwardRef(function CardImpl(props: CardProps, ref: Ref<C
 
   let text = props.info.text;
   let keywords = collapseKeywords(props.info.keywords);
-
-  if (!props.state.protected) {
-    keywords = keywords.filter((x) => x[0] != "protected");
-  }
 
   if (keywords.length > 0) {
     text = `${keywords.map(getDisplayName).join(", ")}\n${text}`.trim();

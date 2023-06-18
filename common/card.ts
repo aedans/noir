@@ -18,7 +18,6 @@ export type CardState = {
   name: string;
   hidden: boolean;
   exhausted: boolean;
-  protected: boolean;
   props: { [name: string]: any };
   modifiers: ModifierState[];
 };

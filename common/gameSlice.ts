@@ -133,7 +133,6 @@ export function defaultCardState(name: string, id: string): CardState {
     name,
     hidden: true,
     exhausted: true,
-    protected: false,
     props: {},
     modifiers: [],
   };
@@ -211,12 +210,8 @@ export const gameReducers = {
     if (info) {
       const { player, zone, index } = info;
       const card = state.players[player][zone][index];
-      if (card.protected) {
-        card.protected = false;
-      } else {
-        state.players[player].grave.push(card);
-        state.players[player][zone].splice(index, 1);
-      }
+      state.players[player].grave.push(card);
+      state.players[player][zone].splice(index, 1);
     }
   },
   enterCard: (state: GameState, action: PayloadAction<TargetCardParams>) => {
@@ -259,10 +254,6 @@ export const gameReducers = {
     state.history.unshift(action as GameAction);
     updateCard(state, action.payload.target, (card) => (card.exhausted = true));
   },
-  protectCard: (state: GameState, action: PayloadAction<TargetCardParams>) => {
-    state.history.unshift(action as GameAction);
-    updateCard(state, action.payload.target, (card) => (card.protected = true));
-  },
   setProp: (state: GameState, action: PayloadAction<SetPropParams>) => {
     state.history.unshift(action as GameAction);
     updateCard(state, action.payload.target, (card) => (card.props[action.payload.name] = action.payload.value));
@@ -304,7 +295,6 @@ export const {
   revealCard,
   refreshCard,
   exhaustCard,
-  protectCard,
   setProp,
   addMoney,
   removeMoney,

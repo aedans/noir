@@ -28,7 +28,6 @@ import {
   GameState,
   getCard,
   PlayerId,
-  protectCard,
   removeCard,
   refreshCard,
   removeMoney,
@@ -481,6 +480,30 @@ function triggerReveal<T extends GameParams>(
   };
 }
 
+function* revealSource(
+  util: Util,
+  cache: CardInfoCache,
+  game: GameState,
+  source: Target | undefined,
+  payload: Omit<TargetCardParams, "source">
+) {
+  if (source) {
+    const sourcePlayer = findCard(game, source)?.player;
+    const targetPlayer = findCard(game, payload.target)?.player;
+
+    if (sourcePlayer != targetPlayer) {
+      const reveal: TargetCardParams = { source: source, target: source };
+      yield* util.revealCard(cache, game, source, { target: source });
+
+      const state = getCard(game, source);
+      if (state) {
+        const info = util.getCardInfo(cache, game, state);
+        yield* info.onReveal(reveal);
+      }
+    }
+  }
+}
+
 function* onEndTurn(this: Util, cache: CardInfoCache, game: GameState, payload: NoActionParams): CardGenerator {
   for (const card of this.filter(cache, game, { zones: ["board"], players: [currentPlayer(game)] })) {
     if (card.props.delayed != undefined) {
@@ -515,15 +538,7 @@ function* onAdd(info: CardInfo, payload: AddCardParams): CardGenerator {
   yield* info.onAdd(payload);
 
   if (info.keywords.some((k) => k[0] == "protected")) {
-    yield protectCard(payload);
-  }
-}
-
-function* onRemove(info: CardInfo, game: GameState, payload: TargetCardParams): CardGenerator {
-  const state = getCard(game, payload.target);
-
-  if (state && !state.protected) {
-    yield* info.onRemove(payload);
+    yield setProp({ target: payload.target, name: "protected", value: true });
   }
 }
 
@@ -565,102 +580,113 @@ function* onPlayCard(
 ): CardGenerator {
   yield playCard({ source, ...payload });
 
-  const state = getCard(game, payload.target);
-  if (state) {
-    const info = this.getCardInfo(cache, game, state);
-    yield* info.onPlay({ ...payload, source });
-
-    const totalDelay = info.keywords
-      .filter((k): k is ["delay", number] => k[0] == "delay")
-      .reduce((a, b) => a + b[1], 0);
-    if (totalDelay > 0) {
-      yield setProp({ target: payload.target, name: "delayed", value: totalDelay });
-    }
-
-    const minDepart = info.keywords
-      .filter((k): k is ["depart", number] => k[0] == "depart")
-      .reduce((a, b) => Math.min(a, b[1]), 1000);
-
-    if (minDepart < 1000) {
-      yield setProp({ target: payload.target, name: "departing", value: minDepart });
-    }
-
-    if (info.keywords.some((k) => k[0] == "debt")) {
-      yield setProp({ target: payload.target, name: "collection", value: 2 });
-    }
-
-    const totalTribute = {
-      cards: info.keywords.filter(([name, type]) => name == "tribute" && type == "card").length,
-      agents: info.keywords.filter(([name, type]) => name == "tribute" && type == "agent").length,
-      operations: info.keywords.filter(([name, type]) => name == "tribute" && type == "operation").length,
-    };
-
-    const lowestCards = this.filter(cache, game, {
-      players: [util.self(game, state)],
-      zones: ["deck"],
-      types: ["operation"],
-      random: true,
-      ordering: ["money"],
-    });
-
-    const lowestAgents = this.filter(cache, game, {
-      players: [util.self(game, state)],
-      zones: ["deck"],
-      types: ["agent"],
-      random: true,
-      ordering: ["money"],
-    });
-
-    const lowestOperations = this.filter(cache, game, {
-      players: [util.self(game, state)],
-      zones: ["deck"],
-      types: ["operation"],
-      random: true,
-      ordering: ["money"],
-    });
-
-    if (lowestCards.length < totalTribute.cards) {
-      throw "Not enough cards to tribute";
-    }
-
-    if (lowestAgents.length < totalTribute.agents) {
-      throw "Not enough agents to tribute";
-    }
-
-    if (lowestOperations.length < totalTribute.operations) {
-      throw "Not enough operations to tribute";
-    }
-
-    for (const target of [
-      ...lowestCards.slice(0, totalTribute.cards),
-      ...lowestAgents.slice(0, totalTribute.agents),
-      ...lowestOperations.slice(0, totalTribute.operations),
-    ]) {
-      yield* this.removeCard(cache, game, state, { target });
-    }
-
-    if (payload.type == "operation") {
-      yield* info.onRemove(payload);
-    } else {
-      yield* info.onEnter(payload);
-    }
+  const card = getCard(game, payload.target);
+  if (!card) {
+    return;
   }
 
-  if (source) {
-    const sourcePlayer = findCard(game, source)?.player;
-    const targetPlayer = findCard(game, payload.target)?.player;
+  const info = this.getCardInfo(cache, game, card);
+  yield* info.onPlay({ ...payload, source });
 
-    if (sourcePlayer != targetPlayer) {
-      const reveal: TargetCardParams = { source: source, target: source };
-      yield* this.revealCard(cache, game, source, { target: source });
-
-      const state = getCard(game, source);
-      if (state) {
-        const info = this.getCardInfo(cache, game, state);
-        yield* info.onReveal(reveal);
-      }
-    }
+  const totalDelay = info.keywords.filter((k): k is ["delay", number] => k[0] == "delay").reduce((a, b) => a + b[1], 0);
+  if (totalDelay > 0) {
+    yield setProp({ target: payload.target, name: "delayed", value: totalDelay });
   }
+
+  const minDepart = info.keywords
+    .filter((k): k is ["depart", number] => k[0] == "depart")
+    .reduce((a, b) => Math.min(a, b[1]), 1000);
+
+  if (minDepart < 1000) {
+    yield setProp({ target: payload.target, name: "departing", value: minDepart });
+  }
+
+  if (info.keywords.some((k) => k[0] == "debt")) {
+    yield setProp({ target: payload.target, name: "collection", value: 2 });
+  }
+
+  const totalTribute = {
+    cards: info.keywords.filter(([name, type]) => name == "tribute" && type == "card").length,
+    agents: info.keywords.filter(([name, type]) => name == "tribute" && type == "agent").length,
+    operations: info.keywords.filter(([name, type]) => name == "tribute" && type == "operation").length,
+  };
+
+  const lowestCards = this.filter(cache, game, {
+    players: [util.self(game, card)],
+    zones: ["deck"],
+    types: ["operation"],
+    random: true,
+    ordering: ["money"],
+  });
+
+  const lowestAgents = this.filter(cache, game, {
+    players: [util.self(game, card)],
+    zones: ["deck"],
+    types: ["agent"],
+    random: true,
+    ordering: ["money"],
+  });
+
+  const lowestOperations = this.filter(cache, game, {
+    players: [util.self(game, card)],
+    zones: ["deck"],
+    types: ["operation"],
+    random: true,
+    ordering: ["money"],
+  });
+
+  if (lowestCards.length < totalTribute.cards) {
+    throw "Not enough cards to tribute";
+  }
+
+  if (lowestAgents.length < totalTribute.agents) {
+    throw "Not enough agents to tribute";
+  }
+
+  if (lowestOperations.length < totalTribute.operations) {
+    throw "Not enough operations to tribute";
+  }
+
+  for (const target of [
+    ...lowestCards.slice(0, totalTribute.cards),
+    ...lowestAgents.slice(0, totalTribute.agents),
+    ...lowestOperations.slice(0, totalTribute.operations),
+  ]) {
+    yield* this.removeCard(cache, game, card, { target });
+  }
+
+  if (payload.type == "operation") {
+    yield* info.onRemove(payload);
+  } else {
+    yield* info.onEnter(payload);
+  }
+
+  yield* revealSource(this, cache, game, source, payload);
+}
+
+function* onRemoveCard(
+  this: Util,
+  cache: CardInfoCache,
+  game: GameState,
+  source: Target | undefined,
+  payload: Omit<TargetCardParams, "source">
+) {
+  const card = getCard(game, payload.target);
+
+  if (!card) {
+    return;
+  }
+
+  const info = this.getCardInfo(cache, game, card);
+
+  if (!card.props.protected) {
+    yield removeCard({ source, ...payload });
+    yield* info.onRemove(payload);
+  } else {
+    yield* this.setProp(cache, game, source, { target: payload.target, name: "protected", value: false });
+  }
+
+  yield* revealSource(this, cache, game, source, payload);
 }
 
 const util = {
@@ -668,7 +694,7 @@ const util = {
   addCard: onTrigger(addCard, (info, game) => triggerReveal(info, game, (p) => onAdd(info, p)), true),
   playCard: onPlayCard,
   activateCard: onTrigger(activateCard, (info, game) => triggerReveal(info, game, (p) => onExhaust(info, game, p))),
-  removeCard: onTrigger(removeCard, (info, game) => triggerReveal(info, game, (p) => onRemove(info, game, p))),
+  removeCard: onRemoveCard,
   enterCard: onTrigger(enterCard, (info, game) => triggerReveal(info, game, info.onEnter)),
   bounceCard: onTrigger(bounceCard, (info, game) => triggerReveal(info, game, info.onBounce)),
   stealCard: onTrigger(stealCard, (info, game) => triggerReveal(info, game, info.onSteal)),
