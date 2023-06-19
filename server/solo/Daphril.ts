@@ -1,6 +1,6 @@
 import { Deck } from "../../common/decksSlice";
 import { PlayerId } from "../../common/gameSlice";
-import { activateCard, afterLosing, afterPlaying, afterTurn, afterWait, playCard, whenRevealLeft } from "../Goal";
+import { activateCard, afterPlaying, afterTurn, afterWait, eq, gt, playCard, seq, when, whenRevealLeft } from "../Goal";
 import { Difficulty } from "../Mission";
 import { MissionPlayer } from "../Player";
 
@@ -18,6 +18,7 @@ export default class Daphril extends MissionPlayer {
       "Local Merchant": 1,
       "Eager Employer": 1,
       Banker: 1,
+      Bodyguard: 1,
       // Interaction
       "Strike Down": 1,
       "Writ of Recall": 2,
@@ -26,8 +27,6 @@ export default class Daphril extends MissionPlayer {
       "Brief Investigation": 2,
       "Snoop Around": 5,
       "Rogue Reporter": 1,
-      // Protection
-      Bodyguard: 1,
     },
   };
 
@@ -51,6 +50,11 @@ export default class Daphril extends MissionPlayer {
     playCard("Eager Employer"),
     activateCard("Eager Employer"),
     playCard("Banker"),
+    seq(
+      playCard("Bodyguard"),
+      when(eq(0), "self", { zones: ["board"], types: ["agent"], disloyal: false }),
+      when(gt(0), "self", { vip: true, hidden: false })
+    ),
     // Interaction
     playCard("Writ of Recall", { zones: ["board"], minMoney: 5 }, true),
     playCard("Strike Down", { zones: ["board"], protected: false, minMoney: 5 }, true),
@@ -59,7 +63,5 @@ export default class Daphril extends MissionPlayer {
     whenRevealLeft(afterPlaying("Daphril the Dauntless", playCard("Rogue Reporter"))),
     whenRevealLeft(afterTurn(1, playCard("Brief Investigation"))),
     whenRevealLeft(afterTurn(1, afterWait("Snoop Around", 1, playCard("Snoop Around")))),
-    // Protection
-    afterLosing("Eager Employer", playCard("Bodyguard")),
   ];
 }

@@ -12,15 +12,15 @@ exports.card = (util, cache, game, card) => ({
     yield* util.setProp(cache, game, card, { target: card, name: "turns", value: (card.props.turns + 1) % 2 });
 
     if (card.props.turns == 0) {
+      const target = util.cid();
       yield* util.addCard(cache, game, card, {
-        target: util.cid(),
+        target,
         name: "Random Citizen",
         player: util.findCard(game, card).player,
         zone: "board",
-        state: {
-          modifiers: [{ card, name: "disloyalblue" }],
-        },
       });
+
+      yield* util.modifyCard(cache, game, card, { target, modifier: { card, name: "disloyalblue" } });
     }
   },
   modifiers: {

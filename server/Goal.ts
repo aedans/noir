@@ -20,7 +20,7 @@ export function runGoals(
 ): PlayerAction | null {
   for (const goal of goals) {
     const action = goal(game, player, state);
-    if (action != null && invalid.every(a => !isEqual(a, action))) {
+    if (action != null && invalid.every((a) => !isEqual(a, action))) {
       return action;
     }
   }
@@ -150,4 +150,8 @@ export function lt(number: number) {
 
 export function gt(number: number) {
   return (cards: CardState[]) => cards.length > number;
+}
+
+export function eq(number: number) {
+  return (cards: CardState[]) => cards.length == number;
 }

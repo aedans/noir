@@ -15,6 +15,8 @@ export const queues: { [T in QueueName]: Queue } = {
   "Daphril the Dauntless level 2": new Solo("Daphril the Dauntless", 2),
   "Strength in Numbers level 1": new Solo("Strength in Numbers", 1),
   "Strength in Numbers level 2": new Solo("Strength in Numbers", 2),
+  "Underhanded Dealings level 1": new Solo("Underhanded Dealings", 1),
+  "Underhanded Dealings level 2": new Solo("Underhanded Dealings", 2),
 };
 
 export default interface Queue {

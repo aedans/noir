@@ -69,7 +69,6 @@ export type UndoneActionParams = {
 export type AddCardParams = PlayerZone &
   TargetCardParams & {
     name: string;
-    state?: Partial<CardState>;
   };
 
 export type PlayCardParams = TargetCardParams & {
@@ -158,6 +157,13 @@ export function isPlayerAction(action: PayloadAction<{}>) {
   return action.type == "game/endTurn" || action.type == "game/playCard" || action.type == "game/activateCard";
 }
 
+function clearBoard(state: GameState, player: PlayerId) {
+  while (state.players[player].board.length > 8) {
+    state.players[player].grave.push(state.players[player].board[0]);
+    state.players[player].board = state.players[player].board.slice(1);
+  }
+}
+
 export const gameReducers = {
   noop: (state: GameState, action: PayloadAction<{}>) => {},
   hidden: (state: GameState, action: PayloadAction<TargetCardParams>) => {
@@ -172,13 +178,9 @@ export const gameReducers = {
   },
   addCard: (state: GameState, action: PayloadAction<AddCardParams>) => {
     state.history.unshift(action as GameAction);
-    let cardState = defaultCardState(action.payload.name, action.payload.target.id);
-
-    if (action.payload.state && isDraft(action.payload.state)) {
-      Object.assign(cardState, current(action.payload.state));
-    }
-
-    state.players[action.payload.player][action.payload.zone].push(cardState);
+    state.players[action.payload.player][action.payload.zone].push(
+      defaultCardState(action.payload.name, action.payload.target.id)
+    );
   },
   playCard: (state: GameState, action: PayloadAction<PlayCardParams>) => {
     state.history.unshift(action as GameAction);
@@ -191,11 +193,7 @@ export const gameReducers = {
         state.players[player].grave.push(card);
       } else {
         state.players[player].board.push(card);
-
-        while (state.players[player].board.length > 8) {
-          state.players[player].grave.push(state.players[player].board[0]);
-          state.players[player].board = state.players[player].board.slice(1);
-        }
+        clearBoard(state, player);
       }
       state.players[player][zone].splice(index, 1);
     }
@@ -221,6 +219,7 @@ export const gameReducers = {
       const { player, zone, index } = info;
       state.players[player].board.push(state.players[player][zone][index]);
       state.players[player][zone].splice(index, 1);
+      clearBoard(state, player);
     }
   },
   bounceCard: (state: GameState, action: PayloadAction<TargetCardParams>) => {
@@ -240,6 +239,7 @@ export const gameReducers = {
       const { player, zone, index } = info;
       state.players[opponentOf(player)][action.payload.zone].push(state.players[player][zone][index]);
       state.players[player][zone].splice(index, 1);
+      clearBoard(state, player);
     }
   },
   revealCard: (state: GameState, action: PayloadAction<TargetCardParams>) => {
