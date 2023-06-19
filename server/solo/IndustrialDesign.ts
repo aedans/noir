@@ -32,6 +32,10 @@ export default class IndustrialDesign extends MissionPlayer {
   deck2: Deck = {
     cards: {
       ...this.deck1.cards,
+      "Careful Speculation": 3,
+      "Trade Secrets": 4,
+      "Writ of Recall": 3,
+      "Harassment Campaign": 3,
     },
   };
 
