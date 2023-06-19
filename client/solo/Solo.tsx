@@ -34,7 +34,7 @@ export default function Solo() {
   const [difficulty, setDifficulty] = useState(1 as Difficulty);
 
   return (
-    <Container x={targetResolution.width / 2} y={targetResolution.height / 2 - 300}>
+    <Container x={targetResolution.width / 2} y={targetResolution.height / 2 - 500}>
       <Button
         text={"Difficulty: " + (difficulty == 1 ? "Normal" : "Heroic")}
         pointerdown={() => {
@@ -43,8 +43,9 @@ export default function Solo() {
       />
       <MissionButton mission="Random Citizens" difficulty={difficulty} y={400} />
       <MissionButton mission="Daphril the Dauntless" difficulty={difficulty} y={600} />
-      <MissionButton mission="Strength in Numbers" difficulty={difficulty} y={800} />
-      <MissionButton mission="Underhanded Dealings" difficulty={difficulty} y={1000} />
+      <MissionButton mission="Industrial Design" difficulty={difficulty} y={800} />
+      <MissionButton mission="Strength in Numbers" difficulty={difficulty} y={1000} />
+      <MissionButton mission="Underhanded Dealings" difficulty={difficulty} y={1200} />
     </Container>
   );
 }

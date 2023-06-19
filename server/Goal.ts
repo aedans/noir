@@ -130,6 +130,16 @@ export const afterWait =
     return !state.lastPlay[name] || game.turn / 2 > state.lastPlay[name] + turns ? goal(game, player, state) : null;
   };
 
+export const whenMoney =
+  (cmp: "lt" | "gt", number: number, goal: Goal): Goal =>
+  (game: GameState, player: PlayerId, state: GoalState) => {
+    const compares = {
+      lt: (a: number, b: number) => a < b,
+      gt: (a: number, b: number) => a > b,
+    } as const;
+    return compares[cmp](game.players[player].money, number) ? goal(game, player, state) : null;
+  };
+
 export const when =
   (test: (cards: CardState[]) => boolean, who: "self" | "opponent" | "all", filter: Filter) =>
   (goal: Goal): Goal =>
