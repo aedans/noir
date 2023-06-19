@@ -161,10 +161,10 @@ export function isPlayerAction(action: PayloadAction<{}>) {
 }
 
 function clearBoard(state: GameState, player: PlayerId) {
-  while (state.players[player].board.length > 8) {
-    state.players[player].grave.push(state.players[player].board[0]);
-    state.players[player].board = state.players[player].board.slice(1);
-  }
+  // while (state.players[player].board.length > 8) {
+  //   state.players[player].grave.push(state.players[player].board[0]);
+  //   state.players[player].board = state.players[player].board.slice(1);
+  // }
 }
 
 export const gameReducers = {

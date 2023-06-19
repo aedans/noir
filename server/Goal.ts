@@ -126,7 +126,9 @@ export const afterTurn =
 export const afterWait =
   (name: string, turns: number, goal: Goal): Goal =>
   (cache: CardInfoCache, game: GameState, player: PlayerId, state: GoalState) => {
-    return !state.lastPlay[name] || game.turn / 2 > state.lastPlay[name] + turns ? goal(cache, game, player, state) : null;
+    return !state.lastPlay[name] || game.turn / 2 > state.lastPlay[name] + turns
+      ? goal(cache, game, player, state)
+      : null;
   };
 
 export const whenMoney =
@@ -151,6 +153,11 @@ export const when =
 export const seq = (goal: Goal, ...goals: ((goal: Goal) => Goal)[]): Goal => goals.reduce((goal, t) => t(goal), goal);
 
 export const whenRevealLeft = when(lt(20), "opponent", { hidden: false });
+
+export const whenNotInPlay = (name: string, goal: Goal) =>
+  when(lt(0), "self", { names: [name], zones: ["board"] })(goal);
+
+export const coloredAgents: Filter = { zones: ["board"], types: ["agent"], colors: ["purple"], activatable: false };
 
 export function lt(number: number) {
   return (cards: CardState[]) => cards.length < number;

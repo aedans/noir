@@ -1,6 +1,19 @@
 import { Deck } from "../../common/decksSlice";
 import { PlayerId } from "../../common/gameSlice";
-import { Goal, activateCard, afterTurn, afterWait, eq, gt, playCard, seq, when, whenMoney, whenRevealLeft } from "../Goal";
+import {
+  Goal,
+  activateCard,
+  afterTurn,
+  afterWait,
+  coloredAgents,
+  eq,
+  gt,
+  playCard,
+  seq,
+  when,
+  whenMoney,
+  whenRevealLeft,
+} from "../Goal";
 import { Difficulty } from "../Mission";
 import { MissionPlayer } from "../Player";
 
@@ -19,7 +32,7 @@ export default class IndustrialDesign extends MissionPlayer {
       "Careful Speculation": 2,
       "Eager Salesman": 2,
       "Company Salesman": 1,
-      "Bodyguard": 1,
+      Bodyguard: 1,
       // Interaction
       "Harassment Campaign": 2,
       "Writ of Recall": 2,
@@ -42,17 +55,16 @@ export default class IndustrialDesign extends MissionPlayer {
   goals: Goal[] = [
     // Win
     playCard("Charismatic Industrialist"),
-    activateCard("Charistmatic Industrialist"),
+    activateCard("Charismatic Industrialist", { zones: ["board"] }, true),
+    activateCard("Charismatic Industrialist", { zones: ["board"], vip: false }, true),
+    activateCard("Charismatic Industrialist", {}, true),
     // Value
     playCard("Stake Capital"),
     playCard("Bold Investor"),
     activateCard("Bold Investor"),
     afterTurn(5, playCard("Careful Speculation")),
     playCard("Eager Salesman"),
-    seq(
-      playCard("Company Salesman"),
-      when(eq(0), "self", { zones: ["board"], types: ["agent"], colors: ["green"], activatable: false })
-    ),
+    seq(playCard("Company Salesman"), when(eq(0), "self", coloredAgents)),
     seq(
       playCard("Bodyguard"),
       when(eq(0), "self", { zones: ["board"], types: ["agent"], disloyal: false }),

@@ -135,14 +135,18 @@ export function runPartialCardInfoComputation(
   };
 
   const hasActivate = partial.hasActivate ?? partial.activate != undefined;
-  let activationPriority = partial.activationPriority ?? 0;
+  let activationPriority = partial.activationPriority ?? 40;
 
   if (partial.colors && partial.colors.length > 0) {
-    activationPriority -= partial.colors.length * 100;
+    activationPriority -= partial.colors.length * 10;
+  }
+
+  if (partial.keywords && partial.keywords.some((k) => k != null && k[0] == "depart")) {
+    activationPriority = -1;
   }
 
   if (hasActivate) {
-    activationPriority -= 1000;
+    activationPriority -= 100000;
   }
 
   const hasEffect = partial.hasEffect ?? partial.effect != undefined;

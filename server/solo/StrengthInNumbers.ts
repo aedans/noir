@@ -43,7 +43,9 @@ export default class StrengthInNumbers extends MissionPlayer {
     // Win
     seq(playCard("Raving Pugilist"), when(gt(5), "opponent", { hidden: false, types: ["agent"] })),
     playCard("Arms Dealer"),
-    activateCard("Arms Dealer"),
+    activateCard("Arms Dealer", { zones: ["board"], protected: false }, true),
+    activateCard("Arms Dealer", { zones: ["board"], vip: false }, true),
+    activateCard("Arms Dealer", {}, true),
     seq(
       playCard("Take Arms"),
       when(gt(1), "self", { zones: ["board"], types: ["agent"], colors: ["orange"], exhausted: false }),

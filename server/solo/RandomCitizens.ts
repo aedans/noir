@@ -36,7 +36,9 @@ export default class RandomCitizens extends MissionPlayer {
   goals: Goal[] = [
     // Win
     playCard("Arms Dealer"),
-    activateCard("Arms Dealer", { ordering: ["money"] }, true),
+    activateCard("Arms Dealer", { zones: ["board"], protected: false }, true),
+    activateCard("Arms Dealer", { zones: ["board"], vip: false }, true),
+    activateCard("Arms Dealer", {}, true),
     // Value
     playCard("Local Socialite"),
     playCard("Random Citizen"),

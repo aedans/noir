@@ -21,6 +21,7 @@ exports.card = (util, cache, game, card) => ({
     Tribute: util.keywordModifier(["tribute", "agent"]),
     Smoking: (info, modifier, modifiedCard) => ({
       text: `${info.text} whenever this is exhausted, two random cards in your deck gain Tribute: Agent`,
+      activationPriority: info.activationPriority - 8000,
       onExhaust: function* () {
         const cards = util.filter(cache, game, {
           players: [util.self(game, modifiedCard)],

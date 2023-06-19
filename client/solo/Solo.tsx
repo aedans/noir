@@ -21,14 +21,12 @@ function MissionButton(props: MissionButtonProps) {
   const name = `${props.mission} level ${props.difficulty}`;
   const wonRandomCitizens = hasWon("Random Citizens level 1") || props.mission == "Random Citizens";
   const wonBase = props.difficulty == 1 || hasWon(`${props.mission} level 1`);
-  const glow = new GlowFilter({ color: hex[props.color], outerStrength: 2, quality: 1 });
 
   return (
     <Button
       text={props.mission}
       y={props.y}
       style={{ tint: wonRandomCitizens && wonBase ? 0xffffff : 0x767676 }}
-      filters={wonRandomCitizens && wonBase ? [glow] : []}
       pointerdown={() => {
         if (!wonRandomCitizens) {
           alert("Defeat Random Citizens to play other missions");
