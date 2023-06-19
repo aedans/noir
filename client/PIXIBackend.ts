@@ -61,7 +61,7 @@ const PIXIBackend: (app: Application) => BackendFactory = (app: Application) => 
       }
     }
 
-    function mouseUpListener(e: MouseEvent) {
+    function mouseUpListener() {
       if (currentObject == reticle && manager.getMonitor().isDragging()) {
         currentObject = null;
         manager.getActions().drop();
@@ -106,6 +106,7 @@ const PIXIBackend: (app: Application) => BackendFactory = (app: Application) => 
       window.removeEventListener("mousemove", mouseMoveListener);
       window.removeEventListener("mouseup", mouseUpListener);
       Ticker.shared.remove(onTick);
+      mouseUpListener();
     };
   }
 
