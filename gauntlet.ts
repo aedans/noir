@@ -1,7 +1,10 @@
+import { setAutoFreeze } from "immer";
 import { PlayerId, Winner } from "./common/gameSlice";
 import { MissionName, missions } from "./server/Mission";
 import Player from "./server/Player";
 import { createGame } from "./server/game";
+
+setAutoFreeze(false);
 
 const ais: ((player: PlayerId) => Player)[] = Object.keys(missions).map((name) => (player) => {
   const result = missions[name as MissionName](player, name == "Random Citizens" ? 2 : 1);
@@ -20,7 +23,7 @@ async function results() {
 
   for (const ai1 of ais) {
     for (const ai2 of ais) {
-      for (let i = 0; i < 3; i++) {
+      for (let i = 0; i < 1; i++) {
         const players: [Player, Player] = [ai1(0), ai2(1)];
 
         if (players[0].name == players[1].name) {
