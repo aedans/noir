@@ -18,19 +18,10 @@ import anime from "animejs";
 import { GlowFilter } from "@pixi/filter-glow";
 import { isEqual } from "lodash";
 import { App } from "./Noir";
-import { blueColor, colorlessColor, getColor, getRGB, greenColor, orangeColor, purpleColor } from "./color";
+import { colorlessColor, getColor, getRGB, hex } from "./color";
 
 export const cardHeight = targetResolution.height / 4;
 export const cardWidth = cardHeight * (1 / 1.4);
-
-export const hex = {
-  orange: orangeColor,
-  blue: blueColor,
-  green: greenColor,
-  purple: purpleColor,
-  multicolor: colorlessColor,
-  colorless: colorlessColor,
-};
 
 export function combineColors(colors: CardColors[]) {
   return colors.reduce((a, b) => {

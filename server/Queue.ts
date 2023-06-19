@@ -13,6 +13,8 @@ export const queues: { [T in QueueName]: Queue } = {
   "Random Citizens level 2": new Solo("Random Citizens", 2),
   "Daphril the Dauntless level 1": new Solo("Daphril the Dauntless", 1),
   "Daphril the Dauntless level 2": new Solo("Daphril the Dauntless", 2),
+  "Civic Proceedings level 1": new Solo("Civic Proceedings", 1),
+  "Civic Proceedings level 2": new Solo("Civic Proceedings", 2),
   "Industrial Design level 1": new Solo("Industrial Design", 1),
   "Industrial Design level 2": new Solo("Industrial Design", 2),
   "Strength in Numbers level 1": new Solo("Strength in Numbers", 1),

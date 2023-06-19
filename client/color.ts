@@ -1,3 +1,5 @@
+import { CardColors } from "../common/card";
+
 export const colorlessColor = 0x767676;
 export const orangeColor = 0xeb6300;
 export const blueColor = 0x0087eb;
@@ -8,6 +10,15 @@ export const dayColor = 0xfff2bd;
 export const afternoonColor = 0xe68eb3;
 export const nightColor = 0x9681cc;
 export const morningColor = 0xe68f73;
+
+export const hex: { [color in CardColors]: number } = {
+  orange: orangeColor,
+  blue: blueColor,
+  green: greenColor,
+  purple: purpleColor,
+  multicolor: colorlessColor,
+  colorless: colorlessColor,
+};
 
 export type RGB = {
   r: number;

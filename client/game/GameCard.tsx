@@ -2,12 +2,13 @@ import React, { MutableRefObject, Ref, useContext, useEffect, useImperativeHandl
 import { useDrop } from "react-dnd";
 import { Container, InteractiveComponent } from "react-pixi-fiber";
 import { CardColors, CardState } from "../../common/card";
-import Card, { CardProps, combineColors, hex, isCardPropsEqual } from "../Card";
+import Card, { CardProps, combineColors, isCardPropsEqual } from "../Card";
 import MoveAnimation, { useLastPos } from "../MoveAnimation";
 import { ConnectionContext, HighlightContext, PreparedContext } from "./Game";
 import { getCard } from "../../common/gameSlice";
 import { useClientSelector } from "../store";
 import { defaultUtil } from "../cards";
+import { hex } from "../color";
 
 export type GameCardProps = CardProps &
   InteractiveComponent & {
