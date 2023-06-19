@@ -12,6 +12,8 @@ export default function Replay(props: { params: { id: string } }) {
   const dispatch = useClientDispatch();
 
   useEffect(() => {
+    let stop = false;
+    
     (async () => {
       const res = await fetch(`${serverOrigin}/api/replays/${props.params.id}`);
       const replay = (await res.json()) as WithId<{ history: GameAction[] }>;
@@ -28,6 +30,10 @@ export default function Replay(props: { params: { id: string } }) {
           await loadCardsFromAction(action);
         }
 
+        if (stop) {
+          return;
+        }
+
         dispatch(batchActions(actions.map((action) => liftAction(index++, action))));
         await new Promise((resolve) => setTimeout(resolve, 1000));
       }
@@ -36,6 +42,7 @@ export default function Replay(props: { params: { id: string } }) {
     })();
 
     return () => {
+      stop = true;
       dispatch(reset());
     };
   }, []);
