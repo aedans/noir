@@ -2,14 +2,14 @@ import { isEqual } from "lodash";
 import { CardState } from "../common/card";
 import { GameState, PlayerId, opponentOf } from "../common/gameSlice";
 import { PlayerAction } from "../common/network";
-import { Filter } from "../common/util";
+import { CardInfoCache, Filter } from "../common/util";
 import { defaultUtil } from "./card";
 
 export type GoalState = {
   lastPlay: { [name: string]: number };
 };
 
-export type Goal = (game: GameState, player: PlayerId, state: GoalState) => PlayerAction | null;
+export type Goal = (cache: CardInfoCache, game: GameState, player: PlayerId, state: GoalState) => PlayerAction | null;
 
 export function runGoals(
   game: GameState,
@@ -18,8 +18,9 @@ export function runGoals(
   state: GoalState,
   invalid: PlayerAction[]
 ): PlayerAction | null {
+  const cache = new Map();
   for (const goal of goals) {
-    const action = goal(game, player, state);
+    const action = goal(cache, game, player, state);
     if (action != null && invalid.every((a) => !isEqual(a, action))) {
       return action;
     }
@@ -30,8 +31,7 @@ export function runGoals(
 
 export const playCard =
   (name: string, targetFilter: Filter = { ordering: ["money"] }, negative: boolean = false): Goal =>
-  (game: GameState, player: PlayerId, state: GoalState) => {
-    const cache = new Map();
+  (cache: CardInfoCache, game: GameState, player: PlayerId, state: GoalState) => {
     const cards = defaultUtil.filter(cache, game, {
       names: [name],
       players: [player],
@@ -70,8 +70,7 @@ export const playCard =
 
 export const activateCard =
   (name: string, targetFilter: Filter = { ordering: ["money"] }, negative: boolean = false): Goal =>
-  (game: GameState, player: PlayerId) => {
-    const cache = new Map();
+  (cache: CardInfoCache, game: GameState, player: PlayerId) => {
     const cards = defaultUtil.filter(cache, game, {
       names: [name],
       players: [player],
@@ -108,46 +107,45 @@ export const activateCard =
 
 export const afterPlaying =
   (name: string, goal: Goal): Goal =>
-  (game: GameState, player: PlayerId, state: GoalState) => {
-    return game.players[player].deck.some((x) => x.name == name) ? null : goal(game, player, state);
+  (cache: CardInfoCache, game: GameState, player: PlayerId, state: GoalState) => {
+    return game.players[player].deck.some((x) => x.name == name) ? null : goal(cache, game, player, state);
   };
 
 export const afterLosing =
   (name: string, goal: Goal): Goal =>
-  (game: GameState, player: PlayerId, state: GoalState) => {
-    return game.players[player].grave.some((x) => x.name == name) ? goal(game, player, state) : null;
+  (cache: CardInfoCache, game: GameState, player: PlayerId, state: GoalState) => {
+    return game.players[player].grave.some((x) => x.name == name) ? goal(cache, game, player, state) : null;
   };
 
 export const afterTurn =
   (turn: number, goal: Goal): Goal =>
-  (game: GameState, player: PlayerId, state: GoalState) => {
-    return game.turn / 2 < turn ? null : goal(game, player, state);
+  (cache: CardInfoCache, game: GameState, player: PlayerId, state: GoalState) => {
+    return game.turn / 2 < turn ? null : goal(cache, game, player, state);
   };
 
 export const afterWait =
   (name: string, turns: number, goal: Goal): Goal =>
-  (game: GameState, player: PlayerId, state: GoalState) => {
-    return !state.lastPlay[name] || game.turn / 2 > state.lastPlay[name] + turns ? goal(game, player, state) : null;
+  (cache: CardInfoCache, game: GameState, player: PlayerId, state: GoalState) => {
+    return !state.lastPlay[name] || game.turn / 2 > state.lastPlay[name] + turns ? goal(cache, game, player, state) : null;
   };
 
 export const whenMoney =
   (cmp: "lt" | "gt", number: number, goal: Goal): Goal =>
-  (game: GameState, player: PlayerId, state: GoalState) => {
+  (cache: CardInfoCache, game: GameState, player: PlayerId, state: GoalState) => {
     const compares = {
       lt: (a: number, b: number) => a < b,
       gt: (a: number, b: number) => a > b,
     } as const;
-    return compares[cmp](game.players[player].money, number) ? goal(game, player, state) : null;
+    return compares[cmp](game.players[player].money, number) ? goal(cache, game, player, state) : null;
   };
 
 export const when =
   (test: (cards: CardState[]) => boolean, who: "self" | "opponent" | "all", filter: Filter) =>
   (goal: Goal): Goal =>
-  (game: GameState, player: PlayerId, state: GoalState) => {
-    const cache = new Map();
+  (cache: CardInfoCache, game: GameState, player: PlayerId, state: GoalState) => {
     const ref = who == "opponent" ? opponentOf(player) : player;
     const players = who == "all" ? undefined : [ref];
-    return test(defaultUtil.filter(cache, game, { players, ...filter })) ? goal(game, player, state) : null;
+    return test(defaultUtil.filter(cache, game, { players, ...filter })) ? goal(cache, game, player, state) : null;
   };
 
 export const seq = (goal: Goal, ...goals: ((goal: Goal) => Goal)[]): Goal => goals.reduce((goal, t) => t(goal), goal);

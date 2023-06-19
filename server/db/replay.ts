@@ -1,10 +1,10 @@
 import moize from "moize";
 import { MongoClient, ObjectId } from "mongodb";
-import { GameAction, PlayerId } from "../../common/gameSlice";
+import { GameAction, Winner } from "../../common/gameSlice";
 import { PlayerInit } from "../../common/network";
 
 export type Replay = {
-  winner: PlayerId;
+  winner: Winner;
   queue: string;
   names: [string, string];
   inits: [PlayerInit, PlayerInit];

@@ -45,7 +45,7 @@ export type CardCost = {
   agents: number;
 };
 
-export type CardGenerator = Generator<GameAction | HistoryAction, void, GameState>;
+export type CardGenerator = Generator<GameAction | HistoryAction, void, any>;
 export type CardAction = () => CardGenerator;
 export type CardTargetAction = (target: Target) => CardGenerator;
 export type CardModifier = (card: CardInfo, modifier: ModifierState, state: CardState) => Partial<CardInfo>;

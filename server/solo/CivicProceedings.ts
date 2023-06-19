@@ -40,6 +40,8 @@ export default class CivicProceedings extends MissionPlayer {
   goals: Goal[] = [
     // Win
     playCard("Prolific Jailer"),
+    activateCard("Prolific Jailer", { zones: ["board"], protected: false }, true),
+    activateCard("Prolific Jailer", { zones: ["board"], vip: false }, true),
     activateCard("Prolific Jailer", {}, true),
     // Value
     playCard("Aspiring Lawman"),

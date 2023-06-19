@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { batchActions } from "redux-batched-actions";
 import { io } from "socket.io-client";
 import { useLocation } from "wouter";
 import { PlayerId, opponentOf } from "../../common/gameSlice";
-import { reset } from "../../common/historySlice";
+import { batch, reset } from "../../common/historySlice";
 import { NoirClientSocket } from "../../common/network";
 import { QueueName } from "../../server/Queue";
 import Button from "../Button";
@@ -31,7 +30,7 @@ export default function Queue(props: { params: { queue: string; deck: string } }
           await loadCardsFromAction(action);
         }
 
-        dispatch(batchActions(actions, name));
+        dispatch(batch({ actions }));
       })();
     });
 

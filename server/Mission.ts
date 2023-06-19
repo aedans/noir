@@ -1,5 +1,5 @@
 import { PlayerId } from "../common/gameSlice";
-import Player from "./Player";
+import Player, { MissionPlayer } from "./Player";
 import CivicProceedings from "./solo/CivicProceedings";
 import Daphril from "./solo/Daphril";
 import IndustrialDesign from "./solo/IndustrialDesign";
@@ -17,7 +17,7 @@ export type MissionName =
 
 export type Difficulty = 1 | 2;
 
-export const missions: { [T in MissionName]: (playerId: PlayerId, difficulty: Difficulty) => Player } = {
+export const missions: { [T in MissionName]: (playerId: PlayerId, difficulty: Difficulty) => MissionPlayer } = {
   "Random Citizens": (player, difficulty) => new RandomCitizens(player, difficulty),
   "Daphril the Dauntless": (player, difficulty) => new Daphril(player, difficulty),
   "Civic Proceedings": (player, difficulty) => new CivicProceedings(player, difficulty),

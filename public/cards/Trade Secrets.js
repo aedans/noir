@@ -14,7 +14,7 @@ exports.card = (util, cache, game, card) => ({
     });
 
     if (cards.length == 0) {
-      throw "no cards in your deck";
+      throw "No cards in your deck";
     }
 
     yield* util.revealRandom(cache, game, card, 3);

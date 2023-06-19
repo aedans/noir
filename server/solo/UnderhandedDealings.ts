@@ -44,6 +44,8 @@ export default class UnderhandedDealings extends MissionPlayer {
     // Win
     playCard("Ruthless Cutthroat"),
     activateCard("Ruthless Cutthroat", { zones: ["board"], protected: false }, true),
+    activateCard("Ruthless Cutthroat", { zones: ["board"], vip: false }, true),
+    activateCard("Ruthless Cutthroat", {}, true),
     playCard("Daphril the Dauntless"),
     activateCard("Daphril the Dauntless"),
     // Value

@@ -1,6 +1,6 @@
 import { Deck } from "../common/decksSlice";
-import { PlayerId, currentPlayer } from "../common/gameSlice";
-import { HistoryAction, historySlice } from "../common/historySlice";
+import { PlayerId, Winner, currentPlayer } from "../common/gameSlice";
+import { HistoryAction, batch, historySlice } from "../common/historySlice";
 import fs from "fs";
 import { random } from "../common/util";
 import { PlayerInit, PlayerAction, NoirServerSocket } from "../common/network";
@@ -16,7 +16,7 @@ export default interface Player {
   init(): Promise<PlayerInit>;
   send(actions: HistoryAction[], name: string): void;
   error(message: string): void;
-  end(winner: number): void;
+  end(winner: Winner): void;
   onAction(callback: (action: PlayerAction | "concede") => void): void;
 }
 
@@ -82,6 +82,7 @@ export abstract class ComputerPlayer implements Player {
   state: GoalState = { lastPlay: {} };
   invalid: PlayerAction[] = [];
   valid: PlayerAction[] = [];
+  timeout: boolean = true;
 
   constructor(public player: PlayerId, public name: string) {}
 
@@ -89,41 +90,42 @@ export abstract class ComputerPlayer implements Player {
     return Promise.resolve({ deck: this.deck });
   }
 
-  async send(history: HistoryAction[]): Promise<void> {
-    for (const action of history) {
-      this.history = historySlice.reducer(this.history, action);
-    }
+  send(actions: HistoryAction[]): void {
+    this.history = historySlice.reducer(this.history, batch({ actions }));
 
     this.invalid = [];
     this.valid = [];
 
-    await this.doAction();
+    this.doAction();
   }
 
-  async doAction() {
+  doAction() {
     const current = currentPlayer(this.history.current);
     if (current == this.player) {
-      let action = runGoals(this.history.current, this.player, this.goals, this.state, this.invalid);
-
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      if (action == null) {
-        action = { type: "end" };
-      }
+      let action = runGoals(this.history.current, this.player, this.goals, this.state, this.invalid) ?? { type: "end" };
 
       this.valid.push(action);
 
-      for (const callback of this.callbacks) {
-        callback(action);
+      if (this.timeout) {
+        setTimeout(() => {
+          for (const callback of this.callbacks) {
+            callback(action);
+          }
+        }, 1000);
+      } else {
+        for (const callback of this.callbacks) {
+          callback(action);
+        }
       }
     }
   }
 
   onAction(callback: (action: PlayerAction) => void): void {
     this.callbacks.push(callback);
+    this.doAction();
   }
 
-  error() {
+  error(e: string) {
     this.invalid.push(...this.valid);
     this.valid = [];
     this.doAction();

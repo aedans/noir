@@ -8,6 +8,7 @@ import {
   opponentOf,
   PlayerId,
   revealCard,
+  Winner,
 } from "../common/gameSlice";
 import { defaultUtil } from "./card";
 import { CardColor, CardCost, CardGenerator, CardState, Target } from "../common/card";
@@ -25,7 +26,7 @@ import { CardInfoCache, Filter } from "../common/util";
 import { PlayerAction, PlayerInit } from "../common/network";
 
 export type OnGameEnd = (
-  winner: PlayerId,
+  winner: Winner,
   players: [Player, Player],
   inits: [PlayerInit, PlayerInit],
   state: HistoryState
@@ -222,12 +223,14 @@ function hasLost(cache: CardInfoCache, game: GameState, player: PlayerId) {
   );
 }
 
-function hasWinner(game: GameState): PlayerId | null {
+function hasWinner(game: GameState): Winner | null {
   const cache = new Map();
   if (hasLost(cache, game, 0)) {
     return 1;
   } else if (hasLost(cache, game, 1)) {
     return 0;
+  } else if (game.turn >= 100) {
+    return "draw";
   } else {
     return null;
   }
@@ -296,14 +299,15 @@ export async function createGame(players: [Player, Player], onEnd: OnGameEnd) {
         }
       }
 
-      players[player].send(
-        [
-          ...gameActions.map(hide),
-          ...gameActions.flatMap(reveal),
-          ...historyActions.filter((action) => action.type == "history/setUndone"),
-        ],
-        name
-      );
+      const actions = [
+        ...gameActions.map(hide),
+        ...gameActions.flatMap(reveal),
+        ...historyActions.filter((action) => action.type == "history/setUndone"),
+      ];
+
+      actions.sort((a, b) => a.payload.index - b.payload.index);
+
+      players[player].send(actions, name);
     }
   }
 
@@ -316,7 +320,7 @@ export async function createGame(players: [Player, Player], onEnd: OnGameEnd) {
 
   let hasEnded = false;
 
-  function tryEndGame(winner: PlayerId) {
+  function tryEndGame(winner: Winner) {
     if (hasEnded) {
       return;
     }
@@ -329,6 +333,10 @@ export async function createGame(players: [Player, Player], onEnd: OnGameEnd) {
 
   for (const player of [0, 1] as const) {
     players[player].onAction((action) => {
+      if (hasEnded) {
+        return;
+      }
+
       if (action == "concede") {
         tryEndGame(opponentOf(player));
         return;

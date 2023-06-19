@@ -15,6 +15,10 @@ export function initialHistoryState(): HistoryState {
   };
 }
 
+export type BatchedActionParams = {
+  actions: HistoryAction[];
+};
+
 export type HistoryAction = PayloadAction<HistoryParams, `history/${keyof typeof historySlice.actions}`>;
 
 export type HistoryParams = SetActionParams | SetHiddenParams | SetUndoneParams;
@@ -65,12 +69,16 @@ export function liftAction(index: number, action: GameAction | HistoryAction): H
   }
 }
 
+const reducer = (state: GameState, action: GameAction) => {
+  if (action) {
+    const name = action.type.replace("game/", "") as keyof typeof gameReducers;
+    (gameReducers[name] as (state: GameState, action: GameAction) => void)(state, action);
+  }
+};
+
 function reduce(history: GameAction[], state: GameState) {
   for (const action of history) {
-    if (action) {
-      const name = action.type.replace("game/", "") as keyof typeof gameReducers;
-      (gameReducers[name] as (state: GameState, action: GameAction) => void)(state, action);
-    }
+    reducer(state, action);
   }
 
   return state;
@@ -81,16 +89,44 @@ export const historySlice = createSlice({
   initialState: initialHistoryState(),
   reducers: {
     reset: () => initialHistoryState(),
-    setAction: (state, action: PayloadAction<SetActionParams>) => {
-      state.history[action.payload.index] = action.payload.action;
+    batch: (state, batch: PayloadAction<BatchedActionParams>) => {
+      for (const action of batch.payload.actions) {
+        if (action.type == "history/setAction") {
+          state.history[action.payload.index] = (action.payload as SetActionParams).action;
+        } else if (action.type == "history/setHidden") {
+          const hidden: GameAction = {
+            type: "game/hidden",
+            payload: { target: (action.payload as SetHiddenParams).target },
+          };
+          state.history[action.payload.index] = hidden;
+        } else if (action.type == "history/setUndone") {
+          state.history[action.payload.index] = {
+            type: "game/undone",
+            payload: { action: state.history[action.payload.index] },
+          };
+        }
+      }
       state.current = reduce(state.history, initialGameState());
     },
+    setAction: (state, action: PayloadAction<SetActionParams>) => {
+      state.history[action.payload.index] = action.payload.action;
+      if (action.payload.index == state.history.length - 1) {
+        reducer(state.current, action.payload.action);
+      } else {
+        state.current = reduce(state.history, initialGameState());
+      }
+    },
     setHidden: (state, action: PayloadAction<SetHiddenParams>) => {
-      state.history[action.payload.index] = {
+      const hidden: GameAction = {
         type: "game/hidden",
         payload: { target: action.payload.target },
       };
-      state.current = reduce(state.history, initialGameState());
+      state.history[action.payload.index] = hidden;
+      if (action.payload.index == state.history.length - 1) {
+        reducer(state.current, hidden);
+      } else {
+        state.current = reduce(state.history, initialGameState());
+      }
     },
     setUndone: (state, action: PayloadAction<SetUndoneParams>) => {
       state.history[action.payload.index] = {
@@ -102,4 +138,4 @@ export const historySlice = createSlice({
   },
 });
 
-export const { reset, setAction, setHidden, setUndone } = historySlice.actions;
+export const { reset, batch, setAction, setHidden, setUndone } = historySlice.actions;
