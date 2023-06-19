@@ -45,7 +45,7 @@ app.get("/api/cards", (req, res) => {
 
 app.get("/api/replays", async (req, res) => {
   try {
-    res.json(await findReplayIds());
+    res.json(await findReplayIds(Number(req.query.skip ?? "0")));
   } catch (e) {
     console.error(e);
     res.status(500).json({ error: (e as Error).message });
