@@ -5,7 +5,6 @@ import { Difficulty, MissionName } from "../../server/Mission";
 import Button from "../Button";
 import { targetResolution } from "../Camera";
 import { hasWon } from "../wins";
-import { GlowFilter } from "@pixi/filter-glow";
 import { CardColors } from "../../common/card";
 import { hex } from "../color";
 
@@ -26,7 +25,7 @@ function MissionButton(props: MissionButtonProps) {
     <Button
       text={props.mission}
       y={props.y}
-      style={{ tint: wonRandomCitizens && wonBase ? 0xffffff : 0x767676 }}
+      style={{ tint: wonRandomCitizens && wonBase ? hex[props.color] : 0x383838 }}
       pointerdown={() => {
         if (!wonRandomCitizens) {
           alert("Defeat Random Citizens to play other missions");
