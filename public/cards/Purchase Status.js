@@ -17,6 +17,12 @@ exports.card = (util, cache, game, card) => ({
         name: "powerful",
       },
     });
+
+    yield* util.setProp(cache, game, card, {
+      target,
+      name: "protected",
+      value: true,
+    });
   },
   modifiers: {
     powerful: (info) => ({
