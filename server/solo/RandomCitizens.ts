@@ -1,11 +1,11 @@
 import { Deck } from "../../common/decksSlice";
 import { PlayerId } from "../../common/gameSlice";
-import { Goal, activateCard, afterTurn, afterWait, ifRevealLeft, playCard } from "../Goal";
+import { Goal, activateCard, afterTurn, afterWait, playCard, whenRevealLeft } from "../Goal";
 import { Difficulty } from "../Mission";
 import { MissionPlayer } from "../Player";
 
 export default class RandomCitizens extends MissionPlayer {
-  constructor(player: PlayerId, public difficulty: Difficulty) {
+  constructor(player: PlayerId, difficulty: Difficulty) {
     super(player, "Random Citizens", difficulty);
   }
 
@@ -46,9 +46,9 @@ export default class RandomCitizens extends MissionPlayer {
     playCard("Writ of Recall", { zones: ["board"], minMoney: 5 }, true),
     playCard("Gang Up", { zones: ["board"], protected: false }, true),
     // Reveal
-    ifRevealLeft(afterTurn(1, playCard("Brief Investigation"))),
-    ifRevealLeft(afterTurn(1, afterWait("Snoop Around", 1, playCard("Snoop Around")))),
-    ifRevealLeft(playCard("Information Dealer")),
-    ifRevealLeft(activateCard("Information Dealer")),
+    whenRevealLeft(afterTurn(1, playCard("Brief Investigation"))),
+    whenRevealLeft(afterTurn(1, afterWait("Snoop Around", 1, playCard("Snoop Around")))),
+    whenRevealLeft(playCard("Information Dealer")),
+    whenRevealLeft(activateCard("Information Dealer")),
   ];
 }

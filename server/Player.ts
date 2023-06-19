@@ -80,6 +80,8 @@ export abstract class ComputerPlayer implements Player {
   callbacks: ((action: PlayerAction) => void)[] = [];
   history: HistoryState = initialHistoryState();
   state: GoalState = { lastPlay: {} };
+  invalid: PlayerAction[] = [];
+  valid: PlayerAction[] = [];
 
   constructor(public player: PlayerId, public name: string) {}
 
@@ -92,15 +94,24 @@ export abstract class ComputerPlayer implements Player {
       this.history = historySlice.reducer(this.history, action);
     }
 
+    this.invalid = [];
+    this.valid = [];
+
+    await this.doAction();
+  }
+
+  async doAction() {
     const current = currentPlayer(this.history.current);
     if (current == this.player) {
-      let action = runGoals(this.history.current, this.player, this.goals, this.state);
+      let action = runGoals(this.history.current, this.player, this.goals, this.state, this.invalid);
 
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
       if (action == null) {
         action = { type: "end" };
       }
+
+      this.valid.push(action);
 
       for (const callback of this.callbacks) {
         callback(action);
@@ -112,7 +123,11 @@ export abstract class ComputerPlayer implements Player {
     this.callbacks.push(callback);
   }
 
-  error() {}
+  error() {
+    this.invalid.push(...this.valid);
+    this.valid = [];
+    this.doAction();
+  }
 
   end() {}
 

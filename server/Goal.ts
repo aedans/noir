@@ -1,3 +1,5 @@
+import { isEqual } from "lodash";
+import { CardState } from "../common/card";
 import { GameState, PlayerId, opponentOf } from "../common/gameSlice";
 import { PlayerAction } from "../common/network";
 import { Filter } from "../common/util";
@@ -9,10 +11,16 @@ export type GoalState = {
 
 export type Goal = (game: GameState, player: PlayerId, state: GoalState) => PlayerAction | null;
 
-export function runGoals(game: GameState, player: PlayerId, goals: Goal[], state: GoalState): PlayerAction | null {
+export function runGoals(
+  game: GameState,
+  player: PlayerId,
+  goals: Goal[],
+  state: GoalState,
+  invalid: PlayerAction[]
+): PlayerAction | null {
   for (const goal of goals) {
     const action = goal(game, player, state);
-    if (action != null) {
+    if (action != null && invalid.every(a => !isEqual(a, action))) {
       return action;
     }
   }
@@ -47,8 +55,8 @@ export const playCard =
     const targets = defaultUtil.filter(cache, game, {
       ordering: ["money"],
       reversed: true,
-      ...targetFilter,
       ...info.targets,
+      ...targetFilter,
       players: [negative ? opponentOf(player) : player],
     });
 
@@ -86,8 +94,8 @@ export const activateCard =
     const targets = defaultUtil.filter(cache, game, {
       ordering: ["money"],
       reversed: true,
-      ...targetFilter,
       ...info.activateTargets,
+      ...targetFilter,
       players: [negative ? opponentOf(player) : player],
     });
 
@@ -122,11 +130,24 @@ export const afterWait =
     return !state.lastPlay[name] || game.turn / 2 > state.lastPlay[name] + turns ? goal(game, player, state) : null;
   };
 
-export const ifRevealLeft =
+export const when =
+  (test: (cards: CardState[]) => boolean, who: "self" | "opponent" | "all", filter: Filter) =>
   (goal: Goal): Goal =>
   (game: GameState, player: PlayerId, state: GoalState) => {
     const cache = new Map();
-    return defaultUtil.filter(cache, game, { players: [opponentOf(player)], hidden: false }).length < 20
-      ? goal(game, player, state)
-      : null;
+    const ref = who == "opponent" ? opponentOf(player) : player;
+    const players = who == "all" ? undefined : [ref];
+    return test(defaultUtil.filter(cache, game, { players, ...filter })) ? goal(game, player, state) : null;
   };
+
+export const seq = (goal: Goal, ...goals: ((goal: Goal) => Goal)[]): Goal => goals.reduce((goal, t) => t(goal), goal);
+
+export const whenRevealLeft = when(lt(20), "opponent", { hidden: false });
+
+export function lt(number: number) {
+  return (cards: CardState[]) => cards.length < number;
+}
+
+export function gt(number: number) {
+  return (cards: CardState[]) => cards.length > number;
+}

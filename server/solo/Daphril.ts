@@ -1,11 +1,11 @@
 import { Deck } from "../../common/decksSlice";
 import { PlayerId } from "../../common/gameSlice";
-import { activateCard, afterLosing, afterPlaying, afterTurn, afterWait, ifRevealLeft, playCard } from "../Goal";
+import { activateCard, afterLosing, afterPlaying, afterTurn, afterWait, playCard, whenRevealLeft } from "../Goal";
 import { Difficulty } from "../Mission";
 import { MissionPlayer } from "../Player";
 
 export default class Daphril extends MissionPlayer {
-  constructor(player: PlayerId, public difficulty: Difficulty) {
+  constructor(player: PlayerId, difficulty: Difficulty) {
     super(player, "Daphril the Dauntless", difficulty);
   }
 
@@ -56,9 +56,9 @@ export default class Daphril extends MissionPlayer {
     playCard("Strike Down", { zones: ["board"], protected: false, minMoney: 5 }, true),
     playCard("Debt Collection", { zones: ["board"], colors: ["blue", "green", "orange", "purple"] }, true),
     // Reveal
-    ifRevealLeft(afterPlaying("Daphril the Dauntless", playCard("Rogue Reporter"))),
-    ifRevealLeft(afterTurn(1, playCard("Brief Investigation"))),
-    ifRevealLeft(afterTurn(1, afterWait("Snoop Around", 1, playCard("Snoop Around")))),
+    whenRevealLeft(afterPlaying("Daphril the Dauntless", playCard("Rogue Reporter"))),
+    whenRevealLeft(afterTurn(1, playCard("Brief Investigation"))),
+    whenRevealLeft(afterTurn(1, afterWait("Snoop Around", 1, playCard("Snoop Around")))),
     // Protection
     afterLosing("Eager Employer", playCard("Bodyguard")),
   ];

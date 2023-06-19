@@ -1,0 +1,67 @@
+import { Deck } from "../../common/decksSlice";
+import { PlayerId } from "../../common/gameSlice";
+import { Goal, activateCard, gt, playCard, seq, when, whenRevealLeft } from "../Goal";
+import { Difficulty } from "../Mission";
+import { MissionPlayer } from "../Player";
+
+export default class StrengthInNumbers extends MissionPlayer {
+  constructor(player: PlayerId, difficulty: Difficulty) {
+    super(player, "Strength in Numbers", difficulty);
+  }
+
+  deck1: Deck = {
+    cards: {
+      // Win
+      "Raving Pugilist": 2,
+      "Arms Dealer": 1,
+      "Take Arms": 2,
+      // Value
+      "Inflammatory Orator": 1,
+      "Dues Collector": 1,
+      "Local Socialite": 1,
+      "Meandering Cynic": 2,
+      "Ill-fated Operative": 2,
+      // Interaction
+      "Gang Up": 2,
+      "Collective Pressure": 2,
+      // Reveal
+      Coerce: 2,
+      "Information Dealer": 2,
+    },
+  };
+
+  deck2: Deck = {
+    cards: {
+      ...this.deck1.cards,
+      "Gang Up": 4,
+      Coerce: 4,
+      "Ill-fated Operative": 3,
+    },
+  };
+
+  goals: Goal[] = [
+    // Win
+    seq(playCard("Raving Pugilist"), when(gt(5), "opponent", { hidden: false, types: ["agent"] })),
+    playCard("Arms Dealer"),
+    activateCard("Arms Dealer"),
+    seq(
+      playCard("Take Arms"),
+      when(gt(1), "self", { zones: ["board"], types: ["agent"], colors: ["orange"], exhausted: false }),
+      when(gt(1), "opponent", { types: ["agent"], zones: ["board"], protected: false })
+    ),
+    // Value
+    playCard("Inflammatory Orator"),
+    playCard("Dues Collector"),
+    activateCard("Dues Collector"),
+    playCard("Local Socialite"),
+    playCard("Meandering Cynic"),
+    playCard("Ill-fated Operative"),
+    // Interaction
+    playCard("Collective Pressure", { zones: ["board"], exhausted: true }, true),
+    playCard("Gang Up", { zones: ["board"], protected: false }, true),
+    // Reveal
+    whenRevealLeft(playCard("Coerce")),
+    whenRevealLeft(playCard("Information Dealer")),
+    whenRevealLeft(activateCard("Information Dealer")),
+  ];
+}

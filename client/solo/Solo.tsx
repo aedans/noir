@@ -43,6 +43,7 @@ export default function Solo() {
       />
       <MissionButton mission="Random Citizens" difficulty={difficulty} y={400} />
       <MissionButton mission="Daphril the Dauntless" difficulty={difficulty} y={600} />
+      <MissionButton mission="Strength in Numbers" difficulty={difficulty} y={800} />
     </Container>
   );
 }
