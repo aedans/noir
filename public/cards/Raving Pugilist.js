@@ -1,9 +1,9 @@
 //@ts-check
 /** @type {import("../../common/card").PartialCardInfoComputation} */
 exports.card = (util, cache, game, card) => ({
-  text: "Each turn: if your opponent has at least five revealed agents, remove one of them.",
+  text: "Every other turn: if your opponent has at least three revealed agents, remove one of them.",
   type: "agent",
-  cost: { money: 8 },
+  cost: { money: 7 },
   colors: ["orange"],
   turn: function* () {
     if (card.exhausted == false) {
@@ -13,7 +13,7 @@ exports.card = (util, cache, game, card) => ({
           zones: ["board", "deck"],
           players: [util.opponent(game, card)],
           types: ["agent"],
-        }).length >= 4
+        }).length >= 3
       ) {
         const cards = util.filter(cache, game, {
           hidden: false,
