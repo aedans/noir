@@ -10,6 +10,7 @@ exports.card = (util, cache, game, card) => ({
       hidden: true,
       ordering: ["money"],
       reversed: false,
+      zones: ["board", "deck"],
       players: [util.opponent(game, card)],
     });
 

@@ -3,7 +3,7 @@
 exports.card = (util, cache, game, card) => ({
   text: "Your first operation each turn costs $3 less and exhausts this.",
   type: "agent",
-  cost: { money: 8 },
+  cost: { money: 7 },
   colors: [],
   keywords: [["disloyal"], ["protected"]],
   effectFilter: {

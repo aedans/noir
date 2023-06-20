@@ -8,6 +8,7 @@ exports.card = (util, cache, game, card) => ({
     players: [util.self(game, card)],
     zones: ["board"],
     types: ["agent"],
+    excludes: [card],
   },
   effect: (info, state) => {
     return {

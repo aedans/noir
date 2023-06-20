@@ -2,7 +2,7 @@
 /** @type {import("../../common/card").PartialCardInfoComputation} */
 exports.card = (util, cache, game, card) => ({
   type: "agent",
-  text: "Activate this: steal an agent from your opponent, putting it onto your board revealed. It gains Disloyal.",
+  text: "Exhaust this: steal an agent from your opponent, putting it onto your board revealed. It gains Disloyal.",
   cost: { money: 30, agents: 1 },
   colors: ["green"],
   keywords: [["vip"]],

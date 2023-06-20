@@ -2,7 +2,7 @@
 /** @type {import("../../common/card").PartialCardInfoComputation} */
 exports.card = (util, cache, game, card) => ({
   type: "agent",
-  text: "Activate this: set a card in your opponent's deck on fire. It is removed two turns from now if not played.",
+  text: "Exhaust this: set a card in your opponent's deck on fire. It is removed two turns from now if not played.",
   keywords: [["vip"]],
   cost: { money: 9 },
   colors: ["orange"],

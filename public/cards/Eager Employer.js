@@ -1,7 +1,7 @@
 // @ts-check
 /** @type {import("../../common/card").PartialCardInfoComputation} */
 exports.card = (util, cache, game, card) => ({
-  text: "Activate this and another agent: gain $3.",
+  text: "Exhaust this and another agent: gain $3.",
   type: "agent",
   cost: { money: 8 },
   colors: [],

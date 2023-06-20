@@ -5,12 +5,24 @@ exports.card = (util, cache, game, card) => ({
   type: "operation",
   cost: { money: 0 },
   colors: ["purple"],
-  keywords: [["tribute","operation"]],
+  keywords: [["tribute", "operation"]],
   targets: {
     players: [util.opponent(game, card)],
     types: ["operation"],
   },
   play: function* (target) {
+    yield* util.modifyCard(cache, game, card, {
+      target,
+      modifier: {
+        card,
+        name: "porple",
+      },
+    });
     yield* util.stealCard(cache, game, card, { target, zone: "deck" });
+  },
+  modifiers: {
+    porple: (info, modifier, card) => ({
+      colors: ["purple"],
+    }),
   },
 });

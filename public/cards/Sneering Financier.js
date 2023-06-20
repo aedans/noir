@@ -2,7 +2,7 @@
 /** @type {import("../../common/card").PartialCardInfoComputation} */
 exports.card = (util, cache, game, card) => ({
   type: "agent",
-  text: "Activate this: give a card in a player's deck Debt 3. If it's in your deck, also reduce that card's cost by 3.",
+  text: "Exhaust this: give a card in a player's deck Debt 3. If it's in your deck, also reduce that card's cost by 3.",
   cost: { money: 10 },
   colors: ["green"],
   activateTargets: {

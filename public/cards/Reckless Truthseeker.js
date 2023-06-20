@@ -3,7 +3,7 @@
 exports.card = (util, cache, game, card) => ({
   type: "agent",
   cost: { money: 6 },
-  text: "Whenever this is activated, if the highest-cost hidden card on the board belongs to your opponent, reveal it.",
+  text: "Whenever this is exhausted, if the highest-cost hidden card on the board belongs to your opponent, reveal it.",
   colors: ["orange"],
   onExhaust: function* () {
     const agentos = util.filter(cache, game, {

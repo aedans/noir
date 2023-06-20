@@ -19,6 +19,6 @@ exports.card = (util, cache, game, card) => ({
     });
   },
   modifiers: {
-    departed: util.keywordModifier(["depart", 2])
+    departed: util.keywordModifier(["depart", 2]),
   },
 });
