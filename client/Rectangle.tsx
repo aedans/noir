@@ -2,7 +2,7 @@ import { Container, CustomPIXIComponent, CustomPIXIComponentBehavior, Graphics, 
 import * as PIXI from "pixi.js";
 import React, { Ref } from "react";
 
-export type RectangleProps = {
+export type RectangleProps = PixiElement<Container> & {
   width: number;
   height: number;
   fill?: number;

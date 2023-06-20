@@ -1,11 +1,11 @@
-import React, { ReactElement, useEffect, useState } from "react";
-import { Container, PixiElement } from "react-pixi-fiber";
+import React, { ReactElement, useCallback, useEffect, useState } from "react";
+import { Container } from "react-pixi-fiber";
 import { CardStateInfo } from "../common/card";
 import { cardHeight, cardWidth, isCardInfoEqual, isCardStateEqual } from "./Card";
 import { GameCardProps } from "./game/GameCard";
 import { zip } from "lodash";
 
-export type CardListProps = Omit<PixiElement<Container>, "children"> & {
+export type CardListProps = {
   cards: CardStateInfo[];
   expanded?: boolean;
   reversed?: boolean;
@@ -30,22 +30,25 @@ export default React.memo(function CardList(props: CardListProps) {
 
   useEffect(() => {
     setExpandedIndex(collapsedIndex);
-  }, [props.cards.length])
+  }, [props.cards.length]);
 
-  function pointerover(index: number) {
-    if (props.expandOnHover) {
-      setExpandedIndex(index);
-    }
-  }
+  const pointerover = useCallback(
+    (index: number) => {
+      if (props.expandOnHover) {
+        setExpandedIndex(index);
+      }
+    },
+    [props.expandOnHover]
+  );
 
-  function pointerout() {
+  const pointerout = useCallback(() => {
     if (props.collapseOnPointerOut) {
       setExpandedIndex(collapsedIndex);
     }
-  }
+  }, [props.collapseOnPointerOut, collapsedIndex]);
 
   return (
-    <Container {...props} pointerout={pointerout} interactive>
+    <Container pointerout={pointerout} interactive>
       {props.cards.map(({ state, info }, i) => {
         const heightOffset = (props.reversed ? i : -i) * cardHeight * (props.expanded ? 0.1 : 0);
         const shouldHoverOffset = props.expanded && (props.reversed ? i < expandedIndex : i > expandedIndex);
