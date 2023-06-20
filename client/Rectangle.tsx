@@ -2,11 +2,12 @@ import { Container, CustomPIXIComponent, CustomPIXIComponentBehavior, Graphics, 
 import * as PIXI from "pixi.js";
 import React, { Ref } from "react";
 
-export type RectangleProps = PixiElement<Container> & {
+export type RectangleProps = {
   width: number;
   height: number;
   fill?: number;
   fillAlpha?: number;
+  zIndex?: number;
 };
 
 export const behavior: CustomPIXIComponentBehavior<PIXI.Graphics, RectangleProps> = {
@@ -17,12 +18,16 @@ export const behavior: CustomPIXIComponentBehavior<PIXI.Graphics, RectangleProps
     instance.beginFill(fill ?? 0, fillAlpha == undefined ? 1 : fillAlpha);
     instance.drawRect(0, 0, width, height);
     instance.endFill();
+    instance.zIndex = newProps.zIndex ?? 0;
   },
 };
 
 const CustomRectangle = CustomPIXIComponent(behavior, "Rectangle");
 
-export default React.forwardRef(function Rectangle(props: RectangleProps, ref: Ref<RectangleProps & Graphics>) {
+export default React.forwardRef(function Rectangle(
+  props: PixiElement<Container> & RectangleProps,
+  ref: Ref<RectangleProps & Graphics>
+) {
   return (
     <Container {...props}>
       <CustomRectangle
@@ -32,6 +37,7 @@ export default React.forwardRef(function Rectangle(props: RectangleProps, ref: R
         height={props.height}
         fill={props.fill}
         fillAlpha={props.fillAlpha}
+        zIndex={props.zIndex}
         ref={ref}
       >
         {props.children}
