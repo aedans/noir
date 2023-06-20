@@ -131,16 +131,16 @@ const CardImpl = React.forwardRef(function CardImpl(props: CardProps, ref: Ref<C
     text = `${keywords.map(getDisplayName).join(", ")}\n${text}`.trim();
   }
 
-  let propsText = "";
+  let propsText: string[] = [];
   for (const [name, value] of Object.entries(props.state.props)) {
     if (value != undefined) {
       const upperName = name.charAt(0).toUpperCase() + name.slice(1);
-      propsText += `${upperName}: ${value}`;
+      propsText.push(`${upperName}: ${value}`);
     }
   }
 
-  if (propsText != "") {
-    text = `${text}\n${propsText}`;
+  if (propsText.length > 0) {
+    text = `${text}\n${propsText.join(", ")}`;
   }
 
   return (
