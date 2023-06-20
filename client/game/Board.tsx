@@ -42,7 +42,6 @@ export default function Board() {
         width={targetResolution.width}
         height={targetResolution.height * (3 / 4)}
         renderable={false}
-        zIndex={999}
       />
       {cards.map(({ state, info }, i) => (
         <BoardCard state={state} info={info} key={state.id} x={x + i * (cardWidth + 10)} y={y} />
