@@ -12,12 +12,12 @@ export default class RandomCitizens extends MissionPlayer {
   deck1: Deck = {
     cards: {
       // Value
-      "Random Citizen": 4,
-      "Local Socialite": 2,
+      "Random Citizen": 2,
+      "Local Socialite": 1,
       "Eager Employer": 2,
       // Interaction
       "Gang Up": 2,
-      "Writ of Recall": 2,
+      "Strike Down": 2,
       // Reveal
       "Brief Investigation": 2,
       "Snoop Around": 2,
@@ -29,7 +29,9 @@ export default class RandomCitizens extends MissionPlayer {
     cards: {
       ...this.deck1.cards,
       // Win
+      "Random Citizen": 4,
       "Arms Dealer": 2,
+      "Gang Up": 3,
     }
   }
 
@@ -43,10 +45,10 @@ export default class RandomCitizens extends MissionPlayer {
     playCard("Local Socialite"),
     playCard("Random Citizen"),
     playCard("Eager Employer"),
-    activateCard("Eager Employer"),
     // Interaction
-    playCard("Writ of Recall", { zones: ["board"], minMoney: 5 }, true),
     playCard("Gang Up", { zones: ["board"], protected: false }, true),
+    playCard("Strike Down", { zones: ["board"], protected: false }, true),
+    activateCard("Eager Employer"),
     // Reveal
     whenRevealLeft(afterTurn(1, playCard("Brief Investigation"))),
     whenRevealLeft(afterTurn(1, afterWait("Snoop Around", 1, playCard("Snoop Around")))),
