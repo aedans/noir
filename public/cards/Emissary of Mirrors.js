@@ -19,7 +19,7 @@ exports.card = (util, cache, game, card) => ({
           onReveal: function*(){
             const nombre = util.getCard(game,affectedCard).name
             yield* util.addCard(cache, game, card, {
-                target: card,
+                target: affectedCard,
                 name: nombre,
                 player: util.currentPlayer(game),
                 zone: "deck",
