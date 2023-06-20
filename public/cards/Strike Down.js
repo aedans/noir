@@ -3,7 +3,7 @@
 exports.card = (util, cache, game, card) => ({
   text: "Remove a card.",
   type: "operation",
-  cost: { money: 10, agents: 1 },
+  cost: { money: 9, agents: 1 },
   targets: {
     types: ["agent", "operation"],
   },
