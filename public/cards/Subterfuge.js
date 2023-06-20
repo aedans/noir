@@ -3,7 +3,7 @@
 exports.card = (util, cache, game, card) => ({
   text: "Tribute. Steal an operation and put it hidden into your deck.",
   type: "operation",
-  cost: { money: 0 },
+  cost: { money: 0, agents: 1 },
   colors: ["purple"],
   keywords: [["tribute", "operation"]],
   targets: {

@@ -16,7 +16,7 @@ export default class StrengthInNumbers extends MissionPlayer {
       "Arms Dealer": 1,
       "Take Arms": 2,
       // Value
-      "Inflammatory Orator": 1,
+      "Alarm Raiser": 1,
       "Dues Collector": 1,
       "Local Socialite": 1,
       "Meandering Cynic": 2,
@@ -52,7 +52,7 @@ export default class StrengthInNumbers extends MissionPlayer {
       when(gt(1), "opponent", { types: ["agent"], zones: ["board"], protected: false })
     ),
     // Value
-    playCard("Inflammatory Orator"),
+    playCard("Alarm Raiser"),
     playCard("Dues Collector"),
     activateCard("Dues Collector"),
     playCard("Local Socialite"),

@@ -3,7 +3,7 @@
 exports.card = (util, cache, game, card) => ({
   text: "Choose one of your opponent's agents. It gains 'Whenever this is exhausted, you lose $2'.",
   type: "operation",
-  cost: { money: 3 },
+  cost: { money: 3, agents: 1 },
   colors: [],
   targets: {
     players: [util.opponent(game, card)],
