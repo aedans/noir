@@ -14,9 +14,8 @@ exports.card = (util, cache, game, card) => ({
     if (card.props.Played != null) {
       yield* util.setProp(cache, game, card, { target: card, name: "Played", value: 1 });
     } else {
-      yield* util.setProp(cache, game, card, { target: card, name: "Played", value: card.props.Played + 1 });
+      yield* util.setProp(cache, game, card, { target: card, name: "Played", value: card.props.Played + 1 })};
       yield* util.bounceCard(cache, game, card, { target: card });
       yield* util.removeCard(cache, game, card, { target });
-    }
   },
 });
