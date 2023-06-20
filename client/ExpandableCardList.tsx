@@ -1,9 +1,9 @@
 import { useCallback, useState } from "react";
-import CardList, { CardListProps, isCardListPropsEqual } from "./CardList";
+import CardList, { CardListProps } from "./CardList";
 import React from "react";
 import { Container } from "react-pixi-fiber";
 
-export default React.memo(function ExpandableCardList(props: Omit<CardListProps, "expanded">) {
+export default function ExpandableCardList(props: Omit<CardListProps, "expanded">) {
   const [isExpanded, setIsExpanded] = useState(false);
 
   const pointerdown = useCallback(() => {
@@ -17,4 +17,4 @@ export default React.memo(function ExpandableCardList(props: Omit<CardListProps,
       <CardList expanded={isExpanded} expandOnHover {...props} />
     </Container>
   );
-}, isCardListPropsEqual);
+};
