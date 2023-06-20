@@ -4,14 +4,15 @@ import { Container } from "react-pixi-fiber";
 import { currentPlayer } from "../../common/gameSlice";
 import { defaultUtil } from "../cards";
 import { useClientSelector } from "../store";
-import { ConnectionContext, HoverContext, PlayerContext, PreparedContext } from "./Game";
+import { CacheContext, ConnectionContext, HoverContext, PlayerContext, PreparedContext } from "./Game";
 import GameCard, { GameCardProps } from "./GameCard";
 
 export default React.forwardRef(function BoardCard(props: GameCardProps, ref: Ref<Container>) {
+  const player = useContext(PlayerContext);
+  const cache = useContext(CacheContext);
+  const connection = useContext(ConnectionContext);
   const { hover, setHover } = useContext(HoverContext);
   const { prepared, setPrepared } = useContext(PreparedContext);
-  const connection = useContext(ConnectionContext);
-  const player = useContext(PlayerContext);
   const game = useClientSelector((state) => state.game.current);
   const cardRef = useRef() as MutableRefObject<Required<Container>>;
 
@@ -58,7 +59,7 @@ export default React.forwardRef(function BoardCard(props: GameCardProps, ref: Re
 
     if (!isDragging) {
       const result = defaultUtil.tryPayCost(
-        new Map(),
+        cache,
         game,
         props.state,
         "activate",
@@ -87,7 +88,7 @@ export default React.forwardRef(function BoardCard(props: GameCardProps, ref: Re
     props.info.hasActivate &&
     currentPlayer(game) == player &&
     defaultUtil.canPayCost(
-      new Map(),
+      cache,
       game,
       props.state,
       player,

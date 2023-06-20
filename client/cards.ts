@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { AnyAction } from "redux";
 import { CardState, CardStateInfo, PartialCardInfoComputation } from "../common/card";
 import util, { Util } from "../common/util";
 import { useClientSelector } from "./store";
+import { CacheContext } from "./game/Game";
 
 export const serverOrigin = window.location.origin.toString().replace(/5173/g, "8080");
 
@@ -64,10 +65,10 @@ export async function getCards() {
 
 export function useCardInfoList(states: CardState[], deps: ReadonlyArray<unknown>) {
   const [cards, setCards] = useState([] as CardStateInfo[]);
+  const cache = useContext(CacheContext);
   const game = useClientSelector((state) => state.game.current);
 
   function resetCards() {
-    var cache = new Map();
     setCards(
       states
         .filter((card) => isLoaded(card))

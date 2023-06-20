@@ -17,8 +17,10 @@ import { useClientSelector } from "../store";
 import Concede from "./Concede";
 import { useTimeColorFilter } from "../time";
 import Explanations from "./Explanations";
+import { CardInfoCache } from "../../common/util";
 
 export const PlayerContext = React.createContext(0 as PlayerId);
+export const CacheContext = React.createContext(new Map() as CardInfoCache);
 export const ConnectionContext = React.createContext({
   emit: (_: PlayerAction) => {},
   concede: () => {},
@@ -46,6 +48,7 @@ export const HighlightContext = React.createContext(
 );
 
 export default function Game(props: { message: string }) {
+  const cache = useRef(new Map() as CardInfoCache);
   const [hover, setHover] = useState([] as Target[]);
   const [prepared, setPrepared] = useState([] as Target[]);
   const [highlight, setHighlight] = useState([] as Target[]);
@@ -55,29 +58,32 @@ export default function Game(props: { message: string }) {
 
   useEffect(() => {
     setPrepared([]);
+    cache.current.clear();
   }, [game]);
 
   return (
-    <MoveAnimationContext.Provider value={cards}>
-      <HoverContext.Provider value={{ hover, setHover }}>
-        <PreparedContext.Provider value={{ prepared, setPrepared }}>
-          <HighlightContext.Provider value={{ highlight, setHighlight }}>
-            <Container filters={[timeColorFilterRef.current]}>
-              <Explanations />
-              <Board />
-              <OpponentBoard />
-              <OpponentHand />
-              <EndTurn />
-              <Resources />
-              <Concede />
-              <HandAndDeck />
-              <OpponentGrave />
-              <Grave />
-              <Message text={props.message} />
-            </Container>
-          </HighlightContext.Provider>
-        </PreparedContext.Provider>
-      </HoverContext.Provider>
-    </MoveAnimationContext.Provider>
+    <CacheContext.Provider value={cache.current}>
+      <MoveAnimationContext.Provider value={cards}>
+        <HoverContext.Provider value={{ hover, setHover }}>
+          <PreparedContext.Provider value={{ prepared, setPrepared }}>
+            <HighlightContext.Provider value={{ highlight, setHighlight }}>
+              <Container filters={[timeColorFilterRef.current]}>
+                <Explanations />
+                <Board />
+                <OpponentBoard />
+                <OpponentHand />
+                <EndTurn />
+                <Resources />
+                <Concede />
+                <HandAndDeck />
+                <OpponentGrave />
+                <Grave />
+                <Message text={props.message} />
+              </Container>
+            </HighlightContext.Provider>
+          </PreparedContext.Provider>
+        </HoverContext.Provider>
+      </MoveAnimationContext.Provider>
+    </CacheContext.Provider>
   );
 }

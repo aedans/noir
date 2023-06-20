@@ -4,7 +4,7 @@ import { Container, InteractiveComponent } from "react-pixi-fiber";
 import { CardColors, CardState } from "../../common/card";
 import Card, { CardProps, combineColors, isCardPropsEqual } from "../Card";
 import MoveAnimation, { useLastPos } from "../MoveAnimation";
-import { ConnectionContext, HighlightContext, PreparedContext } from "./Game";
+import { CacheContext, ConnectionContext, HighlightContext, PreparedContext } from "./Game";
 import { getCard } from "../../common/gameSlice";
 import { useClientSelector } from "../store";
 import { defaultUtil } from "../cards";
@@ -37,6 +37,7 @@ export function isGameCardPropsEqual(a: GameCardProps, b: GameCardProps) {
 export default React.memo(
   React.forwardRef(function GameCard(props: GameCardProps, ref: Ref<Container>) {
     const game = useClientSelector((state) => state.game.current);
+    const cache = useContext(CacheContext);
     const connection = useContext(ConnectionContext);
     const { prepared } = useContext(PreparedContext);
     const { highlight } = useContext(HighlightContext);
@@ -66,7 +67,6 @@ export default React.memo(
       (componentRef.current as any).convertTo3d?.();
     }, []);
 
-    const cache = new Map();
     const borderColors: CardColors[] = [];
     for (const modifier of props.state.modifiers) {
       const card = getCard(game, modifier.card);
@@ -91,7 +91,7 @@ export default React.memo(
       }
     }
 
-    const shouldHighlight = (highlight?.findIndex((h) => h.id == props.state.id) ?? -1) != -1
+    const shouldHighlight = (highlight?.findIndex((h) => h.id == props.state.id) ?? -1) != -1;
     const scale = (props.scale ?? 1) * (shouldHighlight ? 1.1 : 1);
 
     return (

@@ -5,13 +5,14 @@ import { Container } from "react-pixi-fiber";
 import { cardHeight } from "../Card";
 import { defaultUtil } from "../cards";
 import { useClientSelector } from "../store";
-import { HoverContext, PlayerContext, PreparedContext } from "./Game";
+import { CacheContext, HoverContext, PlayerContext, PreparedContext } from "./Game";
 import GameCard, { GameCardProps } from "./GameCard";
 
 export default React.forwardRef(function HandCard(props: GameCardProps, ref: Ref<Container>) {
+  const player = useContext(PlayerContext);
+  const cache = useContext(CacheContext);
   const { setHover } = useContext(HoverContext);
   const { prepared } = useContext(PreparedContext);
-  const player = useContext(PlayerContext);
   const game = useClientSelector((state) => state.game.current);
   const cardRef = useRef() as MutableRefObject<Required<Container>>;
   const [zoom, setZoom] = useState(false);
@@ -41,7 +42,7 @@ export default React.forwardRef(function HandCard(props: GameCardProps, ref: Ref
   useEffect(() => {
     if (isDragging) {
       const result = defaultUtil.tryPayCost(
-        new Map(),
+        cache,
         game,
         props.state,
         "play",

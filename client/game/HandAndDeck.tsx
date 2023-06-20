@@ -4,11 +4,12 @@ import { ordered } from "../../common/util";
 import { defaultUtil, useCardInfoList } from "../cards";
 import { useClientSelector } from "../store";
 import Deck from "./Deck";
-import { PlayerContext } from "./Game";
+import { CacheContext, PlayerContext } from "./Game";
 import Hand from "./Hand";
 
 export default function HandAndDeck() {
   const player = useContext(PlayerContext);
+  const cache = useContext(CacheContext);
   const game = useClientSelector((state) => state.game.current);
   const cards = useCardInfoList(game.players[player].deck, [game.players[player].deck]);
 
@@ -16,7 +17,6 @@ export default function HandAndDeck() {
     const hand = [] as CardStateInfo[];
     const deck = [] as CardStateInfo[];
 
-    var cache = new Map();
     for (const card of ordered(cards, ["color", "money"], (card) => card.info)) {
       if (defaultUtil.canPayCost(cache, game, card.state, player, card.info.colors, card.info.cost, card.info.targets, [])) {
         hand.push(card);

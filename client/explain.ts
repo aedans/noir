@@ -193,8 +193,7 @@ export const explanations = [
   ),
 ];
 
-export function explain(game: GameState, player: PlayerId): Explanation[] {
-  const cache = new Map();
+export function explain(cache: CardInfoCache, game: GameState, player: PlayerId): Explanation[] {
   return explanations.filter(
     (e) => e.relevantCards(cache, game, player).length > 0 && e.requirements.every((id) => isExplained({ id }))
   );

@@ -1,7 +1,7 @@
 import { Dispatch, MutableRefObject, SetStateAction, useContext, useEffect, useRef, useState } from "react";
 import { Explanation, explain, isExplained, setExplained } from "../explain";
 import { useClientSelector } from "../store";
-import { HighlightContext, PlayerContext } from "./Game";
+import { CacheContext, HighlightContext, PlayerContext } from "./Game";
 import React from "react";
 import Rectangle from "../Rectangle";
 import { Container } from "react-pixi-fiber";
@@ -22,10 +22,11 @@ export const explanationHeight = explanationFontSize * 2 + explanationMargin * 2
 
 export function ExplanationPopup(props: ExplanationProps) {
   const ref = useRef() as MutableRefObject<Required<Container>>;
-  const { setHighlight } = useContext(HighlightContext);
   const player = useContext(PlayerContext);
+  const cache = useContext(CacheContext);
+  const { setHighlight } = useContext(HighlightContext);
   const game = useClientSelector((state) => state.game.current);
-  const relevantCards = props.explanation.relevantCards(new Map(), game, player);
+  const relevantCards = props.explanation.relevantCards(cache, game, player);
 
   useEffect(() => {
     anime({
@@ -87,11 +88,12 @@ export function ExplanationPopup(props: ExplanationProps) {
 
 export default function Explanations() {
   const player = useContext(PlayerContext);
+  const cache = useContext(CacheContext);
   const game = useClientSelector((state) => state.game);
   const [explanations, setExplanations] = useState([] as Explanation[]);
 
   useEffect(() => {
-    const newExplanations = explain(game.current, player).filter((e) => !isExplained(e));
+    const newExplanations = explain(cache, game.current, player).filter((e) => !isExplained(e));
     setExplanations((es) => [...es, ...newExplanations.filter((e1) => !es.find((e2) => e1.text == e2.text))]);
   }, [game]);
 

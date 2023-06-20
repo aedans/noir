@@ -86,14 +86,14 @@ export default function Editor(props: { params: { deck: string } }) {
           )}
         </Grid>
       </Container>
-      <CardList
-        x={targetResolution.width - cardWidth}
-        y={100}
-        cards={sortedDeckCards}
-        card={(props) => <GameCard {...props} pointerdown={pointerdownRemove(props.state.name)} />}
-        expanded
-        collapseOnPointerOut
-      />
+      <Container x={targetResolution.width - cardWidth} y={100}>
+        <CardList
+          cards={sortedDeckCards}
+          card={(props) => <GameCard {...props} pointerdown={pointerdownRemove(props.state.name)} />}
+          expanded
+          collapseOnPointerOut
+        />
+      </Container>
     </MoveAnimationContext.Provider>
   );
 }
