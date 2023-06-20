@@ -22,7 +22,7 @@ exports.card = (util, cache, game, card) => ({
     },
     modifiers: {
         framed: (info,modifier, card) => ({
-            text: "When removed, copies of Frame are returned to deck.",
+          text: `${info.text} When removed, copies of Frame are returned to deck.`, 
             onRemoval: function*() {
                 const yardframes = util.filter(cache, game, {
                     zones: ["grave"],
