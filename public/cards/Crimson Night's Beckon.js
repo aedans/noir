@@ -1,7 +1,4 @@
 // @ts-check
-
-const { isNull } = require("lodash");
-
 /** @type {import("../../common/card").PartialCardInfoComputation} */
 exports.card = (util, cache, game, card) => ({
     text: "Remove one of your opponent's agents. Return this to your deck next turn with $2 added to its cost. ",
