@@ -18,6 +18,7 @@ import Concede from "./Concede";
 import { useTimeColorFilter } from "../time";
 import Explanations from "./Explanations";
 import { CardInfoCache } from "../../common/util";
+import Table from "./Table";
 
 export const PlayerContext = React.createContext(0 as PlayerId);
 export const CacheContext = React.createContext(new Map() as CardInfoCache);
@@ -69,15 +70,16 @@ export default function Game(props: { message: string }) {
             <HighlightContext.Provider value={{ highlight, setHighlight }}>
               <Container filters={[timeColorFilterRef.current]}>
                 <Explanations />
-                <Board />
+                <Table/>
                 <OpponentBoard />
-                <OpponentHand />
+                <Board />
                 <EndTurn />
                 <Resources />
                 <Concede />
-                <HandAndDeck />
                 <OpponentGrave />
                 <Grave />
+                <OpponentHand />
+                <HandAndDeck />
                 <Message text={props.message} />
               </Container>
             </HighlightContext.Provider>
