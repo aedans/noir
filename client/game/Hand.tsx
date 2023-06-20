@@ -22,7 +22,7 @@ export default function Hand(props: HandProps) {
   const y = targetResolution.height * (3 / 4) + cardHeight / 2 + 20;
 
   return (
-    <Container filters={[timeShadowFilterRef.current]}>
+    <Container filters={[timeShadowFilterRef.current]} zIndex={1}>
       {props.cards.map(({ state, info }, i) => (
         <HandCard
           zIndex={20 + i}
