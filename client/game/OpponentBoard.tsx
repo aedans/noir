@@ -18,7 +18,7 @@ export default function OpponentBoard() {
   return (
     <>
       {cards.map(({ state, info }, i) => (
-        <GameCard info={info} state={state} key={state.id} x={x + i * (cardWidth + 10)} y={y} />
+        <GameCard info={info} state={state} key={state.id} x={x + i * (cardWidth + 10)} y={y} shouldDimWhenExhausted />
       ))}
     </>
   );
