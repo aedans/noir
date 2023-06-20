@@ -48,9 +48,9 @@ const PIXIBackend: (app: Application) => BackendFactory = (app: Application) => 
           reticle.position.copyFrom(pos);
         }
 
-        const matchingTargetIds = Object.keys(targetObjects).filter(
-          (key) => targetObjects[key].getBounds().contains(e.x, e.y) && targetObjects[key].zIndex < 1000
-        );
+        const matchingTargetIds = Object.keys(targetObjects)
+          .filter((key) => targetObjects[key].getBounds().contains(e.x, e.y) && targetObjects[key].zIndex < 1000)
+          .filter((key) => manager.getRegistry().getTargetType(key) == manager.getMonitor().getItemType());
 
         if (matchingTargetIds.length > 0) {
           matchingTargetIds.sort((a, b) => targetObjects[b].zIndex - targetObjects[a].zIndex);
@@ -114,7 +114,7 @@ const PIXIBackend: (app: Application) => BackendFactory = (app: Application) => 
     setup: () => {},
     teardown: () => {},
     profile: () => ({}),
-    connectDropTarget: (targetId: Identifier, node: DisplayObject3d) => {
+    connectDropTarget: (targetId: Identifier, node: DisplayObject3d, options: any) => {
       targetObjects[targetId] = node;
 
       return () => {
