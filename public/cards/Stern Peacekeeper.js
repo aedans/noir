@@ -8,6 +8,7 @@ exports.card = (util, cache, game, card) => ({
   effectFilter: {
     players: [util.opponent(game, card)],
     zones: ["deck"],
+    types: ["agent"]
   },
   effect: (info, state) => {
     if (!card.exhausted) {
