@@ -362,7 +362,6 @@ export function getCardInfo(this: Util, cache: CardInfoCache, game: GameState, c
   if (cache.has(card.id)) {
     return cache.get(card.id)!;
   } else {
-    console.count("info");
     const baseInfo = runPartialCardInfoComputation(this.getCardInfoImpl(card), this, cache, game, card);
     cache.set(card.id, baseInfo);
     const info = this.updateCardInfo(cache, game, card, baseInfo);
