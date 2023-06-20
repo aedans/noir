@@ -1,4 +1,7 @@
 // @ts-check
+
+const { isNull } = require("lodash");
+
 /** @type {import("../../common/card").PartialCardInfoComputation} */
 exports.card = (util, cache, game, card) => ({
     text: "Remove one of your opponent's agents. Return this to your deck next turn with $2 added to its cost. ",
@@ -14,7 +17,7 @@ exports.card = (util, cache, game, card) => ({
       types: ["agent", "operation"],
     },
     play: function* (target) {
-      if(card.props.Played <= 1){
+      if(card.props.Played == isNull){
         yield* util.setProp(cache, game, card, {target: card, name: "Played", value: 1})}else{
             yield* util.setProp(cache, game, card, {target: card, name: "Played", value: card.props.Played + 1}),
       yield* util.removeCard(cache, game, card, { target });

@@ -7,7 +7,8 @@ exports.card = (util, cache, game, card) => ({
     play: function* () {
       const cartas = util.filter(cache, game, {
         players: [util.opponent(game,card)],
-        hidden: true
+        hidden: true,
+        types: ["agent"]
       });
       const revilled = util.randoms(cartas, 1);
       yield* util.revealCard(cache, game, card, { target: revilled[0] })
