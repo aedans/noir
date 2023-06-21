@@ -9,7 +9,7 @@ exports.card = (util, cache, game, card) => ({
     types: ["agent", "operation"],
   },
   play: function* (target) {
-      util.modifyCard(cache,game,card, {
+      yield* util.modifyCard(cache,game,card, {
         target: card,
         modifier: {
           card,
