@@ -560,6 +560,7 @@ function* onExhaust(info: CardInfo, game: GameState, payload: TargetCardParams):
 }
 
 function* onReveal(info: CardInfo, game: GameState, payload: TargetCardParams): CardGenerator {
+  game = yield noop({});
   const state = getCard(game, payload.target);
 
   if (state && state.hidden) {

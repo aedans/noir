@@ -181,9 +181,11 @@ export const gameReducers = {
   },
   addCard: (state: GameState, action: PayloadAction<AddCardParams>) => {
     state.history.unshift(action as GameAction);
-    state.players[action.payload.player][action.payload.zone].push(
-      defaultCardState(action.payload.name, action.payload.target.id)
-    );
+    const card = defaultCardState(action.payload.name, action.payload.target.id);
+    if (action.payload.source) {
+      card.hidden = getCard(state, action.payload.source)?.hidden ?? true;
+    }
+    state.players[action.payload.player][action.payload.zone].push(card);
   },
   playCard: (state: GameState, action: PayloadAction<PlayCardParams>) => {
     state.history.unshift(action as GameAction);
