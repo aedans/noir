@@ -618,6 +618,7 @@ function* onPlayCard(
     types: ["operation"],
     random: true,
     ordering: ["money"],
+    excludes: [card],
   });
 
   const lowestAgents = this.filter(cache, game, {
@@ -626,6 +627,7 @@ function* onPlayCard(
     types: ["agent"],
     random: true,
     ordering: ["money"],
+    excludes: [card],
   });
 
   const lowestOperations = this.filter(cache, game, {
@@ -634,6 +636,7 @@ function* onPlayCard(
     types: ["operation"],
     random: true,
     ordering: ["money"],
+    excludes: [card],
   });
 
   if (lowestCards.length < totalTribute.cards) {
