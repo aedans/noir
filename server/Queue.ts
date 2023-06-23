@@ -1,8 +1,8 @@
-import Test from "./queue/Test";
-import Casual from "./queue/Casual";
-import { NoirServerSocket } from "../common/network";
-import { Difficulty, MissionName } from "./Mission";
-import Solo from "./queue/Solo";
+import Test from "./queue/Test.js";
+import Casual from "./queue/Casual.js";
+import { NoirServerSocket } from "../common/network.js";
+import { Difficulty, MissionName } from "./Mission.js";
+import Solo from "./queue/Solo.js";
 
 export type QueueName = "test" | "casual" | `${MissionName} level ${Difficulty}`;
 

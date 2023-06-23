@@ -1,16 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { io } from "socket.io-client";
 import { useLocation } from "wouter";
-import { PlayerId, opponentOf } from "../../common/gameSlice";
-import { batch, reset } from "../../common/historySlice";
-import { NoirClientSocket } from "../../common/network";
-import { QueueName } from "../../server/Queue";
-import Button from "../Button";
-import { targetResolution } from "../Camera";
-import { loadCardsFromAction, serverOrigin } from "../cards";
-import Game, { ConnectionContext, PlayerContext } from "../game/Game";
-import { getUsername, useClientDispatch, useClientSelector } from "../store";
-import { setWon } from "../wins";
+import { PlayerId, opponentOf } from "../../common/gameSlice.js";
+import { batch, reset } from "../../common/historySlice.js";
+import { NoirClientSocket } from "../../common/network.js";
+import { QueueName } from "../../server/Queue.js";
+import Button from "../Button.js";
+import { targetResolution } from "../Camera.js";
+import { loadCardsFromAction, serverOrigin } from "../cards.js";
+import Game, { ConnectionContext, PlayerContext } from "../game/Game.js";
+import { getUsername, useClientDispatch, useClientSelector } from "../store.js";
+import { setWon } from "../wins.js";
 
 export default function Queue(props: { params: { queue: string; deck: string } }) {
   let [player, setPlayer] = useState(null as PlayerId | null);

@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { Container } from "react-pixi-fiber";
 import { useLocation } from "wouter";
-import { targetResolution } from "../Camera";
-import { serverOrigin } from "../cards";
-import Button from "../Button";
+import { targetResolution } from "../Camera.js";
+import { serverOrigin } from "../cards.js";
+import Button from "../Button.js";
 import { WithId } from "mongodb";
-import { Replay } from "../../server/db/replay";
-import { opponentOf } from "../../common/gameSlice";
+import { Replay } from "../../server/db/replay.js";
+import { opponentOf } from "../../common/gameSlice.js";
 
 export default function Replays() {
   const [_, setLocation] = useLocation();

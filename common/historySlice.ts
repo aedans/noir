@@ -1,7 +1,10 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import * as toolkitRaw from "@reduxjs/toolkit";
+const { createSlice } = ((toolkitRaw as any).default ?? toolkitRaw) as typeof toolkitRaw;
+
 import produce from "immer";
-import { Target } from "./card";
-import { GameAction, gameReducers, GameState, initialGameState } from "./gameSlice";
+import { Target } from "./card.js";
+import { GameAction, gameReducers, GameState, initialGameState } from "./gameSlice.js";
+import { PayloadAction } from "@reduxjs/toolkit";
 
 export type HistoryState = {
   history: GameAction[];

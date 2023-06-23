@@ -1,9 +1,9 @@
-import { NoirServerSocket } from "../../common/network";
-import Player, { SocketPlayer } from "../Player";
-import Queue from "../Queue";
-import { createGame } from "../game";
-import { Difficulty, MissionName, missions } from "../Mission";
-import { insertReplay } from "../db/replay";
+import { NoirServerSocket } from "../../common/network.js";
+import { SocketPlayer } from "../Player.js";
+import Queue from "../Queue.js";
+import { createGame } from "../game.js";
+import { Difficulty, MissionName, missions } from "../Mission.js";
+import { insertReplay } from "../db/replay.js";
 
 export default class Solo implements Queue {
   games: Map<string, SocketPlayer> = new Map();

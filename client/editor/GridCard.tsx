@@ -1,7 +1,7 @@
 import React, { MutableRefObject, Ref, useImperativeHandle, useRef } from "react";
 import { Container, PixiElement } from "react-pixi-fiber";
-import Card, { CardProps } from "../Card";
-import MoveAnimation from "../MoveAnimation";
+import Card, { CardProps } from "../Card.js";
+import MoveAnimation from "../MoveAnimation.js";
 
 export type EditorCardProps = CardProps & PixiElement<Container>;
 

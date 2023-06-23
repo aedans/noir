@@ -1,7 +1,7 @@
+import CardInfoCache from "../common/CardInfoCache";
 import { CardKeyword, Target } from "../common/card";
 import { GameState, PlayerId, findCard, isPlayerAction, opponentOf } from "../common/gameSlice";
-import { CardInfoCache } from "../common/util";
-import { defaultUtil } from "./cards";
+import util from "../common/util";
 
 export interface Explanation {
   id: string;
@@ -31,7 +31,7 @@ class KeywordExplanation implements Explanation {
 
     if (this.you) {
       cards.push(
-        ...defaultUtil.filter(cache, game, {
+        ...util.filter(cache, game, {
           players: [player],
           zones: ["deck"],
           playable: true,
@@ -40,7 +40,7 @@ class KeywordExplanation implements Explanation {
       );
 
       cards.push(
-        ...defaultUtil.filter(cache, game, {
+        ...util.filter(cache, game, {
           players: [player],
           zones: ["board"],
           text: this.keyword,
@@ -50,7 +50,7 @@ class KeywordExplanation implements Explanation {
 
     if (this.opponent) {
       cards.push(
-        ...defaultUtil.filter(cache, game, {
+        ...util.filter(cache, game, {
           players: [opponentOf(player)],
           hidden: false,
           text: this.keyword,
@@ -76,7 +76,7 @@ export const explanations = [
     "hand",
     "Cards in your deck that you can currently play are shown in your hand",
     [],
-    (cache, game, player) => defaultUtil.filter(cache, game, { players: [player], zones: ["deck"], playable: true })
+    (cache, game, player) => util.filter(cache, game, { players: [player], zones: ["deck"], playable: true })
   ),
   new SituationExplanation(
     "money",
@@ -84,7 +84,7 @@ export const explanations = [
     [],
     (cache, game, player) =>
       game.history.find((x) => x.type == "game/addMoney" && x.payload.source == null)
-        ? defaultUtil.filter(cache, game, {
+        ? util.filter(cache, game, {
             players: [player],
             zones: ["deck"],
             playable: true,
@@ -97,33 +97,32 @@ export const explanations = [
     "Your opponent's cards begin the game hidden and must be revealed",
     [],
     (cache, game, player) =>
-      defaultUtil.filter(cache, game, { players: [player], zones: ["deck"], playable: true, text: "reveal" })
+      util.filter(cache, game, { players: [player], zones: ["deck"], playable: true, text: "reveal" })
   ),
   new SituationExplanation(
     "agents",
     "Agents stay on board when played and can be exhausted once each turn",
     ["hand"],
-    (cache, game, player) => defaultUtil.filter(cache, game, { players: [player], types: ["agent"], zones: ["board"] })
+    (cache, game, player) => util.filter(cache, game, { players: [player], types: ["agent"], zones: ["board"] })
   ),
   new SituationExplanation(
     "operations",
     "Operations go to the grave immediately after being played",
     ["hand"],
-    (cache, game, player) =>
-      defaultUtil.filter(cache, game, { players: [player], types: ["operation"], zones: ["grave"] })
+    (cache, game, player) => util.filter(cache, game, { players: [player], types: ["operation"], zones: ["grave"] })
   ),
   new SituationExplanation(
     "cost",
     "Money is used to pay for money costs; Agents are exhausted to pay for agent costs",
     ["money", "agents"],
     (cache, game, player) =>
-      defaultUtil.filter(cache, game, { players: [player], zones: ["deck"], playable: true, minAgents: 1 })
+      util.filter(cache, game, { players: [player], zones: ["deck"], playable: true, minAgents: 1 })
   ),
   new SituationExplanation(
     "revealed",
     "Your can see which cards your opponent has revealed",
     ["reveal"],
-    (cache, game, player) => defaultUtil.filter(cache, game, { players: [player], zones: ["deck"], hidden: false })
+    (cache, game, player) => util.filter(cache, game, { players: [player], zones: ["deck"], hidden: false })
   ),
   new SituationExplanation(
     "revealSelf",
@@ -139,7 +138,7 @@ export const explanations = [
     "You win the game when you remove all of your opponent's agents",
     ["agents", "reveal"],
     (cache, game, player) =>
-      defaultUtil.filter(cache, game, { players: [player], zones: ["deck"], playable: true, text: "remove" })
+      util.filter(cache, game, { players: [player], zones: ["deck"], playable: true, text: "remove" })
   ),
   new KeywordExplanation("protected", "Protected agents prevent the first time they would be removed", false, true),
   new KeywordExplanation("disloyal", "Disloyal agents don't prevent you from losing", true, false),
@@ -176,9 +175,9 @@ export const explanations = [
     baseRequirements,
     (cache, game, player) => {
       for (const player of [0, 1] as const) {
-        const vipBoard = defaultUtil.filter(cache, game, { players: [player], zones: ["board"], vip: true });
-        const vipDeck = defaultUtil.filter(cache, game, { players: [player], zones: ["deck"], vip: true });
-        const otherBoard = defaultUtil.filter(cache, game, {
+        const vipBoard = util.filter(cache, game, { players: [player], zones: ["board"], vip: true });
+        const vipDeck = util.filter(cache, game, { players: [player], zones: ["deck"], vip: true });
+        const otherBoard = util.filter(cache, game, {
           players: [player],
           zones: ["board"],
           vip: false,

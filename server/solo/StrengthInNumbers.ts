@@ -1,8 +1,8 @@
-import { Deck } from "../../common/decksSlice";
-import { PlayerId } from "../../common/gameSlice";
-import { Goal, activateCard, gt, playCard, seq, when, whenRevealLeft } from "../Goal";
-import { Difficulty } from "../Mission";
-import { MissionPlayer } from "../Player";
+import { Deck } from "../../common/decksSlice.js";
+import { PlayerId } from "../../common/gameSlice.js";
+import { Goal, activateCard, gt, playCard, seq, when, whenRevealLeft } from "../Goal.js";
+import { Difficulty } from "../Mission.js";
+import { MissionPlayer } from "../Player.js";
 
 export default class StrengthInNumbers extends MissionPlayer {
   constructor(player: PlayerId, difficulty: Difficulty) {

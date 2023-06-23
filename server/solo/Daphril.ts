@@ -1,8 +1,8 @@
-import { Deck } from "../../common/decksSlice";
-import { PlayerId } from "../../common/gameSlice";
-import { activateCard, afterPlaying, afterTurn, afterWait, eq, gt, playCard, seq, when, whenRevealLeft } from "../Goal";
-import { Difficulty } from "../Mission";
-import { MissionPlayer } from "../Player";
+import { Deck } from "../../common/decksSlice.js";
+import { PlayerId } from "../../common/gameSlice.js";
+import { activateCard, afterPlaying, afterTurn, afterWait, eq, gt, playCard, seq, when, whenRevealLeft } from "../Goal.js";
+import { Difficulty } from "../Mission.js";
+import { MissionPlayer } from "../Player.js";
 
 export default class Daphril extends MissionPlayer {
   constructor(player: PlayerId, difficulty: Difficulty) {

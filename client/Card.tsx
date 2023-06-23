@@ -9,16 +9,16 @@ import React, {
   useState,
 } from "react";
 import { Container, Sprite } from "react-pixi-fiber";
-import Rectangle, { RectangleProps } from "./Rectangle";
-import { targetResolution } from "./Camera";
-import { CardColors, CardInfo, CardKeyword, CardState } from "../common/card";
-import Text from "./Text";
+import Rectangle, { RectangleProps } from "./Rectangle.js";
+import { targetResolution } from "./Camera.js";
+import { CardColors, CardInfo, CardKeyword, CardState } from "../common/card.js";
+import Text from "./Text.js";
 import { Graphics, filters as PixiFilters, RenderTexture, Texture } from "pixi.js";
 import anime from "animejs";
 import { GlowFilter } from "@pixi/filter-glow";
 import { isEqual } from "lodash";
-import { App } from "./Noir";
-import { colorlessColor, getColor, getRGB, hex } from "./color";
+import { App } from "./Noir.js";
+import { colorlessColor, getColor, getRGB, hex } from "./color.js";
 
 export const cardHeight = targetResolution.height / 4;
 export const cardWidth = cardHeight * (1 / 1.4);

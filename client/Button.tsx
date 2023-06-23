@@ -1,8 +1,9 @@
-import React, { MutableRefObject, useEffect, useRef } from "react";
-import Text, { TextProps } from "./Text";
+import React from "react";
+import { MutableRefObject, useEffect, useRef } from "react";
+import Text, { TextProps } from "./Text.js";
 import { Container } from "react-pixi-fiber";
 import anime from "animejs";
-import { Graphics, Rectangle } from "pixi.js";
+import { Rectangle } from "pixi.js";
 
 export type ButtonProps = TextProps;
 

@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+    "esModuleInterop": true,
+    "moduleResolution": "Node",
+    "target": "ES2022",
+    "jsx": "react",
+    "resolveJsonModule": true,
+    "module": "ESNext"
+  }
+}

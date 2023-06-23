@@ -1,8 +1,8 @@
-import { Application, InteractionManager, Loader, MIPMAP_MODES, settings } from "pixi.js";
-import * as React from "react";
+import React from "react";
+import { Application, Loader, MIPMAP_MODES, settings } from "pixi.js";
 import { render as renderPixi } from "react-pixi-fiber";
-import Noir from "./Noir";
-import { updateLocalStorage } from "./store";
+import Noir from "./Noir.js";
+import { updateLocalStorage } from "./store.js";
 
 settings.RENDER_OPTIONS.antialias = true;
 settings.ANISOTROPIC_LEVEL = 16;

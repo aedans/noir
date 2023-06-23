@@ -1,7 +1,7 @@
-import { NoirServerSocket } from "../../common/network";
-import { createGame } from "../game";
-import { SocketPlayer, TestPlayer } from "../Player";
-import Queue from "../Queue";
+import { NoirServerSocket } from "../../common/network.js";
+import { createGame } from "../game.js";
+import { SocketPlayer, TestPlayer } from "../Player.js";
+import Queue from "../Queue.js";
 
 export default class Test implements Queue {
   async push(socket: NoirServerSocket, name: string): Promise<void> {

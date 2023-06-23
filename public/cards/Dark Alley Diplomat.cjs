@@ -16,7 +16,7 @@ exports.card = (util, cache, game, card) => ({
   onExhaust: function*(action){
     if(action.source){
       const remcol = util.getCard(game, action.source)
-      const remcoll = util.getCardInfo(cache, game, remcol).colors
+      const remcoll = cache.getCardInfo(game, remcol).colors
       yield* util.setProp(cache,game,card, {
         target: card,
         name: "colors",

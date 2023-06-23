@@ -1,21 +1,21 @@
 import React from "react";
 import { Route, Router } from "wouter";
 import { DndProvider } from "react-dnd";
-import PIXIBackend from "./PIXIBackend";
-import Camera from "./Camera";
+import PIXIBackend from "./PIXIBackend.js";
+import Camera from "./Camera.js";
 import { Provider } from "react-redux";
-import { store } from "./store";
-import Menu from "./menu/Menu";
-import Decks from "./decks/Decks";
-import Editor from "./editor/Editor";
+import { store } from "./store.js";
+import Menu from "./menu/Menu.js";
+import Decks from "./decks/Decks.js";
+import Editor from "./editor/Editor.js";
 import { Application, Ticker, UPDATE_PRIORITY } from "pixi.js";
 import { addStats } from "pixi-stats";
-import Replays from "./replays/Replays";
-import Replay from "./replays/Replay";
-import Queue from "./queue/Queue";
-import Enqueue from "./queue/Enqueue";
-import Play from "./play/Play";
-import Solo from "./solo/Solo";
+import Replays from "./replays/Replays.js";
+import Replay from "./replays/Replay.js";
+import Queue from "./queue/Queue.js";
+import Enqueue from "./queue/Enqueue.js";
+import Play from "./play/Play.js";
+import Solo from "./solo/Solo.js";
 
 export type NoirProps = {
   app: Application;

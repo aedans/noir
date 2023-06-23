@@ -1,22 +1,29 @@
-import { useContext, useEffect, useState } from "react";
 import { AnyAction } from "redux";
-import { CardState, CardStateInfo, PartialCardInfoComputation } from "../common/card";
-import util, { Util } from "../common/util";
-import { useClientSelector } from "./store";
-import { CacheContext } from "./game/Game";
+import { CardState, PartialCardInfoComputation } from "../common/card";
+import CardInfoCache from "../common/CardInfoCache";
 
 export const serverOrigin = window.location.origin.toString().replace(/5173/g, "8080");
 
-export const defaultUtil: Util = {
-  ...util,
-  getCardInfoImpl,
-};
-
 const cards: { [name: string]: PartialCardInfoComputation } = {};
+
+export default class RemoteCardInfoCache extends CardInfoCache {
+  getPartialCardInfoComputation(card: CardState): PartialCardInfoComputation {
+    try {
+      if (!(card.name in cards)) {
+        throw new Error(`Card ${card.name} is not loaded`);
+      }
+
+      return cards[card.name];
+    } catch (e) {
+      console.error(`Error getting card info for ${card.name}`);
+      throw e;
+    }
+  }
+}
 
 async function getPartialCardInfoComputation(card: { name: string }) {
   try {
-    const cardString = await fetch(`${serverOrigin}/cards/${card.name}.js`).then((x) => x.text());
+    const cardString = await fetch(`${serverOrigin}/cards/${card.name}.cjs`).then((x) => x.text());
     const cardInfo = {} as { card: PartialCardInfoComputation };
     new Function("exports", cardString)(cardInfo);
     return cardInfo.card;
@@ -46,48 +53,6 @@ export async function loadCardsFromAction(action: AnyAction) {
   }
 }
 
-export function getCardInfoImpl(card: { name: string }) {
-  try {
-    if (!(card.name in cards)) {
-      throw new Error(`Card ${card.name} is not loaded`);
-    }
-
-    return cards[card.name];
-  } catch (e) {
-    console.error(`Error getting card info for ${card.name}`);
-    throw e;
-  }
-}
-
 export async function getCards() {
   return await fetch(`${serverOrigin}/api/cards`).then((x) => x.json());
-}
-
-export function useCardInfoList(states: CardState[], deps: ReadonlyArray<unknown>) {
-  const [cards, setCards] = useState([] as CardStateInfo[]);
-  const cache = useContext(CacheContext);
-  const game = useClientSelector((state) => state.game.current);
-
-  function resetCards() {
-    setCards(
-      states
-        .filter((card) => isLoaded(card))
-        .map((state) => ({ state, info: defaultUtil.getCardInfo(cache, game, state) }))
-    );
-  }
-
-  useEffect(() => {
-    const promises: Promise<any>[] = [];
-    for (const card of states.filter((c) => !isLoaded(c))) {
-      try {
-        promises.push(loadCard(card).then(() => resetCards()));
-      } catch (e) {
-        console.error(e);
-      }
-    }
-
-    Promise.all(promises).then(() => resetCards());
-  }, deps);
-
-  return cards;
 }

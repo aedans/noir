@@ -1,19 +1,21 @@
-import React, { useEffect, useRef, useState } from "react";
-import { defaultUtil, getCards, isLoaded, useCardInfoList } from "../cards";
-import Grid from "./Grid";
-import { useClientDispatch, useClientSelector } from "../store";
-import { defaultCardState } from "../../common/gameSlice";
-import { addDeckCard, removeDeckCard } from "../../common/decksSlice";
-import { targetResolution } from "../Camera";
-import Rectangle from "../Rectangle";
-import { MoveAnimationContext, MoveAnimationState } from "../MoveAnimation";
-import GridCard from "./GridCard";
-import { ordered } from "../../common/util";
+import React from "react";
+import { useEffect, useRef, useState } from "react";
+import RemoteCardInfoCache, { getCards, isLoaded } from "../cards.js";
+import Grid from "./Grid.js";
+import { useClientDispatch, useClientSelector } from "../store.js";
+import { defaultCardState } from "../../common/gameSlice.js";
+import { addDeckCard, removeDeckCard } from "../../common/decksSlice.js";
+import { targetResolution } from "../Camera.js";
+import Rectangle from "../Rectangle.js";
+import { MoveAnimationContext, MoveAnimationState } from "../MoveAnimation.js";
+import GridCard from "./GridCard.js";
+import { ordered } from "../../common/util.js";
 import { Container } from "react-pixi-fiber";
-import { cardHeight, cardWidth } from "../Card";
-import Text from "../Text";
-import CardList from "../CardList";
-import GameCard from "../game/GameCard";
+import { cardHeight, cardWidth } from "../Card.js";
+import Text from "../Text.js";
+import CardList from "../CardList.js";
+import GameCard from "../game/GameCard.js";
+import { useCardInfoList } from "../cardinfolist.js";
 
 export default function Editor(props: { params: { deck: string } }) {
   const dispatch = useClientDispatch();
@@ -76,7 +78,7 @@ export default function Editor(props: { params: { deck: string } }) {
           {(data, x, y) => (
             <GridCard
               state={data}
-              info={defaultUtil.getDefaultCardInfo(data)}
+              info={new RemoteCardInfoCache().getDefaultCardInfo(data)}
               key={data.id}
               pointerdown={pointerdownAdd(data.name)}
               interactive={areCardsLoaded}

@@ -14,7 +14,7 @@ exports.card = (util, cache, game, card) => ({
       const { player, zone, index } = util.findCard(game, action.payload.target);
       const toUndo = game.players[player][zone][index];
 
-      return player == util.opponent(game, card) && util.getCardInfo(cache, game, toUndo).type == "operation";
+      return player == util.opponent(game, card) && cache.getCardInfo(game, toUndo).type == "operation";
     });
 
     if (!action) {

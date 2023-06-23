@@ -1,9 +1,9 @@
 import React, { useCallback } from "react";
-import { targetResolution } from "../Camera";
-import { CardStateInfo } from "../../common/card";
-import { cardHeight, cardWidth } from "../Card";
-import GameCard, { GameCardProps } from "./GameCard";
-import ExpandableCardList from "../ExpandableCardList";
+import { targetResolution } from "../Camera.js";
+import { CardStateInfo } from "../../common/card.js";
+import { cardHeight, cardWidth } from "../Card.js";
+import GameCard, { GameCardProps } from "./GameCard.js";
+import ExpandableCardList from "../ExpandableCardList.js";
 import { Container } from "react-pixi-fiber";
 
 export type DeckProps = {

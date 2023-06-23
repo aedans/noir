@@ -1,9 +1,9 @@
-import { Container } from "react-pixi-fiber";
-import { targetResolution } from "../Camera";
 import React from "react";
+import { Container } from "react-pixi-fiber";
+import { targetResolution } from "../Camera.js";
 import { useLocation } from "wouter";
-import Button from "../Button";
-import { hasWon } from "../wins";
+import Button from "../Button.js";
+import { hasWon } from "../wins.js";
 
 export default function Play() {
   const [_, setLocation] = useLocation();

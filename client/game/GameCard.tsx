@@ -1,14 +1,14 @@
 import React, { MutableRefObject, Ref, useContext, useEffect, useImperativeHandle, useRef } from "react";
 import { useDrop } from "react-dnd";
 import { Container, InteractiveComponent } from "react-pixi-fiber";
-import { CardColors, CardState } from "../../common/card";
-import Card, { CardProps, combineColors, isCardPropsEqual } from "../Card";
-import MoveAnimation, { useLastPos } from "../MoveAnimation";
-import { CacheContext, ConnectionContext, HighlightContext, PreparedContext } from "./Game";
-import { getCard } from "../../common/gameSlice";
-import { useClientSelector } from "../store";
-import { defaultUtil } from "../cards";
-import { hex } from "../color";
+import { CardColors, CardState } from "../../common/card.js";
+import Card, { CardProps, combineColors, isCardPropsEqual } from "../Card.js";
+import MoveAnimation, { useLastPos } from "../MoveAnimation.js";
+import { CacheContext, ConnectionContext, HighlightContext, PreparedContext } from "./Game.js";
+import { getCard } from "../../common/gameSlice.js";
+import { useClientSelector } from "../store.js";
+import { hex } from "../color.js";
+import util from "../../common/util.js";
 
 export type GameCardProps = CardProps &
   InteractiveComponent & {
@@ -71,20 +71,20 @@ export default React.memo(
     for (const modifier of props.state.modifiers) {
       const card = getCard(game, modifier.card);
       if (card) {
-        const info = defaultUtil.getCardInfo(cache, game, card);
+        const info = cache.getCardInfo(game, card);
         borderColors.push(combineColors(info.colors));
       }
     }
 
-    for (const card of defaultUtil.filter(cache, game, { zones: ["board"] })) {
-      const info = defaultUtil.getCardInfo(cache, game, card);
-      if (defaultUtil.filter(cache, game, info.effectFilter).find((c) => c.id == props.state.id)) {
+    for (const card of util.filter(cache, game, { zones: ["board"] })) {
+      const info = cache.getCardInfo(game, card);
+      if (util.filter(cache, game, info.effectFilter).find((c) => c.id == props.state.id)) {
         if (Object.entries(info.effect(props.info, props.state) ?? {}).length > 0) {
           borderColors.push(combineColors(info.colors));
         }
       }
 
-      if (defaultUtil.filter(cache, game, info.secondaryEffectFilter).find((c) => c.id == props.state.id)) {
+      if (util.filter(cache, game, info.secondaryEffectFilter).find((c) => c.id == props.state.id)) {
         if (Object.entries(info.secondaryEffect(props.info, props.state) ?? {}).length > 0) {
           borderColors.push(combineColors(info.colors));
         }

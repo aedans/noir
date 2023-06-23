@@ -1,5 +1,8 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import * as toolkitRaw from '@reduxjs/toolkit';
+const { createSlice } = ((toolkitRaw as any).default ?? toolkitRaw) as typeof toolkitRaw;
+
 import { CardState, CardType, ModifierState, Target } from "./card";
+import { PayloadAction } from "@reduxjs/toolkit";
 
 export const zones = ["deck", "board", "grave"] as const;
 export type Zone = (typeof zones)[number];

@@ -1,7 +1,7 @@
 import moize from "moize";
 import { MongoClient, ObjectId } from "mongodb";
-import { GameAction, Winner } from "../../common/gameSlice";
-import { PlayerInit } from "../../common/network";
+import { GameAction, Winner } from "../../common/gameSlice.js";
+import { PlayerInit } from "../../common/network.js";
 
 export type Replay = {
   winner: Winner;

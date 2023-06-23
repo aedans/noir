@@ -2,11 +2,11 @@ import React from "react";
 import { Ref, useContext, useRef, MutableRefObject, useState, useImperativeHandle, useEffect } from "react";
 import { useDrag } from "react-dnd";
 import { Container } from "react-pixi-fiber";
-import { cardHeight } from "../Card";
-import { defaultUtil } from "../cards";
-import { useClientSelector } from "../store";
-import { CacheContext, HoverContext, PlayerContext, PreparedContext } from "./Game";
-import GameCard, { GameCardProps } from "./GameCard";
+import { cardHeight } from "../Card.js";
+import { useClientSelector } from "../store.js";
+import { CacheContext, HoverContext, PlayerContext, PreparedContext } from "./Game.js";
+import GameCard, { GameCardProps } from "./GameCard.js";
+import util from "../../common/util.js";
 
 export default React.forwardRef(function HandCard(props: GameCardProps, ref: Ref<Container>) {
   const player = useContext(PlayerContext);
@@ -41,7 +41,7 @@ export default React.forwardRef(function HandCard(props: GameCardProps, ref: Ref
 
   useEffect(() => {
     if (isDragging) {
-      const result = defaultUtil.tryPayCost(
+      const result = util.tryPayCost(
         cache,
         game,
         props.state,

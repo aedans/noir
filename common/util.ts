@@ -10,10 +10,8 @@ import {
   CardState,
   CardTrigger,
   CardType,
-  PartialCardInfoComputation,
-  runPartialCardInfoComputation,
   Target,
-} from "./card";
+} from "./card.js";
 import {
   addCard,
   AddCardParams,
@@ -44,25 +42,27 @@ import {
   modifyCard,
   playCard,
   PlayCardParams,
-  initialGameState,
   noop,
   NoActionParams,
   activateCard,
-} from "./gameSlice";
-import { historySlice, SetUndoneParams } from "./historySlice";
-import { shuffle } from "lodash";
+  ChangeMoneyParams,
+  ModifyCardParams,
+  SetPropParams,
+  StealCardParams,
+} from "./gameSlice.js";
+import { historySlice, SetUndoneParams } from "./historySlice.js";
+import _ from "lodash";
+import CardInfoCache from "./CardInfoCache.js";
 
 export type Filter = {
   excludes?: Target[];
   players?: PlayerId[];
   zones?: Zone[];
   names?: string[];
-  types?: CardType[];
-  colors?: CardColor[];
   hidden?: boolean;
   exhausted?: boolean;
-  playable?: boolean;
-  activatable?: boolean;
+  types?: CardType[];
+  colors?: CardColor[];
   maxMoney?: number;
   minMoney?: number;
   maxAgents?: number;
@@ -72,6 +72,8 @@ export type Filter = {
   reversed?: boolean;
   number?: number;
   text?: string;
+  playable?: boolean;
+  activatable?: boolean;
 } & { [key in CardKeyword[0]]?: boolean };
 
 export function filter(this: Util, cache: CardInfoCache, game: GameState, filter: Filter) {
@@ -89,14 +91,6 @@ export function filter(this: Util, cache: CardInfoCache, game: GameState, filter
         f = f.filter((card) => filter.excludes!.every((c) => c.id != card.id));
       }
 
-      if (filter.types != undefined && filter.types.length > 0) {
-        f = f.filter((card) => filter.types!.includes(this.getCardInfo(cache, game, card).type));
-      }
-
-      if (filter.colors != undefined && filter.colors.length > 0) {
-        f = f.filter((card) => this.getCardInfo(cache, game, card).colors.some((c) => filter.colors!.includes(c)));
-      }
-
       if (filter.hidden != undefined) {
         f = f.filter((card) => filter.hidden! == card.hidden);
       }
@@ -105,16 +99,48 @@ export function filter(this: Util, cache: CardInfoCache, game: GameState, filter
         f = f.filter((card) => filter.exhausted! == card.exhausted);
       }
 
+      if (filter.types != undefined && filter.types.length > 0) {
+        f = f.filter((card) => filter.types!.includes(cache.getCardInfo(game, card).type));
+      }
+
+      if (filter.colors != undefined && filter.colors.length > 0) {
+        f = f.filter((card) => cache.getCardInfo(game, card).colors.some((c) => filter.colors!.includes(c)));
+      }
+
+      if (filter.maxMoney != undefined) {
+        f = f.filter((card) => cache.getCardInfo(game, card).cost.money <= filter.maxMoney!);
+      }
+
+      if (filter.minMoney != undefined) {
+        f = f.filter((card) => cache.getCardInfo(game, card).cost.money >= filter.minMoney!);
+      }
+
+      if (filter.maxAgents != undefined) {
+        f = f.filter((card) => cache.getCardInfo(game, card).cost.agents <= filter.maxAgents!);
+      }
+
+      if (filter.minAgents != undefined) {
+        f = f.filter((card) => cache.getCardInfo(game, card).cost.agents >= filter.minAgents!);
+      }
+
+      if (filter.text != undefined) {
+        f = f.filter(
+          (card) =>
+            cache.getCardInfo(game, card).text.toLowerCase().includes(filter.text!.toLowerCase()) ||
+            cache.getCardInfo(game, card).keywords.some((k) => k[0].includes(filter.text!.toLowerCase()))
+        );
+      }
+
       if (filter.playable != undefined && filter.playable) {
         f = f.filter((card) => {
-          const info = this.getCardInfo(cache, game, card);
+          const info = cache.getCardInfo(game, card);
           return this.canPayCost(cache, game, card, player, info.colors, info.cost, info.targets, []);
         });
       }
 
       if (filter.activatable != undefined && filter.activatable) {
         f = f.filter((card) => {
-          const info = this.getCardInfo(cache, game, card);
+          const info = cache.getCardInfo(game, card);
           return (
             !card.exhausted &&
             info.hasActivate &&
@@ -123,36 +149,10 @@ export function filter(this: Util, cache: CardInfoCache, game: GameState, filter
         });
       }
 
-      if (filter.maxMoney != undefined) {
-        f = f.filter((card) => this.getCardInfo(cache, game, card).cost.money <= filter.maxMoney!);
-      }
-
-      if (filter.minMoney != undefined) {
-        f = f.filter((card) => this.getCardInfo(cache, game, card).cost.money >= filter.minMoney!);
-      }
-
-      if (filter.maxAgents != undefined) {
-        f = f.filter((card) => this.getCardInfo(cache, game, card).cost.agents <= filter.maxAgents!);
-      }
-
-      if (filter.minAgents != undefined) {
-        f = f.filter((card) => this.getCardInfo(cache, game, card).cost.agents >= filter.minAgents!);
-      }
-
-      if (filter.text != undefined) {
-        f = f.filter(
-          (card) =>
-            this.getCardInfo(cache, game, card).text.toLowerCase().includes(filter.text!.toLowerCase()) ||
-            this.getCardInfo(cache, game, card).keywords.some((k) => k[0].includes(filter.text!.toLowerCase()))
-        );
-      }
-
       for (const keyword of cardKeywords) {
         var name = keyword()[0];
         if (filter[name] != undefined) {
-          f = f.filter(
-            (card) => this.getCardInfo(cache, game, card).keywords.some((k) => k[0] == name) == filter[name]!
-          );
+          f = f.filter((card) => cache.getCardInfo(game, card).keywords.some((k) => k[0] == name) == filter[name]!);
         }
       }
 
@@ -161,11 +161,11 @@ export function filter(this: Util, cache: CardInfoCache, game: GameState, filter
   }
 
   if (filter.random != undefined && filter.random) {
-    cards = shuffle(cards);
+    cards = _.shuffle(cards);
   }
 
   if (filter.ordering != undefined) {
-    cards = ordered(cards, filter.ordering, (card) => this.getCardInfo(cache, game, card));
+    cards = ordered(cards, filter.ordering, (card) => cache.getCardInfo(game, card));
   }
 
   if (filter.reversed != undefined && filter.reversed) {
@@ -269,7 +269,7 @@ export function tryPayCost(
     } else if (prepared.some((card) => card.id == b.id)) {
       return 1;
     } else {
-      return this.getCardInfo(cache, game, b).activationPriority - this.getCardInfo(cache, game, a).activationPriority;
+      return cache.getCardInfo(game, b).activationPriority - cache.getCardInfo(game, a).activationPriority;
     }
   });
 
@@ -351,59 +351,6 @@ export function* revealRandom(
   }
 }
 
-export type CardInfoCache = Map<string, CardInfo>;
-
-const defaultCache = new Map();
-export function getDefaultCardInfo(this: Util, card: CardState) {
-  return this.getCardInfo(defaultCache, initialGameState(), card);
-}
-
-export function getCardInfo(this: Util, cache: CardInfoCache, game: GameState, card: CardState): CardInfo {
-  if (cache.has(card.id)) {
-    return cache.get(card.id)!;
-  } else {
-    const baseInfo = runPartialCardInfoComputation(this.getCardInfoImpl(card), this, cache, game, card);
-    cache.set(card.id, baseInfo);
-    const info = this.updateCardInfo(cache, game, card, baseInfo);
-    cache.set(card.id, info);
-    return info;
-  }
-}
-
-export function updateCardInfo(this: Util, cache: CardInfoCache, game: GameState, state: CardState, info: CardInfo) {
-  if (!findCard(game, state)) {
-    return info;
-  }
-
-  cache.set(state.id, info);
-
-  for (const card of this.filter(cache, game, { zones: ["board"] })) {
-    const cardInfo = this.getCardInfo(cache, game, card);
-    if (this.filter(cache, game, cardInfo.effectFilter).find((c) => c.id == state.id)) {
-      info = { ...info, ...cardInfo.effect(info, state) };
-      cache.set(state.id, info);
-    }
-
-    if (this.filter(cache, game, cardInfo.secondaryEffectFilter).find((c) => c.id == state.id)) {
-      info = { ...info, ...cardInfo.secondaryEffect(info, state) };
-      cache.set(state.id, info);
-    }
-  }
-
-  for (const modifier of state.modifiers) {
-    const card = getCard(game, modifier.card);
-    if (card) {
-      const modifiers = this.getCardInfo(cache, game, card).modifiers ?? {};
-      info = { ...info, ...modifiers[modifier.name](info, modifier, state) };
-      cache.set(state.id, info);
-    }
-  }
-
-  cache.set(state.id, info);
-
-  return info;
-}
-
 export function keywordModifier(keyword: CardKeyword): CardModifier {
   return (info) => ({
     keywords: [...info.keywords, keyword],
@@ -433,7 +380,6 @@ export function onTrigger<T extends GameParams>(
   init: boolean = false
 ) {
   return function* (
-    this: GetCardInfo,
     cache: CardInfoCache,
     game: GameState,
     source: Target | undefined,
@@ -448,7 +394,7 @@ export function onTrigger<T extends GameParams>(
     if (selector && sourceless.target) {
       const card = getCard(game, sourceless.target);
       if (card) {
-        yield* selector(this.getCardInfo(cache, game, card), game)(payload);
+        yield* selector(cache.getCardInfo(game, card), game)(payload);
       }
     }
   };
@@ -497,7 +443,7 @@ function* revealSource(
 
       const state = getCard(game, source);
       if (state) {
-        const info = util.getCardInfo(cache, game, state);
+        const info = cache.getCardInfo(game, state);
         yield* info.onReveal(reveal);
       }
     }
@@ -524,7 +470,7 @@ function* onEndTurn(this: Util, cache: CardInfoCache, game: GameState, payload: 
 
       if (card.props.collection <= 1) {
         const player = util.findCard(game, card)?.player;
-        const info = this.getCardInfo(cache, game, card);
+        const info = cache.getCardInfo(game, card);
         const money = info.keywords.filter((k): k is ["debt", number] => k[0] == "debt").reduce((a, b) => a + b[1], 0);
         yield* this.removeMoney(cache, game, card, { player, money });
       }
@@ -586,7 +532,7 @@ function* onPlayCard(
     return;
   }
 
-  const info = this.getCardInfo(cache, game, card);
+  const info = cache.getCardInfo(game, card);
   yield* info.onPlay({ ...payload, source });
 
   const totalDelay = info.keywords.filter((k): k is ["delay", number] => k[0] == "delay").reduce((a, b) => a + b[1], 0);
@@ -681,7 +627,7 @@ function* onRemoveCard(
     return;
   }
 
-  const info = this.getCardInfo(cache, game, card);
+  const info = cache.getCardInfo(game, card);
 
   if (!card.props.protected) {
     yield removeCard({ source, ...payload });
@@ -695,20 +641,28 @@ function* onRemoveCard(
 
 const util = {
   endTurn: onEndTurn,
-  addCard: onTrigger(addCard, (info, game) => triggerReveal(info, game, (p) => onAdd(info, p)), true),
+  addCard: onTrigger<AddCardParams>(addCard, (info, game) => triggerReveal(info, game, (p) => onAdd(info, p)), true),
   playCard: onPlayCard,
-  activateCard: onTrigger(activateCard, (info, game) => triggerReveal(info, game, (p) => onExhaust(info, game, p))),
+  activateCard: onTrigger<TargetCardParams>(activateCard, (info, game) => triggerReveal(info, game, info.onActivate)),
   removeCard: onRemoveCard,
-  enterCard: onTrigger(enterCard, (info, game) => triggerReveal(info, game, info.onEnter)),
-  bounceCard: onTrigger(bounceCard, (info, game) => triggerReveal(info, game, info.onBounce)),
-  stealCard: onTrigger(stealCard, (info, game) => triggerReveal(info, game, info.onSteal)),
-  revealCard: onTrigger(revealCard, (info, game) => triggerReveal(info, game, (p) => onReveal(info, game, p))),
-  refreshCard: onTrigger(refreshCard, (info, game) => triggerReveal(info, game, info.onRefresh)),
-  exhaustCard: onTrigger(exhaustCard, (info, game) => triggerReveal(info, game, (p) => onExhaust(info, game, p))),
-  setProp: onTrigger(setProp, (info, game) => triggerReveal(info, game, info.onSetProp)),
-  modifyCard: onTrigger(modifyCard, (info, game) => triggerReveal(info, game, info.onModify)),
-  addMoney: onTrigger(addMoney, (info, game) => triggerReveal(info, game, undefined, (p) => p.player)),
-  removeMoney: onTrigger(removeMoney, (info, game) => triggerReveal(info, game, undefined, (p) => p.player)),
+  enterCard: onTrigger<TargetCardParams>(enterCard, (info, game) => triggerReveal(info, game, info.onEnter)),
+  bounceCard: onTrigger<TargetCardParams>(bounceCard, (info, game) => triggerReveal(info, game, info.onBounce)),
+  stealCard: onTrigger<StealCardParams>(stealCard, (info, game) => triggerReveal(info, game, info.onSteal)),
+  revealCard: onTrigger<TargetCardParams>(revealCard, (info, game) =>
+    triggerReveal(info, game, (p) => onReveal(info, game, p))
+  ),
+  refreshCard: onTrigger<TargetCardParams>(refreshCard, (info, game) => triggerReveal(info, game, info.onRefresh)),
+  exhaustCard: onTrigger<TargetCardParams>(exhaustCard, (info, game) =>
+    triggerReveal(info, game, (p) => onExhaust(info, game, p))
+  ),
+  setProp: onTrigger<SetPropParams>(setProp, (info, game) => triggerReveal(info, game, info.onSetProp)),
+  modifyCard: onTrigger<ModifyCardParams>(modifyCard, (info, game) => triggerReveal(info, game, info.onModify)),
+  addMoney: onTrigger<ChangeMoneyParams>(addMoney, (info, game) =>
+    triggerReveal(info, game, undefined, (p) => p.player)
+  ),
+  removeMoney: onTrigger<ChangeMoneyParams>(removeMoney, (info, game) =>
+    triggerReveal(info, game, undefined, (p) => p.player)
+  ),
   findCard: findCard as (game: GameState, card: Target) => { player: PlayerId; zone: Zone; index: number },
   getCard: getCard as (game: GameState, card: Target) => CardState,
   setUndone,
@@ -722,9 +676,6 @@ const util = {
   tryPayCost,
   canPayCost,
   revealRandom,
-  updateCardInfo,
-  getDefaultCardInfo,
-  getCardInfo,
   keywordModifier,
   cid,
   random,
@@ -732,11 +683,6 @@ const util = {
   noop,
 };
 
-export type GetCardInfo = {
-  getCardInfo: (cache: CardInfoCache, game: GameState, card: CardState) => CardInfo;
-  getCardInfoImpl: (card: { name: string }) => PartialCardInfoComputation;
-};
-
-export type Util = typeof util & GetCardInfo;
+export type Util = typeof util;
 
 export default util;

@@ -1,13 +1,14 @@
-import React, { useCallback } from "react";
+import React from "react";
+import { useCallback } from "react";
 import { useContext } from "react";
-import { targetResolution } from "../Camera";
-import { useClientSelector } from "../store";
-import { PlayerContext } from "./Game";
-import { useCardInfoList } from "../cards";
-import { cardHeight } from "../Card";
-import GameCard, { GameCardProps } from "./GameCard";
-import ExpandableCardList from "../ExpandableCardList";
+import { targetResolution } from "../Camera.js";
+import { useClientSelector } from "../store.js";
+import { PlayerContext } from "./Game.js";
+import { cardHeight } from "../Card.js";
+import GameCard, { GameCardProps } from "./GameCard.js";
+import ExpandableCardList from "../ExpandableCardList.js";
 import { Container } from "react-pixi-fiber";
+import { useCardInfoList } from "../cardinfolist.js";
 
 export default function Grave() {
   const player = useContext(PlayerContext);

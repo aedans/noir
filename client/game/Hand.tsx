@@ -1,9 +1,9 @@
 import React from "react";
-import { targetResolution } from "../Camera";
-import { CardStateInfo } from "../../common/card";
-import HandCard from "./HandCard";
-import { cardHeight, cardWidth } from "../Card";
-import { useTimeShadowFilter } from "../time";
+import { targetResolution } from "../Camera.js";
+import { CardStateInfo } from "../../common/card.js";
+import HandCard from "./HandCard.js";
+import { cardHeight, cardWidth } from "../Card.js";
+import { useTimeShadowFilter } from "../time.js";
 import { Container } from "react-pixi-fiber";
 
 export type HandProps = {

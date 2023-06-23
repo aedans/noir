@@ -1,11 +1,11 @@
 import React, { useContext } from "react";
 import { Container } from "react-pixi-fiber";
-import Text from "../Text";
-import Rectangle from "../Rectangle";
-import { targetResolution } from "../Camera";
-import { ConnectionContext, PlayerContext } from "./Game";
-import { useClientSelector } from "../store";
-import { currentPlayer } from "../../common/gameSlice";
+import Text from "../Text.js";
+import Rectangle from "../Rectangle.js";
+import { targetResolution } from "../Camera.js";
+import { ConnectionContext, PlayerContext } from "./Game.js";
+import { useClientSelector } from "../store.js";
+import { currentPlayer } from "../../common/gameSlice.js";
 
 export default function EndTurn() {
   const connection = useContext(ConnectionContext);

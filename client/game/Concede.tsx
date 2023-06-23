@@ -1,8 +1,9 @@
-import React, { useContext } from "react";
+import React from "react";
+import { useContext } from "react";
 import { Container } from "react-pixi-fiber";
-import Text from "../Text";
-import { targetResolution } from "../Camera";
-import { ConnectionContext } from "./Game";
+import Text from "../Text.js";
+import { targetResolution } from "../Camera.js";
+import { ConnectionContext } from "./Game.js";
 
 export default function Concede() {
   const connection = useContext(ConnectionContext);

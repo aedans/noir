@@ -1,8 +1,8 @@
-import { NoirServerSocket } from "../../common/network";
-import { insertReplay } from "../db/replay";
-import { createGame } from "../game";
-import { SocketPlayer } from "../Player";
-import Queue from "../Queue";
+import { NoirServerSocket } from "../../common/network.js";
+import { insertReplay } from "../db/replay.js";
+import { createGame } from "../game.js";
+import { SocketPlayer } from "../Player.js";
+import Queue from "../Queue.js";
 
 export default class Casual implements Queue {
   queue: Map<string, NoirServerSocket> = new Map();

@@ -1,5 +1,5 @@
 import { CustomPIXIComponent, CustomPIXIComponentBehavior, DisplayObjectProps } from "react-pixi-fiber";
-import { Graphics, graphicsUtils, Ticker } from "pixi.js";
+import { Graphics, Ticker } from "pixi.js";
 import { Camera3d } from "pixi-projection";
 import React, { Context, MutableRefObject } from "react";
 import PIXI from "pixi.js";

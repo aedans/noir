@@ -1,12 +1,12 @@
-import { Dispatch, MutableRefObject, SetStateAction, useContext, useEffect, useRef, useState } from "react";
-import { Explanation, explain, isExplained, setExplained } from "../explain";
-import { useClientSelector } from "../store";
-import { CacheContext, HighlightContext, PlayerContext } from "./Game";
 import React from "react";
-import Rectangle from "../Rectangle";
+import { Dispatch, MutableRefObject, SetStateAction, useContext, useEffect, useRef, useState } from "react";
+import { Explanation, explain, isExplained, setExplained } from "../explain.js";
+import { useClientSelector } from "../store.js";
+import { CacheContext, HighlightContext, PlayerContext } from "./Game.js";
+import Rectangle from "../Rectangle.js";
 import { Container } from "react-pixi-fiber";
-import Text from "../Text";
-import { targetResolution } from "../Camera";
+import Text from "../Text.js";
+import { targetResolution } from "../Camera.js";
 import anime from "animejs";
 
 export type ExplanationProps = {

@@ -1,7 +1,7 @@
 import React from "react";
 import { Container } from "react-pixi-fiber";
-import Button from "../Button";
-import { targetResolution } from "../Camera";
+import Button from "../Button.js";
+import { targetResolution } from "../Camera.js";
 import { useLocation } from "wouter";
 
 export default function Menu() {

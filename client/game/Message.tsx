@@ -2,8 +2,8 @@ import { DropShadowFilter } from "@pixi/filter-drop-shadow";
 import anime from "animejs";
 import React, { MutableRefObject, useEffect, useRef } from "react";
 import { Container } from "react-pixi-fiber";
-import { targetResolution } from "../Camera";
-import Text from "../Text";
+import { targetResolution } from "../Camera.js";
+import Text from "../Text.js";
 
 export type MessageProps = {
   text: string;

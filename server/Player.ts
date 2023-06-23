@@ -1,13 +1,15 @@
-import { Deck } from "../common/decksSlice";
-import { PlayerId, Winner, currentPlayer } from "../common/gameSlice";
-import { HistoryAction, batch, historySlice } from "../common/historySlice";
+import { Deck } from "../common/decksSlice.js";
+import { PlayerId, Winner, currentPlayer } from "../common/gameSlice.js";
+import { HistoryAction, batch, historySlice } from "../common/historySlice.js";
 import fs from "fs";
-import { random } from "../common/util";
-import { PlayerInit, PlayerAction, NoirServerSocket } from "../common/network";
-import { HistoryState } from "../common/historySlice";
-import { initialHistoryState } from "../common/historySlice";
-import { Goal, GoalState, runGoals } from "./Goal";
-import { Difficulty, MissionName } from "./Mission";
+import { random } from "../common/util.js";
+import { PlayerInit, PlayerAction, NoirServerSocket } from "../common/network.js";
+import { HistoryState } from "../common/historySlice.js";
+import { initialHistoryState } from "../common/historySlice.js";
+import { Goal, GoalState, runGoals } from "./Goal.js";
+import { Difficulty, MissionName } from "./Mission.js";
+import CardInfoCache from "../common/CardInfoCache.js";
+import LocalCardInfoCache from "./LocalCardInfoCache.js";
 
 const decks = JSON.parse(fs.readFileSync("./common/decks.json").toString());
 
@@ -23,10 +25,13 @@ export default interface Player {
 export class SocketPlayer implements Player {
   callbacks: ((action: PlayerAction | "concede") => void)[] = [];
   actions: HistoryAction[] = [];
-  name: string = this.names[this.player];
 
   constructor(public socket: NoirServerSocket, public player: PlayerId, public names: readonly [string, string]) {
     this.connect(socket);
+  }
+
+  get name() {
+    return this.names[this.player];
   }
 
   connect(socket: NoirServerSocket) {
@@ -83,6 +88,7 @@ export abstract class ComputerPlayer implements Player {
   invalid: PlayerAction[] = [];
   valid: PlayerAction[] = [];
   timeout: boolean = true;
+  cache: CardInfoCache = new LocalCardInfoCache();
 
   constructor(public player: PlayerId, public name: string) {}
 
@@ -102,7 +108,10 @@ export abstract class ComputerPlayer implements Player {
   doAction() {
     const current = currentPlayer(this.history.current);
     if (current == this.player) {
-      let action = runGoals(this.history.current, this.player, this.goals, this.state, this.invalid) ?? { type: "end" };
+      this.cache.reset();
+      let action = runGoals(this.cache, this.history.current, this.player, this.goals, this.state, this.invalid) ?? {
+        type: "end",
+      };
 
       this.valid.push(action);
 

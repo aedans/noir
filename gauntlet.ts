@@ -1,8 +1,8 @@
 import { setAutoFreeze } from "immer";
-import { PlayerId, Winner } from "./common/gameSlice";
-import { MissionName, missions } from "./server/Mission";
-import Player from "./server/Player";
-import { createGame } from "./server/game";
+import { PlayerId, Winner } from "./common/gameSlice.js";
+import { MissionName, missions } from "./server/Mission.js";
+import Player from "./server/Player.js";
+import { createGame } from "./server/game.js";
 
 setAutoFreeze(false);
 

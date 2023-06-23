@@ -1,12 +1,13 @@
-import React, { useState } from "react";
+import React from "react";
+import { useState } from "react";
 import { Container } from "react-pixi-fiber";
 import { useLocation } from "wouter";
-import { Difficulty, MissionName } from "../../server/Mission";
-import Button from "../Button";
-import { targetResolution } from "../Camera";
-import { hasWon } from "../wins";
-import { CardColors } from "../../common/card";
-import { hex } from "../color";
+import { Difficulty, MissionName } from "../../server/Mission.js";
+import Button from "../Button.js";
+import { targetResolution } from "../Camera.js";
+import { hasWon } from "../wins.js";
+import { CardColors } from "../../common/card.js";
+import { hex } from "../color.js";
 
 type MissionButtonProps = {
   mission: MissionName;

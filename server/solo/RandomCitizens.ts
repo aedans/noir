@@ -1,8 +1,8 @@
-import { Deck } from "../../common/decksSlice";
-import { PlayerId } from "../../common/gameSlice";
-import { Goal, activateCard, afterTurn, afterWait, playCard, whenRevealLeft } from "../Goal";
-import { Difficulty } from "../Mission";
-import { MissionPlayer } from "../Player";
+import { Deck } from "../../common/decksSlice.js";
+import { PlayerId } from "../../common/gameSlice.js";
+import { Goal, activateCard, afterTurn, afterWait, playCard, whenRevealLeft } from "../Goal.js";
+import { Difficulty } from "../Mission.js";
+import { MissionPlayer } from "../Player.js";
 
 export default class RandomCitizens extends MissionPlayer {
   constructor(player: PlayerId, difficulty: Difficulty) {

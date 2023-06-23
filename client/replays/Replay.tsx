@@ -1,10 +1,10 @@
 import { WithId } from "mongodb";
 import React, { useEffect, useState } from "react";
-import { GameAction, isPlayerAction } from "../../common/gameSlice";
-import { batch, liftAction, reset } from "../../common/historySlice";
-import { loadCardsFromAction, serverOrigin } from "../cards";
-import Game, { ConnectionContext, PlayerContext } from "../game/Game";
-import { useClientDispatch } from "../store";
+import { GameAction, isPlayerAction } from "../../common/gameSlice.js";
+import { batch, liftAction, reset } from "../../common/historySlice.js";
+import { loadCardsFromAction, serverOrigin } from "../cards.js";
+import Game, { ConnectionContext, PlayerContext } from "../game/Game.js";
+import { useClientDispatch } from "../store.js";
 
 export default function Replay(props: { params: { id: string } }) {
   const [replay, setReplay] = useState(null as WithId<{ history: GameAction[] }> | null);

@@ -1,7 +1,8 @@
 import { DeepPartial } from "redux";
-import { AddCardParams, GameAction, GameState, ModifyCardParams, PlayCardParams, TargetCardParams } from "./gameSlice";
-import { HistoryAction } from "./historySlice";
-import { CardInfoCache, Filter, Util } from "./util";
+import { AddCardParams, GameAction, GameState, ModifyCardParams, PlayCardParams, TargetCardParams } from "./gameSlice.js";
+import { HistoryAction } from "./historySlice.js";
+import { Filter, Util } from "./util.js";
+import CardInfoCache from "./CardInfoCache.js";
 
 export type CardStateInfo = {
   state: CardState;
@@ -75,6 +76,7 @@ export type CardInfo = {
   modifiers: { [name: string]: CardModifier };
   onAdd: CardTrigger<AddCardParams>;
   onPlay: CardTrigger<PlayCardParams>;
+  onActivate: CardTrigger<TargetCardParams>;
   onRemove: CardTrigger<TargetCardParams>;
   onEnter: CardTrigger<TargetCardParams>;
   onBounce: CardTrigger<TargetCardParams>;
@@ -94,14 +96,19 @@ export type PartialCardInfoComputation = (
 ) => { [K in keyof CardInfo]?: DeepPartial<CardInfo[K]> } & {
   colors?: CardColor[];
   keywords?: CardKeyword[];
+  targets?: Filter;
   play?: CardTargetAction;
+  activateTargets?: Filter;
   activate?: CardTargetAction;
   turn?: CardAction;
+  effectFilter?: Filter;
   effect?: CardEffect;
+  secondaryEffectFilter?: Filter;
   secondaryEffect?: CardEffect;
   modifiers?: { [name: string]: CardModifier };
   onAdd?: CardTrigger<AddCardParams>;
   onPlay?: CardTrigger<PlayCardParams>;
+  onActivate?: CardTrigger<TargetCardParams>;
   onRemove?: CardTrigger<TargetCardParams>;
   onEnter?: CardTrigger<TargetCardParams>;
   onBounce?: CardTrigger<TargetCardParams>;
@@ -175,6 +182,7 @@ export function runPartialCardInfoComputation(
     modifiers: partial.modifiers ?? {},
     onAdd: partial.onAdd ?? function* () {},
     onPlay: partial.onPlay ?? function* () {},
+    onActivate: partial.onActivate ?? function* () {},
     onRemove: partial.onRemove ?? function* () {},
     onEnter: partial.onEnter ?? function* () {},
     onBounce: partial.onBounce ?? function* () {},

@@ -1,11 +1,11 @@
-import { PlayerId } from "../common/gameSlice";
-import Player, { MissionPlayer } from "./Player";
-import CivicProceedings from "./solo/CivicProceedings";
-import Daphril from "./solo/Daphril";
-import IndustrialDesign from "./solo/IndustrialDesign";
-import RandomCitizens from "./solo/RandomCitizens";
-import StrengthInNumbers from "./solo/StrengthInNumbers";
-import UnderhandedDealings from "./solo/UnderhandedDealings";
+import { PlayerId } from "../common/gameSlice.js";
+import Player, { MissionPlayer } from "./Player.js";
+import CivicProceedings from "./solo/CivicProceedings.js";
+import Daphril from "./solo/Daphril.js";
+import IndustrialDesign from "./solo/IndustrialDesign.js";
+import RandomCitizens from "./solo/RandomCitizens.js";
+import StrengthInNumbers from "./solo/StrengthInNumbers.js";
+import UnderhandedDealings from "./solo/UnderhandedDealings.js";
 
 export type MissionName =
   | "Random Citizens"

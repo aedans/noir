@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react";
-import CardList, { CardListProps } from "./CardList";
+import CardList, { CardListProps } from "./CardList.js";
 import React from "react";
 import { Container } from "react-pixi-fiber";
 

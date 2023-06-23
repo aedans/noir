@@ -1,8 +1,8 @@
 import React, { ReactElement, useCallback, useEffect, useState } from "react";
 import { Container } from "react-pixi-fiber";
-import { CardStateInfo } from "../common/card";
-import { cardHeight, cardWidth, isCardInfoEqual, isCardStateEqual } from "./Card";
-import { GameCardProps } from "./game/GameCard";
+import { CardStateInfo } from "../common/card.js";
+import { cardHeight, cardWidth, isCardInfoEqual, isCardStateEqual } from "./Card.js";
+import { GameCardProps } from "./game/GameCard.js";
 import { zip } from "lodash";
 
 export type CardListProps = {

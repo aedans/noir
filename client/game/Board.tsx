@@ -1,11 +1,11 @@
-import React, { useContext } from "react";
-import { cardHeight, cardWidth } from "../Card";
-import { useDrop } from "react-dnd";
-import { targetResolution } from "../Camera";
-import { useClientSelector } from "../store";
-import { PlayerContext } from "./Game";
-import BoardCard from "./BoardCard";
-import { useCardInfoList } from "../cards";
+import React from "react";
+import { useContext } from "react";
+import { cardHeight, cardWidth } from "../Card.js";
+import { targetResolution } from "../Camera.js";
+import { useClientSelector } from "../store.js";
+import { PlayerContext } from "./Game.js";
+import BoardCard from "./BoardCard.js";
+import { useCardInfoList } from "../cardinfolist.js";
 
 export default function Board() {
   const player = useContext(PlayerContext);

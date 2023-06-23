@@ -1,27 +1,28 @@
 import React, { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 import { Container } from "react-pixi-fiber";
-import Board from "./Board";
-import EndTurn from "./EndTurn";
-import { MoveAnimationContext, MoveAnimationState } from "../MoveAnimation";
-import { PlayerId } from "../../common/gameSlice";
-import Resources from "./Resources";
-import OpponentBoard from "./OpponentBoard";
-import OpponentHand from "./OpponentHand";
-import Message from "./Message";
-import Grave from "./Grave";
-import { Target } from "../../common/card";
-import HandAndDeck from "./HandAndDeck";
-import OpponentGrave from "./OpponentGrave";
-import { PlayerAction } from "../../common/network";
-import { useClientSelector } from "../store";
-import Concede from "./Concede";
-import { useTimeColorFilter } from "../time";
-import Explanations from "./Explanations";
-import { CardInfoCache } from "../../common/util";
-import Table from "./Table";
+import Board from "./Board.js";
+import EndTurn from "./EndTurn.js";
+import { MoveAnimationContext, MoveAnimationState } from "../MoveAnimation.js";
+import { PlayerId } from "../../common/gameSlice.js";
+import Resources from "./Resources.js";
+import OpponentBoard from "./OpponentBoard.js";
+import OpponentHand from "./OpponentHand.js";
+import Message from "./Message.js";
+import Grave from "./Grave.js";
+import { Target } from "../../common/card.js";
+import HandAndDeck from "./HandAndDeck.js";
+import OpponentGrave from "./OpponentGrave.js";
+import { PlayerAction } from "../../common/network.js";
+import { useClientSelector } from "../store.js";
+import Concede from "./Concede.js";
+import { useTimeColorFilter } from "../time.js";
+import Explanations from "./Explanations.js";
+import Table from "./Table.js";
+import CardInfoCache from "../../common/CardInfoCache.js";
+import RemoteCardInfoCache from "../cards.js";
 
 export const PlayerContext = React.createContext(0 as PlayerId);
-export const CacheContext = React.createContext(new Map() as CardInfoCache);
+export const CacheContext = React.createContext(new RemoteCardInfoCache() as CardInfoCache);
 export const ConnectionContext = React.createContext({
   emit: (_: PlayerAction) => {},
   concede: () => {},
@@ -49,7 +50,7 @@ export const HighlightContext = React.createContext(
 );
 
 export default function Game(props: { message: string }) {
-  const cache = useRef(new Map() as CardInfoCache);
+  const cache = useRef(new RemoteCardInfoCache() as CardInfoCache);
   const [hover, setHover] = useState([] as Target[]);
   const [prepared, setPrepared] = useState([] as Target[]);
   const [highlight, setHighlight] = useState([] as Target[]);
@@ -59,7 +60,7 @@ export default function Game(props: { message: string }) {
 
   useEffect(() => {
     setPrepared([]);
-    cache.current.clear();
+    cache.current.reset();
   }, [game]);
 
   return (

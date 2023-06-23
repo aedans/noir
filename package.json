@@ -41,17 +41,19 @@
     "nodemon": "^2.0.20",
     "prettier": "^2.8.3",
     "rollup-plugin-visualizer": "^5.9.0",
-    "vite": "^3.2.4"
+    "vite": "^3.2.4",
+    "vite-plugin-checker": "^0.6.1"
   },
   "scripts": {
-    "start": "nodemon server/index.ts",
-    "server": "nodemon server/index.ts",
-    "gauntlet": "ts-node gauntlet.ts",
+    "start": "nodemon --esm server/index.ts",
+    "server": "nodemon --esm server/index.ts",
+    "gauntlet": "ts-node --esm gauntlet.ts",
     "client": "vite",
     "build": "vite build",
     "dev": "concurrently --kill-others \"npm run client\" \"npm run server\"",
     "format": "prettier --write \"**/*.{ts,js}\""
   },
   "author": "",
-  "license": "MIT"
+  "license": "MIT",
+  "type": "module"
 }

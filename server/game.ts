@@ -1,4 +1,4 @@
-import Player from "./Player";
+import Player from "./Player.js";
 import {
   currentPlayer,
   findCard,
@@ -9,9 +9,8 @@ import {
   PlayerId,
   revealCard,
   Winner,
-} from "../common/gameSlice";
-import { defaultUtil } from "./card";
-import { CardColor, CardCost, CardGenerator, CardState, Target } from "../common/card";
+} from "../common/gameSlice.js";
+import { CardColor, CardCost, CardGenerator, CardState, Target } from "../common/card.js";
 import {
   HistoryAction,
   historySlice,
@@ -21,9 +20,11 @@ import {
   setHidden,
   liftAction,
   cleanAction,
-} from "../common/historySlice";
-import { CardInfoCache, Filter } from "../common/util";
-import { PlayerAction, PlayerInit } from "../common/network";
+} from "../common/historySlice.js";
+import util, { Filter } from "../common/util.js";
+import { PlayerAction, PlayerInit } from "../common/network.js";
+import CardInfoCache from "../common/CardInfoCache.js";
+import LocalCardInfoCache from "./LocalCardInfoCache.js";
 
 export type OnGameEnd = (
   winner: Winner,
@@ -34,31 +35,31 @@ export type OnGameEnd = (
 
 function* doEndTurn(cache: CardInfoCache, game: GameState): CardGenerator {
   const player = currentPlayer(game);
-  yield* defaultUtil.addMoney(cache, game, undefined, { player, money: 2 });
+  yield* util.addMoney(cache, game, undefined, { player, money: 2 });
 
   for (const card of game.players[player].board) {
     if (card.exhausted) {
-      yield* defaultUtil.refreshCard(cache, game, card, { target: card });
+      yield* util.refreshCard(cache, game, card, { target: card });
     }
 
-    yield* defaultUtil.getCardInfo(cache, game, card).turn();
+    yield* cache.getCardInfo(game, card).turn();
   }
 
   for (const card of game.players[player].deck) {
     if (card.props.aflame > 0) {
-      yield* defaultUtil.setProp(cache, game, card, {
+      yield* util.setProp(cache, game, card, {
         target: card,
         name: "aflame",
         value: card.props.aflame > 1 ? card.props.aflame - 1 : undefined,
       });
 
       if (card.props.aflame <= 1) {
-        yield* defaultUtil.removeCard(cache, game, card, { target: card });
+        yield* util.removeCard(cache, game, card, { target: card });
       }
     }
   }
 
-  yield* defaultUtil.endTurn(cache, game, {});
+  yield* util.endTurn(cache, game, {});
 }
 
 function validateTargets(
@@ -73,7 +74,7 @@ function validateTargets(
       throw `${card.name} requires a target`;
     }
 
-    if (!defaultUtil.getTargets(cache, game, card, targets).find((t) => t.id == target.id)) {
+    if (!util.getTargets(cache, game, card, targets).find((t) => t.id == target.id)) {
       const targetCard = getCard(game, target);
       throw `${card.name} cannot target ${targetCard?.name}`;
     }
@@ -92,7 +93,7 @@ function* payCost(
   prepared: Target[]
 ) {
   const player = currentPlayer(game);
-  const result = defaultUtil.tryPayCost(cache, game, card, verb, name, player, colors, cost, targets, prepared);
+  const result = util.tryPayCost(cache, game, card, verb, name, player, colors, cost, targets, prepared);
 
   if (typeof result == "string") {
     throw result;
@@ -101,11 +102,11 @@ function* payCost(
   const { agents, money } = result;
 
   if (money > 0) {
-    yield* defaultUtil.removeMoney(cache, game, card, { player, money });
+    yield* util.removeMoney(cache, game, card, { player, money });
   }
 
   for (const agent of agents) {
-    yield* defaultUtil.exhaustCard(cache, game, card, { target: agent });
+    yield* util.exhaustCard(cache, game, card, { target: agent });
   }
 }
 
@@ -116,11 +117,11 @@ function* playCard(
   target: Target | undefined,
   prepared: Target[]
 ): CardGenerator {
-  const info = defaultUtil.getCardInfo(cache, game, card);
+  const info = cache.getCardInfo(game, card);
 
   validateTargets(cache, game, card, info.targets, target);
 
-  yield* defaultUtil.playCard(cache, game, card, { target: card, type: info.type });
+  yield* util.playCard(cache, game, card, { target: card, type: info.type });
   yield* payCost(cache, game, card, "play", card.name, info.colors, info.cost, info.targets, prepared);
   yield* info.play(target!);
 }
@@ -136,7 +137,7 @@ function* activateCard(
     throw `${card.name} is exhausted`;
   }
 
-  const info = defaultUtil.getCardInfo(cache, game, card);
+  const info = cache.getCardInfo(game, card);
 
   if (!info.hasActivate) {
     throw `${card.name} has no activation effect`;
@@ -144,7 +145,7 @@ function* activateCard(
 
   validateTargets(cache, game, card, info.activateTargets, target);
 
-  yield* defaultUtil.activateCard(cache, game, card, { target: card });
+  yield* util.activateCard(cache, game, card, { target: card });
   yield* payCost(
     cache,
     game,
@@ -189,7 +190,7 @@ function* doAction(cache: CardInfoCache, game: GameState, action: PlayerAction):
   }
 
   const toReveal: Target[] = [];
-  for (const card of defaultUtil.filter(cache, game, { zones: ["board"], hidden: true })) {
+  for (const card of util.filter(cache, game, { zones: ["board"], hidden: true })) {
     if (toReveal.some((c) => c.id == card.id)) {
       continue;
     }
@@ -197,7 +198,7 @@ function* doAction(cache: CardInfoCache, game: GameState, action: PlayerAction):
     const player = findCard(game, card)?.player;
     if (player != undefined) {
       const opponent = opponentOf(player);
-      const info = defaultUtil.getCardInfo(cache, game, card);
+      const info = cache.getCardInfo(game, card);
       const effectsOpponent = info.hasEffect && (info.effectFilter.players?.includes(opponent) ?? true);
       const secondaryEffectsOpponent =
         info.hasSecondaryEffect && (info.secondaryEffectFilter.players?.includes(opponent) ?? true);
@@ -214,7 +215,7 @@ function* doAction(cache: CardInfoCache, game: GameState, action: PlayerAction):
 
 function hasLost(cache: CardInfoCache, game: GameState, player: PlayerId) {
   return (
-    defaultUtil.filter(cache, game, {
+    util.filter(cache, game, {
       players: [player],
       zones: ["deck", "board"],
       types: ["agent"],
@@ -223,8 +224,7 @@ function hasLost(cache: CardInfoCache, game: GameState, player: PlayerId) {
   );
 }
 
-function hasWinner(game: GameState): Winner | null {
-  const cache = new Map();
+function hasWinner(cache: CardInfoCache, game: GameState): Winner | null {
   if (hasLost(cache, game, 0)) {
     return 1;
   } else if (hasLost(cache, game, 1)) {
@@ -244,8 +244,8 @@ function* initalizePlayer(
 ): CardGenerator {
   for (const [name, number] of Object.entries(init.deck.cards)) {
     for (let i = 0; i < number; i++) {
-      yield* defaultUtil.addCard(cache, state.current, undefined, {
-        target: defaultUtil.cid(),
+      yield* util.addCard(cache, state.current, undefined, {
+        target: util.cid(),
         name,
         player,
         zone: "deck",
@@ -264,7 +264,7 @@ export async function createGame(players: [Player, Player], onEnd: OnGameEnd) {
     let next = generator.next(state.current);
     const historyActions: HistoryAction[] = [];
     while (!next.done) {
-      const action = cleanAction(liftAction(newState.history.length, next.value));
+      const action = cleanAction(liftAction(newState.history.length, next.value as GameAction));
       historyActions.push(action);
       newState = historySlice.reducer(newState, action);
       next = generator.next(newState.current);
@@ -311,7 +311,7 @@ export async function createGame(players: [Player, Player], onEnd: OnGameEnd) {
     }
   }
 
-  const cache = new Map();
+  const cache = new LocalCardInfoCache();
   const inits = await Promise.all([players[0].init(), players[1].init()]);
   for (const player of [0, 1] as const) {
     const generator = initalizePlayer(cache, state, player, inits[player]);
@@ -348,10 +348,11 @@ export async function createGame(players: [Player, Player], onEnd: OnGameEnd) {
       }
 
       try {
-        const generator = doAction(new Map(), state.current, action);
+        cache.reset();
+        const generator = doAction(cache, state.current, action);
         sendActions(generator, player, `player${player}/${action.type}Action`);
 
-        const winner = hasWinner(state.current);
+        const winner = hasWinner(cache, state.current);
         if (winner != null) {
           tryEndGame(winner);
           return;

@@ -1,11 +1,11 @@
 import React, { Ref, useContext, useRef, MutableRefObject, useImperativeHandle, useEffect } from "react";
 import { useDrag } from "react-dnd";
 import { Container } from "react-pixi-fiber";
-import { currentPlayer } from "../../common/gameSlice";
-import { defaultUtil } from "../cards";
-import { useClientSelector } from "../store";
-import { CacheContext, ConnectionContext, HoverContext, PlayerContext, PreparedContext } from "./Game";
-import GameCard, { GameCardProps } from "./GameCard";
+import { currentPlayer } from "../../common/gameSlice.js";
+import { useClientSelector } from "../store.js";
+import { CacheContext, ConnectionContext, HoverContext, PlayerContext, PreparedContext } from "./Game.js";
+import GameCard, { GameCardProps } from "./GameCard.js";
+import util from "../../common/util.js";
 
 export default React.forwardRef(function BoardCard(props: GameCardProps, ref: Ref<Container>) {
   const player = useContext(PlayerContext);
@@ -58,7 +58,7 @@ export default React.forwardRef(function BoardCard(props: GameCardProps, ref: Re
     }
 
     if (!isDragging) {
-      const result = defaultUtil.tryPayCost(
+      const result = util.tryPayCost(
         cache,
         game,
         props.state,
@@ -87,7 +87,7 @@ export default React.forwardRef(function BoardCard(props: GameCardProps, ref: Re
     !props.state.exhausted &&
     props.info.hasActivate &&
     currentPlayer(game) == player &&
-    defaultUtil.canPayCost(
+    util.canPayCost(
       cache,
       game,
       props.state,
