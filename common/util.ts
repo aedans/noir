@@ -20,6 +20,7 @@ import {
   endTurn,
   enterCard,
   exhaustCard,
+  findCard,
   GameAction,
   GameParams,
   GameState,
@@ -48,7 +49,6 @@ import {
   ModifyCardParams,
   SetPropParams,
   StealCardParams,
-  GameCardState,
 } from "./gameSlice.js";
 import { historySlice, SetUndoneParams } from "./historySlice.js";
 import _ from "lodash";
@@ -82,7 +82,7 @@ export function filter(this: Util, cache: CardInfoCache, game: GameState, filter
 
   for (const player of filter.players ?? ([0, 1] as const)) {
     for (const zone of filter.zones ?? zones) {
-      let f = game.players[player][zone].map(({ id }) => game.cards[id]);
+      let f = game.players[player][zone];
 
       if (filter.names != undefined && filter.names.length > 0) {
         f = f.filter((card) => filter.names!.includes(card.name));
@@ -417,10 +417,10 @@ function triggerReveal<T extends GameParams>(
     }
 
     if (payload.source) {
-      const sourcePlayer = getCard(game, payload.source)?.player;
+      const sourcePlayer = findCard(game, payload.source)?.player;
       const targetPlayer = selectTarget
         ? (selectTarget as (payload: T) => PlayerId)(payload)
-        : getCard(game, payload.target!)?.player;
+        : findCard(game, payload.target!)?.player;
 
       if (sourcePlayer != targetPlayer) {
         const reveal: TargetCardParams = { source: payload.source, target: payload.source };
@@ -439,8 +439,8 @@ function* revealSource(
   payload: Omit<TargetCardParams, "source">
 ) {
   if (source) {
-    const sourcePlayer = getCard(game, source)?.player;
-    const targetPlayer = getCard(game, payload.target)?.player;
+    const sourcePlayer = findCard(game, source)?.player;
+    const targetPlayer = findCard(game, payload.target)?.player;
 
     if (sourcePlayer != targetPlayer) {
       const reveal: TargetCardParams = { source: source, target: source };
@@ -474,7 +474,7 @@ function* onEndTurn(this: Util, cache: CardInfoCache, game: GameState, payload: 
       });
 
       if (card.props.collection <= 1) {
-        const player = util.getCard(game, card)?.player;
+        const player = util.findCard(game, card)?.player;
         const info = cache.getCardInfo(game, card);
         const money = info.keywords.filter((k): k is ["debt", number] => k[0] == "debt").reduce((a, b) => a + b[1], 0);
         yield* this.removeMoney(cache, game, card, { player, money });
@@ -668,7 +668,8 @@ const util = {
   removeMoney: onTrigger<ChangeMoneyParams>(removeMoney, (info, game) =>
     triggerReveal(info, game, undefined, (p) => p.player)
   ),
-  getCard: getCard as (game: GameState, card: Target) => GameCardState,
+  findCard: findCard as (game: GameState, card: Target) => { player: PlayerId; zone: Zone; index: number },
+  getCard: getCard as (game: GameState, card: Target) => CardState,
   setUndone,
   opponentOf,
   currentPlayer,

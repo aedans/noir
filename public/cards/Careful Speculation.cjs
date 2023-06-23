@@ -8,7 +8,7 @@ exports.card = (util, cache, game, card) => ({
   type: "operation",
   play: function* () {
     yield* util.addMoney(cache, game, card, {
-      player: util.getCard(game, card).player,
+      player: util.findCard(game, card).player,
       money: 15,
     });
   },

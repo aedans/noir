@@ -16,7 +16,7 @@ exports.card = (util, cache, game, card) => ({
       yield* util.addCard(cache, game, card, {
         target,
         name: "New Hire",
-        player: util.getCard(game, card).player,
+        player: util.findCard(game, card).player,
         zone: "deck",
       });
 

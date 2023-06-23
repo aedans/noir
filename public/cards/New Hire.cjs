@@ -7,7 +7,7 @@ exports.card = (util, cache, game, card) => ({
   colors: ["purple"],
   onRemove: function* () {
     yield* util.addMoney(cache, game, card, {
-      player: util.getCard(game, card).player,
+      player: util.findCard(game, card).player,
       money: 1,
     });
   },

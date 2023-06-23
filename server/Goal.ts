@@ -123,17 +123,13 @@ export const seq = (goal: Goal, ...goals: ((goal: Goal) => Goal)[]): Goal => goa
 export const afterPlaying =
   (name: string, goal: Goal): Goal =>
   (cache: CardInfoCache, game: GameState, player: PlayerId, state: GoalState) => {
-    return util.filter(cache, game, { players: [player], zones: ["deck"], names: [name] }).length > 0
-      ? null
-      : goal(cache, game, player, state);
+    return game.players[player].deck.some((x) => x.name == name) ? null : goal(cache, game, player, state);
   };
 
 export const afterLosing =
   (name: string, goal: Goal): Goal =>
   (cache: CardInfoCache, game: GameState, player: PlayerId, state: GoalState) => {
-    return util.filter(cache, game, { players: [player], zones: ["grave"], names: [name] }).length > 0
-      ? goal(cache, game, player, state)
-      : null;
+    return game.players[player].grave.some((x) => x.name == name) ? goal(cache, game, player, state) : null;
   };
 
 export const afterTurn =
