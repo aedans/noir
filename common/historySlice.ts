@@ -9,12 +9,14 @@ import { PayloadAction } from "@reduxjs/toolkit";
 export type HistoryState = {
   history: GameAction[];
   current: GameState;
+  cache: GameState[];
 };
 
 export function initialHistoryState(): HistoryState {
   return {
     history: [],
     current: initialGameState(),
+    cache: [],
   };
 }
 
@@ -79,8 +81,8 @@ const reducer = (state: GameState, action: GameAction) => {
   }
 };
 
-function reduce(history: GameAction[], state: GameState) {
-  for (const action of history) {
+function reduce(history: HistoryState, state: GameState) {
+  for (const action of history.history) {
     reducer(state, action);
   }
 
@@ -93,6 +95,7 @@ export const historySlice = createSlice({
   reducers: {
     reset: () => initialHistoryState(),
     batch: (state, batch: PayloadAction<BatchedActionParams>) => {
+      let shouldRecompute = false;
       for (const action of batch.payload.actions) {
         if (action.type == "history/setAction") {
           state.history[action.payload.index] = (action.payload as SetActionParams).action;
@@ -108,15 +111,24 @@ export const historySlice = createSlice({
             payload: { action: state.history[action.payload.index] },
           };
         }
+
+        if (action.payload.index == state.history.length - 1 && !shouldRecompute) {
+          reducer(state.current, state.history[action.payload.index]);
+        } else {
+          shouldRecompute = true;
+        }
       }
-      state.current = reduce(state.history, initialGameState());
+
+      if (shouldRecompute) {
+        state.current = reduce(state, initialGameState());
+      }
     },
     setAction: (state, action: PayloadAction<SetActionParams>) => {
       state.history[action.payload.index] = action.payload.action;
       if (action.payload.index == state.history.length - 1) {
         reducer(state.current, action.payload.action);
       } else {
-        state.current = reduce(state.history, initialGameState());
+        state.current = reduce(state, initialGameState());
       }
     },
     setHidden: (state, action: PayloadAction<SetHiddenParams>) => {
@@ -128,7 +140,7 @@ export const historySlice = createSlice({
       if (action.payload.index == state.history.length - 1) {
         reducer(state.current, hidden);
       } else {
-        state.current = reduce(state.history, initialGameState());
+        state.current = reduce(state, initialGameState());
       }
     },
     setUndone: (state, action: PayloadAction<SetUndoneParams>) => {
@@ -136,7 +148,7 @@ export const historySlice = createSlice({
         type: "game/undone",
         payload: { action: state.history[action.payload.index] },
       };
-      state.current = reduce(state.history, initialGameState());
+      state.current = reduce(state, initialGameState());
     },
   },
 });
