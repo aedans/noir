@@ -12,7 +12,7 @@ export default function HandAndDeck() {
   const player = useContext(PlayerContext);
   const cache = useContext(CacheContext);
   const game = useClientSelector((state) => state.game.current);
-  const cards = useCardInfoList(game.players[player].deck, [game.players[player].deck]);
+  const cards = useCardInfoList(game.players[player].deck, [game]);
 
   const { hand, deck } = useMemo(() => {
     const hand = [] as CardStateInfo[];
