@@ -1,5 +1,5 @@
 import _ from "lodash";
-import { CardState } from "../common/card.js";
+import { CardColor, CardState } from "../common/card.js";
 import { GameState, PlayerId, opponentOf } from "../common/gameSlice.js";
 import { PlayerAction } from "../common/network.js";
 import util, { Filter } from "../common/util.js";
@@ -30,10 +30,11 @@ export function runGoals(
 }
 
 export const playCard =
-  (name: string, targetFilter: Filter = { ordering: ["money"] }, negative: boolean = false): Goal =>
+  (name: string | string[], targetFilter: Filter = { ordering: ["money"] }, negative: boolean = false): Goal =>
   (cache: CardInfoCache, game: GameState, player: PlayerId, state: GoalState) => {
+    const names = typeof name == "string" ? [name] : name;
     const cards = util.filter(cache, game, {
-      names: [name],
+      names,
       players: [player],
       zones: ["deck"],
       playable: true,
@@ -44,11 +45,13 @@ export const playCard =
       return null;
     }
 
+    cards.sort((a, b) => names.indexOf(b.name) - names.indexOf(a.name));
+
     const [card] = cards;
     const info = cache.getCardInfo(game, card);
 
     if (info.targets == null) {
-      state.lastPlay[name] = game.turn / 2;
+      state.lastPlay[card.name] = game.turn / 2;
       return { type: "do", id: card.id, prepared: [] };
     }
 
@@ -64,15 +67,16 @@ export const playCard =
       return null;
     }
 
-    state.lastPlay[name] = game.turn / 2;
+    state.lastPlay[card.name] = game.turn / 2;
     return { type: "do", id: card.id, prepared: [], target: targets[0] };
   };
 
 export const activateCard =
   (name: string, targetFilter: Filter = { ordering: ["money"] }, negative: boolean = false): Goal =>
   (cache: CardInfoCache, game: GameState, player: PlayerId) => {
+    const names = typeof name == "string" ? [name] : name;
     const cards = util.filter(cache, game, {
-      names: [name],
+      names: names,
       players: [player],
       zones: ["board"],
       activatable: true,
@@ -104,6 +108,17 @@ export const activateCard =
 
     return { type: "do", id: card.id, prepared: [], target: targets[0] };
   };
+
+export const when =
+  (test: (cards: CardState[]) => boolean, who: "self" | "opponent" | "all", filter: Filter) =>
+  (goal: Goal): Goal =>
+  (cache: CardInfoCache, game: GameState, player: PlayerId, state: GoalState) => {
+    const ref = who == "opponent" ? opponentOf(player) : player;
+    const players = who == "all" ? undefined : [ref];
+    return test(util.filter(cache, game, { players, ...filter })) ? goal(cache, game, player, state) : null;
+  };
+
+export const seq = (goal: Goal, ...goals: ((goal: Goal) => Goal)[]): Goal => goals.reduce((goal, t) => t(goal), goal);
 
 export const afterPlaying =
   (name: string, goal: Goal): Goal =>
@@ -141,23 +156,19 @@ export const whenMoney =
     return compares[cmp](game.players[player].money, number) ? goal(cache, game, player, state) : null;
   };
 
-export const when =
-  (test: (cards: CardState[]) => boolean, who: "self" | "opponent" | "all", filter: Filter) =>
-  (goal: Goal): Goal =>
-  (cache: CardInfoCache, game: GameState, player: PlayerId, state: GoalState) => {
-    const ref = who == "opponent" ? opponentOf(player) : player;
-    const players = who == "all" ? undefined : [ref];
-    return test(util.filter(cache, game, { players, ...filter })) ? goal(cache, game, player, state) : null;
-  };
-
-export const seq = (goal: Goal, ...goals: ((goal: Goal) => Goal)[]): Goal => goals.reduce((goal, t) => t(goal), goal);
-
 export const whenRevealLeft = when(lt(20), "opponent", { hidden: false });
 
 export const whenNotInPlay = (name: string, goal: Goal) =>
-  when(lt(0), "self", { names: [name], zones: ["board"] })(goal);
+  when(eq(0), "self", { names: [name], zones: ["board"] })(goal);
 
 export const coloredAgents: Filter = { zones: ["board"], types: ["agent"], colors: ["purple"], activatable: false };
+
+export const basicAgents = (colors: CardColor[]): Filter => ({
+  colors,
+  zones: ["board"],
+  types: ["agent"],
+  hasActivate: false,
+});
 
 export function lt(number: number) {
   return (cards: CardState[]) => cards.length < number;

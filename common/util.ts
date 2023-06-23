@@ -74,6 +74,7 @@ export type Filter = {
   text?: string;
   playable?: boolean;
   activatable?: boolean;
+  hasActivate?: boolean;
 } & { [key in CardKeyword[0]]?: boolean };
 
 export function filter(this: Util, cache: CardInfoCache, game: GameState, filter: Filter) {
@@ -147,6 +148,10 @@ export function filter(this: Util, cache: CardInfoCache, game: GameState, filter
             this.canPayCost(cache, game, card, player, info.colors, info.activateCost, info.activateTargets, [])
           );
         });
+      }
+
+      if (filter.hasActivate != undefined) {
+        f = f.filter((card) => cache.getCardInfo(game, card).hasActivate == filter.hasActivate!);
       }
 
       for (const keyword of cardKeywords) {

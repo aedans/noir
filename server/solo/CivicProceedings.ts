@@ -1,6 +1,17 @@
 import { Deck } from "../../common/decksSlice.js";
 import { PlayerId } from "../../common/gameSlice.js";
-import { Goal, activateCard, afterTurn, afterWait, playCard, whenRevealLeft } from "../Goal.js";
+import {
+  Goal,
+  activateCard,
+  afterTurn,
+  afterWait,
+  basicAgents,
+  eq,
+  lt,
+  playCard,
+  when,
+  whenRevealLeft,
+} from "../Goal.js";
 import { Difficulty } from "../Mission.js";
 import { MissionPlayer } from "../Player.js";
 
@@ -21,7 +32,7 @@ export default class CivicProceedings extends MissionPlayer {
       // Interaction
       "Stern Peacekeeper": 2,
       Detain: 2,
-      "Debt Collection": 2,
+      "Writ of Recall": 2,
       // Reveal
       "Information Dealer": 2,
       "Snoop Around": 2,
@@ -38,21 +49,22 @@ export default class CivicProceedings extends MissionPlayer {
   };
 
   goals: Goal[] = [
+    // Early Game
+    when(lt(1), "self", basicAgents(["blue"]))(playCard(["Aspiring Lawman", "Unyielding Investigator"])),
     // Win
     playCard("Prolific Jailer"),
     activateCard("Prolific Jailer", { zones: ["board"], protected: false }, true),
     activateCard("Prolific Jailer", { zones: ["board"], vip: false }, true),
     activateCard("Prolific Jailer", {}, true),
     // Value
-    playCard("Aspiring Lawman"),
     playCard("Expedited Training"),
     playCard("Frazzled Secretary"),
     activateCard("Frazzled Secretary"),
     playCard("Unyielding Investigator"),
     // Interaction
     playCard("Stern Peacekeeper"),
-    playCard("Detain", {}, true),
-    playCard("Debt Collection", { zones: ["board"], colors: ["blue", "green", "orange", "purple"] }, true),
+    playCard("Writ of Recall", { zones: ["board"] }, true),
+    playCard("Detain", { zones: ["board"] }, true),
     // Reveal
     whenRevealLeft(playCard("Information Dealer")),
     whenRevealLeft(activateCard("Information Dealer")),
