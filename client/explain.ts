@@ -1,6 +1,6 @@
 import CardInfoCache from "../common/CardInfoCache";
 import { CardKeyword, Target } from "../common/card";
-import { GameState, PlayerId, findCard, isPlayerAction, opponentOf } from "../common/gameSlice";
+import { GameState, PlayerId, getCard, isPlayerAction, opponentOf } from "../common/gameSlice";
 import util from "../common/util";
 
 export interface Explanation {
@@ -157,13 +157,13 @@ export const explanations = [
       const refs = game.history
         .slice(0, actionIndex)
         .filter((action) => action.type == "game/revealCard")
-        .map((reveal) => (reveal.payload.target ? findCard(game, reveal.payload.target) : null))
+        .map((reveal) => (reveal.payload.target ? getCard(game, reveal.payload.target) : null))
         .flatMap((x) => (x == null ? [] : [x]));
       if (
         refs.some((x) => x.player == opponent && x.zone == "board") &&
         refs.some((x) => x.player == opponent && x.zone != "board")
       ) {
-        return refs.map((x) => game.players[x.player][x.zone][x.index]);
+        return refs;
       } else {
         return [];
       }

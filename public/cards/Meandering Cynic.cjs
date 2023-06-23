@@ -11,7 +11,7 @@ exports.card = (util, cache, game, card) => ({
       zones: ["deck"],
     });
     const fired = util.randoms(yourcards, 2);
-    if (util.findCard(game, card).zone == "board") {
+    if (util.getCard(game, card).zone == "board") {
       yield* util.modifyCard(cache, game, card, { target: fired[0], modifier: { name: "aflame", card } });
       yield* util.setProp(cache, game, card, {
         target: fired[0],

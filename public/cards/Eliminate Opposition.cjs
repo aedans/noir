@@ -11,10 +11,12 @@ exports.card = (util, cache, game, card) => ({
         return false;
       }
 
-      const { player, zone, index } = util.findCard(game, action.payload.target);
-      const toRemove = game.players[player][zone][index];
+      const { player } = util.getCard(game, action.payload.target);
 
-      return player == util.opponent(game, card) && cache.getCardInfo(game, toRemove).type == "agent";
+      return (
+        player == util.opponent(game, card) &&
+        cache.getCardInfo(game, util.getCard(game, action.payload.target)).type == "agent"
+      );
     });
 
     if (!action || !action.payload.target) {

@@ -24,7 +24,7 @@ exports.card = (util, cache, game, card) => ({
       activationPriority: info.activationPriority - 2000,
       onExhaust: function* () {
         yield* util.removeMoney(cache, game, card, {
-          player: util.findCard(game, card).player,
+          player: util.getCard(game, card).player,
           money: 2,
         });
       },

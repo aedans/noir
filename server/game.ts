@@ -1,7 +1,6 @@
 import Player from "./Player.js";
 import {
   currentPlayer,
-  findCard,
   GameAction,
   GameState,
   getCard,
@@ -37,7 +36,7 @@ function* doEndTurn(cache: CardInfoCache, game: GameState): CardGenerator {
   const player = currentPlayer(game);
   yield* util.addMoney(cache, game, undefined, { player, money: 2 });
 
-  for (const card of game.players[player].board) {
+  for (const card of util.filter(cache, game, { players: [player], zones: ["board"] })) {
     if (card.exhausted) {
       yield* util.refreshCard(cache, game, card, { target: card });
     }
@@ -45,7 +44,7 @@ function* doEndTurn(cache: CardInfoCache, game: GameState): CardGenerator {
     yield* cache.getCardInfo(game, card).turn();
   }
 
-  for (const card of game.players[player].deck) {
+  for (const card of util.filter(cache, game, { players: [player], zones: ["deck"] })) {
     if (card.props.aflame > 0) {
       yield* util.setProp(cache, game, card, {
         target: card,
@@ -167,17 +166,17 @@ function* doCard(
   target: Target | undefined,
   prepared: Target[]
 ): CardGenerator {
-  const info = findCard(game, { id });
-  if (info) {
-    const { player, zone, index } = info;
+  const state = getCard(game, { id });
+  if (state) {
+    const { player, zone } = state;
     if (currentPlayer(game) != player) {
       throw `Cannot use opponent's cards`;
     }
 
     if (zone == "deck") {
-      yield* playCard(cache, game, game.players[player][zone][index], target, prepared);
+      yield* playCard(cache, game, state, target, prepared);
     } else if (zone == "board") {
-      yield* activateCard(cache, game, game.players[player][zone][index], target, prepared);
+      yield* activateCard(cache, game, state, target, prepared);
     }
   }
 }
@@ -195,7 +194,7 @@ function* doAction(cache: CardInfoCache, game: GameState, action: PlayerAction):
       continue;
     }
 
-    const player = findCard(game, card)?.player;
+    const player = getCard(game, card)?.player;
     if (player != undefined) {
       const opponent = opponentOf(player);
       const info = cache.getCardInfo(game, card);
@@ -269,7 +268,7 @@ export async function createGame(players: [Player, Player], onEnd: OnGameEnd) {
       newState = historySlice.reducer(newState, action);
       next = generator.next(newState.current);
     }
-
+    
     state = newState;
 
     const gameActions = state.history.slice(length);

@@ -13,7 +13,7 @@ exports.card = (util, cache, game, card) => ({
       excludes: [card],
     });
     const punger = util.randoms(cards, 2);
-    if (util.findCard(game, card).zone == "board") {
+    if (util.getCard(game, card).zone == "board") {
       yield* util.modifyCard(cache, game, card, {
         target: punger[0],
         modifier: {

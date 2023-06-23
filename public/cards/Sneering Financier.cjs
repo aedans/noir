@@ -10,7 +10,7 @@ exports.card = (util, cache, game, card) => ({
   },
   activate: function* (target) {
     const indebt = util.getCard(game, target);
-    const debtplayer = util.findCard(game, indebt).player;
+    const debtplayer = util.getCard(game, indebt).player;
     if (debtplayer == util.self(game, card)) {
       yield* util.modifyCard(cache, game, card, {
         target,
