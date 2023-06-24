@@ -45,7 +45,7 @@ export const playCard =
       return null;
     }
 
-    cards.sort((a, b) => names.indexOf(b.name) - names.indexOf(a.name));
+    cards.sort((a, b) => names.indexOf(a.name) - names.indexOf(b.name));
 
     const [card] = cards;
     const info = cache.getCardInfo(game, card);

@@ -1,6 +1,6 @@
 import { Deck } from "../../common/decksSlice.js";
 import { PlayerId } from "../../common/gameSlice.js";
-import { Goal, activateCard, coloredAgents, eq, gt, lt, playCard, seq, when, whenNotInPlay, whenRevealLeft } from "../Goal.js";
+import { Goal, activateCard, basicAgents, coloredAgents, eq, gt, lt, playCard, seq, when, whenNotInPlay, whenRevealLeft } from "../Goal.js";
 import { Difficulty } from "../Mission.js";
 import { MissionPlayer } from "../Player.js";
 
@@ -40,21 +40,22 @@ export default class UnderhandedDealings extends MissionPlayer {
   };
 
   goals: Goal[] = [
+    // Early Game
+    when(lt(1), "self", basicAgents(["purple"]))(playCard(["Shifty Operative", "New Hire"])),
     // Win
     playCard("Ruthless Cutthroat"),
     activateCard("Ruthless Cutthroat", { zones: ["board"], protected: false }, true),
     activateCard("Ruthless Cutthroat", { zones: ["board"], vip: false }, true),
     activateCard("Ruthless Cutthroat", {}, true),
     // Value
+    playCard("Sinister Deal"),
     playCard("Crispy Dollar"),
     playCard("Undercity Tavernkeep"),
-    playCard("Shifty Operative"),
     seq(
       playCard("Bodyguard"),
       when(eq(0), "self", { zones: ["board"], types: ["agent"], disloyal: false }),
       when(gt(0), "self", { vip: true, hidden: false })
     ),
-    seq(playCard("New Hire"), when(eq(0), "self", coloredAgents)),
     // Interaction
     playCard("Smoking Gun's Curse", { zones: ["board"], exhausted: true }, true),
     playCard("Eliminate Opposition"),
