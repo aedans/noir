@@ -1,6 +1,17 @@
 import { Deck } from "../../common/decksSlice.js";
 import { PlayerId } from "../../common/gameSlice.js";
-import { activateCard, afterPlaying, afterTurn, afterWait, eq, gt, playCard, seq, when, whenRevealLeft } from "../Goal.js";
+import {
+  activateCard,
+  afterPlaying,
+  afterTurn,
+  afterWait,
+  eq,
+  gt,
+  playCard,
+  seq,
+  when,
+  whenRevealLeft,
+} from "../Goal.js";
 import { Difficulty } from "../Mission.js";
 import { MissionPlayer } from "../Player.js";
 

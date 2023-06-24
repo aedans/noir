@@ -1,6 +1,19 @@
 import { Deck } from "../../common/decksSlice.js";
 import { PlayerId } from "../../common/gameSlice.js";
-import { Goal, activateCard, basicAgents, coloredAgents, eq, gt, lt, playCard, seq, when, whenNotInPlay, whenRevealLeft } from "../Goal.js";
+import {
+  Goal,
+  activateCard,
+  basicAgents,
+  coloredAgents,
+  eq,
+  gt,
+  lt,
+  playCard,
+  seq,
+  when,
+  whenNotInPlay,
+  whenRevealLeft,
+} from "../Goal.js";
 import { Difficulty } from "../Mission.js";
 import { MissionPlayer } from "../Player.js";
 
@@ -22,7 +35,7 @@ export default class UnderhandedDealings extends MissionPlayer {
       "New Hire": 2,
       // Interaction
       "Smoking Gun's Curse": 1,
-      "Strike Down": 2,
+      Entice: 2,
       // Reveal
       "Rogue Reporter": 2,
       "Examine the Bodies": 2,
@@ -34,7 +47,7 @@ export default class UnderhandedDealings extends MissionPlayer {
       ...this.deck1.cards,
       "New Hire": 4,
       "Crispy Dollar": 2,
-      "Strike Down ": 3,
+      Entice: 3,
       "Smoking Gun's Curse": 2,
     },
   };
@@ -58,7 +71,7 @@ export default class UnderhandedDealings extends MissionPlayer {
     ),
     // Interaction
     playCard("Smoking Gun's Curse", { zones: ["board"], exhausted: true }, true),
-    playCard("Eliminate Opposition"),
+    playCard("Entice", { zones: ["board"], minMoney: 5 }, true),
     // Reveal
     whenRevealLeft(playCard("Examine the Bodies")),
     whenRevealLeft(seq(playCard("Rogue Reporter"), when(eq(0), "self", { names: ["Examine the Bodies"] }))),

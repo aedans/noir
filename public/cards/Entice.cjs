@@ -1,3 +1,6 @@
+
+
+
 // @ts-check
 /** @type {import("../../common/card").PartialCardInfoComputation} */
 exports.card = (util, cache, game, card) => ({
@@ -15,7 +18,7 @@ exports.card = (util, cache, game, card) => ({
         target,
         modifier: {
           card,
-          name: "Disloyal",
+          name: "disloyal",
         },
       });
       yield* util.stealCard(cache, game, card, { target, zone: "deck" })

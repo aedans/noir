@@ -32,8 +32,8 @@ export default class RandomCitizens extends MissionPlayer {
       "Random Citizen": 4,
       "Arms Dealer": 2,
       "Gang Up": 3,
-    }
-  }
+    },
+  };
 
   goals: Goal[] = [
     // Win
