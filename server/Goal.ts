@@ -146,6 +146,15 @@ export const afterWait =
       : null;
   };
 
+export const onRemovalTurn =
+  (goal: Goal): Goal => 
+  (cache: CardInfoCache, game: GameState, player: PlayerId, state: GoalState) => {
+    const index = game.history.findIndex((action) => action.type == "game/endTurn");
+    const actions = game.history.slice(0, index);
+    const removals = actions.filter((action) => action.type == "game/removeCard").length;
+    return removals > 0 ? goal(cache, game, player, state) : null;
+  }
+
 export const whenMoney =
   (cmp: "lt" | "gt", number: number, goal: Goal): Goal =>
   (cache: CardInfoCache, game: GameState, player: PlayerId, state: GoalState) => {

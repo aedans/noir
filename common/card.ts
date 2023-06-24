@@ -149,11 +149,11 @@ export function runPartialCardInfoComputation(
   }
 
   if (partial.keywords && partial.keywords.some((k) => k != null && k[0] == "depart")) {
-    activationPriority = -1;
+    activationPriority -= 4000;
   }
 
   if (hasActivate) {
-    activationPriority -= 100000;
+    activationPriority -= 100;
   }
 
   const hasEffect = partial.hasEffect ?? partial.effect != undefined;
