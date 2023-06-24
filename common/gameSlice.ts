@@ -1,4 +1,4 @@
-import * as toolkitRaw from '@reduxjs/toolkit';
+import * as toolkitRaw from "@reduxjs/toolkit";
 const { createSlice } = ((toolkitRaw as any).default ?? toolkitRaw) as typeof toolkitRaw;
 
 import { CardState, CardType, ModifierState, Target } from "./card";
