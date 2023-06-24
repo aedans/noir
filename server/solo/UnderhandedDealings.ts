@@ -47,7 +47,7 @@ export default class UnderhandedDealings extends MissionPlayer {
       ...this.deck1.cards,
       "New Hire": 4,
       "Crispy Dollar": 2,
-      "Eliminate Opposition": 3,
+      "Strike Down ": 3,
       "Smoking Gun's Curse": 2,
     },
   };
