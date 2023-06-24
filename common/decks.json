@@ -47,39 +47,38 @@
   },
   "Blue": {
     "cards": {
-      "Debt Collection": 1,
+      "Detain": 2,
       "Gang Up": 1,
       "Induce Avarice": 1,
       "Local Socialite": 1,
       "Information Dealer": 1,
-      "Arms Dealer": 1,
       "Expedited Training": 1,
       "Seek Truth": 1,
       "Snoop Around": 2,
       "Search Warrant": 1,
       "Aspiring Lawman": 2,
-      "Frazzled Secretary": 1,
+      "Frazzled Secretary": 2,
       "Unyielding Investigator": 1,
       "Contraband Confiscator": 1,
       "Stern Peacekeeper": 1,
-      "Civic Recruiter": 1,
-      "Prolific Jailer": 1,
-      "Ordered Crackdown": 1
+      "Prolific Jailer": 2
     }
   },
   "Purple": {
     "cards": {
       "Sinister Deal": 2,
       "Local Merchant": 1,
+      "Frame": 1,
       "Subterfuge": 1,
       "Pilfered Intelligence": 2,
       "Examine the Bodies": 1,
-      "Eliminate Opposition": 1,
+      "Entice": 1,
       "Shifty Operative": 1,
-      "Smoking Gun's Curse": 2,
+      "Strike Down": 1,
+      "Smoking Gun's Curse": 1,
       "Moment of Opportunity": 1,
       "New Hire": 2,
-      "Gutterside Informer": 2,
+      "Gutterside Informer": 1,
       "Undercity Tavernkeep": 1,
       "Partner in Crime": 1,
       "Ruthless Cutthroat": 2

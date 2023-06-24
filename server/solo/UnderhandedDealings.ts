@@ -22,7 +22,7 @@ export default class UnderhandedDealings extends MissionPlayer {
       "New Hire": 2,
       // Interaction
       "Smoking Gun's Curse": 1,
-      "Eliminate Opposition": 2,
+      "Strike Down": 2,
       // Reveal
       "Rogue Reporter": 2,
       "Examine the Bodies": 2,
@@ -34,7 +34,7 @@ export default class UnderhandedDealings extends MissionPlayer {
       ...this.deck1.cards,
       "New Hire": 4,
       "Crispy Dollar": 2,
-      "Eliminate Opposition": 3,
+      "Strike Down ": 3,
       "Smoking Gun's Curse": 2,
     },
   };
