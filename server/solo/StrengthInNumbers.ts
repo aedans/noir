@@ -12,15 +12,15 @@ export default class StrengthInNumbers extends MissionPlayer {
   deck1: Deck = {
     cards: {
       // Win
-      "Raving Pugilist": 2,
+      "Raving Pugilist": 1,
       "Arms Dealer": 1,
       "Take Arms": 2,
       // Value
-      "Alarm Raiser": 1,
       "Dues Collector": 1,
       "Local Socialite": 1,
       "Meandering Cynic": 2,
       "Ill-fated Operative": 2,
+      "Alarm Raiser": 2,
       // Interaction
       "Gang Up": 2,
       "Collective Pressure": 2,
@@ -52,15 +52,15 @@ export default class StrengthInNumbers extends MissionPlayer {
       when(gt(1), "opponent", { types: ["agent"], zones: ["board"], protected: false })
     ),
     // Value
-    playCard("Alarm Raiser"),
     playCard("Dues Collector"),
     activateCard("Dues Collector"),
     playCard("Local Socialite"),
     playCard("Meandering Cynic"),
     playCard("Ill-fated Operative"),
+    playCard("Alarm Raiser"),
     // Interaction
-    playCard("Collective Pressure", { zones: ["board"], exhausted: true }, true),
-    playCard("Gang Up", { zones: ["board"], protected: false }, true),
+    playCard("Collective Pressure", { zones: ["board"], maxMoney: 4 }, true),
+    playCard("Gang Up", { zones: ["board"], protected: false, minMoney: 5 }, true),
     // Reveal
     whenRevealLeft(playCard("Coerce")),
     whenRevealLeft(playCard("Information Dealer")),
