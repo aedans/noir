@@ -52,11 +52,11 @@ export default function Solo() {
         }}
       />
       <MissionButton mission="Random Citizens" difficulty={difficulty} y={400} color="colorless" />
-      <MissionButton mission="Daphril the Dauntless" difficulty={difficulty} y={600} color="colorless" />
       <MissionButton mission="Civic Proceedings" difficulty={difficulty} y={800} color="blue" />
       <MissionButton mission="Industrial Design" difficulty={difficulty} y={1000} color="green" />
       <MissionButton mission="Strength in Numbers" difficulty={difficulty} y={1200} color="orange" />
       <MissionButton mission="Underhanded Dealings" difficulty={difficulty} y={1400} color="purple" />
+      <MissionButton mission="Daphril the Dauntless" difficulty={difficulty} y={600} color="colorless" />
     </Container>
   );
 }
