@@ -478,6 +478,10 @@ function* onEndTurn(this: Util, cache: CardInfoCache, game: GameState, payload: 
         const info = cache.getCardInfo(game, card);
         const money = info.keywords.filter((k): k is ["debt", number] => k[0] == "debt").reduce((a, b) => a + b[1], 0);
         yield* this.removeMoney(cache, game, card, { player, money });
+
+        if (info.type == "operation") {
+          yield* this.removeCard(cache, game, card, { target: card });
+        }
       }
     }
   }
@@ -555,6 +559,10 @@ function* onPlayCard(
 
   if (info.keywords.some((k) => k[0] == "debt")) {
     yield setProp({ target: payload.target, name: "collection", value: 2 });
+
+    if (info.type == "operation") {
+      yield* util.enterCard(cache, game, card, { target: card });
+    }
   }
 
   const totalTribute = {
