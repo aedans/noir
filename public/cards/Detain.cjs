@@ -8,6 +8,7 @@ exports.card = (util, cache, game, card) => ({
     money:
       util.filter(cache, game, {
         players: [util.self(game, card)],
+        colors: ["blue"],
         types: ["agent"],
         zones: ["board"],
       }).length > 2

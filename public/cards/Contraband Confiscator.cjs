@@ -15,7 +15,7 @@ exports.card = (util, cache, game, card) => ({
     yield* util.removeCard(cache, game, card, { target });
     yield* util.addMoney(cache, game, card, {
       player: util.findCard(game, card).player,
-      money: 1,
+      money: 2,
     });
   },
 });
