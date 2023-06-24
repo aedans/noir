@@ -21,7 +21,7 @@ exports.card = (util, cache, game, card) => ({
       yield* util.stealCard(cache, game, card, { target, zone: "deck" })
     },
     modifiers: {
-        avaricious: (info, modifier, card) => ({
+        disloyal: (info, modifier, card) => ({
             keywords: [["disloyal"]],
             colors: ["purple"]
             }),
