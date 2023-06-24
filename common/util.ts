@@ -523,8 +523,9 @@ function* onReveal(info: CardInfo, game: GameState, payload: TargetCardParams): 
   }
 }
 
-function setUndone(game: GameState, payload: SetUndoneParams) {
-  return historySlice.actions.setUndone({ index: game.history.length - payload.index - 1 });
+function* setUndone(game: GameState, payload: SetUndoneParams) {
+  game = yield util.noop({});
+  yield historySlice.actions.setUndone({ index: game.history.length - payload.index });
 }
 
 function* onPlayCard(
