@@ -3,7 +3,7 @@
 exports.card = (util, cache, game, card) => ({
   text: "Undo the removal of your last removed agent.",
   type: "operation",
-  cost: { money: 5, agents: 2 },
+  cost: { money: 4, agents: 1 },
   colors: [],
   play: function* () {
     const index = game.history.findIndex((action) => {
@@ -21,6 +21,6 @@ exports.card = (util, cache, game, card) => ({
       throw "Your opponent has removed none of your agents";
     }
 
-    yield* util.setUndone(game, { index });
+    yield util.setUndone(game, { index });
   },
 });
