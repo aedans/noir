@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import { useEffect, useRef, useState } from "react";
 import RemoteCardInfoCache, { getCards, isLoaded } from "../cards.js";
 import Grid from "./Grid.js";
@@ -10,7 +10,7 @@ import Rectangle from "../Rectangle.js";
 import { MoveAnimationContext, MoveAnimationState } from "../MoveAnimation.js";
 import GridCard from "./GridCard.js";
 import { ordered } from "../../common/util.js";
-import { Container } from "react-pixi-fiber";
+import { AppContext, Container, usePixiApp } from "react-pixi-fiber";
 import { cardHeight, cardWidth } from "../Card.js";
 import Text from "../Text.js";
 import CardList from "../CardList.js";
@@ -18,8 +18,11 @@ import GameCard from "../game/GameCard.js";
 import { useCardInfoList } from "../cardinfolist.js";
 import CardInfoCache from "../../common/CardInfoCache.js";
 import { CacheContext } from "../game/Game.js";
+import { DndProvider } from "react-dnd";
+import PIXIBackend from "../PIXIBackend.js";
 
 export default function Editor(props: { params: { deck: string } }) {
+  const app = useContext(AppContext);
   const dispatch = useClientDispatch();
   const cards = useRef({} as MoveAnimationState);
   const [scroll, setScroll] = useState(0);
@@ -73,34 +76,36 @@ export default function Editor(props: { params: { deck: string } }) {
     };
 
   return (
-    <CacheContext.Provider value={cache.current}>
-      <MoveAnimationContext.Provider value={cards}>
-        <Rectangle fill={0x202020} width={targetResolution.width} height={targetResolution.height} />
-        <Text x={3800} text={Object.values(deck.cards).reduce((a, b) => a + b, 0) + " / 20"} />
-        <Container y={scroll}>
-          <Grid elements={sortedAllCards} maxWidth={3000}>
-            {(data, x, y) => (
-              <GridCard
-                state={data}
-                info={new RemoteCardInfoCache().getDefaultCardInfo(data)}
-                key={data.id}
-                pointerdown={pointerdownAdd(data.name)}
-                interactive={areCardsLoaded}
-                x={x + cardWidth / 2}
-                y={y + cardHeight / 2}
-              />
-            )}
-          </Grid>
-        </Container>
-        <Container x={targetResolution.width - cardWidth} y={100}>
-          <CardList
-            cards={sortedDeckCards}
-            card={(props) => <GameCard {...props} pointerdown={pointerdownRemove(props.state.name)} />}
-            expanded
-            collapseOnPointerOut
-          />
-        </Container>
-      </MoveAnimationContext.Provider>
-    </CacheContext.Provider>
+    <DndProvider backend={PIXIBackend(app)}>
+      <CacheContext.Provider value={cache.current}>
+        <MoveAnimationContext.Provider value={cards}>
+          <Rectangle fill={0x202020} width={targetResolution.width} height={targetResolution.height} />
+          <Text x={3800} text={Object.values(deck.cards).reduce((a, b) => a + b, 0) + " / 20"} />
+          <Container y={scroll}>
+            <Grid elements={sortedAllCards} maxWidth={3000}>
+              {(data, x, y) => (
+                <GridCard
+                  state={data}
+                  info={new RemoteCardInfoCache().getDefaultCardInfo(data)}
+                  key={data.id}
+                  pointerdown={pointerdownAdd(data.name)}
+                  interactive={areCardsLoaded}
+                  x={x + cardWidth / 2}
+                  y={y + cardHeight / 2}
+                />
+              )}
+            </Grid>
+          </Container>
+          <Container x={targetResolution.width - cardWidth} y={100}>
+            <CardList
+              cards={sortedDeckCards}
+              card={(props) => <GameCard {...props} pointerdown={pointerdownRemove(props.state.name)} />}
+              expanded
+              collapseOnPointerOut
+            />
+          </Container>
+        </MoveAnimationContext.Provider>
+      </CacheContext.Provider>
+    </DndProvider>
   );
 }

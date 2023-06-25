@@ -1,5 +1,5 @@
-import React, { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
-import { Container } from "react-pixi-fiber";
+import React, { Dispatch, SetStateAction, useContext, useEffect, useRef, useState } from "react";
+import { AppContext, Container } from "react-pixi-fiber";
 import Board from "./Board.js";
 import EndTurn from "./EndTurn.js";
 import { MoveAnimationContext, MoveAnimationState } from "../MoveAnimation.js";
@@ -20,6 +20,8 @@ import Explanations from "./Explanations.js";
 import Table from "./Table.js";
 import CardInfoCache from "../../common/CardInfoCache.js";
 import RemoteCardInfoCache from "../cards.js";
+import { DndProvider } from "react-dnd";
+import PIXIBackend from "../PIXIBackend.js";
 
 export const PlayerContext = React.createContext(0 as PlayerId);
 export const CacheContext = React.createContext(new RemoteCardInfoCache() as CardInfoCache);
@@ -50,6 +52,7 @@ export const HighlightContext = React.createContext(
 );
 
 export default function Game(props: { message: string }) {
+  const app = useContext(AppContext);
   const cache = useRef(new RemoteCardInfoCache() as CardInfoCache);
   const [hover, setHover] = useState([] as Target[]);
   const [prepared, setPrepared] = useState([] as Target[]);
@@ -64,29 +67,31 @@ export default function Game(props: { message: string }) {
   }, [game]);
 
   return (
-    <CacheContext.Provider value={cache.current}>
-      <MoveAnimationContext.Provider value={cards}>
-        <HoverContext.Provider value={{ hover, setHover }}>
-          <PreparedContext.Provider value={{ prepared, setPrepared }}>
-            <HighlightContext.Provider value={{ highlight, setHighlight }}>
-              <Container filters={[timeColorFilterRef.current]}>
-                <Explanations />
-                <Table/>
-                <OpponentBoard />
-                <Board />
-                <EndTurn />
-                <Resources />
-                <Concede />
-                <OpponentGrave />
-                <Grave />
-                <OpponentHand />
-                <HandAndDeck />
-                <Message text={props.message} />
-              </Container>
-            </HighlightContext.Provider>
-          </PreparedContext.Provider>
-        </HoverContext.Provider>
-      </MoveAnimationContext.Provider>
-    </CacheContext.Provider>
+    <DndProvider backend={PIXIBackend(app)}>
+      <CacheContext.Provider value={cache.current}>
+        <MoveAnimationContext.Provider value={cards}>
+          <HoverContext.Provider value={{ hover, setHover }}>
+            <PreparedContext.Provider value={{ prepared, setPrepared }}>
+              <HighlightContext.Provider value={{ highlight, setHighlight }}>
+                <Container filters={[timeColorFilterRef.current]}>
+                  <Explanations />
+                  <Table />
+                  <OpponentBoard />
+                  <Board />
+                  <EndTurn />
+                  <Resources />
+                  <Concede />
+                  <OpponentGrave />
+                  <Grave />
+                  <OpponentHand />
+                  <HandAndDeck />
+                  <Message text={props.message} />
+                </Container>
+              </HighlightContext.Provider>
+            </PreparedContext.Provider>
+          </HoverContext.Provider>
+        </MoveAnimationContext.Provider>
+      </CacheContext.Provider>
+    </DndProvider>
   );
 }

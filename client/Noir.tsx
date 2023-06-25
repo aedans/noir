@@ -1,21 +1,10 @@
-import React from "react";
+import React, { Suspense } from "react";
 import { Route, Router } from "wouter";
-import { DndProvider } from "react-dnd";
-import PIXIBackend from "./PIXIBackend.js";
 import Camera from "./Camera.js";
 import { Provider } from "react-redux";
 import { store } from "./store.js";
-import Menu from "./menu/Menu.js";
-import Decks from "./decks/Decks.js";
-import Editor from "./editor/Editor.js";
 import { Application, Ticker, UPDATE_PRIORITY } from "pixi.js";
 import { addStats } from "pixi-stats";
-import Replays from "./replays/Replays.js";
-import Replay from "./replays/Replay.js";
-import Queue from "./queue/Queue.js";
-import Enqueue from "./queue/Enqueue.js";
-import Play from "./play/Play.js";
-import Solo from "./solo/Solo.js";
 
 export type NoirProps = {
   app: Application;
@@ -24,6 +13,16 @@ export type NoirProps = {
 export const App = React.createContext(null as Application | null);
 
 export default function Noir(props: NoirProps) {
+  const Play = React.lazy(() => import("./play/Play"));
+  const Solo = React.lazy(() => import("./solo/Solo"));
+  const Enqueue = React.lazy(() => import("./queue/Enqueue"));
+  const Queue = React.lazy(() => import("./queue/Queue"));
+  const Decks = React.lazy(() => import("./decks/Decks"));
+  const Editor = React.lazy(() => import("./editor/Editor"));
+  const Replays = React.lazy(() => import("./replays/Replays"));
+  const Replay = React.lazy(() => import("./replays/Replay"));
+  const Menu = React.lazy(() => import("./menu/Menu"));
+
   if (localStorage.getItem("debug") == "true") {
     const stats = addStats(document, props.app);
     (stats as any).stats.showPanel(1);
@@ -34,8 +33,8 @@ export default function Noir(props: NoirProps) {
     <App.Provider value={props.app}>
       <Camera>
         <Provider store={store}>
-          <DndProvider backend={PIXIBackend(props.app)}>
-            <Router>
+          <Router>
+            <Suspense fallback={<></>}>
               <Route path="/play" component={Play} />
               <Route path="/solo" component={Solo} />
               <Route path="/enqueue/:queue" component={Enqueue} />
@@ -45,8 +44,8 @@ export default function Noir(props: NoirProps) {
               <Route path="/replays" component={Replays} />
               <Route path="/replays/:id" component={Replay} />
               <Route path="/" component={Menu} />
-            </Router>
-          </DndProvider>
+            </Suspense>
+          </Router>
         </Provider>
       </Camera>
     </App.Provider>
