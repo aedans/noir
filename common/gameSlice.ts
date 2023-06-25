@@ -171,7 +171,9 @@ function clearBoard(state: GameState, player: PlayerId) {
 }
 
 export const gameReducers = {
-  noop: (state: GameState, action: PayloadAction<{}>) => {},
+  noop: (state: GameState, action: PayloadAction<{}>) => {
+    state.history.unshift(action as GameAction);
+  },
   hidden: (state: GameState, action: PayloadAction<TargetCardParams>) => {
     state.history.unshift(action as GameAction);
   },
