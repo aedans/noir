@@ -51,7 +51,6 @@ import {
   StealCardParams,
 } from "./gameSlice.js";
 import { historySlice, SetUndoneParams } from "./historySlice.js";
-import _ from "lodash";
 import CardInfoCache from "./CardInfoCache.js";
 
 export type Filter = {
@@ -166,7 +165,7 @@ export function filter(this: Util, cache: CardInfoCache, game: GameState, filter
   }
 
   if (filter.random != undefined && filter.random) {
-    cards = _.shuffle(cards);
+    cards = randoms(cards, cards.length);
   }
 
   if (filter.ordering != undefined) {
@@ -377,6 +376,10 @@ export function randoms<T>(ts: T[], number: number) {
     result.push(tss.splice(Math.floor(Math.random() * tss.length), 1)[0]);
   }
   return result;
+}
+
+export function isEqual<T>(a: T, b: T) {
+  return JSON.stringify(a) == JSON.stringify(b);
 }
 
 export function onTrigger<T extends GameParams>(

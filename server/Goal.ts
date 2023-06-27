@@ -1,8 +1,7 @@
-import _ from "lodash";
 import { CardColor, CardState } from "../common/card.js";
 import { GameState, PlayerId, opponentOf } from "../common/gameSlice.js";
 import { PlayerAction } from "../common/network.js";
-import util, { Filter } from "../common/util.js";
+import util, { Filter, isEqual } from "../common/util.js";
 import CardInfoCache from "../common/CardInfoCache.js";
 
 export type GoalState = {
@@ -21,7 +20,7 @@ export function runGoals(
 ): PlayerAction | null {
   for (const goal of goals) {
     const action = goal(cache, game, player, state);
-    if (action != null && invalid.every((a) => !_.isEqual(a, action))) {
+    if (action != null && invalid.every((a) => !isEqual(a, action))) {
       return action;
     }
   }

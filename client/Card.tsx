@@ -16,9 +16,9 @@ import Text from "./Text.js";
 import { Graphics, filters as PixiFilters, RenderTexture, Texture } from "pixi.js";
 import anime from "animejs";
 import { GlowFilter } from "@pixi/filter-glow";
-import { isEqual } from "lodash";
 import { App } from "./Noir.js";
 import { colorlessColor, getColor, getRGB, hex } from "./color.js";
+import { isEqual } from "../common/util.js";
 
 export const cardHeight = targetResolution.height / 4;
 export const cardWidth = cardHeight * (1 / 1.4);

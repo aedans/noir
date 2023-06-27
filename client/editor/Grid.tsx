@@ -1,8 +1,8 @@
-import { isEqual } from "lodash";
 import React, { useMemo } from "react";
 import { ReactElement } from "react";
 import { CardState } from "../../common/card.js";
 import { cardHeight, cardWidth } from "../Card.js";
+import { isEqual } from "../../common/util.js";
 
 export type GridProps = {
   elements: CardState[];

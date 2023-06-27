@@ -3,7 +3,6 @@ import { Container } from "react-pixi-fiber";
 import { CardStateInfo } from "../common/card.js";
 import { cardHeight, cardWidth, isCardInfoEqual, isCardStateEqual } from "./Card.js";
 import { GameCardProps } from "./game/GameCard.js";
-import { zip } from "lodash";
 
 export type CardListProps = {
   cards: CardStateInfo[];
@@ -18,8 +17,11 @@ export function isCardListPropsEqual(a: CardListProps, b: CardListProps) {
   return (
     a.expanded == b.expanded &&
     a.reversed == b.reversed &&
-    zip(a.cards, b.cards).every(
-      ([a, b]) => a && b && isCardStateEqual(a?.state, b?.state) && isCardInfoEqual(a?.info, b?.info)
+    a.cards.length == b.cards.length &&
+    a.cards.every(
+      (_, index) =>
+        isCardStateEqual(a.cards[index].state, b.cards[index].state) &&
+        isCardInfoEqual(a.cards[index].info, b.cards[index].info)
     )
   );
 }
