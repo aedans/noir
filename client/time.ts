@@ -1,5 +1,5 @@
 import { useContext, useEffect, useLayoutEffect, useRef } from "react";
-import { filters as PixiFilters } from "pixi.js";
+import { filters as PixiFilters } from "./pixi.js";
 import { useClientSelector } from "./store";
 import anime from "animejs";
 import { DropShadowFilter } from "@pixi/filter-drop-shadow";

@@ -3,14 +3,13 @@ import { Route, Router } from "wouter";
 import Camera from "./Camera.js";
 import { Provider } from "react-redux";
 import { store } from "./store.js";
-import { Application, Ticker, UPDATE_PRIORITY } from "pixi.js";
+import { Application, Ticker, UPDATE_PRIORITY } from "./pixi.js";
 import { addStats } from "pixi-stats";
+import {AppContext} from "@pixi/react"
 
 export type NoirProps = {
   app: Application;
 };
-
-export const App = React.createContext(null as Application | null);
 
 export default function Noir(props: NoirProps) {
   const Play = React.lazy(() => import("./play/Play"));
@@ -30,7 +29,7 @@ export default function Noir(props: NoirProps) {
   }
 
   return (
-    <App.Provider value={props.app}>
+    <AppContext.Provider value={props.app}>
       <Camera>
         <Provider store={store}>
           <Router>
@@ -48,6 +47,6 @@ export default function Noir(props: NoirProps) {
           </Router>
         </Provider>
       </Camera>
-    </App.Provider>
+    </AppContext.Provider>
   );
 }

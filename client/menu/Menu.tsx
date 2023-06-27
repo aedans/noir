@@ -1,5 +1,5 @@
 import React from "react";
-import { Container } from "react-pixi-fiber";
+import { Container } from "@pixi/react";
 import Button from "../Button.js";
 import { targetResolution } from "../Camera.js";
 import { useLocation } from "wouter";

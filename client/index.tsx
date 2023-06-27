@@ -1,4 +1,4 @@
-import { Application, Loader, MIPMAP_MODES, settings } from "pixi.js";
+import { Application, Loader, MIPMAP_MODES, settings } from "./pixi.js";
 
 settings.RENDER_OPTIONS.antialias = true;
 settings.ANISOTROPIC_LEVEL = 16;
@@ -20,7 +20,8 @@ Loader.shared.add("Oswald", "/Oswald.fnt").load(() => {
     store.updateLocalStorage();
   });
 
-  Promise.all([import("./Noir"), import("react"), import("react-pixi-fiber")]).then(([Noir, React, fiber]) => {
-    fiber.render(<Noir.default app={app} />, app.stage);
+  Promise.all([import("./Noir"), import("react"), import("@pixi/react")]).then(([Noir, React, ReactPixi]) => {
+    const root = ReactPixi.createRoot(app.stage);
+    root.render(<Noir.default app={app} />);
   });
 });

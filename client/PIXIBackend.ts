@@ -2,7 +2,7 @@ import { GlowFilter } from "@pixi/filter-glow";
 import anime from "animejs";
 import { BackendFactory, DragDropManager } from "dnd-core";
 import { IDisplayObject3d } from "pixi-projection";
-import { Application, DisplayObject, Sprite, Texture, Ticker } from "pixi.js";
+import { Application, DisplayObject, Sprite, Texture, Ticker } from "./pixi.js";
 
 type Identifier = string | symbol;
 type DisplayObject3d = DisplayObject & Partial<IDisplayObject3d>;
@@ -39,8 +39,8 @@ const PIXIBackend: (app: Application) => BackendFactory = (app: Application) => 
     function mouseMoveListener(e: MouseEvent) {
       if (currentObject == reticle) {
         anime.remove(reticle.transform.position);
-        ddx += e.x - reticle.getGlobalPosition().x;
-        ddy += e.y - reticle.getGlobalPosition().y;
+        ddx += e.x - reticle.toGlobal({ x: 0, y: 0 }).x;
+        ddy += e.y - reticle.toGlobal({ x: 0, y: 0 }).y;
         reticle.visible = true;
 
         const pos = reticle.parent.toLocal(e);

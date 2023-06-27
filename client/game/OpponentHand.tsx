@@ -6,7 +6,7 @@ import { cardHeight, cardWidth } from "../Card.js";
 import { useClientSelector } from "../store.js";
 import { PlayerContext } from "./Game.js";
 import GameCard from "./GameCard.js";
-import { Container } from "react-pixi-fiber";
+import { Container } from "@pixi/react";
 import { useTimeShadowFilter } from "../time.js";
 import { useCardInfoList } from "../cardinfolist.js";
 

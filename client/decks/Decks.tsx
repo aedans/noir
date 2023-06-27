@@ -2,7 +2,7 @@ import React from "react";
 import { ReactNode } from "react";
 import { useLocation } from "wouter";
 import Button from "../Button.js";
-import { Container } from "react-pixi-fiber";
+import { Container } from "@pixi/react";
 import { useClientSelector } from "../store.js";
 import { targetResolution } from "../Camera.js";
 

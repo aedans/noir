@@ -1,5 +1,5 @@
 import React, { useContext } from "react";
-import { Container } from "react-pixi-fiber";
+import { Container } from "@pixi/react";
 import Text from "../Text.js";
 import Rectangle from "../Rectangle.js";
 import { targetResolution } from "../Camera.js";

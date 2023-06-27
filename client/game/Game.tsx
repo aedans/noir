@@ -1,5 +1,5 @@
-import React, { Dispatch, SetStateAction, useContext, useEffect, useRef, useState } from "react";
-import { AppContext, Container } from "react-pixi-fiber";
+import React, { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
+import { Container, useApp } from "@pixi/react";
 import Board from "./Board.js";
 import EndTurn from "./EndTurn.js";
 import { MoveAnimationContext, MoveAnimationState } from "../MoveAnimation.js";
@@ -52,7 +52,7 @@ export const HighlightContext = React.createContext(
 );
 
 export default function Game(props: { message: string }) {
-  const app = useContext(AppContext);
+  const app = useApp();
   const cache = useRef(new RemoteCardInfoCache() as CardInfoCache);
   const [hover, setHover] = useState([] as Target[]);
   const [prepared, setPrepared] = useState([] as Target[]);

@@ -1,6 +1,6 @@
-import React, { MutableRefObject, Ref, useContext, useEffect, useImperativeHandle, useRef } from "react";
+import React, { MutableRefObject, Ref, useContext, useEffect, useImperativeHandle, useLayoutEffect, useRef } from "react";
 import { useDrop } from "react-dnd";
-import { Container, InteractiveComponent } from "react-pixi-fiber";
+import { Container } from "@pixi/react";
 import { CardColors, CardState } from "../../common/card.js";
 import Card, { CardProps, combineColors, isCardPropsEqual } from "../Card.js";
 import MoveAnimation, { useLastPos } from "../MoveAnimation.js";
@@ -9,9 +9,10 @@ import { getCard } from "../../common/gameSlice.js";
 import { useClientSelector } from "../store.js";
 import { hex } from "../color.js";
 import util from "../../common/util.js";
+import { PixiContainer } from "../pixi.js";
 
 export type GameCardProps = CardProps &
-  InteractiveComponent & {
+  Parameters<typeof Container>[0] & {
     scale?: number;
     useLastPos?: boolean;
     x?: number;
@@ -35,13 +36,13 @@ export function isGameCardPropsEqual(a: GameCardProps, b: GameCardProps) {
 }
 
 export default React.memo(
-  React.forwardRef(function GameCard(props: GameCardProps, ref: Ref<Container>) {
+  React.forwardRef(function GameCard(props: GameCardProps, ref: Ref<PixiContainer>) {
     const game = useClientSelector((state) => state.game.current);
     const cache = useContext(CacheContext);
     const connection = useContext(ConnectionContext);
     const { prepared } = useContext(PreparedContext);
     const { highlight } = useContext(HighlightContext);
-    const componentRef = useRef() as MutableRefObject<Required<Container>>;
+    const componentRef = useRef() as MutableRefObject<PixiContainer>;
     const { x, y } = useLastPos(props, props.state.id, componentRef);
 
     useImperativeHandle(ref, () => componentRef.current);
@@ -63,9 +64,9 @@ export default React.memo(
       drop(componentRef);
     });
 
-    useEffect(() => {
+    useLayoutEffect(() => {
       (componentRef.current as any).convertTo3d?.();
-    }, []);
+    }, [])
 
     const borderColors: CardColors[] = [];
     for (const modifier of props.state.modifiers) {
@@ -96,7 +97,7 @@ export default React.memo(
 
     return (
       <MoveAnimation id={props.state.id} x={x} y={y} scale={scale} componentRef={componentRef}>
-        <Container {...props} scale={0} ref={componentRef}>
+        <Container {...props} ref={componentRef}>
           <Card
             state={props.state}
             info={props.info}

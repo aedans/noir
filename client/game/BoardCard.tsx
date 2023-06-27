@@ -1,20 +1,20 @@
 import React, { Ref, useContext, useRef, MutableRefObject, useImperativeHandle, useEffect } from "react";
 import { useDrag } from "react-dnd";
-import { Container } from "react-pixi-fiber";
 import { currentPlayer } from "../../common/gameSlice.js";
 import { useClientSelector } from "../store.js";
 import { CacheContext, ConnectionContext, HoverContext, PlayerContext, PreparedContext } from "./Game.js";
 import GameCard, { GameCardProps } from "./GameCard.js";
 import util from "../../common/util.js";
+import { PixiContainer } from "../pixi.js";
 
-export default React.forwardRef(function BoardCard(props: GameCardProps, ref: Ref<Container>) {
+export default React.forwardRef(function BoardCard(props: GameCardProps, ref: Ref<PixiContainer>) {
   const player = useContext(PlayerContext);
   const cache = useContext(CacheContext);
   const connection = useContext(ConnectionContext);
   const { hover, setHover } = useContext(HoverContext);
   const { prepared, setPrepared } = useContext(PreparedContext);
   const game = useClientSelector((state) => state.game.current);
-  const cardRef = useRef() as MutableRefObject<Required<Container>>;
+  const cardRef = useRef() as MutableRefObject<PixiContainer>;
 
   const isHovered = hover.some((card) => card.id == props.state.id);
   const isPrepared = prepared.some((card) => card.id == props.state.id);

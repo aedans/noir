@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React from "react";
 import { useEffect, useRef, useState } from "react";
 import RemoteCardInfoCache, { getCards, isLoaded } from "../cards.js";
 import Grid from "./Grid.js";
@@ -8,9 +8,9 @@ import { addDeckCard, removeDeckCard } from "../../common/decksSlice.js";
 import { targetResolution } from "../Camera.js";
 import Rectangle from "../Rectangle.js";
 import { MoveAnimationContext, MoveAnimationState } from "../MoveAnimation.js";
-import GridCard from "./GridCard.js";
+import GridCard from "./EditorCard.js";
 import { ordered } from "../../common/util.js";
-import { AppContext, Container, usePixiApp } from "react-pixi-fiber";
+import { Container, useApp } from "@pixi/react";
 import { cardHeight, cardWidth } from "../Card.js";
 import Text from "../Text.js";
 import CardList from "../CardList.js";
@@ -20,9 +20,10 @@ import CardInfoCache from "../../common/CardInfoCache.js";
 import { CacheContext } from "../game/Game.js";
 import { DndProvider } from "react-dnd";
 import PIXIBackend from "../PIXIBackend.js";
+import EditorCard from "./EditorCard.js";
 
 export default function Editor(props: { params: { deck: string } }) {
-  const app = useContext(AppContext);
+  const app = useApp();
   const dispatch = useClientDispatch();
   const cards = useRef({} as MoveAnimationState);
   const [scroll, setScroll] = useState(0);
@@ -84,7 +85,7 @@ export default function Editor(props: { params: { deck: string } }) {
           <Container y={scroll}>
             <Grid elements={sortedAllCards} maxWidth={3000}>
               {(data, x, y) => (
-                <GridCard
+                <EditorCard
                   state={data}
                   info={new RemoteCardInfoCache().getDefaultCardInfo(data)}
                   key={data.id}

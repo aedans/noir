@@ -1,5 +1,5 @@
 import React, { ReactElement, useCallback, useEffect, useState } from "react";
-import { Container } from "react-pixi-fiber";
+import { Container } from "@pixi/react";
 import { CardStateInfo } from "../common/card.js";
 import { cardHeight, cardWidth, isCardInfoEqual, isCardStateEqual } from "./Card.js";
 import { GameCardProps } from "./game/GameCard.js";

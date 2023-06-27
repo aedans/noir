@@ -3,7 +3,7 @@ import { ReactNode } from "react";
 import { useClientSelector } from "../store.js";
 import Button from "../Button.js";
 import { useLocation } from "wouter";
-import { Container } from "react-pixi-fiber";
+import { Container } from "@pixi/react";
 import { targetResolution } from "../Camera.js";
 
 export default function Enqueue(props: { params: { queue: string } }) {

@@ -1,6 +1,6 @@
 import React from "react";
 import { useState } from "react";
-import { Container } from "react-pixi-fiber";
+import { Container } from "@pixi/react";
 import { useLocation } from "wouter";
 import { Difficulty, MissionName } from "../../server/Mission.js";
 import Button from "../Button.js";

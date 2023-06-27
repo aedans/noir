@@ -4,7 +4,7 @@ import { CardStateInfo } from "../../common/card.js";
 import HandCard from "./HandCard.js";
 import { cardHeight, cardWidth } from "../Card.js";
 import { useTimeShadowFilter } from "../time.js";
-import { Container } from "react-pixi-fiber";
+import { Container } from "@pixi/react";
 
 export type HandProps = {
   cards: CardStateInfo[];

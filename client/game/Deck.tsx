@@ -4,7 +4,7 @@ import { CardStateInfo } from "../../common/card.js";
 import { cardHeight, cardWidth } from "../Card.js";
 import GameCard, { GameCardProps } from "./GameCard.js";
 import ExpandableCardList from "../ExpandableCardList.js";
-import { Container } from "react-pixi-fiber";
+import { Container } from "@pixi/react";
 
 export type DeckProps = {
   cards: CardStateInfo[];

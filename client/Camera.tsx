@@ -1,13 +1,10 @@
-import { CustomPIXIComponent, CustomPIXIComponentBehavior, DisplayObjectProps } from "react-pixi-fiber";
-import { Graphics, Ticker } from "pixi.js";
+import { Graphics, Ticker } from "./pixi.js";
 import { Camera3d } from "pixi-projection";
-import React, { Context, MutableRefObject } from "react";
-import PIXI from "pixi.js";
+import React, { Context, MutableRefObject, ReactNode } from "react";
+import { PixiComponent, applyDefaultProps } from "@pixi/react";
 
-export type CameraProps = DisplayObjectProps<PIXI.Container>;
-
-type CustomCameraProps = CameraProps & {
-  innerRef: MutableRefObject<Camera3d>;
+export type CameraProps = {
+  children: ReactNode;
 };
 
 export let targetResolution = {
@@ -38,26 +35,27 @@ export function onResize(camera: Camera3d) {
   camera.setPlanes(targetResolution.width / 2, 30, 10000, true);
 }
 
-export const behavior: CustomPIXIComponentBehavior<Camera3d, CustomCameraProps> = {
-  customDisplayObject: (props) => new Camera3d(),
-  customApplyProps: (instance, oldProps, newProps) => {
-    newProps.innerRef.current = instance;
+export const CameraContext = React.createContext(undefined as unknown) as Context<MutableRefObject<Camera3d>>;
+
+const CustomCamera = PixiComponent("CustomCamera", {
+  create() {
+    const instance = new Camera3d();
     Ticker.shared.add(() => onResize(instance));
     onResize(instance);
     instance.addChild(mask);
-    instance.mask = mask;  
+    instance.mask = mask;
+    return instance;
   },
-};
-
-const CustomCamera = CustomPIXIComponent(behavior, "Camera");
-
-export const CameraContext = React.createContext(undefined as unknown) as Context<MutableRefObject<Camera3d>>;
+  applyProps(instance, oldProps, newProps) {
+    applyDefaultProps(instance, oldProps, newProps);
+  },
+});
 
 export default function Camera(props: CameraProps) {
   const ref = React.useRef() as MutableRefObject<Camera3d>;
 
   return (
-    <CustomCamera {...props} innerRef={ref}>
+    <CustomCamera innerRef={ref}>
       <CameraContext.Provider value={ref}>{props.children}</CameraContext.Provider>
     </CustomCamera>
   );

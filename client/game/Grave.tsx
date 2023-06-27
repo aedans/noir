@@ -7,7 +7,7 @@ import { PlayerContext } from "./Game.js";
 import { cardHeight } from "../Card.js";
 import GameCard, { GameCardProps } from "./GameCard.js";
 import ExpandableCardList from "../ExpandableCardList.js";
-import { Container } from "react-pixi-fiber";
+import { Container } from "@pixi/react";
 import { useCardInfoList } from "../cardinfolist.js";
 
 export default function Grave() {

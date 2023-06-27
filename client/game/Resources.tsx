@@ -1,6 +1,6 @@
 import React from "react";
 import { useContext } from "react";
-import { Container } from "react-pixi-fiber";
+import { Container } from "@pixi/react";
 import { targetResolution } from "../Camera.js";
 import { useClientSelector } from "../store.js";
 import Text from "../Text.js";

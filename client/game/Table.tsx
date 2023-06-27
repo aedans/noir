@@ -5,6 +5,7 @@ import { targetResolution } from "../Camera.js";
 import { useDrop } from "react-dnd";
 import { CardState } from "../../common/card.js";
 import { ConnectionContext, PreparedContext } from "./Game.js";
+import { Container } from "@pixi/react";
 
 export default function Table() {
   const connection = useContext(ConnectionContext);
@@ -24,12 +25,13 @@ export default function Table() {
   return (
     <>
       <Rectangle fill={0x202020} width={targetResolution.width} height={targetResolution.height} />
-      <Rectangle
-        ref={(current) => drop({ current })}
-        width={targetResolution.width}
-        height={targetResolution.height * (3 / 4)}
-        renderable={false}
-      />
+      <Container renderable={false}>
+        <Rectangle
+          ref={(current) => drop({ current })}
+          width={targetResolution.width}
+          height={targetResolution.height * (3 / 4)}
+        />
+      </Container>
     </>
   );
 }

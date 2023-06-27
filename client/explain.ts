@@ -122,7 +122,7 @@ export const explanations = [
     "revealed",
     "Your can see which cards your opponent has revealed",
     ["reveal"],
-    (cache, game, player) => util.filter(cache, game, { players: [player], zones: ["deck"], hidden: false })
+    (cache, game, player) => util.filter(cache, game, { players: [player], hidden: false })
   ),
   new SituationExplanation(
     "revealSelf",

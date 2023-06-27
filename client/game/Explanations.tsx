@@ -1,13 +1,14 @@
-import React from "react";
+import React, { useLayoutEffect } from "react";
 import { Dispatch, MutableRefObject, SetStateAction, useContext, useEffect, useRef, useState } from "react";
 import { Explanation, explain, isExplained, setExplained } from "../explain.js";
 import { useClientSelector } from "../store.js";
 import { CacheContext, HighlightContext, PlayerContext } from "./Game.js";
 import Rectangle from "../Rectangle.js";
-import { Container } from "react-pixi-fiber";
+import { Container } from "@pixi/react";
 import Text from "../Text.js";
 import { targetResolution } from "../Camera.js";
 import anime from "animejs";
+import { PixiContainer } from "../pixi.js";
 
 export type ExplanationProps = {
   explanation: Explanation;
@@ -21,12 +22,16 @@ export const explanationWidth = 1000;
 export const explanationHeight = explanationFontSize * 2 + explanationMargin * 2;
 
 export function ExplanationPopup(props: ExplanationProps) {
-  const ref = useRef() as MutableRefObject<Required<Container>>;
+  const ref = useRef() as MutableRefObject<PixiContainer>;
   const player = useContext(PlayerContext);
   const cache = useContext(CacheContext);
   const { setHighlight } = useContext(HighlightContext);
   const game = useClientSelector((state) => state.game.current);
   const relevantCards = props.explanation.relevantCards(cache, game, player);
+
+  useLayoutEffect(() => {
+    ref.current.alpha = 0;
+  }, [])
 
   useEffect(() => {
     anime({
@@ -66,7 +71,6 @@ export function ExplanationPopup(props: ExplanationProps) {
       pointerdown={pointerdown}
       interactive
       ref={ref}
-      alpha={0}
     >
       <Rectangle width={explanationWidth} height={explanationHeight} fill={0} />
       <Rectangle

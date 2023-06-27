@@ -1,14 +1,15 @@
-import React from "react";
-import { MutableRefObject, useEffect, useRef } from "react";
+import React, { MutableRefObject, useEffect, useRef } from "react";
+import { Container } from "@pixi/react";
 import Text, { TextProps } from "./Text.js";
-import { Container } from "react-pixi-fiber";
 import anime from "animejs";
-import { Rectangle } from "pixi.js";
+import { BitmapText, Rectangle } from "./pixi.js";
 
-export type ButtonProps = TextProps;
+export type ButtonProps = TextProps & {
+  pointerdown?: () => void;
+};
 
 export default function Button(props: ButtonProps) {
-  const textRef = useRef() as MutableRefObject<Required<Container>>;
+  const textRef = useRef() as MutableRefObject<BitmapText>;
 
   useEffect(() => {
     const { width } = textRef.current;
@@ -16,11 +17,9 @@ export default function Button(props: ButtonProps) {
   }, [props]);
 
   return (
-    <Text
-      {...props}
-      ref={textRef}
-      anchor={[0.5, 0.5]}
+    <Container
       interactive
+      pointerdown={props.pointerdown}
       mouseover={() => {
         anime({
           targets: textRef.current.transform.scale,
@@ -40,7 +39,7 @@ export default function Button(props: ButtonProps) {
         });
       }}
     >
-      {props.children}
-    </Text>
+      <Text {...props} anchor={[0.5, 0.5]} ref={textRef} />
+    </Container>
   );
 }

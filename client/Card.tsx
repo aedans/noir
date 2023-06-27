@@ -1,22 +1,12 @@
-import React, {
-  MutableRefObject,
-  Ref,
-  useContext,
-  useEffect,
-  useImperativeHandle,
-  useLayoutEffect,
-  useRef,
-  useState,
-} from "react";
-import { Container, Sprite } from "react-pixi-fiber";
+import React, { MutableRefObject, Ref, useEffect, useImperativeHandle, useLayoutEffect, useRef, useState } from "react";
+import { Container, Sprite, useApp } from "@pixi/react";
 import Rectangle, { RectangleProps } from "./Rectangle.js";
 import { targetResolution } from "./Camera.js";
 import { CardColors, CardInfo, CardKeyword, CardState } from "../common/card.js";
 import Text from "./Text.js";
-import { Graphics, filters as PixiFilters, RenderTexture, Texture } from "pixi.js";
+import { Graphics, filters as PixiFilters, RenderTexture, Texture, PixiContainer, PixiSprite } from "./pixi.js";
 import anime from "animejs";
 import { GlowFilter } from "@pixi/filter-glow";
-import { App } from "./Noir.js";
 import { colorlessColor, getColor, getRGB, hex } from "./color.js";
 import { isEqual } from "../common/util.js";
 
@@ -119,8 +109,8 @@ export function isCardPropsEqual(a: CardProps, b: CardProps) {
   );
 }
 
-const CardImpl = React.forwardRef(function CardImpl(props: CardProps, ref: Ref<Container>) {
-  const containerRef = useRef() as MutableRefObject<Required<Container>>;
+const CardImpl = React.forwardRef(function CardImpl(props: CardProps, ref: Ref<PixiContainer>) {
+  const containerRef = useRef() as MutableRefObject<PixiContainer>;
 
   useImperativeHandle(ref, () => containerRef.current);
 
@@ -164,14 +154,14 @@ const CardImpl = React.forwardRef(function CardImpl(props: CardProps, ref: Ref<C
         anchor={[0.5, 0.5]}
         x={40}
         y={40}
-        text={Math.max(0, props.info.cost.money)}
+        text={Math.max(0, props.info.cost.money).toString()}
         style={{ fontSize: 32, tint: 0 }}
       />
       <Text
         anchor={[0.5, 0.5]}
         x={40}
         y={92}
-        text={Math.max(0, props.info.cost.agents) || ""}
+        text={Math.max(0, props.info.cost.agents).toString() || ""}
         style={{ fontSize: 32, tint: 0 }}
       />
     </Container>
@@ -179,19 +169,19 @@ const CardImpl = React.forwardRef(function CardImpl(props: CardProps, ref: Ref<C
 });
 
 export default React.memo(
-  React.forwardRef(function Card(props: CardProps, ref: Ref<Container>) {
+  React.forwardRef(function Card(props: CardProps, ref: Ref<PixiContainer>) {
     const color = hex[combineColors(props.info.colors)];
     const lastColor = useRef(getRGB(color));
-    const containerRef = useRef() as MutableRefObject<Required<Container>>;
+    const containerRef = useRef() as MutableRefObject<PixiContainer>;
     const colorRef = useRef() as MutableRefObject<RectangleProps & Graphics>;
-    const borderHiddenRef = useRef() as MutableRefObject<Sprite>;
-    const borderAgentsRef = useRef() as MutableRefObject<Sprite>;
-    const borderTintRef = useRef() as MutableRefObject<Sprite>;
+    const borderHiddenRef = useRef() as MutableRefObject<PixiSprite>;
+    const borderAgentsRef = useRef() as MutableRefObject<PixiSprite>;
+    const borderTintRef = useRef() as MutableRefObject<PixiSprite>;
     const lastBorderTint = useRef(getRGB(props.borderTint ?? colorlessColor));
     const glowFilterRef = useRef(new GlowFilter());
     const dimFilterRef = useRef(new PixiFilters.ColorMatrixFilter());
     const [texture, setTexture] = useState(null as RenderTexture | null);
-    const app = useContext(App)!;
+    const app = useApp();
 
     useEffect(() => {
       if (containerRef.current) {

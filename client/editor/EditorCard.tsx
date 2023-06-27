@@ -1,12 +1,13 @@
 import React, { MutableRefObject, Ref, useImperativeHandle, useRef } from "react";
-import { Container, PixiElement } from "react-pixi-fiber";
+import { Container } from "@pixi/react";
 import Card, { CardProps } from "../Card.js";
 import MoveAnimation from "../MoveAnimation.js";
+import { PixiContainer } from "../pixi.js";
 
-export type EditorCardProps = CardProps & PixiElement<Container>;
+export type EditorCardProps = CardProps & Parameters<typeof Container>[0];
 
-export default React.forwardRef(function EditorCard(props: EditorCardProps, ref: Ref<Container>) {
-  const componentRef = useRef() as MutableRefObject<Required<Container>>;
+export default React.forwardRef(function EditorCard(props: EditorCardProps, ref: Ref<PixiContainer>) {
+  const componentRef = useRef() as MutableRefObject<PixiContainer>;
 
   useImperativeHandle(ref, () => componentRef.current);
 

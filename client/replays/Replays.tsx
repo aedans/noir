@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Container } from "react-pixi-fiber";
+import { Container } from "@pixi/react";
 import { useLocation } from "wouter";
 import { targetResolution } from "../Camera.js";
 import { serverOrigin } from "../cards.js";
