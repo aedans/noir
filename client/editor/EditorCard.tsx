@@ -12,7 +12,7 @@ export default React.forwardRef(function EditorCard(props: EditorCardProps, ref:
   useImperativeHandle(ref, () => componentRef.current);
 
   return (
-    <MoveAnimation skipPosition id={props.state.id} scale={1} componentRef={componentRef}>
+    <MoveAnimation skipPosition skipScale id={props.state.id} componentRef={componentRef}>
       <Container {...props} scale={1} ref={componentRef}>
         <Card state={props.state} info={props.info} />
       </Container>

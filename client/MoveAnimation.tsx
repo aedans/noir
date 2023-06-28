@@ -110,7 +110,7 @@ export default function MoveAnimation(props: MoveAnimationProps) {
     if (prev && component && !props.skipPosition) {
       component.position = component.parent.toLocal(prev);
       component.scale = { x: prev.scaleX, y: prev.scaleY };
-    } else {
+    } else if (!props.skipScale) {
       component.scale = { x: 0, y: 0 };
     }
   }, [props.x, props.y, props.scale]);
