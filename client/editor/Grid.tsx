@@ -1,8 +1,7 @@
 import React, { useMemo } from "react";
 import { ReactElement } from "react";
 import { CardState } from "../../common/card.js";
-import { cardHeight, cardWidth } from "../Card.js";
-import { isEqual } from "../../common/util.js";
+import { cardHeight, cardWidth, isCardStateEqual } from "../Card.js";
 
 export type GridProps = {
   elements: CardState[];
@@ -11,7 +10,11 @@ export type GridProps = {
 };
 
 export function isGridPropsEqual(a: GridProps, b: GridProps) {
-  return a.maxWidth == b.maxWidth && isEqual(a.elements, b.elements);
+  return (
+    a.maxWidth == b.maxWidth &&
+    a.elements.length == b.elements.length &&
+    a.elements.every((_, index) => isCardStateEqual(a.elements[index], b.elements[index]))
+  );
 }
 
 export default React.memo(function Grid(props: GridProps) {

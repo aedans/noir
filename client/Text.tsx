@@ -6,7 +6,7 @@ export type TextProps = {
   anchor?: [number, number];
   x?: number;
   y?: number;
-  text: string;
+  text: string | number;
   style?: Partial<IBitmapTextStyle>;
 };
 
@@ -24,6 +24,7 @@ export default React.forwardRef(function Text(props: TextProps, ref: Ref<PixiBit
   return (
     <BitmapText
       {...props}
+      text={props.text.toString()}
       ref={ref}
       style={style}
       x={Math.floor(props.x ?? 0)}

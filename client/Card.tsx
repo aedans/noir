@@ -2,13 +2,12 @@ import React, { MutableRefObject, Ref, useEffect, useImperativeHandle, useLayout
 import { Container, Sprite, useApp } from "@pixi/react";
 import Rectangle, { RectangleProps } from "./Rectangle.js";
 import { targetResolution } from "./Camera.js";
-import { CardColors, CardInfo, CardKeyword, CardState } from "../common/card.js";
+import { CardColors, CardCost, CardInfo, CardKeyword, CardState, ModifierState } from "../common/card.js";
 import Text from "./Text.js";
 import { Graphics, filters as PixiFilters, RenderTexture, Texture, PixiContainer, PixiSprite } from "./pixi.js";
 import anime from "animejs";
 import { GlowFilter } from "@pixi/filter-glow";
 import { colorlessColor, getColor, getRGB, hex } from "./color.js";
-import { isEqual } from "../common/util.js";
 
 export const cardHeight = targetResolution.height / 4;
 export const cardWidth = cardHeight * (1 / 1.4);
@@ -80,13 +79,32 @@ export type CardProps = {
   borderTint?: number;
 };
 
+export function isModifierEqual(a: ModifierState, b: ModifierState) {
+  return a.card.id == b.card.id && a.name == b.name;
+}
+
+export function isCostEqual(a: CardCost, b: CardCost) {
+  return a.money == b.money && a.agents == b.agents;
+}
+
+export function isKeywordEqual(a: CardKeyword, b: CardKeyword) {
+  return a[0] == b[0] && a[1] == b[1];
+}
+
+export function isPropsEqual(a: { [name: string]: any }, b: { [name: string]: any }) {
+  const keys = Object.keys(a);
+  return keys.length == Object.keys(b).length && keys.every((key) => a[key] == b[key]);
+}
+
 export function isCardStateEqual(a: CardState, b: CardState) {
   return (
+    a.id == b.id &&
     a.hidden == b.hidden &&
     a.exhausted == b.exhausted &&
     a.name == b.name &&
-    isEqual(a.props, b.props) &&
-    isEqual(a.modifiers, b.modifiers)
+    a.modifiers.length == b.modifiers.length &&
+    a.modifiers.every((_, index) => isModifierEqual(a.modifiers[index], b.modifiers[index])) &&
+    isPropsEqual(a.props, b.props)
   );
 }
 
@@ -94,9 +112,11 @@ export function isCardInfoEqual(a: CardInfo, b: CardInfo) {
   return (
     a.text == b.text &&
     a.type == b.type &&
-    isEqual(a.colors, b.colors) &&
-    isEqual(a.cost, b.cost) &&
-    isEqual(a.keywords, b.keywords)
+    isCostEqual(a.cost, b.cost) &&
+    a.colors.length == b.colors.length &&
+    a.colors.every((_, index) => a.colors[index] == b.colors[index]) &&
+    a.keywords.length == b.keywords.length &&
+    a.keywords.every((_, index) => isKeywordEqual(a.keywords[index], b.keywords[index]))
   );
 }
 
@@ -154,14 +174,14 @@ const CardImpl = React.forwardRef(function CardImpl(props: CardProps, ref: Ref<P
         anchor={[0.5, 0.5]}
         x={40}
         y={40}
-        text={Math.max(0, props.info.cost.money).toString()}
+        text={Math.max(0, props.info.cost.money)}
         style={{ fontSize: 32, tint: 0 }}
       />
       <Text
         anchor={[0.5, 0.5]}
         x={40}
         y={92}
-        text={Math.max(0, props.info.cost.agents).toString() || ""}
+        text={Math.max(0, props.info.cost.agents) || ""}
         style={{ fontSize: 32, tint: 0 }}
       />
     </Container>
