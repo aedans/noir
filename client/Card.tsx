@@ -1,10 +1,18 @@
 import React, { MutableRefObject, Ref, useEffect, useImperativeHandle, useLayoutEffect, useRef, useState } from "react";
-import { Container, Sprite, useApp } from "@pixi/react";
+import { Container, Sprite, render, useApp } from "@pixi/react";
 import Rectangle, { RectangleProps } from "./Rectangle.js";
 import { targetResolution } from "./Camera.js";
 import { CardColors, CardCost, CardInfo, CardKeyword, CardState, ModifierState } from "../common/card.js";
 import Text from "./Text.js";
-import { Graphics, filters as PixiFilters, RenderTexture, Texture, PixiContainer, PixiSprite } from "./pixi.js";
+import {
+  Graphics,
+  filters as PixiFilters,
+  RenderTexture,
+  Texture,
+  PixiContainer,
+  PixiSprite,
+  MIPMAP_MODES,
+} from "./pixi.js";
 import anime from "animejs";
 import { GlowFilter } from "@pixi/filter-glow";
 import { colorlessColor, getColor, getRGB, hex } from "./color.js";
@@ -188,6 +196,16 @@ const CardImpl = React.forwardRef(function CardImpl(props: CardProps, ref: Ref<P
   );
 });
 
+const borderTexture = Texture.from("/border.png");
+const borderHiddenTexture = Texture.from("/border_hidden.png");
+const borderAgentsTexture = Texture.from("/border_agents.png");
+const borderTintTexture = Texture.from("/border_tint.png");
+
+borderTexture.baseTexture.mipmap = MIPMAP_MODES.ON;
+borderHiddenTexture.baseTexture.mipmap = MIPMAP_MODES.ON;
+borderAgentsTexture.baseTexture.mipmap = MIPMAP_MODES.ON;
+borderTintTexture.baseTexture.mipmap = MIPMAP_MODES.ON;
+
 export default React.memo(
   React.forwardRef(function Card(props: CardProps, ref: Ref<PixiContainer>) {
     const color = hex[combineColors(props.info.colors)];
@@ -201,10 +219,11 @@ export default React.memo(
     const glowFilterRef = useRef(new GlowFilter());
     const dimFilterRef = useRef(new PixiFilters.ColorMatrixFilter());
     const [texture, setTexture] = useState(null as RenderTexture | null);
+    const cleanup = useRef([] as RenderTexture[]);
     const app = useApp();
-
-    useEffect(() => {
-      if (containerRef.current) {
+    
+    function renderTexture() {
+      if (containerRef.current && texture == null) {
         const renderTexture = RenderTexture.create({
           width: cardWidth,
           height: cardHeight,
@@ -213,13 +232,21 @@ export default React.memo(
         app.renderer.render(containerRef.current, { renderTexture });
         setTexture(renderTexture);
 
-        return () => {
-          renderTexture.destroy(true);
-        };
-      } else {
+        cleanup.current.push(renderTexture);
+      }
+    }
+
+    useEffect(() => {
+      if (texture != null) {
         setTexture(null);
       }
-    }, [props.info]);
+
+      return () => {
+        for (const texture of cleanup.current) {
+          texture.destroy(true);
+        }
+      }
+    }, [props.state, props.info]);
 
     useImperativeHandle(ref, () => containerRef.current);
 
@@ -323,32 +350,29 @@ export default React.memo(
       });
     }, [props.shouldGlow]);
 
-    const info = texture ? <Sprite texture={texture} /> : <CardImpl {...props} ref={containerRef} />;
+    const info = texture ? (
+      <Sprite texture={texture} />
+    ) : (
+      <CardImpl
+        {...props}
+        ref={(c) => {
+          containerRef.current = c;
+          renderTexture();
+        }}
+      />
+    );
+
+    const imageTexture = Texture.from(`/images/${props.state.name}.png`);
+    imageTexture.baseTexture.mipmap = MIPMAP_MODES.ON;
 
     return (
       <Container pivot={[cardWidth / 2, cardHeight / 2]} filters={[glowFilterRef.current, dimFilterRef.current]}>
         <Rectangle fill={0xffffff} width={cardWidth - 20} height={cardHeight - 40} x={10} y={12} ref={colorRef} />
-        <Sprite
-          width={cardWidth - 55}
-          height={cardHeight / 2 - 40}
-          x={30}
-          y={60}
-          texture={Texture.from(`/images/${props.state.name}.png`)}
-        />
-        <Sprite width={cardWidth} height={cardHeight} texture={Texture.from("/border.png")} />
-        <Sprite
-          width={cardWidth}
-          height={cardHeight}
-          texture={Texture.from("/border_hidden.png")}
-          ref={borderHiddenRef}
-        />
-        <Sprite
-          width={cardWidth}
-          height={cardHeight}
-          texture={Texture.from("/border_agents.png")}
-          ref={borderAgentsRef}
-        />
-        <Sprite width={cardWidth} height={cardHeight} texture={Texture.from("/border_tint.png")} ref={borderTintRef} />
+        <Sprite width={cardWidth - 55} height={cardHeight / 2 - 40} x={30} y={60} texture={imageTexture} />
+        <Sprite width={cardWidth} height={cardHeight} texture={borderTexture} />
+        <Sprite width={cardWidth} height={cardHeight} texture={borderHiddenTexture} ref={borderHiddenRef} />
+        <Sprite width={cardWidth} height={cardHeight} texture={borderAgentsTexture} ref={borderAgentsRef} />
+        <Sprite width={cardWidth} height={cardHeight} texture={borderTintTexture} ref={borderTintRef} />
         {info}
       </Container>
     );

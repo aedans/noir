@@ -7,31 +7,12 @@ import * as utils from '@pixi/utils';
 export { utils };
 export * from '@pixi/display';
 export * from '@pixi/core';
-export * from '@pixi/loaders';
+export * from '@pixi/assets';
 export * from '@pixi/sprite';
 export * from '@pixi/app';
 export * from '@pixi/graphics';
-export * from '@pixi/interaction';
+export * from '@pixi/events';
 export * from '@pixi/text-bitmap';
-
-// Renderer plugins
-import { Renderer } from '@pixi/core';
-import { BatchRenderer } from '@pixi/core';
-Renderer.registerPlugin('batch', BatchRenderer);
-import { InteractionManager } from '@pixi/interaction';
-Renderer.registerPlugin('interaction', InteractionManager);
-
-// Application plugins
-import { Application } from '@pixi/app';
-import { AppLoaderPlugin } from '@pixi/loaders';
-Application.registerPlugin(AppLoaderPlugin);
-import { TickerPlugin } from '@pixi/ticker';
-Application.registerPlugin(TickerPlugin);
-
-// Loader plugins
-import { Loader } from '@pixi/loaders';
-import { BitmapFontLoader } from '@pixi/text-bitmap';
-Loader.registerPlugin(BitmapFontLoader);
 
 // Filters
 import { ColorMatrixFilter } from '@pixi/filter-color-matrix';

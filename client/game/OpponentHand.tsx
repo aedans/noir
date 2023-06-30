@@ -25,7 +25,7 @@ export default function OpponentHand() {
   const y = cardHeight / 2;
 
   return (
-    <Container filters={[timeShadowFilterRef.current]}>
+    <Container filters={[timeShadowFilterRef.current]} sortableChildren>
       {cards.map(({ state, info }, i) => (
         <GameCard zIndex={20 + i} state={state} info={info} key={state.id} x={x + i * offset} y={y} />
       ))}

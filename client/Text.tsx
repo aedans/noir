@@ -27,6 +27,7 @@ export default React.forwardRef(function Text(props: TextProps, ref: Ref<PixiBit
       text={props.text.toString()}
       ref={ref}
       style={style}
+      tint={style.tint ?? 0xffffff}
       x={Math.floor(props.x ?? 0)}
       y={Math.floor((props.y ?? 0) - style.fontSize / 2)}
     />

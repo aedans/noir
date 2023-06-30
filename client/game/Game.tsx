@@ -73,7 +73,7 @@ export default function Game(props: { message: string }) {
           <HoverContext.Provider value={{ hover, setHover }}>
             <PreparedContext.Provider value={{ prepared, setPrepared }}>
               <HighlightContext.Provider value={{ highlight, setHighlight }}>
-                <Container filters={[timeColorFilterRef.current]}>
+                <Container filters={[timeColorFilterRef.current]} sortableChildren>
                   <Explanations />
                   <Table />
                   <OpponentBoard />
