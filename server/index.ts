@@ -39,7 +39,7 @@ app.use(
     baseURL: `https://noirccg.azurewebsites.net/`,
     clientID: "FAjKuxWF6fHa4OInqatXqp4DuMRQbNvz",
     issuerBaseURL: "https://dev-risee24h3navjxas.us.auth0.com",
-    secret: "YUUDX5Ne1RfV2vUs0J2EDITAwNVV-PEBQr0C_t_i1ZJfJsaAxJRYydHcJl7CHaFD",
+    secret: process.env["AUTH0_SECRET"],
   })
 );
 
