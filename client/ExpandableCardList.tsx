@@ -1,15 +1,20 @@
-import { useState } from "react";
-import CardList, { CardListProps } from "./CardList";
+import { useCallback, useState } from "react";
+import CardList, { CardListProps } from "./CardList.js";
 import React from "react";
+import { Container } from "@pixi/react";
 
-export function ExpandableCardList(props: Omit<CardListProps, "expanded">) {
+export default function ExpandableCardList(props: Omit<CardListProps, "expanded">) {
   const [isExpanded, setIsExpanded] = useState(false);
 
-  function pointerdown() {
+  const pointerdown = useCallback(() => {
     if (props.cards.length > 0) {
       setIsExpanded(!isExpanded);
     }
-  }
+  }, [isExpanded, props.cards.length]);
 
-  return <CardList expanded={isExpanded} expandOnHover {...props} pointerdown={pointerdown} />;
+  return (
+    <Container pointerdown={pointerdown} interactive>
+      <CardList expanded={isExpanded} expandOnHover {...props} />
+    </Container>
+  );
 }

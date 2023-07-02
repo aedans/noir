@@ -1,12 +1,15 @@
-import { Deck } from "../common/decksSlice";
-import { PlayerId, currentPlayer } from "../common/gameSlice";
-import { HistoryAction, historySlice } from "../common/historySlice";
+import { Deck } from "../common/decksSlice.js";
+import { PlayerId, Winner, currentPlayer } from "../common/gameSlice.js";
+import { HistoryAction, batch, historySlice } from "../common/historySlice.js";
 import fs from "fs";
-import { random } from "../common/util";
-import { PlayerInit, PlayerAction, NoirServerSocket } from "../common/network";
-import { HistoryState } from "../common/historySlice";
-import { initialHistoryState } from "../common/historySlice";
-import { Goal, GoalState, runGoals } from "./Goal";
+import { random } from "../common/util.js";
+import { PlayerInit, PlayerAction, NoirServerSocket } from "../common/network.js";
+import { HistoryState } from "../common/historySlice.js";
+import { initialHistoryState } from "../common/historySlice.js";
+import { Goal, GoalState, runGoals } from "./Goal.js";
+import { Difficulty, MissionName } from "./Mission.js";
+import CardInfoCache from "../common/CardInfoCache.js";
+import LocalCardInfoCache from "./LocalCardInfoCache.js";
 
 const decks = JSON.parse(fs.readFileSync("./common/decks.json").toString());
 
@@ -15,7 +18,7 @@ export default interface Player {
   init(): Promise<PlayerInit>;
   send(actions: HistoryAction[], name: string): void;
   error(message: string): void;
-  end(winner: number): void;
+  end(winner: Winner): void;
   onAction(callback: (action: PlayerAction | "concede") => void): void;
 }
 
@@ -23,8 +26,12 @@ export class SocketPlayer implements Player {
   callbacks: ((action: PlayerAction | "concede") => void)[] = [];
   actions: HistoryAction[] = [];
 
-  constructor(public socket: NoirServerSocket, public player: PlayerId, public name: string) {
+  constructor(public socket: NoirServerSocket, public player: PlayerId, public names: readonly [string, string]) {
     this.connect(socket);
+  }
+
+  get name() {
+    return this.names[this.player];
   }
 
   connect(socket: NoirServerSocket) {
@@ -42,7 +49,7 @@ export class SocketPlayer implements Player {
       }
     });
 
-    this.socket.emit("init", this.player);
+    this.socket.emit("init", this.player, this.names);
     this.socket.emit("actions", this.actions, `player${this.player}/load`);
 
     return this;
@@ -51,7 +58,7 @@ export class SocketPlayer implements Player {
   init(): Promise<PlayerInit> {
     return new Promise((resolve, reject) => {
       this.socket.once("init", (deck) => resolve({ deck }));
-      this.socket.emit("init", this.player);
+      this.socket.emit("init", this.player, this.names);
     });
   }
 
@@ -78,6 +85,10 @@ export abstract class ComputerPlayer implements Player {
   callbacks: ((action: PlayerAction) => void)[] = [];
   history: HistoryState = initialHistoryState();
   state: GoalState = { lastPlay: {} };
+  invalid: PlayerAction[] = [];
+  valid: PlayerAction[] = [];
+  timeout: boolean = true;
+  cache: CardInfoCache = new LocalCardInfoCache();
 
   constructor(public player: PlayerId, public name: string) {}
 
@@ -85,29 +96,49 @@ export abstract class ComputerPlayer implements Player {
     return Promise.resolve({ deck: this.deck });
   }
 
-  async send(history: HistoryAction[]): Promise<void> {
-    for (const action of history) {
-      this.history = historySlice.reducer(this.history, action);
-    }
+  send(actions: HistoryAction[]): void {
+    this.history = historySlice.reducer(this.history, batch({ actions }));
 
-    let action = runGoals(this.history.current, this.player, this.goals, this.state);
+    this.invalid = [];
+    this.valid = [];
 
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    this.doAction();
+  }
 
-    if (action == null) {
-      action = { type: "end" };
-    }
+  doAction() {
+    const current = currentPlayer(this.history.current);
+    if (current == this.player) {
+      this.cache.reset();
+      let action = runGoals(this.cache, this.history.current, this.player, this.goals, this.state, this.invalid) ?? {
+        type: "end",
+      };
 
-    for (const callback of this.callbacks) {
-      callback(action);
+      this.valid.push(action);
+
+      if (this.timeout) {
+        setTimeout(() => {
+          for (const callback of this.callbacks) {
+            callback(action);
+          }
+        }, 1000);
+      } else {
+        for (const callback of this.callbacks) {
+          callback(action);
+        }
+      }
     }
   }
 
   onAction(callback: (action: PlayerAction) => void): void {
     this.callbacks.push(callback);
+    this.doAction();
   }
 
-  error() {}
+  error(e: string) {
+    this.invalid.push(...this.valid);
+    this.valid = [];
+    this.doAction();
+  }
 
   end() {}
 
@@ -116,10 +147,24 @@ export abstract class ComputerPlayer implements Player {
   abstract goals: Goal[];
 }
 
-export class UnitPlayer extends ComputerPlayer {
-  name = "unit";
+export class TestPlayer extends ComputerPlayer {
+  name = "Unit";
 
   deck = decks[random(["Green", "Blue", "Orange", "Purple"])] as Deck;
 
   goals = [];
+}
+
+export abstract class MissionPlayer extends ComputerPlayer {
+  constructor(public player: PlayerId, name: MissionName, public difficulty: Difficulty) {
+    super(player, `${name} level ${difficulty}`);
+  }
+
+  abstract deck1: Deck;
+
+  abstract deck2: Deck;
+
+  get deck(): Deck {
+    return this.difficulty == 1 ? this.deck1 : this.deck2;
+  }
 }

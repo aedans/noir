@@ -4,13 +4,13 @@ import http from "http";
 import dotenv from "dotenv";
 import fs from "fs";
 import { Server } from "socket.io";
-import { queues } from "./Queue";
-import { defaultCardState, initialGameState } from "../common/gameSlice";
-import { ordered } from "../common/util";
-import { defaultUtil } from "./card";
-import { findReplay, findReplayIds } from "./db/replay";
+import { queues } from "./Queue.js";
+import { defaultCardState, initialGameState } from "../common/gameSlice.js";
+import { ordered } from "../common/util.js";
+import { findReplay, findReplayIds } from "./db/replay.js";
 import { ObjectId } from "mongodb";
-import { NoirServer } from "../common/network";
+import { NoirServer } from "../common/network.js";
+import LocalCardInfoCache from "./LocalCardInfoCache.js";
 
 dotenv.config();
 
@@ -33,7 +33,7 @@ app.get("/api/cards", (req, res) => {
     const cardStates = cards.map((name) => defaultCardState(name, name));
     const allCards = cardStates.map((state) => ({
       state,
-      info: defaultUtil.getCardInfo(new Map(), initialGameState(), state),
+      info: new LocalCardInfoCache().getCardInfo(initialGameState(), state),
     }));
     const orderedCards = ordered(allCards, ["color", "money"], (card) => card.info);
     res.json(orderedCards.map((card) => card.state.name));
@@ -45,7 +45,7 @@ app.get("/api/cards", (req, res) => {
 
 app.get("/api/replays", async (req, res) => {
   try {
-    res.json(await findReplayIds());
+    res.json(await findReplayIds(Number(req.query.skip ?? "0")));
   } catch (e) {
     console.error(e);
     res.status(500).json({ error: (e as Error).message });

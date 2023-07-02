@@ -1,36 +1,24 @@
-import React, {
-  MutableRefObject,
-  Ref,
-  useContext,
-  useEffect,
-  useImperativeHandle,
-  useLayoutEffect,
-  useRef,
-  useState,
-} from "react";
-import { Container, Sprite } from "react-pixi-fiber";
-import Rectangle, { RectangleProps } from "./Rectangle";
-import { targetResolution } from "./Camera";
-import { CardColors, CardInfo, CardKeyword, CardState } from "../common/card";
-import Text from "./Text";
-import { Graphics, filters as PixiFilters, RenderTexture, Texture } from "pixi.js";
+import React, { MutableRefObject, Ref, useEffect, useImperativeHandle, useLayoutEffect, useRef, useState } from "react";
+import { Container, Sprite, render, useApp } from "@pixi/react";
+import Rectangle, { RectangleProps } from "./Rectangle.js";
+import { targetResolution } from "./Camera.js";
+import { CardColors, CardCost, CardInfo, CardKeyword, CardState, ModifierState } from "../common/card.js";
+import Text from "./Text.js";
+import {
+  Graphics,
+  filters as PixiFilters,
+  RenderTexture,
+  Texture,
+  PixiContainer,
+  PixiSprite,
+  MIPMAP_MODES,
+} from "./pixi.js";
 import anime from "animejs";
 import { GlowFilter } from "@pixi/filter-glow";
-import { isEqual } from "lodash";
-import { App } from "./Noir";
-import { blueColor, colorlessColor, getColor, getRGB, greenColor, orangeColor, purpleColor } from "./color";
+import { colorlessColor, getColor, getRGB, hex } from "./color.js";
 
 export const cardHeight = targetResolution.height / 4;
 export const cardWidth = cardHeight * (1 / 1.4);
-
-export const hex = {
-  orange: orangeColor,
-  blue: blueColor,
-  green: greenColor,
-  purple: purpleColor,
-  multicolor: colorlessColor,
-  colorless: colorlessColor,
-};
 
 export function combineColors(colors: CardColors[]) {
   return colors.reduce((a, b) => {
@@ -99,14 +87,32 @@ export type CardProps = {
   borderTint?: number;
 };
 
+export function isModifierEqual(a: ModifierState, b: ModifierState) {
+  return a.card.id == b.card.id && a.name == b.name;
+}
+
+export function isCostEqual(a: CardCost, b: CardCost) {
+  return a.money == b.money && a.agents == b.agents;
+}
+
+export function isKeywordEqual(a: CardKeyword, b: CardKeyword) {
+  return a[0] == b[0] && a[1] == b[1];
+}
+
+export function isPropsEqual(a: { [name: string]: any }, b: { [name: string]: any }) {
+  const keys = Object.keys(a);
+  return keys.length == Object.keys(b).length && keys.every((key) => a[key] == b[key]);
+}
+
 export function isCardStateEqual(a: CardState, b: CardState) {
   return (
+    a.id == b.id &&
     a.hidden == b.hidden &&
     a.exhausted == b.exhausted &&
     a.name == b.name &&
-    a.protected == b.protected &&
-    isEqual(a.props, b.props) &&
-    isEqual(a.modifiers, b.modifiers)
+    a.modifiers.length == b.modifiers.length &&
+    a.modifiers.every((_, index) => isModifierEqual(a.modifiers[index], b.modifiers[index])) &&
+    isPropsEqual(a.props, b.props)
   );
 }
 
@@ -114,9 +120,11 @@ export function isCardInfoEqual(a: CardInfo, b: CardInfo) {
   return (
     a.text == b.text &&
     a.type == b.type &&
-    isEqual(a.colors, b.colors) &&
-    isEqual(a.cost, b.cost) &&
-    isEqual(a.keywords, b.keywords)
+    isCostEqual(a.cost, b.cost) &&
+    a.colors.length == b.colors.length &&
+    a.colors.every((_, index) => a.colors[index] == b.colors[index]) &&
+    a.keywords.length == b.keywords.length &&
+    a.keywords.every((_, index) => isKeywordEqual(a.keywords[index], b.keywords[index]))
   );
 }
 
@@ -129,32 +137,28 @@ export function isCardPropsEqual(a: CardProps, b: CardProps) {
   );
 }
 
-const CardImpl = React.forwardRef(function CardImpl(props: CardProps, ref: Ref<Container>) {
-  const containerRef = useRef() as MutableRefObject<Required<Container>>;
+const CardImpl = React.forwardRef(function CardImpl(props: CardProps, ref: Ref<PixiContainer>) {
+  const containerRef = useRef() as MutableRefObject<PixiContainer>;
 
   useImperativeHandle(ref, () => containerRef.current);
 
   let text = props.info.text;
   let keywords = collapseKeywords(props.info.keywords);
 
-  if (!props.state.protected) {
-    keywords = keywords.filter((x) => x[0] != "protected");
-  }
-
   if (keywords.length > 0) {
     text = `${keywords.map(getDisplayName).join(", ")}\n${text}`.trim();
   }
 
-  let propsText = "";
+  let propsText: string[] = [];
   for (const [name, value] of Object.entries(props.state.props)) {
     if (value != undefined) {
       const upperName = name.charAt(0).toUpperCase() + name.slice(1);
-      propsText += `${upperName}: ${value}`;
+      propsText.push(`${upperName}: ${value}`);
     }
   }
 
-  if (propsText != "") {
-    text = `${text}\n${propsText}`;
+  if (propsText.length > 0) {
+    text = `${text}\n${propsText.join(", ")}`;
   }
 
   return (
@@ -192,23 +196,34 @@ const CardImpl = React.forwardRef(function CardImpl(props: CardProps, ref: Ref<C
   );
 });
 
+const borderTexture = Texture.from("/border.png");
+const borderHiddenTexture = Texture.from("/border_hidden.png");
+const borderAgentsTexture = Texture.from("/border_agents.png");
+const borderTintTexture = Texture.from("/border_tint.png");
+
+borderTexture.baseTexture.mipmap = MIPMAP_MODES.ON;
+borderHiddenTexture.baseTexture.mipmap = MIPMAP_MODES.ON;
+borderAgentsTexture.baseTexture.mipmap = MIPMAP_MODES.ON;
+borderTintTexture.baseTexture.mipmap = MIPMAP_MODES.ON;
+
 export default React.memo(
-  React.forwardRef(function Card(props: CardProps, ref: Ref<Container>) {
+  React.forwardRef(function Card(props: CardProps, ref: Ref<PixiContainer>) {
     const color = hex[combineColors(props.info.colors)];
     const lastColor = useRef(getRGB(color));
-    const containerRef = useRef() as MutableRefObject<Required<Container>>;
+    const containerRef = useRef() as MutableRefObject<PixiContainer>;
     const colorRef = useRef() as MutableRefObject<RectangleProps & Graphics>;
-    const borderHiddenRef = useRef() as MutableRefObject<Sprite>;
-    const borderAgentsRef = useRef() as MutableRefObject<Sprite>;
-    const borderTintRef = useRef() as MutableRefObject<Sprite>;
+    const borderHiddenRef = useRef() as MutableRefObject<PixiSprite>;
+    const borderAgentsRef = useRef() as MutableRefObject<PixiSprite>;
+    const borderTintRef = useRef() as MutableRefObject<PixiSprite>;
     const lastBorderTint = useRef(getRGB(props.borderTint ?? colorlessColor));
     const glowFilterRef = useRef(new GlowFilter());
     const dimFilterRef = useRef(new PixiFilters.ColorMatrixFilter());
     const [texture, setTexture] = useState(null as RenderTexture | null);
-    const app = useContext(App)!;
-
-    useEffect(() => {
-      if (containerRef.current) {
+    const cleanup = useRef([] as RenderTexture[]);
+    const app = useApp();
+    
+    function renderTexture() {
+      if (containerRef.current && texture == null) {
         const renderTexture = RenderTexture.create({
           width: cardWidth,
           height: cardHeight,
@@ -217,13 +232,21 @@ export default React.memo(
         app.renderer.render(containerRef.current, { renderTexture });
         setTexture(renderTexture);
 
-        return () => {
-          renderTexture.destroy(true);
-        };
-      } else {
+        cleanup.current.push(renderTexture);
+      }
+    }
+
+    useEffect(() => {
+      if (texture != null) {
         setTexture(null);
       }
-    }, [props.info]);
+
+      return () => {
+        for (const texture of cleanup.current) {
+          texture.destroy(true);
+        }
+      }
+    }, [props.state, props.info]);
 
     useImperativeHandle(ref, () => containerRef.current);
 
@@ -234,90 +257,80 @@ export default React.memo(
       borderAgentsRef.current.tint = color;
       borderTintRef.current.alpha = props.borderTint ? 1 : 0;
       borderTintRef.current.tint = props.borderTint ?? colorlessColor;
-      glowFilterRef.current.outerStrength = 0;
-      glowFilterRef.current.enabled = false;
+      glowFilterRef.current.outerStrength = props.shouldGlow ? 4 : 0;
+      glowFilterRef.current.enabled = props.shouldGlow ? true : false;
       dimFilterRef.current.alpha = 0;
       dimFilterRef.current.enabled = false;
     }, []);
 
     useEffect(() => {
-      if (color != getColor(lastColor.current)) {
-        const { r, g, b } = getRGB(color);
-        anime({
-          targets: lastColor.current,
-          duration: 700,
-          easing: "easeOutExpo",
-          r,
-          g,
-          b,
-          update() {
-            if (colorRef.current) {
-              colorRef.current.tint = getColor(lastColor.current);
-            }
+      const { r, g, b } = getRGB(color);
+      anime({
+        targets: lastColor.current,
+        duration: 700,
+        easing: "easeOutExpo",
+        r,
+        g,
+        b,
+        update() {
+          if (colorRef.current) {
+            colorRef.current.tint = getColor(lastColor.current);
+          }
 
-            if (borderHiddenRef.current) {
-              borderAgentsRef.current.tint = getColor(lastColor.current);
-            }
-          },
-        });
-      }
+          if (borderHiddenRef.current) {
+            borderAgentsRef.current.tint = getColor(lastColor.current);
+          }
+        },
+      });
     }, [props.info.colors]);
 
     useEffect(() => {
       const alpha = props.state.hidden ? 1 : 0;
-      if (alpha != borderHiddenRef.current.alpha) {
-        anime({
-          targets: borderHiddenRef.current,
-          duration: 700,
-          easing: "easeOutExpo",
-          alpha,
-        });
-      }
+      anime({
+        targets: borderHiddenRef.current,
+        duration: 700,
+        easing: "easeOutExpo",
+        alpha,
+      });
     }, [props.state.hidden]);
 
     useEffect(() => {
       const alpha = props.borderTint ? 1 : 0;
-      if (alpha != borderTintRef.current.alpha) {
-        anime({
-          targets: borderTintRef.current,
-          duration: 700,
-          easing: "easeOutExpo",
-          alpha,
-        });
-      }
+      anime({
+        targets: borderTintRef.current,
+        duration: 700,
+        easing: "easeOutExpo",
+        alpha,
+      });
 
-      if (props.borderTint != borderTintRef.current.tint) {
-        const { r, g, b } = getRGB(props.borderTint ?? colorlessColor);
-        anime({
-          targets: lastBorderTint.current,
-          duration: 700,
-          easing: "easeOutExpo",
-          r,
-          g,
-          b,
-          update() {
-            if (borderTintRef.current) {
-              borderTintRef.current.tint = getColor(lastBorderTint.current);
-            }
-          },
-        });
-      }
+      const { r, g, b } = getRGB(props.borderTint ?? colorlessColor);
+      anime({
+        targets: lastBorderTint.current,
+        duration: 700,
+        easing: "easeOutExpo",
+        r,
+        g,
+        b,
+        update() {
+          if (borderTintRef.current) {
+            borderTintRef.current.tint = getColor(lastBorderTint.current);
+          }
+        },
+      });
     }, [props.borderTint]);
 
     useEffect(() => {
       const alpha = props.state.exhausted && props.shouldDimWhenExhausted ? 0.5 : 0;
-      if (alpha != dimFilterRef.current.alpha) {
-        dimFilterRef.current.greyscale(0, true);
-        anime({
-          targets: dimFilterRef.current,
-          duration: 700,
-          easing: "easeOutExpo",
-          alpha,
-          update() {
-            dimFilterRef.current.enabled = dimFilterRef.current.alpha != 0;
-          },
-        });
-      }
+      dimFilterRef.current.greyscale(0, true);
+      anime({
+        targets: dimFilterRef.current,
+        duration: 700,
+        easing: "easeOutExpo",
+        alpha,
+        update() {
+          dimFilterRef.current.enabled = dimFilterRef.current.alpha != 0;
+        },
+      });
     }, [props.state.exhausted]);
 
     useEffect(() => {
@@ -326,45 +339,40 @@ export default React.memo(
 
     useEffect(() => {
       const outerStrength = props.shouldGlow ? 4 : 0;
-      if (glowFilterRef.current.outerStrength != outerStrength) {
-        anime({
-          targets: glowFilterRef.current,
-          duration: 700,
-          easing: "easeOutExpo",
-          outerStrength,
-          update() {
-            glowFilterRef.current.enabled = glowFilterRef.current.outerStrength != 0;
-          },
-        });
-      }
+      anime({
+        targets: glowFilterRef.current,
+        duration: 700,
+        easing: "easeOutExpo",
+        outerStrength,
+        update() {
+          glowFilterRef.current.enabled = glowFilterRef.current.outerStrength != 0;
+        },
+      });
     }, [props.shouldGlow]);
 
-    const info = texture ? <Sprite texture={texture} /> : <CardImpl {...props} ref={containerRef} />;
+    const info = texture ? (
+      <Sprite texture={texture} />
+    ) : (
+      <CardImpl
+        {...props}
+        ref={(c) => {
+          containerRef.current = c;
+          renderTexture();
+        }}
+      />
+    );
+
+    const imageTexture = Texture.from(`/images/${props.state.name}.png`);
+    imageTexture.baseTexture.mipmap = MIPMAP_MODES.ON;
 
     return (
       <Container pivot={[cardWidth / 2, cardHeight / 2]} filters={[glowFilterRef.current, dimFilterRef.current]}>
         <Rectangle fill={0xffffff} width={cardWidth - 20} height={cardHeight - 40} x={10} y={12} ref={colorRef} />
-        <Sprite
-          width={cardWidth - 55}
-          height={cardHeight / 2 - 40}
-          x={30}
-          y={60}
-          texture={Texture.from(`/images/${props.state.name}.png`)}
-        />
-        <Sprite width={cardWidth} height={cardHeight} texture={Texture.from("/border.png")} />
-        <Sprite
-          width={cardWidth}
-          height={cardHeight}
-          texture={Texture.from("/border_hidden.png")}
-          ref={borderHiddenRef}
-        />
-        <Sprite
-          width={cardWidth}
-          height={cardHeight}
-          texture={Texture.from("/border_agents.png")}
-          ref={borderAgentsRef}
-        />
-        <Sprite width={cardWidth} height={cardHeight} texture={Texture.from("/border_tint.png")} ref={borderTintRef} />
+        <Sprite width={cardWidth - 55} height={cardHeight / 2 - 40} x={30} y={60} texture={imageTexture} />
+        <Sprite width={cardWidth} height={cardHeight} texture={borderTexture} />
+        <Sprite width={cardWidth} height={cardHeight} texture={borderHiddenTexture} ref={borderHiddenRef} />
+        <Sprite width={cardWidth} height={cardHeight} texture={borderAgentsTexture} ref={borderAgentsRef} />
+        <Sprite width={cardWidth} height={cardHeight} texture={borderTintTexture} ref={borderTintRef} />
         {info}
       </Container>
     );

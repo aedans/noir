@@ -2,7 +2,7 @@ import { GlowFilter } from "@pixi/filter-glow";
 import anime from "animejs";
 import { BackendFactory, DragDropManager } from "dnd-core";
 import { IDisplayObject3d } from "pixi-projection";
-import { Application, DisplayObject, Sprite, Texture, Ticker } from "pixi.js";
+import { Application, DisplayObject, Sprite, Texture, Ticker } from "./pixi.js";
 
 type Identifier = string | symbol;
 type DisplayObject3d = DisplayObject & Partial<IDisplayObject3d>;
@@ -39,8 +39,8 @@ const PIXIBackend: (app: Application) => BackendFactory = (app: Application) => 
     function mouseMoveListener(e: MouseEvent) {
       if (currentObject == reticle) {
         anime.remove(reticle.transform.position);
-        ddx += e.x - reticle.getGlobalPosition().x;
-        ddy += e.y - reticle.getGlobalPosition().y;
+        ddx += e.x - reticle.toGlobal({ x: 0, y: 0 }).x;
+        ddy += e.y - reticle.toGlobal({ x: 0, y: 0 }).y;
         reticle.visible = true;
 
         const pos = reticle.parent.toLocal(e);
@@ -48,9 +48,9 @@ const PIXIBackend: (app: Application) => BackendFactory = (app: Application) => 
           reticle.position.copyFrom(pos);
         }
 
-        const matchingTargetIds = Object.keys(targetObjects).filter(
-          (key) => targetObjects[key].getBounds().contains(e.x, e.y) && targetObjects[key].zIndex < 1000
-        );
+        const matchingTargetIds = Object.keys(targetObjects)
+          .filter((key) => targetObjects[key].getBounds().contains(e.x, e.y) && targetObjects[key].zIndex < 1000)
+          .filter((key) => manager.getRegistry().getTargetType(key) == manager.getMonitor().getItemType());
 
         if (matchingTargetIds.length > 0) {
           matchingTargetIds.sort((a, b) => targetObjects[b].zIndex - targetObjects[a].zIndex);
@@ -61,7 +61,7 @@ const PIXIBackend: (app: Application) => BackendFactory = (app: Application) => 
       }
     }
 
-    function mouseUpListener(e: MouseEvent) {
+    function mouseUpListener() {
       if (currentObject == reticle && manager.getMonitor().isDragging()) {
         currentObject = null;
         manager.getActions().drop();
@@ -106,6 +106,7 @@ const PIXIBackend: (app: Application) => BackendFactory = (app: Application) => 
       window.removeEventListener("mousemove", mouseMoveListener);
       window.removeEventListener("mouseup", mouseUpListener);
       Ticker.shared.remove(onTick);
+      mouseUpListener();
     };
   }
 
@@ -113,7 +114,7 @@ const PIXIBackend: (app: Application) => BackendFactory = (app: Application) => 
     setup: () => {},
     teardown: () => {},
     profile: () => ({}),
-    connectDropTarget: (targetId: Identifier, node: DisplayObject3d) => {
+    connectDropTarget: (targetId: Identifier, node: DisplayObject3d, options: any) => {
       targetObjects[targetId] = node;
 
       return () => {

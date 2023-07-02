@@ -2,11 +2,10 @@ import { configureStore } from "@reduxjs/toolkit";
 import { TypedUseSelectorHook, useDispatch, useSelector } from "react-redux";
 import { historySlice } from "../common/historySlice";
 import { decksSlice } from "../common/decksSlice";
-import { enableBatching } from "redux-batched-actions";
 
 export const store = configureStore({
   reducer: {
-    game: enableBatching(historySlice.reducer),
+    game: historySlice.reducer,
     decks: decksSlice.reducer,
   },
 });
@@ -18,11 +17,11 @@ export const useClientDispatch: () => ClientDispatch = useDispatch;
 export const useClientSelector: TypedUseSelectorHook<ClientState> = useSelector;
 
 export function updateLocalStorage() {
-  if (localStorage.getItem("v") == null) {
+  if (localStorage.getItem("v") != "3") {
     localStorage.clear();
   }
 
-  localStorage.setItem("v", "1");
+  localStorage.setItem("v", "3");
 }
 
 export function getUsername(): string {

@@ -1,26 +1,29 @@
-import { Container, CustomPIXIComponent, CustomPIXIComponentBehavior, Graphics, PixiElement } from "react-pixi-fiber";
-import * as PIXI from "pixi.js";
-import React, { Ref } from "react";
+import { Container, PixiComponent } from "@pixi/react";
+import { Graphics } from "./pixi.js";
+import React, { ReactNode, Ref } from "react";
 
-export type RectangleProps = PixiElement<Container> & {
+export type RectangleProps = {
+  x?: number;
+  y?: number;
   width: number;
   height: number;
   fill?: number;
   fillAlpha?: number;
+  children?: ReactNode;
 };
 
-export const behavior: CustomPIXIComponentBehavior<PIXI.Graphics, RectangleProps> = {
-  customDisplayObject: (props) => new PIXI.Graphics(),
-  customApplyProps: (instance, oldProps, newProps) => {
+const CustomRectangle = PixiComponent("Rectangle", {
+  create(props) {
+    return new Graphics();
+  },
+  applyProps: (instance, oldProps, newProps) => {
     const { fill, fillAlpha, width, height } = newProps;
     instance.clear();
     instance.beginFill(fill ?? 0, fillAlpha == undefined ? 1 : fillAlpha);
     instance.drawRect(0, 0, width, height);
     instance.endFill();
   },
-};
-
-const CustomRectangle = CustomPIXIComponent(behavior, "Rectangle");
+});
 
 export default React.forwardRef(function Rectangle(props: RectangleProps, ref: Ref<RectangleProps & Graphics>) {
   return (

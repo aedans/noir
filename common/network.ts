@@ -1,17 +1,17 @@
 import { Server, Socket as ServerSocket } from "socket.io";
 import { Socket as ClientSocket } from "socket.io-client";
-import { QueueName } from "../server/Queue";
-import { Target } from "./card";
-import { Deck } from "./decksSlice";
-import { PlayerId } from "./gameSlice";
-import { HistoryAction } from "./historySlice";
+import { QueueName } from "../server/Queue.js";
+import { Target } from "./card.js";
+import { Deck } from "./decksSlice.js";
+import { PlayerId } from "./gameSlice.js";
+import { HistoryAction } from "./historySlice.js";
 
 export type PlayerAction = { type: "end" } | { type: "do"; id: string; target?: Target; prepared: Target[] };
 
 export type PlayerInit = { deck: Deck };
 
 export type ServerToClientEvents = {
-  init: (player: PlayerId) => void;
+  init: (player: PlayerId, names: readonly [string, string]) => void;
   actions: (actions: HistoryAction[], name: string) => void;
   error: (error: string) => void;
   end: (winner: PlayerId) => void;

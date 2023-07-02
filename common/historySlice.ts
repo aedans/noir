@@ -1,19 +1,28 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import * as toolkitRaw from "@reduxjs/toolkit";
+const { createSlice } = ((toolkitRaw as any).default ?? toolkitRaw) as typeof toolkitRaw;
+
 import produce from "immer";
-import { Target } from "./card";
-import { GameAction, gameReducers, GameState, initialGameState } from "./gameSlice";
+import { Target } from "./card.js";
+import { GameAction, gameReducers, GameState, initialGameState } from "./gameSlice.js";
+import { PayloadAction } from "@reduxjs/toolkit";
 
 export type HistoryState = {
   history: GameAction[];
   current: GameState;
+  cache: GameState[];
 };
 
 export function initialHistoryState(): HistoryState {
   return {
     history: [],
     current: initialGameState(),
+    cache: [],
   };
 }
+
+export type BatchedActionParams = {
+  actions: HistoryAction[];
+};
 
 export type HistoryAction = PayloadAction<HistoryParams, `history/${keyof typeof historySlice.actions}`>;
 
@@ -65,12 +74,16 @@ export function liftAction(index: number, action: GameAction | HistoryAction): H
   }
 }
 
-function reduce(history: GameAction[], state: GameState) {
-  for (const action of history) {
-    if (action) {
-      const name = action.type.replace("game/", "") as keyof typeof gameReducers;
-      (gameReducers[name] as (state: GameState, action: GameAction) => void)(state, action);
-    }
+const reducer = (state: GameState, action: GameAction) => {
+  if (action) {
+    const name = action.type.replace("game/", "") as keyof typeof gameReducers;
+    (gameReducers[name] as (state: GameState, action: GameAction) => void)(state, action);
+  }
+};
+
+function reduce(history: HistoryState, state: GameState) {
+  for (const action of history.history) {
+    reducer(state, action);
   }
 
   return state;
@@ -81,25 +94,63 @@ export const historySlice = createSlice({
   initialState: initialHistoryState(),
   reducers: {
     reset: () => initialHistoryState(),
+    batch: (state, batch: PayloadAction<BatchedActionParams>) => {
+      let shouldRecompute = false;
+      for (const action of batch.payload.actions) {
+        if (action.type == "history/setAction") {
+          state.history[action.payload.index] = (action.payload as SetActionParams).action;
+        } else if (action.type == "history/setHidden") {
+          const hidden: GameAction = {
+            type: "game/hidden",
+            payload: { target: (action.payload as SetHiddenParams).target },
+          };
+          state.history[action.payload.index] = hidden;
+        } else if (action.type == "history/setUndone") {
+          state.history[action.payload.index] = {
+            type: "game/undone",
+            payload: { action: state.history[action.payload.index] },
+          };
+        }
+
+        if (action.payload.index == state.history.length - 1 && !shouldRecompute) {
+          reducer(state.current, state.history[action.payload.index]);
+        } else {
+          shouldRecompute = true;
+        }
+      }
+
+      if (shouldRecompute) {
+        state.current = reduce(state, initialGameState());
+      }
+    },
     setAction: (state, action: PayloadAction<SetActionParams>) => {
       state.history[action.payload.index] = action.payload.action;
-      state.current = reduce(state.history, initialGameState());
+      if (action.payload.index == state.history.length - 1) {
+        reducer(state.current, action.payload.action);
+      } else {
+        state.current = reduce(state, initialGameState());
+      }
     },
     setHidden: (state, action: PayloadAction<SetHiddenParams>) => {
-      state.history[action.payload.index] = {
+      const hidden: GameAction = {
         type: "game/hidden",
         payload: { target: action.payload.target },
       };
-      state.current = reduce(state.history, initialGameState());
+      state.history[action.payload.index] = hidden;
+      if (action.payload.index == state.history.length - 1) {
+        reducer(state.current, hidden);
+      } else {
+        state.current = reduce(state, initialGameState());
+      }
     },
     setUndone: (state, action: PayloadAction<SetUndoneParams>) => {
       state.history[action.payload.index] = {
         type: "game/undone",
         payload: { action: state.history[action.payload.index] },
       };
-      state.current = reduce(state.history, initialGameState());
+      state.current = reduce(state, initialGameState());
     },
   },
 });
 
-export const { reset, setAction, setHidden, setUndone } = historySlice.actions;
+export const { reset, batch, setAction, setHidden, setUndone } = historySlice.actions;

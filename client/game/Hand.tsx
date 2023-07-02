@@ -1,10 +1,10 @@
 import React from "react";
-import { targetResolution } from "../Camera";
-import { CardStateInfo } from "../../common/card";
-import HandCard from "./HandCard";
-import { cardHeight, cardWidth } from "../Card";
-import { useTimeShadowFilter } from "../Time";
-import { Container } from "react-pixi-fiber";
+import { targetResolution } from "../Camera.js";
+import { CardStateInfo } from "../../common/card.js";
+import HandCard from "./HandCard.js";
+import { cardHeight, cardWidth } from "../Card.js";
+import { useTimeShadowFilter } from "../time.js";
+import { Container } from "@pixi/react";
 
 export type HandProps = {
   cards: CardStateInfo[];
@@ -22,7 +22,7 @@ export default function Hand(props: HandProps) {
   const y = targetResolution.height * (3 / 4) + cardHeight / 2 + 20;
 
   return (
-    <Container filters={[timeShadowFilterRef.current]}>
+    <Container filters={[timeShadowFilterRef.current]} zIndex={1} sortableChildren>
       {props.cards.map(({ state, info }, i) => (
         <HandCard
           zIndex={20 + i}

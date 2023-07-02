@@ -1,9 +1,10 @@
-import React, { useContext } from "react";
-import { Container } from "react-pixi-fiber";
-import { targetResolution } from "../Camera";
-import { useClientSelector } from "../store";
-import Text from "../Text";
-import { PlayerContext } from "./Game";
+import React from "react";
+import { useContext } from "react";
+import { Container } from "@pixi/react";
+import { targetResolution } from "../Camera.js";
+import { useClientSelector } from "../store.js";
+import Text from "../Text.js";
+import { PlayerContext } from "./Game.js";
 
 export default function Resources() {
   const player = useContext(PlayerContext);

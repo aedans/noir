@@ -1,9 +1,10 @@
-import React, { ReactNode } from "react";
+import React from "react";
+import { ReactNode } from "react";
 import { useLocation } from "wouter";
-import Button from "../Button";
-import { Container } from "react-pixi-fiber";
-import { useClientSelector } from "../store";
-import { targetResolution } from "../Camera";
+import Button from "../Button.js";
+import { Container } from "@pixi/react";
+import { useClientSelector } from "../store.js";
+import { targetResolution } from "../Camera.js";
 
 export default function Decks() {
   const decks = useClientSelector((game) => game.decks);

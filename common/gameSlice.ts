@@ -1,10 +1,16 @@
-import { createSlice, current, isDraft, PayloadAction } from "@reduxjs/toolkit";
+import * as toolkitRaw from "@reduxjs/toolkit";
+const { createSlice } = ((toolkitRaw as any).default ?? toolkitRaw) as typeof toolkitRaw;
+
 import { CardState, CardType, ModifierState, Target } from "./card";
+import { PayloadAction } from "@reduxjs/toolkit";
 
 export const zones = ["deck", "board", "grave"] as const;
 export type Zone = (typeof zones)[number];
 
 export type PlayerId = 0 | 1;
+
+export type Winner = PlayerId | "draw";
+
 export type PlayerState = { [zone in Zone]: CardState[] } & {
   money: number;
 };
@@ -69,7 +75,6 @@ export type UndoneActionParams = {
 export type AddCardParams = PlayerZone &
   TargetCardParams & {
     name: string;
-    state?: Partial<CardState>;
   };
 
 export type PlayCardParams = TargetCardParams & {
@@ -133,7 +138,6 @@ export function defaultCardState(name: string, id: string): CardState {
     name,
     hidden: true,
     exhausted: true,
-    protected: false,
     props: {},
     modifiers: [],
   };
@@ -155,8 +159,21 @@ export function opponent(game: GameState, card: Target) {
   return opponentOf(self(game, card));
 }
 
+export function isPlayerAction(action: PayloadAction<{}>) {
+  return action.type == "game/endTurn" || action.type == "game/playCard" || action.type == "game/activateCard";
+}
+
+function clearBoard(state: GameState, player: PlayerId) {
+  // while (state.players[player].board.length > 8) {
+  //   state.players[player].grave.push(state.players[player].board[0]);
+  //   state.players[player].board = state.players[player].board.slice(1);
+  // }
+}
+
 export const gameReducers = {
-  noop: (state: GameState, action: PayloadAction<{}>) => {},
+  noop: (state: GameState, action: PayloadAction<{}>) => {
+    state.history.unshift(action as GameAction);
+  },
   hidden: (state: GameState, action: PayloadAction<TargetCardParams>) => {
     state.history.unshift(action as GameAction);
   },
@@ -169,13 +186,11 @@ export const gameReducers = {
   },
   addCard: (state: GameState, action: PayloadAction<AddCardParams>) => {
     state.history.unshift(action as GameAction);
-    let cardState = defaultCardState(action.payload.name, action.payload.target.id);
-
-    if (action.payload.state && isDraft(action.payload.state)) {
-      Object.assign(cardState, current(action.payload.state));
+    const card = defaultCardState(action.payload.name, action.payload.target.id);
+    if (action.payload.source) {
+      card.hidden = getCard(state, action.payload.source)?.hidden ?? true;
     }
-
-    state.players[action.payload.player][action.payload.zone].push(cardState);
+    state.players[action.payload.player][action.payload.zone].push(card);
   },
   playCard: (state: GameState, action: PayloadAction<PlayCardParams>) => {
     state.history.unshift(action as GameAction);
@@ -188,14 +203,14 @@ export const gameReducers = {
         state.players[player].grave.push(card);
       } else {
         state.players[player].board.push(card);
-
-        while (state.players[player].board.length > 8) {
-          state.players[player].grave.push(state.players[player].board[0]);
-          state.players[player].board = state.players[player].board.slice(1);
-        }
+        clearBoard(state, player);
       }
       state.players[player][zone].splice(index, 1);
     }
+  },
+  activateCard: (state: GameState, action: PayloadAction<TargetCardParams>) => {
+    state.history.unshift(action as GameAction);
+    updateCard(state, action.payload.target, (card) => (card.exhausted = true));
   },
   removeCard: (state: GameState, action: PayloadAction<TargetCardParams>) => {
     state.history.unshift(action as GameAction);
@@ -203,12 +218,8 @@ export const gameReducers = {
     if (info) {
       const { player, zone, index } = info;
       const card = state.players[player][zone][index];
-      if (card.protected) {
-        card.protected = false;
-      } else {
-        state.players[player].grave.push(card);
-        state.players[player][zone].splice(index, 1);
-      }
+      state.players[player].grave.push(card);
+      state.players[player][zone].splice(index, 1);
     }
   },
   enterCard: (state: GameState, action: PayloadAction<TargetCardParams>) => {
@@ -218,6 +229,7 @@ export const gameReducers = {
       const { player, zone, index } = info;
       state.players[player].board.push(state.players[player][zone][index]);
       state.players[player][zone].splice(index, 1);
+      clearBoard(state, player);
     }
   },
   bounceCard: (state: GameState, action: PayloadAction<TargetCardParams>) => {
@@ -225,6 +237,7 @@ export const gameReducers = {
     const info = findCard(state, action.payload.target);
     if (info) {
       const { player, zone, index } = info;
+      state.players[player][zone][index].exhausted = true;
       state.players[player].deck.push(state.players[player][zone][index]);
       state.players[player][zone].splice(index, 1);
     }
@@ -236,6 +249,7 @@ export const gameReducers = {
       const { player, zone, index } = info;
       state.players[opponentOf(player)][action.payload.zone].push(state.players[player][zone][index]);
       state.players[player][zone].splice(index, 1);
+      clearBoard(state, player);
     }
   },
   revealCard: (state: GameState, action: PayloadAction<TargetCardParams>) => {
@@ -249,10 +263,6 @@ export const gameReducers = {
   exhaustCard: (state: GameState, action: PayloadAction<TargetCardParams>) => {
     state.history.unshift(action as GameAction);
     updateCard(state, action.payload.target, (card) => (card.exhausted = true));
-  },
-  protectCard: (state: GameState, action: PayloadAction<TargetCardParams>) => {
-    state.history.unshift(action as GameAction);
-    updateCard(state, action.payload.target, (card) => (card.protected = true));
   },
   setProp: (state: GameState, action: PayloadAction<SetPropParams>) => {
     state.history.unshift(action as GameAction);
@@ -287,6 +297,7 @@ export const {
   endTurn,
   addCard,
   playCard,
+  activateCard,
   removeCard,
   enterCard,
   bounceCard,
@@ -294,7 +305,6 @@ export const {
   revealCard,
   refreshCard,
   exhaustCard,
-  protectCard,
   setProp,
   addMoney,
   removeMoney,

@@ -1,24 +1,33 @@
-import React, { useEffect, useRef, useState } from "react";
-import { defaultUtil, getCards, isLoaded, useCardInfoList } from "../cards";
-import Grid from "./Grid";
-import { useClientDispatch, useClientSelector } from "../store";
-import { defaultCardState } from "../../common/gameSlice";
-import { addDeckCard, removeDeckCard } from "../../common/decksSlice";
-import { targetResolution } from "../Camera";
-import Rectangle from "../Rectangle";
-import { MoveAnimationContext, MoveAnimationState } from "../MoveAnimation";
-import GridCard from "./GridCard";
-import { ordered } from "../../common/util";
-import { Container } from "react-pixi-fiber";
-import { cardHeight, cardWidth } from "../Card";
-import Text from "../Text";
-import CardList from "../CardList";
-import GameCard from "../game/GameCard";
+import React from "react";
+import { useEffect, useRef, useState } from "react";
+import RemoteCardInfoCache, { getCards, isLoaded } from "../cards.js";
+import Grid from "./Grid.js";
+import { useClientDispatch, useClientSelector } from "../store.js";
+import { defaultCardState } from "../../common/gameSlice.js";
+import { addDeckCard, removeDeckCard } from "../../common/decksSlice.js";
+import { targetResolution } from "../Camera.js";
+import Rectangle from "../Rectangle.js";
+import { MoveAnimationContext, MoveAnimationState } from "../MoveAnimation.js";
+import GridCard from "./EditorCard.js";
+import { ordered } from "../../common/util.js";
+import { Container, useApp } from "@pixi/react";
+import { cardHeight, cardWidth } from "../Card.js";
+import Text from "../Text.js";
+import CardList from "../CardList.js";
+import GameCard from "../game/GameCard.js";
+import { useCardInfoList } from "../cardinfolist.js";
+import CardInfoCache from "../../common/CardInfoCache.js";
+import { CacheContext } from "../game/Game.js";
+import { DndProvider } from "react-dnd";
+import PIXIBackend from "../PIXIBackend.js";
+import EditorCard from "./EditorCard.js";
 
 export default function Editor(props: { params: { deck: string } }) {
+  const app = useApp();
   const dispatch = useClientDispatch();
   const cards = useRef({} as MoveAnimationState);
   const [scroll, setScroll] = useState(0);
+  const cache = useRef(new RemoteCardInfoCache() as CardInfoCache);
 
   const deckName = decodeURIComponent(props.params.deck);
   const deck = useClientSelector((game) => game.decks[deckName]);
@@ -68,32 +77,36 @@ export default function Editor(props: { params: { deck: string } }) {
     };
 
   return (
-    <MoveAnimationContext.Provider value={cards}>
-      <Rectangle fill={0x202020} width={targetResolution.width} height={targetResolution.height} />
-      <Text x={3800} text={Object.values(deck.cards).reduce((a, b) => a + b, 0) + " / 20"} />
-      <Container y={scroll}>
-        <Grid elements={sortedAllCards} maxWidth={3000}>
-          {(data, x, y) => (
-            <GridCard
-              state={data}
-              info={defaultUtil.getDefaultCardInfo(data)}
-              key={data.id}
-              pointerdown={pointerdownAdd(data.name)}
-              interactive={areCardsLoaded}
-              x={x + cardWidth / 2}
-              y={y + cardHeight / 2}
+    <DndProvider backend={PIXIBackend(app)}>
+      <CacheContext.Provider value={cache.current}>
+        <MoveAnimationContext.Provider value={cards}>
+          <Rectangle fill={0x202020} width={targetResolution.width} height={targetResolution.height} />
+          <Text x={3800} text={Object.values(deck.cards).reduce((a, b) => a + b, 0) + " / 20"} />
+          <Container y={scroll}>
+            <Grid elements={sortedAllCards} maxWidth={3000}>
+              {(data, x, y) => (
+                <EditorCard
+                  state={data}
+                  info={new RemoteCardInfoCache().getDefaultCardInfo(data)}
+                  key={data.id}
+                  pointerdown={pointerdownAdd(data.name)}
+                  interactive={areCardsLoaded}
+                  x={x + cardWidth / 2}
+                  y={y + cardHeight / 2}
+                />
+              )}
+            </Grid>
+          </Container>
+          <Container x={targetResolution.width - cardWidth} y={100}>
+            <CardList
+              cards={sortedDeckCards}
+              card={(props) => <GameCard {...props} pointerdown={pointerdownRemove(props.state.name)} />}
+              expanded
+              collapseOnPointerOut
             />
-          )}
-        </Grid>
-      </Container>
-      <CardList
-        x={targetResolution.width - cardWidth}
-        y={100}
-        cards={sortedDeckCards}
-        card={(props) => <GameCard {...props} pointerdown={pointerdownRemove(props.state.name)} />}
-        expanded
-        collapseOnPointerOut
-      />
-    </MoveAnimationContext.Provider>
+          </Container>
+        </MoveAnimationContext.Provider>
+      </CacheContext.Provider>
+    </DndProvider>
   );
 }

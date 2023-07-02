@@ -1,24 +1,25 @@
-import React, { useContext, useMemo } from "react";
-import { CardStateInfo } from "../../common/card";
-import { ordered } from "../../common/util";
-import { defaultUtil, useCardInfoList } from "../cards";
-import { useClientSelector } from "../store";
-import Deck from "./Deck";
-import { PlayerContext } from "./Game";
-import Hand from "./Hand";
+import React from "react";
+import { useContext, useMemo } from "react";
+import { CardStateInfo } from "../../common/card.js";
+import util, { ordered } from "../../common/util.js";
+import { useClientSelector } from "../store.js";
+import Deck from "./Deck.js";
+import { CacheContext, PlayerContext } from "./Game.js";
+import Hand from "./Hand.js";
+import { useCardInfoList } from "../cardinfolist.js";
 
 export default function HandAndDeck() {
   const player = useContext(PlayerContext);
+  const cache = useContext(CacheContext);
   const game = useClientSelector((state) => state.game.current);
-  const cards = useCardInfoList(game.players[player].deck, [game.players[player].deck]);
+  const cards = useCardInfoList(game.players[player].deck, [game]);
 
   const { hand, deck } = useMemo(() => {
     const hand = [] as CardStateInfo[];
     const deck = [] as CardStateInfo[];
 
-    var cache = new Map();
     for (const card of ordered(cards, ["color", "money"], (card) => card.info)) {
-      if (defaultUtil.canPayCost(cache, game, card.state, player, card.info.colors, card.info.cost, card.info.targets, [])) {
+      if (util.canPayCost(cache, game, card.state, player, card.info.colors, card.info.cost, card.info.targets, [])) {
         hand.push(card);
       } else {
         deck.push(card);

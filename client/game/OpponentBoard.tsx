@@ -1,11 +1,12 @@
-import React, { useContext } from "react";
-import { opponentOf } from "../../common/gameSlice";
-import { targetResolution } from "../Camera";
-import { cardHeight, cardWidth } from "../Card";
-import { useCardInfoList } from "../cards";
-import { useClientSelector } from "../store";
-import { PlayerContext } from "./Game";
-import GameCard from "./GameCard";
+import React from "react";
+import { useContext } from "react";
+import { opponentOf } from "../../common/gameSlice.js";
+import { targetResolution } from "../Camera.js";
+import { cardHeight, cardWidth } from "../Card.js";
+import { useClientSelector } from "../store.js";
+import { PlayerContext } from "./Game.js";
+import GameCard from "./GameCard.js";
+import { useCardInfoList } from "../cardinfolist.js";
 
 export default function OpponentBoard() {
   const player = useContext(PlayerContext);
@@ -18,7 +19,7 @@ export default function OpponentBoard() {
   return (
     <>
       {cards.map(({ state, info }, i) => (
-        <GameCard info={info} state={state} key={state.id} x={x + i * (cardWidth + 10)} y={y} />
+        <GameCard info={info} state={state} key={state.id} x={x + i * (cardWidth + 10)} y={y} shouldDimWhenExhausted />
       ))}
     </>
   );

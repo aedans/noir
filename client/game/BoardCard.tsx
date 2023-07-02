@@ -1,19 +1,20 @@
 import React, { Ref, useContext, useRef, MutableRefObject, useImperativeHandle, useEffect } from "react";
 import { useDrag } from "react-dnd";
-import { Container } from "react-pixi-fiber";
-import { currentPlayer } from "../../common/gameSlice";
-import { defaultUtil } from "../cards";
-import { useClientSelector } from "../store";
-import { ConnectionContext, HoverContext, PlayerContext, PreparedContext } from "./Game";
-import GameCard, { GameCardProps } from "./GameCard";
+import { currentPlayer } from "../../common/gameSlice.js";
+import { useClientSelector } from "../store.js";
+import { CacheContext, ConnectionContext, HoverContext, PlayerContext, PreparedContext } from "./Game.js";
+import GameCard, { GameCardProps } from "./GameCard.js";
+import util from "../../common/util.js";
+import { PixiContainer } from "../pixi.js";
 
-export default React.forwardRef(function BoardCard(props: GameCardProps, ref: Ref<Container>) {
+export default React.forwardRef(function BoardCard(props: GameCardProps, ref: Ref<PixiContainer>) {
+  const player = useContext(PlayerContext);
+  const cache = useContext(CacheContext);
+  const connection = useContext(ConnectionContext);
   const { hover, setHover } = useContext(HoverContext);
   const { prepared, setPrepared } = useContext(PreparedContext);
-  const connection = useContext(ConnectionContext);
-  const player = useContext(PlayerContext);
   const game = useClientSelector((state) => state.game.current);
-  const cardRef = useRef() as MutableRefObject<Required<Container>>;
+  const cardRef = useRef() as MutableRefObject<PixiContainer>;
 
   const isHovered = hover.some((card) => card.id == props.state.id);
   const isPrepared = prepared.some((card) => card.id == props.state.id);
@@ -57,8 +58,8 @@ export default React.forwardRef(function BoardCard(props: GameCardProps, ref: Re
     }
 
     if (!isDragging) {
-      const result = defaultUtil.tryPayCost(
-        new Map(),
+      const result = util.tryPayCost(
+        cache,
         game,
         props.state,
         "activate",
@@ -86,8 +87,8 @@ export default React.forwardRef(function BoardCard(props: GameCardProps, ref: Re
     !props.state.exhausted &&
     props.info.hasActivate &&
     currentPlayer(game) == player &&
-    defaultUtil.canPayCost(
-      new Map(),
+    util.canPayCost(
+      cache,
       game,
       props.state,
       player,

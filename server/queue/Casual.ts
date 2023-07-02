@@ -1,8 +1,8 @@
-import { NoirServerSocket } from "../../common/network";
-import { insertReplay } from "../db/replay";
-import { createGame } from "../game";
-import { SocketPlayer } from "../Player";
-import Queue from "../Queue";
+import { NoirServerSocket } from "../../common/network.js";
+import { insertReplay } from "../db/replay.js";
+import { createGame } from "../game.js";
+import { SocketPlayer } from "../Player.js";
+import Queue from "../Queue.js";
 
 export default class Casual implements Queue {
   queue: Map<string, NoirServerSocket> = new Map();
@@ -22,15 +22,16 @@ export default class Casual implements Queue {
 
     if (this.queue.size >= 2) {
       const [[firstName, first], [secondName, second]] = this.queue;
+      const names = [firstName, secondName] as const;
       this.queue.delete(firstName);
       this.queue.delete(secondName);
 
       const players: [SocketPlayer, SocketPlayer] = [
-        new SocketPlayer(first, 0, firstName),
-        new SocketPlayer(second, 1, secondName)
+        new SocketPlayer(first, 0, names),
+        new SocketPlayer(second, 1, names),
       ];
 
-      this.games.set(firstName, players[0])
+      this.games.set(firstName, players[0]);
       this.games.set(secondName, players[1]);
 
       await createGame(players, (winner, players, inits, state) => {

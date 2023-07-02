@@ -1,11 +1,10 @@
-import React, { ReactElement, useEffect, useState } from "react";
-import { Container, PixiElement } from "react-pixi-fiber";
-import { CardStateInfo } from "../common/card";
-import { cardHeight, cardWidth, isCardInfoEqual, isCardStateEqual } from "./Card";
-import { GameCardProps } from "./game/GameCard";
-import { zip } from "lodash";
+import React, { ReactElement, useCallback, useEffect, useState } from "react";
+import { Container } from "@pixi/react";
+import { CardStateInfo } from "../common/card.js";
+import { cardHeight, cardWidth, isCardInfoEqual, isCardStateEqual } from "./Card.js";
+import { GameCardProps } from "./game/GameCard.js";
 
-export type CardListProps = Omit<PixiElement<Container>, "children"> & {
+export type CardListProps = {
   cards: CardStateInfo[];
   expanded?: boolean;
   reversed?: boolean;
@@ -18,8 +17,11 @@ export function isCardListPropsEqual(a: CardListProps, b: CardListProps) {
   return (
     a.expanded == b.expanded &&
     a.reversed == b.reversed &&
-    zip(a.cards, b.cards).every(
-      ([a, b]) => a && b && isCardStateEqual(a?.state, b?.state) && isCardInfoEqual(a?.info, b?.info)
+    a.cards.length == b.cards.length &&
+    a.cards.every(
+      (_, index) =>
+        isCardStateEqual(a.cards[index].state, b.cards[index].state) &&
+        isCardInfoEqual(a.cards[index].info, b.cards[index].info)
     )
   );
 }
@@ -30,22 +32,25 @@ export default React.memo(function CardList(props: CardListProps) {
 
   useEffect(() => {
     setExpandedIndex(collapsedIndex);
-  }, [props.cards.length])
+  }, [props.cards.length]);
 
-  function pointerover(index: number) {
-    if (props.expandOnHover) {
-      setExpandedIndex(index);
-    }
-  }
+  const pointerover = useCallback(
+    (index: number) => {
+      if (props.expandOnHover) {
+        setExpandedIndex(index);
+      }
+    },
+    [props.expandOnHover]
+  );
 
-  function pointerout() {
+  const pointerout = useCallback(() => {
     if (props.collapseOnPointerOut) {
       setExpandedIndex(collapsedIndex);
     }
-  }
+  }, [props.collapseOnPointerOut, collapsedIndex]);
 
   return (
-    <Container {...props} pointerout={pointerout} interactive>
+    <Container pointerout={pointerout} interactive sortableChildren>
       {props.cards.map(({ state, info }, i) => {
         const heightOffset = (props.reversed ? i : -i) * cardHeight * (props.expanded ? 0.1 : 0);
         const shouldHoverOffset = props.expanded && (props.reversed ? i < expandedIndex : i > expandedIndex);

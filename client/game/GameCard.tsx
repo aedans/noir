@@ -1,16 +1,18 @@
-import React, { MutableRefObject, Ref, useContext, useEffect, useImperativeHandle, useRef } from "react";
+import React, { MutableRefObject, Ref, useContext, useEffect, useImperativeHandle, useLayoutEffect, useRef } from "react";
 import { useDrop } from "react-dnd";
-import { Container, InteractiveComponent } from "react-pixi-fiber";
-import { CardColors, CardState } from "../../common/card";
-import Card, { CardProps, combineColors, hex, isCardPropsEqual } from "../Card";
-import MoveAnimation, { useLastPos } from "../MoveAnimation";
-import { ConnectionContext, PreparedContext } from "./Game";
-import { getCard } from "../../common/gameSlice";
-import { useClientSelector } from "../store";
-import { defaultUtil } from "../cards";
+import { Container } from "@pixi/react";
+import { CardColors, CardState } from "../../common/card.js";
+import Card, { CardProps, combineColors, isCardPropsEqual } from "../Card.js";
+import MoveAnimation, { useLastPos } from "../MoveAnimation.js";
+import { CacheContext, ConnectionContext, HighlightContext, PreparedContext } from "./Game.js";
+import { getCard } from "../../common/gameSlice.js";
+import { useClientSelector } from "../store.js";
+import { hex } from "../color.js";
+import util from "../../common/util.js";
+import { PixiContainer } from "../pixi.js";
 
 export type GameCardProps = CardProps &
-  InteractiveComponent & {
+  Parameters<typeof Container>[0] & {
     scale?: number;
     useLastPos?: boolean;
     x?: number;
@@ -34,11 +36,13 @@ export function isGameCardPropsEqual(a: GameCardProps, b: GameCardProps) {
 }
 
 export default React.memo(
-  React.forwardRef(function GameCard(props: GameCardProps, ref: Ref<Container>) {
+  React.forwardRef(function GameCard(props: GameCardProps, ref: Ref<PixiContainer>) {
     const game = useClientSelector((state) => state.game.current);
+    const cache = useContext(CacheContext);
     const connection = useContext(ConnectionContext);
     const { prepared } = useContext(PreparedContext);
-    const componentRef = useRef() as MutableRefObject<Required<Container>>;
+    const { highlight } = useContext(HighlightContext);
+    const componentRef = useRef() as MutableRefObject<PixiContainer>;
     const { x, y } = useLastPos(props, props.state.id, componentRef);
 
     useImperativeHandle(ref, () => componentRef.current);
@@ -60,42 +64,44 @@ export default React.memo(
       drop(componentRef);
     });
 
-    useEffect(() => {
+    useLayoutEffect(() => {
       (componentRef.current as any).convertTo3d?.();
-    }, []);
+    }, [])
 
-    const cache = new Map();
     const borderColors: CardColors[] = [];
     for (const modifier of props.state.modifiers) {
       const card = getCard(game, modifier.card);
       if (card) {
-        const info = defaultUtil.getCardInfo(cache, game, card);
+        const info = cache.getCardInfo(game, card);
         borderColors.push(combineColors(info.colors));
       }
     }
 
-    for (const card of defaultUtil.filter(cache, game, { zones: ["board"] })) {
-      const info = defaultUtil.getCardInfo(cache, game, card);
-      if (defaultUtil.filter(cache, game, info.effectFilter).find((c) => c.id == props.state.id)) {
+    for (const card of util.filter(cache, game, { zones: ["board"] })) {
+      const info = cache.getCardInfo(game, card);
+      if (util.filter(cache, game, info.effectFilter).find((c) => c.id == props.state.id)) {
         if (Object.entries(info.effect(props.info, props.state) ?? {}).length > 0) {
           borderColors.push(combineColors(info.colors));
         }
       }
 
-      if (defaultUtil.filter(cache, game, info.secondaryEffectFilter).find((c) => c.id == props.state.id)) {
+      if (util.filter(cache, game, info.secondaryEffectFilter).find((c) => c.id == props.state.id)) {
         if (Object.entries(info.secondaryEffect(props.info, props.state) ?? {}).length > 0) {
           borderColors.push(combineColors(info.colors));
         }
       }
     }
 
+    const shouldHighlight = (highlight?.findIndex((h) => h.id == props.state.id) ?? -1) != -1;
+    const scale = (props.scale ?? 1) * (shouldHighlight ? 1.1 : 1);
+
     return (
-      <MoveAnimation id={props.state.id} x={x} y={y} scale={props.scale ?? 1} componentRef={componentRef}>
-        <Container {...props} scale={0} ref={componentRef}>
+      <MoveAnimation id={props.state.id} x={x} y={y} scale={scale} componentRef={componentRef}>
+        <Container {...props} ref={componentRef}>
           <Card
             state={props.state}
             info={props.info}
-            shouldGlow={props.shouldGlow || isOver}
+            shouldGlow={props.shouldGlow || isOver || shouldHighlight}
             shouldDimWhenExhausted={props.shouldDimWhenExhausted}
             borderTint={borderColors.length == 0 ? undefined : hex[combineColors(borderColors)]}
           />

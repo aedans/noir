@@ -1,7 +1,6 @@
 import anime from "animejs";
-import { Ticker } from "pixi.js";
+import { PixiContainer, Ticker } from "./pixi.js";
 import React, { MutableRefObject, ReactNode, useContext, useEffect, useLayoutEffect } from "react";
-import { Container } from "react-pixi-fiber";
 
 export type MoveAnimationState = {
   [id: string]: {
@@ -16,7 +15,7 @@ export const MoveAnimationContext = React.createContext({ current: {} as MoveAni
 
 export type MoveAnimationProps = {
   id: string;
-  componentRef: MutableRefObject<Required<Container>>;
+  componentRef: MutableRefObject<PixiContainer>;
   children: ReactNode;
   skipPosition?: boolean;
   skipScale?: boolean;
@@ -28,7 +27,7 @@ export type MoveAnimationProps = {
 export function useLastPos(
   props: { x?: number; y?: number; useLastPos?: boolean },
   id: string,
-  ref: MutableRefObject<Container>
+  ref: MutableRefObject<PixiContainer>
 ) {
   const move = useContext(MoveAnimationContext);
 
@@ -52,8 +51,8 @@ export default function MoveAnimation(props: MoveAnimationProps) {
       const component = props.componentRef.current;
       if (component) {
         state.current[props.id] = {
-          x: component.getGlobalPosition().x,
-          y: component.getGlobalPosition().y,
+          x: component.toGlobal({ x: 0, y: 0 }).x,
+          y: component.toGlobal({ x: 0, y: 0 }).y,
           scaleX: component.transform.scale.x,
           scaleY: component.transform.scale.y,
         };
@@ -111,6 +110,8 @@ export default function MoveAnimation(props: MoveAnimationProps) {
     if (prev && component && !props.skipPosition) {
       component.position = component.parent.toLocal(prev);
       component.scale = { x: prev.scaleX, y: prev.scaleY };
+    } else if (!props.skipScale) {
+      component.scale = { x: 0, y: 0 };
     }
   }, [props.x, props.y, props.scale]);
 

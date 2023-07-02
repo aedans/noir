@@ -1,10 +1,10 @@
 import moize from "moize";
 import { MongoClient, ObjectId } from "mongodb";
-import { GameAction, PlayerId } from "../../common/gameSlice";
-import { PlayerInit } from "../../common/network";
+import { GameAction, Winner } from "../../common/gameSlice.js";
+import { PlayerInit } from "../../common/network.js";
 
 export type Replay = {
-  winner: PlayerId;
+  winner: Winner;
   queue: string;
   names: [string, string];
   inits: [PlayerInit, PlayerInit];
@@ -25,10 +25,10 @@ export async function insertReplay(replay: Replay) {
   });
 }
 
-export async function findReplayIds() {
+export async function findReplayIds(skip: number) {
   const replays = await replayCollection();
   const results = await replays
-    .find({}, { limit: 10 })
+    .find({}, { limit: 20, skip })
     .sort({ _id: -1 })
     .project({ _id: 1, names: 1, queue: 1, winner: 1, timestamp: 1 })
     .toArray();

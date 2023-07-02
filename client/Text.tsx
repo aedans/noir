@@ -1,13 +1,16 @@
-import { BitmapText, DisplayObjectProps } from "react-pixi-fiber";
+import { BitmapText } from "@pixi/react";
 import React, { Ref } from "react";
-import { IBitmapTextStyle } from "pixi.js";
+import { BitmapText as PixiBitmapText, IBitmapTextStyle } from "./pixi.js";
 
-export type TextProps = DisplayObjectProps<BitmapText> & {
-  text: string;
+export type TextProps = {
+  anchor?: [number, number];
+  x?: number;
+  y?: number;
+  text: string | number;
   style?: Partial<IBitmapTextStyle>;
 };
 
-export default React.forwardRef(function Text(props: TextProps, ref: Ref<BitmapText>) {
+export default React.forwardRef(function Text(props: TextProps, ref: Ref<PixiBitmapText>) {
   const style = props.style ?? {};
 
   if (!style.fontName) {
@@ -21,9 +24,11 @@ export default React.forwardRef(function Text(props: TextProps, ref: Ref<BitmapT
   return (
     <BitmapText
       {...props}
+      text={props.text.toString()}
       ref={ref}
       style={style}
-      x={Math.floor(props.x)}
+      tint={style.tint ?? 0xffffff}
+      x={Math.floor(props.x ?? 0)}
       y={Math.floor((props.y ?? 0) - style.fontSize / 2)}
     />
   );

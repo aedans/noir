@@ -1,19 +1,20 @@
 import React from "react";
 import { Ref, useContext, useRef, MutableRefObject, useState, useImperativeHandle, useEffect } from "react";
 import { useDrag } from "react-dnd";
-import { Container } from "react-pixi-fiber";
-import { cardHeight } from "../Card";
-import { defaultUtil } from "../cards";
-import { useClientSelector } from "../store";
-import { HoverContext, PlayerContext, PreparedContext } from "./Game";
-import GameCard, { GameCardProps } from "./GameCard";
+import { cardHeight } from "../Card.js";
+import { useClientSelector } from "../store.js";
+import { CacheContext, HoverContext, PlayerContext, PreparedContext } from "./Game.js";
+import GameCard, { GameCardProps } from "./GameCard.js";
+import util from "../../common/util.js";
+import { PixiContainer } from "../pixi.js";
 
-export default React.forwardRef(function HandCard(props: GameCardProps, ref: Ref<Container>) {
+export default React.forwardRef(function HandCard(props: GameCardProps, ref: Ref<PixiContainer>) {
+  const player = useContext(PlayerContext);
+  const cache = useContext(CacheContext);
   const { setHover } = useContext(HoverContext);
   const { prepared } = useContext(PreparedContext);
-  const player = useContext(PlayerContext);
   const game = useClientSelector((state) => state.game.current);
-  const cardRef = useRef() as MutableRefObject<Required<Container>>;
+  const cardRef = useRef() as MutableRefObject<PixiContainer>;
   const [zoom, setZoom] = useState(false);
 
   useImperativeHandle(ref, () => cardRef.current);
@@ -40,8 +41,8 @@ export default React.forwardRef(function HandCard(props: GameCardProps, ref: Ref
 
   useEffect(() => {
     if (isDragging) {
-      const result = defaultUtil.tryPayCost(
-        new Map(),
+      const result = util.tryPayCost(
+        cache,
         game,
         props.state,
         "play",

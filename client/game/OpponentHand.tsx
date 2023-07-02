@@ -1,13 +1,14 @@
-import React, { useContext } from "react";
-import { opponentOf } from "../../common/gameSlice";
-import { targetResolution } from "../Camera";
-import { cardHeight, cardWidth } from "../Card";
-import { useCardInfoList } from "../cards";
-import { useClientSelector } from "../store";
-import { PlayerContext } from "./Game";
-import GameCard from "./GameCard";
-import { Container } from "react-pixi-fiber";
-import { useTimeShadowFilter } from "../Time";
+import React from "react";
+import { useContext } from "react";
+import { opponentOf } from "../../common/gameSlice.js";
+import { targetResolution } from "../Camera.js";
+import { cardHeight, cardWidth } from "../Card.js";
+import { useClientSelector } from "../store.js";
+import { PlayerContext } from "./Game.js";
+import GameCard from "./GameCard.js";
+import { Container } from "@pixi/react";
+import { useTimeShadowFilter } from "../time.js";
+import { useCardInfoList } from "../cardinfolist.js";
 
 export default function OpponentHand() {
   const player = useContext(PlayerContext);
@@ -24,7 +25,7 @@ export default function OpponentHand() {
   const y = cardHeight / 2;
 
   return (
-    <Container filters={[timeShadowFilterRef.current]}>
+    <Container filters={[timeShadowFilterRef.current]} sortableChildren>
       {cards.map(({ state, info }, i) => (
         <GameCard zIndex={20 + i} state={state} info={info} key={state.id} x={x + i * offset} y={y} />
       ))}
