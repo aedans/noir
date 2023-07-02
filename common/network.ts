@@ -1,7 +1,7 @@
 import { Server, Socket as ServerSocket } from "socket.io";
 import { Socket as ClientSocket } from "socket.io-client";
 import { QueueName } from "../server/Queue.js";
-import { Target } from "./card.js";
+import { CardCosmetic, Target } from "./card.js";
 import { Deck } from "./decksSlice.js";
 import { PlayerId } from "./gameSlice.js";
 import { HistoryAction } from "./historySlice.js";
@@ -13,12 +13,13 @@ export type PlayerInit = { deck: Deck };
 export type ServerToClientEvents = {
   init: (player: PlayerId, names: readonly [string, string]) => void;
   actions: (actions: HistoryAction[], name: string) => void;
+  cosmetic: (id: string, cosmetic: CardCosmetic) => void;
   error: (error: string) => void;
   end: (winner: PlayerId) => void;
 };
 
 export type ClientToServerEvents = {
-  queue: (queue: QueueName, name: string) => void;
+  queue: (queue: QueueName, name: string, token: string | null) => void;
   init: (deck: Deck) => void;
   action: (action: PlayerAction) => void;
   concede: () => void;

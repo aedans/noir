@@ -5,6 +5,7 @@
     "target": "ES2022",
     "jsx": "react",
     "resolveJsonModule": true,
-    "module": "ESNext"
+    "module": "ESNext",
+    "strictNullChecks": true
   }
 }

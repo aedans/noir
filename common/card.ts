@@ -30,6 +30,10 @@ export type CardState = {
   modifiers: ModifierState[];
 };
 
+export type CardCosmetic = {
+  level: 0 | 1 | 2 | 3 | "top";
+};
+
 export const cardColors = ["orange", "blue", "green", "purple"] as const;
 export const cardTypes = ["agent", "operation"] as const;
 export const cardKeywords = [

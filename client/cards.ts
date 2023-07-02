@@ -53,6 +53,6 @@ export async function loadCardsFromAction(action: AnyAction) {
   }
 }
 
-export async function getCards() {
+export async function getCards(): Promise<string[]> {
   return await fetch(`${serverOrigin}/api/cards`).then((x) => x.json());
 }

@@ -17,6 +17,8 @@ export function isCardListPropsEqual(a: CardListProps, b: CardListProps) {
   return (
     a.expanded == b.expanded &&
     a.reversed == b.reversed &&
+    a.collapseOnPointerOut == b.collapseOnPointerOut &&
+    a.card == b.card &&
     a.cards.length == b.cards.length &&
     a.cards.every(
       (_, index) =>

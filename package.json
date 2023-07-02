@@ -12,6 +12,7 @@
     "animejs": "^3.2.1",
     "dotenv": "^16.0.3",
     "express": "^4.17.3",
+    "express-openid-connect": "^2.16.0",
     "immer": "^9.0.19",
     "moize": "^6.1.5",
     "mongodb": "^5.1.0",

@@ -5,14 +5,14 @@ import { targetResolution } from "../Camera.js";
 import { serverOrigin } from "../cards.js";
 import Button from "../Button.js";
 import { WithId } from "mongodb";
-import { Replay } from "../../server/db/replay.js";
 import { opponentOf } from "../../common/gameSlice.js";
+import { Replay } from "../../server/db.js";
 
 export default function Replays() {
   const [_, setLocation] = useLocation();
   const [fetchReplays, setFetchReplays] = useState(true);
   const [end, setEnd] = useState(false);
-  const [replays, setReplays] = useState([] as WithId<Replay & { timestamp: string }>[]);
+  const [replays, setReplays] = useState([] as WithId<Replay>[]);
   const [scroll, setScroll] = useState(0);
 
   useEffect(() => {

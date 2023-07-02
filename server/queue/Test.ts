@@ -4,7 +4,7 @@ import { SocketPlayer, TestPlayer } from "../Player.js";
 import Queue from "../Queue.js";
 
 export default class Test implements Queue {
-  async push(socket: NoirServerSocket, name: string): Promise<void> {
-    await createGame([new SocketPlayer(socket, 0, [name, "Test"]), new TestPlayer(1, "Test")], () => {});
+  async push(socket: NoirServerSocket, name: string, id: string): Promise<void> {
+    await createGame([new SocketPlayer(socket, 0, [name, "Test"], id), new TestPlayer(1, "Test")], () => {});
   }
 }

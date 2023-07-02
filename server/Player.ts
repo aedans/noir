@@ -10,13 +10,16 @@ import { Goal, GoalState, runGoals } from "./Goal.js";
 import { Difficulty, MissionName } from "./Mission.js";
 import CardInfoCache from "../common/CardInfoCache.js";
 import LocalCardInfoCache from "./LocalCardInfoCache.js";
+import { CardCosmetic } from "../common/card.js";
 
 const decks = JSON.parse(fs.readFileSync("./common/decks.json").toString());
 
 export default interface Player {
+  id: string | null;
   name: string;
   init(): Promise<PlayerInit>;
   send(actions: HistoryAction[], name: string): void;
+  cosmetic(id: string, cosmetic: CardCosmetic): void;
   error(message: string): void;
   end(winner: Winner): void;
   onAction(callback: (action: PlayerAction | "concede") => void): void;
@@ -26,7 +29,12 @@ export class SocketPlayer implements Player {
   callbacks: ((action: PlayerAction | "concede") => void)[] = [];
   actions: HistoryAction[] = [];
 
-  constructor(public socket: NoirServerSocket, public player: PlayerId, public names: readonly [string, string]) {
+  constructor(
+    public socket: NoirServerSocket,
+    public player: PlayerId,
+    public names: readonly [string, string],
+    public id: string | null
+  ) {
     this.connect(socket);
   }
 
@@ -67,6 +75,10 @@ export class SocketPlayer implements Player {
     this.actions.push(...actions);
   }
 
+  cosmetic(id: string, cosmetic: CardCosmetic): void {
+    this.socket.emit("cosmetic", id, cosmetic);
+  }
+
   error(message: string): void {
     this.socket.emit("error", message);
   }
@@ -89,6 +101,7 @@ export abstract class ComputerPlayer implements Player {
   valid: PlayerAction[] = [];
   timeout: boolean = true;
   cache: CardInfoCache = new LocalCardInfoCache();
+  id = null;
 
   constructor(public player: PlayerId, public name: string) {}
 
@@ -104,6 +117,8 @@ export abstract class ComputerPlayer implements Player {
 
     this.doAction();
   }
+
+  cosmetic(): void {}
 
   doAction() {
     const current = currentPlayer(this.history.current);
@@ -134,7 +149,7 @@ export abstract class ComputerPlayer implements Player {
     this.doAction();
   }
 
-  error(e: string) {
+  error() {
     this.invalid.push(...this.valid);
     this.valid = [];
     this.doAction();

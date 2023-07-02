@@ -26,7 +26,7 @@ async function results() {
       for (let i = 0; i < 1; i++) {
         const players: [Player, Player] = [ai1(0), ai2(1)];
 
-        if (players[0].name == players[1].name) {
+        if (players[0].id == players[1].id) {
           continue;
         }
 
@@ -37,7 +37,7 @@ async function results() {
           draw: "draws",
         };
 
-        console.log(`${players[0].name} ${verbs[winner]} against ${players[1].name}`);
+        console.log(`${players[0].id} ${verbs[winner]} against ${players[1].id}`);
 
         for (const player of players) {
           if (!(player.name in records)) {

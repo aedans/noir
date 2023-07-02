@@ -1,10 +1,18 @@
-import React, { MutableRefObject, Ref, useContext, useEffect, useImperativeHandle, useLayoutEffect, useRef } from "react";
+import React, {
+  MutableRefObject,
+  Ref,
+  useContext,
+  useEffect,
+  useImperativeHandle,
+  useLayoutEffect,
+  useRef,
+} from "react";
 import { useDrop } from "react-dnd";
 import { Container } from "@pixi/react";
 import { CardColors, CardState } from "../../common/card.js";
 import Card, { CardProps, combineColors, isCardPropsEqual } from "../Card.js";
 import MoveAnimation, { useLastPos } from "../MoveAnimation.js";
-import { CacheContext, ConnectionContext, HighlightContext, PreparedContext } from "./Game.js";
+import { CacheContext, ConnectionContext, CosmeticContext, HighlightContext, PreparedContext } from "./Game.js";
 import { getCard } from "../../common/gameSlice.js";
 import { useClientSelector } from "../store.js";
 import { hex } from "../color.js";
@@ -42,6 +50,7 @@ export default React.memo(
     const connection = useContext(ConnectionContext);
     const { prepared } = useContext(PreparedContext);
     const { highlight } = useContext(HighlightContext);
+    const cosmetics = useContext(CosmeticContext);
     const componentRef = useRef() as MutableRefObject<PixiContainer>;
     const { x, y } = useLastPos(props, props.state.id, componentRef);
 
@@ -66,7 +75,7 @@ export default React.memo(
 
     useLayoutEffect(() => {
       (componentRef.current as any).convertTo3d?.();
-    }, [])
+    }, []);
 
     const borderColors: CardColors[] = [];
     for (const modifier of props.state.modifiers) {
@@ -101,6 +110,7 @@ export default React.memo(
           <Card
             state={props.state}
             info={props.info}
+            cosmetic={cosmetics[props.state.id]}
             shouldGlow={props.shouldGlow || isOver || shouldHighlight}
             shouldDimWhenExhausted={props.shouldDimWhenExhausted}
             borderTint={borderColors.length == 0 ? undefined : hex[combineColors(borderColors)]}

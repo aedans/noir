@@ -1,11 +1,17 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Container } from "@pixi/react";
 import Button from "../Button.js";
 import { targetResolution } from "../Camera.js";
 import { useLocation } from "wouter";
+import { serverOrigin } from "../cards.js";
 
 export default function Menu() {
   const [_, setLocation] = useLocation();
+  const [auth, setAuth] = useState(null as any);
+
+  useEffect(() => {
+    fetch(`${serverOrigin}/auth`).then((x) => setAuth(x.json()));
+  });
 
   return (
     <Container x={targetResolution.width / 2} y={targetResolution.height / 2 - 200}>
@@ -27,6 +33,14 @@ export default function Menu() {
         y={400}
         pointerdown={() => {
           setLocation("/replays/");
+        }}
+      />
+      <Button
+        text={auth == null ? "Login" : "Logout"}
+        y={600}
+        pointerdown={() => {
+          const endpoint = auth == null ? "login" : "logout";
+          window.location.href = `${serverOrigin}/${endpoint}?returnTo=${window.location.host}`;
         }}
       />
     </Container>

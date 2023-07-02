@@ -8,14 +8,16 @@ import { QueueName } from "../../server/Queue.js";
 import Button from "../Button.js";
 import { targetResolution } from "../Camera.js";
 import { loadCardsFromAction, serverOrigin } from "../cards.js";
-import Game, { ConnectionContext, PlayerContext } from "../game/Game.js";
+import Game, { ConnectionContext, CosmeticContext, PlayerContext } from "../game/Game.js";
 import { getUsername, useClientDispatch, useClientSelector } from "../store.js";
 import { setWon } from "../wins.js";
+import { CardCosmetic } from "../../common/card.js";
 
 export default function Queue(props: { params: { queue: string; deck: string } }) {
   let [player, setPlayer] = useState(null as PlayerId | null);
   let [names, setNames] = useState(["", ""] as readonly [string, string]);
   const [socket, setSocket] = useState(null as NoirClientSocket | null);
+  const [cosmetics, setCosmetics] = useState({} as { [id: string]: CardCosmetic });
   const decks = useClientSelector((state) => state.decks);
   const [message, setMessage] = useState("");
   const [_, setLocation] = useLocation();
@@ -32,6 +34,10 @@ export default function Queue(props: { params: { queue: string; deck: string } }
 
         dispatch(batch({ actions }));
       })();
+    });
+
+    socket.on("cosmetic", (id, cosmetic) => {
+      setCosmetics((cs) => ({ ...cs, [id]: cosmetic }));
     });
 
     socket.on("error", (message) => {
@@ -62,7 +68,14 @@ export default function Queue(props: { params: { queue: string; deck: string } }
 
     setSocket(socket);
 
-    socket.emit("queue", decodeURIComponent(props.params.queue) as QueueName, getUsername());
+    fetch(`${serverOrigin}/auth`)
+      .then((x) => x.json())
+      .then((profile) => {
+        socket.emit("queue", decodeURIComponent(props.params.queue) as QueueName, getUsername(), profile.token);
+      })
+      .catch(() => {
+        socket.emit("queue", decodeURIComponent(props.params.queue) as QueueName, getUsername(), null);
+      });
 
     return () => {
       socket?.close();
@@ -71,7 +84,13 @@ export default function Queue(props: { params: { queue: string; deck: string } }
   }, []);
 
   if (player == null || socket == null) {
-    return <Button text={"Waiting for player"} x={targetResolution.width / 2} y={targetResolution.height / 2} />;
+    return (
+      <Button
+        text={message == "" ? "Waiting for player" : message}
+        x={targetResolution.width / 2}
+        y={targetResolution.height / 2}
+      />
+    );
   } else {
     return (
       <ConnectionContext.Provider
@@ -81,7 +100,9 @@ export default function Queue(props: { params: { queue: string; deck: string } }
         }}
       >
         <PlayerContext.Provider value={player}>
-          <Game message={message} />
+          <CosmeticContext.Provider value={cosmetics}>
+            <Game message={message} />
+          </CosmeticContext.Provider>
         </PlayerContext.Provider>
       </ConnectionContext.Provider>
     );

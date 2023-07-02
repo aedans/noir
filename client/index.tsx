@@ -1,6 +1,6 @@
 import { Application, Assets, settings } from "./pixi.js";
 
-settings.RENDER_OPTIONS.antialias = true;
+settings.RENDER_OPTIONS!.antialias = true;
 
 const canvasElement = document.getElementById("canvas") as HTMLCanvasElement;
 

@@ -9,7 +9,7 @@ import OpponentBoard from "./OpponentBoard.js";
 import OpponentHand from "./OpponentHand.js";
 import Message from "./Message.js";
 import Grave from "./Grave.js";
-import { Target } from "../../common/card.js";
+import { CardCosmetic, Target } from "../../common/card.js";
 import HandAndDeck from "./HandAndDeck.js";
 import OpponentGrave from "./OpponentGrave.js";
 import { PlayerAction } from "../../common/network.js";
@@ -25,6 +25,7 @@ import PIXIBackend from "../PIXIBackend.js";
 
 export const PlayerContext = React.createContext(0 as PlayerId);
 export const CacheContext = React.createContext(new RemoteCardInfoCache() as CardInfoCache);
+export const CosmeticContext = React.createContext({} as { [id: string]: CardCosmetic });
 export const ConnectionContext = React.createContext({
   emit: (_: PlayerAction) => {},
   concede: () => {},

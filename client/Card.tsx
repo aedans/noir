@@ -1,8 +1,8 @@
 import React, { MutableRefObject, Ref, useEffect, useImperativeHandle, useLayoutEffect, useRef, useState } from "react";
-import { Container, Sprite, render, useApp } from "@pixi/react";
+import { Container, Sprite, useApp } from "@pixi/react";
 import Rectangle, { RectangleProps } from "./Rectangle.js";
 import { targetResolution } from "./Camera.js";
-import { CardColors, CardCost, CardInfo, CardKeyword, CardState, ModifierState } from "../common/card.js";
+import { CardColors, CardCosmetic, CardCost, CardInfo, CardKeyword, CardState, ModifierState } from "../common/card.js";
 import Text from "./Text.js";
 import {
   Graphics,
@@ -82,6 +82,7 @@ export function getDisplayName(keyword: CardKeyword) {
 export type CardProps = {
   state: CardState;
   info: CardInfo;
+  cosmetic?: CardCosmetic;
   shouldGlow?: boolean;
   shouldDimWhenExhausted?: boolean;
   borderTint?: number;
@@ -132,6 +133,7 @@ export function isCardPropsEqual(a: CardProps, b: CardProps) {
   return (
     isCardStateEqual(a.state, b.state) &&
     isCardInfoEqual(a.info, b.info) &&
+    a.cosmetic?.level == b.cosmetic?.level &&
     a.shouldGlow == b.shouldGlow &&
     a.shouldDimWhenExhausted == b.shouldDimWhenExhausted
   );
@@ -196,15 +198,27 @@ const CardImpl = React.forwardRef(function CardImpl(props: CardProps, ref: Ref<P
   );
 });
 
-const borderTexture = Texture.from("/border.png");
-const borderHiddenTexture = Texture.from("/border_hidden.png");
+const borderTexture = Texture.from("/border_base.png");
+const border1Texture = Texture.from("/border_1.png");
+const border2Texture = Texture.from("/border_2.png");
+const border3Texture = Texture.from("/border_3.png");
+const borderTopTexture = Texture.from("/border_top.png");
+const borderBannerTexture = Texture.from("/border_banner.png");
 const borderAgentsTexture = Texture.from("/border_agents.png");
 const borderTintTexture = Texture.from("/border_tint.png");
 
-borderTexture.baseTexture.mipmap = MIPMAP_MODES.ON;
-borderHiddenTexture.baseTexture.mipmap = MIPMAP_MODES.ON;
-borderAgentsTexture.baseTexture.mipmap = MIPMAP_MODES.ON;
-borderTintTexture.baseTexture.mipmap = MIPMAP_MODES.ON;
+for (const texture of [
+  borderTexture,
+  border1Texture,
+  border2Texture,
+  border3Texture,
+  borderTopTexture,
+  borderBannerTexture,
+  borderAgentsTexture,
+  borderTintTexture,
+]) {
+  texture.baseTexture.mipmap = MIPMAP_MODES.ON;
+}
 
 export default React.memo(
   React.forwardRef(function Card(props: CardProps, ref: Ref<PixiContainer>) {
@@ -212,16 +226,18 @@ export default React.memo(
     const lastColor = useRef(getRGB(color));
     const containerRef = useRef() as MutableRefObject<PixiContainer>;
     const colorRef = useRef() as MutableRefObject<RectangleProps & Graphics>;
-    const borderHiddenRef = useRef() as MutableRefObject<PixiSprite>;
+    const borderBannerRef = useRef() as MutableRefObject<PixiSprite>;
     const borderAgentsRef = useRef() as MutableRefObject<PixiSprite>;
     const borderTintRef = useRef() as MutableRefObject<PixiSprite>;
+    const levelCosmeticRef = useRef() as MutableRefObject<PixiSprite>;
+    const lastHiddenTint = useRef(getRGB(props.state.hidden ? 0xaaaaaa : 0xffffff));
     const lastBorderTint = useRef(getRGB(props.borderTint ?? colorlessColor));
     const glowFilterRef = useRef(new GlowFilter());
     const dimFilterRef = useRef(new PixiFilters.ColorMatrixFilter());
     const [texture, setTexture] = useState(null as RenderTexture | null);
     const cleanup = useRef([] as RenderTexture[]);
     const app = useApp();
-    
+
     function renderTexture() {
       if (containerRef.current && texture == null) {
         const renderTexture = RenderTexture.create({
@@ -245,7 +261,7 @@ export default React.memo(
         for (const texture of cleanup.current) {
           texture.destroy(true);
         }
-      }
+      };
     }, [props.state, props.info]);
 
     useImperativeHandle(ref, () => containerRef.current);
@@ -253,10 +269,11 @@ export default React.memo(
     useLayoutEffect(() => {
       (containerRef.current as any).convertTo3d?.();
       colorRef.current.tint = color;
-      borderHiddenRef.current.alpha = props.state.hidden ? 1 : 0;
+      borderBannerRef.current.tint = props.state.hidden ? 0xaaaaaa : 0xffffff;
       borderAgentsRef.current.tint = color;
       borderTintRef.current.alpha = props.borderTint ? 1 : 0;
       borderTintRef.current.tint = props.borderTint ?? colorlessColor;
+      levelCosmeticRef.current.tint = props.state.hidden ? 0xaaaaaa : 0xffffff;
       glowFilterRef.current.outerStrength = props.shouldGlow ? 4 : 0;
       glowFilterRef.current.enabled = props.shouldGlow ? true : false;
       dimFilterRef.current.alpha = 0;
@@ -277,7 +294,7 @@ export default React.memo(
             colorRef.current.tint = getColor(lastColor.current);
           }
 
-          if (borderHiddenRef.current) {
+          if (borderAgentsRef.current) {
             borderAgentsRef.current.tint = getColor(lastColor.current);
           }
         },
@@ -285,12 +302,23 @@ export default React.memo(
     }, [props.info.colors]);
 
     useEffect(() => {
-      const alpha = props.state.hidden ? 1 : 0;
+      const { r, g, b } = getRGB(props.state.hidden ? 0xaaaaaa : 0xffffff);
       anime({
-        targets: borderHiddenRef.current,
+        targets: lastHiddenTint.current,
         duration: 700,
         easing: "easeOutExpo",
-        alpha,
+        r,
+        g,
+        b,
+        update() {
+          if (borderBannerRef.current) {
+            borderBannerRef.current.tint = getColor(lastHiddenTint.current);
+          }
+
+          if (levelCosmeticRef.current) {
+            levelCosmeticRef.current.tint = getColor(lastHiddenTint.current);
+          }
+        },
       });
     }, [props.state.hidden]);
 
@@ -356,8 +384,10 @@ export default React.memo(
       <CardImpl
         {...props}
         ref={(c) => {
-          containerRef.current = c;
-          renderTexture();
+          if (c != null) {
+            containerRef.current = c;
+            renderTexture();
+          }
         }}
       />
     );
@@ -365,15 +395,29 @@ export default React.memo(
     const imageTexture = Texture.from(`/images/${props.state.name}.png`);
     imageTexture.baseTexture.mipmap = MIPMAP_MODES.ON;
 
+    const levelCosmeticTexture: Texture = {
+      0: Texture.EMPTY,
+      1: border1Texture,
+      2: border2Texture,
+      3: border3Texture,
+      top: borderTopTexture,
+    }[props.cosmetic?.level ?? 0];
+
+    const levelCosmetic =
+      levelCosmeticTexture == null ? null : (
+        <Sprite width={cardWidth} height={cardHeight} texture={levelCosmeticTexture} ref={levelCosmeticRef} />
+      );
+
     return (
       <Container pivot={[cardWidth / 2, cardHeight / 2]} filters={[glowFilterRef.current, dimFilterRef.current]}>
         <Rectangle fill={0xffffff} width={cardWidth - 20} height={cardHeight - 40} x={10} y={12} ref={colorRef} />
         <Sprite width={cardWidth - 55} height={cardHeight / 2 - 40} x={30} y={60} texture={imageTexture} />
         <Sprite width={cardWidth} height={cardHeight} texture={borderTexture} />
-        <Sprite width={cardWidth} height={cardHeight} texture={borderHiddenTexture} ref={borderHiddenRef} />
+        <Sprite width={cardWidth} height={cardHeight} texture={borderBannerTexture} ref={borderBannerRef} />
         <Sprite width={cardWidth} height={cardHeight} texture={borderAgentsTexture} ref={borderAgentsRef} />
         <Sprite width={cardWidth} height={cardHeight} texture={borderTintTexture} ref={borderTintRef} />
         {info}
+        {levelCosmetic}
       </Container>
     );
   }),

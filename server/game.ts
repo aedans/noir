@@ -25,6 +25,7 @@ import util, { Filter } from "../common/util.js";
 import { PlayerAction, PlayerInit } from "../common/network.js";
 import CardInfoCache from "../common/CardInfoCache.js";
 import LocalCardInfoCache from "./LocalCardInfoCache.js";
+import { getCosmetic } from "./cosmetics.js";
 
 export type OnGameEnd = (
   winner: Winner,
@@ -275,6 +276,15 @@ export async function createGame(players: [Player, Player], onEnd: OnGameEnd) {
     const gameActions = state.history.slice(length);
 
     for (const player of [0, 1] as const) {
+      function isHidden(action: GameAction) {
+        return (
+          source != null &&
+          action.payload.target &&
+          player != source &&
+          getCard(state.current, action.payload.target)?.hidden
+        );
+      }
+
       function hide(action: GameAction, i: number) {
         if (
           source != null &&
@@ -306,6 +316,16 @@ export async function createGame(players: [Player, Player], onEnd: OnGameEnd) {
       ];
 
       actions.sort((a, b) => a.payload.index - b.payload.index);
+
+      for (const action of gameActions) {
+        if (
+          (action.type == "game/revealCard" || (action.type == "game/addCard" && !isHidden(action))) &&
+          action.payload.target
+        ) {
+          const card = util.getCard(state.current, action.payload.target);
+          getCosmetic(players[player].id, card.name).then((cosmetic) => players[player].cosmetic(card.id, cosmetic));
+        }
+      }
 
       players[player].send(actions, name);
     }
