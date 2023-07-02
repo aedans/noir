@@ -14,7 +14,7 @@ export const getTop = moize.promise(async (card: string): Promise<{ id: string; 
 
 export const getCosmetic = moize.promise(async (id: string | null, name: string): Promise<CardCosmetic> => {
   if (id == null) {
-    return { level: 1 };
+    return { level: 0 };
   }
 
   const users = await userCollection();
