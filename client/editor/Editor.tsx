@@ -1,6 +1,6 @@
 import React from "react";
 import { useEffect, useRef, useState } from "react";
-import RemoteCardInfoCache, { getCards, isLoaded, serverOrigin } from "../cards.js";
+import RemoteCardInfoCache, { isLoaded, trpc } from "../cards.js";
 import Grid from "./Grid.js";
 import { useClientDispatch, useClientSelector } from "../store.js";
 import { defaultCardState } from "../../common/gameSlice.js";
@@ -19,9 +19,9 @@ import { CacheContext } from "../game/Game.js";
 import { DndProvider } from "react-dnd";
 import PIXIBackend from "../PIXIBackend.js";
 import EditorCard from "./EditorCard.js";
-import { User } from "../../server/db.js";
 import { CardCosmetic, CardState } from "../../common/card.js";
 import { GameCardProps } from "../game/GameCard.js";
+import { User } from "../../common/network.js";
 
 export default function Editor(props: { params: { deck: string } }) {
   const app = useApp();
@@ -63,19 +63,15 @@ export default function Editor(props: { params: { deck: string } }) {
   }
 
   useEffect(() => {
-    getCards().then(setAllCardNames);
+    trpc.cards.query().then(setAllCardNames);
 
-    fetch(`${serverOrigin}/user`)
-      .then((x) => x.json())
-      .then((user) => {
-        setUser(user);
-      });
+    trpc.user.query().then((user) => {
+      setUser(user);
+    });
 
-    fetch(`${serverOrigin}/top`)
-      .then((x) => x.json())
-      .then((top) => {
-        setTop(top);
-      });
+    trpc.top.query().then((top) => {
+      setTop(top);
+    });
 
     let scrollY = scroll;
     function onWheel(e: WheelEvent) {

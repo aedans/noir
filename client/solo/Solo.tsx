@@ -2,12 +2,12 @@ import React from "react";
 import { useState } from "react";
 import { Container } from "@pixi/react";
 import { useLocation } from "wouter";
-import { Difficulty, MissionName } from "../../server/Mission.js";
 import Button from "../Button.js";
 import { targetResolution } from "../Camera.js";
 import { hasWon } from "../wins.js";
 import { CardColors } from "../../common/card.js";
 import { hex } from "../color.js";
+import { Difficulty, MissionName } from "../../common/network.js";
 
 type MissionButtonProps = {
   mission: MissionName;

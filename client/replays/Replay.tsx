@@ -2,7 +2,7 @@ import { WithId } from "mongodb";
 import React, { useEffect, useState } from "react";
 import { GameAction, isPlayerAction } from "../../common/gameSlice.js";
 import { batch, liftAction, reset } from "../../common/historySlice.js";
-import { loadCardsFromAction, serverOrigin } from "../cards.js";
+import { loadCardsFromAction, serverOrigin, trpc } from "../cards.js";
 import Game, { ConnectionContext, PlayerContext } from "../game/Game.js";
 import { useClientDispatch } from "../store.js";
 
@@ -14,8 +14,11 @@ export default function Replay(props: { params: { id: string } }) {
     let stop = false;
 
     (async () => {
-      const res = await fetch(`${serverOrigin}/api/replays/${props.params.id}`);
-      const replay = (await res.json()) as WithId<{ history: GameAction[] }>;
+      const replay = await trpc.replay.query({ id: props.params.id });
+      if (!replay) {
+        return;
+      }
+
       let history = replay.history.filter((x) => (x.type as any) != "game/protectCard");
 
       let index = 0;

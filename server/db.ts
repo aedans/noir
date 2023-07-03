@@ -8,12 +8,15 @@ export type User = {
   experience: { [name: string]: number };
 };
 
-export type Replay = {
+export type ReplayMeta = {
   timestamp: Date;
   winner: Winner;
   queue: string;
-  ids: [string | null, string | null];
   names: [string, string];
+};
+
+export type Replay = ReplayMeta & {
+  ids: [string | null, string | null];
   inits: [PlayerInit, PlayerInit];
   history: GameAction[];
 };

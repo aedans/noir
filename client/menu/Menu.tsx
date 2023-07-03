@@ -3,15 +3,15 @@ import { Container } from "@pixi/react";
 import Button from "../Button.js";
 import { targetResolution } from "../Camera.js";
 import { useLocation } from "wouter";
-import { serverOrigin } from "../cards.js";
+import { serverOrigin, trpc } from "../cards.js";
 
 export default function Menu() {
   const [_, setLocation] = useLocation();
   const [auth, setAuth] = useState(null as any);
 
   useEffect(() => {
-    fetch(`${serverOrigin}/auth`).then((x) => setAuth(x.json()));
-  });
+    trpc.auth.query().then((auth) => setAuth(auth));
+  }, []);
 
   return (
     <Container x={targetResolution.width / 2} y={targetResolution.height / 2 - 200}>

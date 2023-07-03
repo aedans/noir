@@ -1,8 +1,20 @@
 import { AnyAction } from "redux";
 import { CardState, PartialCardInfoComputation } from "../common/card";
 import CardInfoCache from "../common/CardInfoCache";
+import { createTRPCProxyClient, httpBatchLink } from "@trpc/client";
+import { NoirRouter } from "../common/network";
+import superjson from "superjson";
 
 export const serverOrigin = window.location.origin.toString().replace(/5173/g, "8080");
+
+export const trpc = createTRPCProxyClient<NoirRouter>({
+  transformer: superjson,
+  links: [
+    httpBatchLink({
+      url: `${serverOrigin}/trpc`,
+    }),
+  ],
+});
 
 const cards: { [name: string]: PartialCardInfoComputation } = {};
 
@@ -51,8 +63,4 @@ export async function loadCardsFromAction(action: AnyAction) {
   if (action.type == "history/setAction") {
     await loadCardsFromAction(action.payload.action);
   }
-}
-
-export async function getCards(): Promise<string[]> {
-  return await fetch(`${serverOrigin}/api/cards`).then((x) => x.json());
 }

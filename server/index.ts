@@ -7,18 +7,22 @@ import { Server } from "socket.io";
 import { queues } from "./Queue.js";
 import { defaultCardState, initialGameState } from "../common/gameSlice.js";
 import { ordered } from "../common/util.js";
-import { ObjectId } from "mongodb";
+import { ObjectId, WithId } from "mongodb";
 import { NoirServer } from "../common/network.js";
 import LocalCardInfoCache from "./LocalCardInfoCache.js";
 import openid from "express-openid-connect";
-import { replayCollection, userCollection } from "./db.js";
+import { ReplayMeta, replayCollection, userCollection } from "./db.js";
 import { nanoid } from "nanoid";
-import { getCosmetic, getTop } from "./cosmetics.js";
+import { getTop } from "./cosmetics.js";
 import moize from "moize";
+import { inferAsyncReturnType, initTRPC } from "@trpc/server";
+import * as trpcExpress from "@trpc/server/adapters/express";
+import { z } from "zod";
+import superjson from "superjson";
 
 dotenv.config();
 
-const port = process.env.PORT ?? 8080;
+const port = process.env.PRODUCTION ? 80 : 8080;
 const app = express();
 const server = http.createServer(app);
 const io: NoirServer = new Server(server, {
@@ -36,10 +40,10 @@ app.use(
   openid.auth({
     authRequired: false,
     auth0Logout: true,
-    baseURL: `https://noirccg.azurewebsites.net/`,
+    baseURL: process.env.PRODUCTION == "true" ? "https://noirccg.azurewebsites.net/" : "http://localhost:8080/",
     clientID: "FAjKuxWF6fHa4OInqatXqp4DuMRQbNvz",
     issuerBaseURL: "https://dev-risee24h3navjxas.us.auth0.com",
-    secret: process.env["AUTH0_SECRET"],
+    secret: process.env.AUTH0_SECRET,
   })
 );
 
@@ -54,81 +58,74 @@ const cards = moize(() => {
   return orderedCards.map((card) => card.state.name);
 });
 
-app.get("/api/cards", (req, res) => {
-  try {
-    res.json(cards());
-  } catch (e) {
-    console.error(e);
-    res.status(500).json({ error: (e as Error).message });
-  }
-});
-
-app.get("/api/replays", async (req, res) => {
-  try {
-    const replays = await replayCollection();
-    const results = await replays
-      .find({}, { limit: 20, skip: Number(req.query.skip ?? "0") })
-      .sort({ _id: -1 })
-      .project({ _id: 1, names: 1, queue: 1, winner: 1, timestamp: 1 })
-      .toArray();
-    res.json(results);
-  } catch (e) {
-    console.error(e);
-    res.status(500).json({ error: (e as Error).message });
-  }
-});
-
-app.get("/api/replays/:replay", async (req, res) => {
-  try {
-    const replays = await replayCollection();
-    res.json(await replays.findOne({ _id: new ObjectId(req.params.replay) }));
-  } catch (e) {
-    console.error(e);
-    res.status(500).json({ error: (e as Error).message });
-  }
-});
-
 const auth: Map<string, string> = new Map();
 
-app.get("/auth", openid.requiresAuth(), (req, res) => {
-  try {
+const createContext = ({ req, res }: trpcExpress.CreateExpressContextOptions) => ({ req, res });
+type Context = inferAsyncReturnType<typeof createContext>;
+
+const t = initTRPC.context<Context>().create({
+  transformer: superjson,
+});
+
+const requiresAuth = t.middleware(async (opts) => {
+  await new Promise((resolve) => openid.requiresAuth()(opts.ctx.req, opts.ctx.res, resolve));
+  return opts.next({
+    ctx: {
+      user: opts.ctx.req.oidc.user!,
+    },
+  });
+});
+
+const noirRouter = t.router({
+  cards: t.procedure.query(async () => {
+    return cards();
+  }),
+  replay: t.procedure.input(z.object({ id: z.string() })).query(async ({ input, ctx }) => {
+    const replays = await replayCollection();
+    return await replays.findOne({ _id: new ObjectId(input.id) });
+  }),
+  replays: t.procedure.input(z.object({ skip: z.number().default(0) })).query(async ({ input }) => {
+    const replays = await replayCollection();
+    const results = await replays
+      .find({}, { limit: 20, skip: input.skip })
+      .sort({ _id: -1 })
+      .project<WithId<ReplayMeta>>({ _id: 1, names: 1, queue: 1, winner: 1, timestamp: 1 })
+      .toArray();
+    return results;
+  }),
+  auth: t.procedure.use(requiresAuth).query(async ({ ctx }) => {
     let token: string | null = null;
-    if (req.oidc.user) {
+    if (ctx.user) {
       token = nanoid();
-      auth.set(token, req.oidc.user.sub);
+      auth.set(token, ctx.user.sub);
 
       setTimeout(() => auth.delete(token!), 60000);
     }
 
-    res.json({ ...req.oidc.user, token });
-  } catch (e) {
-    console.error(e);
-    res.status(500).json({ error: (e as Error).message });
-  }
-});
-
-app.get("/user", openid.requiresAuth(), async (req, res) => {
-  try {
-    const id = req.oidc.user!.sub;
+    return { ...ctx.user, token };
+  }),
+  user: t.procedure.use(requiresAuth).query(async ({ ctx }) => {
+    const id = ctx.user.sub;
     const users = await userCollection();
     const user = await users.findOne({ _id: id });
-    res.json(user);
-  } catch (e) {
-    console.error(e);
-    res.status(500).json({ error: (e as Error).message });
-  }
+    return user;
+  }),
+  top: t.procedure.use(requiresAuth).query(async ({ ctx }) => {
+    const id = ctx.user.sub;
+    const top = await Promise.all(cards().map((name) => getTop(name).then((top) => ({ name, id: top.id }))));
+    return top.filter((x) => x.id == id).map((x) => x.name);
+  }),
 });
 
-app.get("/top", openid.requiresAuth(), async (req, res) => {
-  try {
-    const id = req.oidc.user!.sub;
-    const top = await Promise.all(cards().map((name) => getTop(name).then((top) => ({ name, id: top.id }))));
-    res.json(top.filter((x) => x.id == id).map((x) => x.name));
-  } catch (e) {
-    console.error(e);
-    res.status(500).json({ error: (e as Error).message });
-  }
-});
+export type NoirRouter = typeof noirRouter;
+
+app.use(
+  "/trpc",
+  trpcExpress.createExpressMiddleware({
+    router: noirRouter,
+    createContext,
+  })
+);
 
 app.use("*", express.static("dist"));
 

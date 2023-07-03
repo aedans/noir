@@ -1,5 +1,5 @@
 import { PlayerId } from "../common/gameSlice.js";
-import Player, { MissionPlayer } from "./Player.js";
+import { MissionPlayer } from "./Player.js";
 import CivicProceedings from "./solo/CivicProceedings.js";
 import Daphril from "./solo/Daphril.js";
 import IndustrialDesign from "./solo/IndustrialDesign.js";

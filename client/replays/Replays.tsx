@@ -2,17 +2,17 @@ import React, { useEffect, useState } from "react";
 import { Container } from "@pixi/react";
 import { useLocation } from "wouter";
 import { targetResolution } from "../Camera.js";
-import { serverOrigin } from "../cards.js";
+import { trpc } from "../cards.js";
 import Button from "../Button.js";
 import { WithId } from "mongodb";
 import { opponentOf } from "../../common/gameSlice.js";
-import { Replay } from "../../server/db.js";
+import { ReplayMeta } from "../../common/network.js";
 
 export default function Replays() {
   const [_, setLocation] = useLocation();
   const [fetchReplays, setFetchReplays] = useState(true);
   const [end, setEnd] = useState(false);
-  const [replays, setReplays] = useState([] as WithId<Replay>[]);
+  const [replays, setReplays] = useState([] as WithId<ReplayMeta>[]);
   const [scroll, setScroll] = useState(0);
 
   useEffect(() => {
@@ -24,15 +24,13 @@ export default function Replays() {
 
   useEffect(() => {
     if (fetchReplays) {
-      fetch(`${serverOrigin}/api/replays?skip=${replays.length}`)
-        .then((x) => x.json())
-        .then((replays) => {
-          setReplays((rs) => [...rs, ...replays]);
-          setFetchReplays(false);
-          if (replays.length < 20) {
-            setEnd(true);
-          }
-        });
+      trpc.replays.query({ skip: replays.length }).then((replays) => {
+        setReplays((rs) => [...rs, ...replays]);
+        setFetchReplays(false);
+        if (replays.length < 20) {
+          setEnd(true);
+        }
+      });
     }
   }, [fetchReplays]);
 

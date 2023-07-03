@@ -3,11 +3,10 @@ import { io } from "socket.io-client";
 import { useLocation } from "wouter";
 import { PlayerId, opponentOf } from "../../common/gameSlice.js";
 import { batch, reset } from "../../common/historySlice.js";
-import { NoirClientSocket } from "../../common/network.js";
-import { QueueName } from "../../server/Queue.js";
+import { NoirClientSocket, QueueName } from "../../common/network.js";
 import Button from "../Button.js";
 import { targetResolution } from "../Camera.js";
-import { loadCardsFromAction, serverOrigin } from "../cards.js";
+import { loadCardsFromAction, serverOrigin, trpc } from "../cards.js";
 import Game, { ConnectionContext, CosmeticContext, PlayerContext } from "../game/Game.js";
 import { getUsername, useClientDispatch, useClientSelector } from "../store.js";
 import { setWon } from "../wins.js";
@@ -68,8 +67,8 @@ export default function Queue(props: { params: { queue: string; deck: string } }
 
     setSocket(socket);
 
-    fetch(`${serverOrigin}/auth`)
-      .then((x) => x.json())
+    trpc.auth
+      .query()
       .then((profile) => {
         socket.emit("queue", decodeURIComponent(props.params.queue) as QueueName, getUsername(), profile.token);
       })
