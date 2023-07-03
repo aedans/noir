@@ -22,7 +22,7 @@ import superjson from "superjson";
 
 dotenv.config();
 
-const port = process.env.PRODUCTION == "true" ? 80 : 8080;
+const port = 8080;
 const app = express();
 const server = http.createServer(app);
 const io: NoirServer = new Server(server, {
