@@ -31,22 +31,6 @@ const io: NoirServer = new Server(server, {
   },
 });
 
-app.use(cors());
-app.use(express.static("public"));
-app.use(express.static("dist"));
-app.use(express.json());
-
-app.use(
-  openid.auth({
-    authRequired: false,
-    auth0Logout: true,
-    baseURL: process.env.PRODUCTION == "true" ? "https://noirccg.azurewebsites.net/" : "http://localhost:8080/",
-    clientID: "FAjKuxWF6fHa4OInqatXqp4DuMRQbNvz",
-    issuerBaseURL: "https://dev-risee24h3navjxas.us.auth0.com",
-    secret: process.env.AUTH0_SECRET,
-  })
-);
-
 const cards = moize(() => {
   const cards = fs.readdirSync("./public/cards").map((file) => file.substring(0, file.lastIndexOf(".")));
   const cardStates = cards.map((name) => defaultCardState(name, name));
@@ -80,7 +64,7 @@ const noirRouter = t.router({
   cards: t.procedure.query(async () => {
     return cards();
   }),
-  replay: t.procedure.input(z.object({ id: z.string() })).query(async ({ input, ctx }) => {
+  replay: t.procedure.input(z.object({ id: z.string() })).query(async ({ input }) => {
     const replays = await replayCollection();
     return await replays.findOne({ _id: new ObjectId(input.id) });
   }),
@@ -124,6 +108,23 @@ app.use(
   trpcExpress.createExpressMiddleware({
     router: noirRouter,
     createContext,
+    middleware: cors(),
+  })
+);
+
+app.use(cors());
+app.use(express.static("public"));
+app.use(express.static("dist"));
+app.use(express.json());
+
+app.use(
+  openid.auth({
+    authRequired: false,
+    auth0Logout: true,
+    baseURL: process.env.PRODUCTION == "true" ? "https://noirccg.azurewebsites.net/" : "http://localhost:8080/",
+    clientID: "FAjKuxWF6fHa4OInqatXqp4DuMRQbNvz",
+    issuerBaseURL: "https://dev-risee24h3navjxas.us.auth0.com",
+    secret: process.env.AUTH0_SECRET,
   })
 );
 

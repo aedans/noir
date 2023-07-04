@@ -5,10 +5,10 @@ import { CardCosmetic, Target } from "./card.js";
 import { Deck } from "./decksSlice.js";
 import { PlayerId } from "./gameSlice.js";
 import { HistoryAction } from "./historySlice.js";
-export type * from "../server/index.js";
-export type * from "../server/db.js";
-export type * from "../server/Mission.js";
-export type * from "../server/Queue.js";
+export type { NoirRouter } from "../server/index.js";
+export type { User, ReplayMeta, Replay } from "../server/db.js";
+export type { MissionName, Difficulty } from "../server/Mission.js";
+export type { QueueName } from "../server/Queue.js";
 
 export type PlayerAction = { type: "end" } | { type: "do"; id: string; target?: Target; prepared: Target[] };
 
