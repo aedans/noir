@@ -119,6 +119,7 @@ app.use(
   trpcExpress.createExpressMiddleware({
     router: noirRouter,
     createContext,
+    middleware: cors(),
   })
 );
 
