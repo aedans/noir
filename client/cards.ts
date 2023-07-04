@@ -1,7 +1,7 @@
 import { AnyAction } from "redux";
 import { CardState, PartialCardInfoComputation } from "../common/card";
 import CardInfoCache from "../common/CardInfoCache";
-import { createTRPCProxyClient, httpBatchLink } from "@trpc/client";
+import { createTRPCProxyClient, httpLink } from "@trpc/client";
 import { NoirRouter } from "../common/network";
 import superjson from "superjson";
 
@@ -10,7 +10,7 @@ export const serverOrigin = window.location.origin.toString().replace(/5173/g, "
 export const trpc = createTRPCProxyClient<NoirRouter>({
   transformer: superjson,
   links: [
-    httpBatchLink({
+    httpLink({
       url: `${serverOrigin}/trpc`,
     }),
   ],
