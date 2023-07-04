@@ -104,20 +104,6 @@ const noirRouter = t.router({
 export type NoirRouter = typeof noirRouter;
 
 app.use(
-  "/trpc",
-  trpcExpress.createExpressMiddleware({
-    router: noirRouter,
-    createContext,
-    middleware: cors(),
-  })
-);
-
-app.use(cors());
-app.use(express.static("public"));
-app.use(express.static("dist"));
-app.use(express.json());
-
-app.use(
   openid.auth({
     authRequired: false,
     auth0Logout: true,
@@ -128,7 +114,19 @@ app.use(
   })
 );
 
+app.use(
+  "/trpc",
+  trpcExpress.createExpressMiddleware({
+    router: noirRouter,
+    createContext,
+  })
+);
+
+app.use(cors());
+app.use(express.static("public"));
+app.use(express.static("dist"));
 app.use("*", express.static("dist"));
+app.use(express.json());
 
 io.on("connection", (socket) => {
   socket.on("queue", async (queue, name, token) => {
