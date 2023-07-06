@@ -39,7 +39,7 @@ function* doEndTurn(cache: CardInfoCache, game: GameState): CardGenerator {
   yield* util.addMoney(cache, game, undefined, { player, money: 2 });
 
   for (const card of game.players[player].board) {
-    if (card.exhausted) {
+    if (card.exhausted || card.activated) {
       yield* util.refreshCard(cache, game, card, { target: card });
     }
 

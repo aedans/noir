@@ -261,8 +261,10 @@ export default React.memo(
         for (const texture of cleanup.current) {
           texture.destroy(true);
         }
+
+        cleanup.current = []
       };
-    }, [props.state, props.info]);
+    }, [props.info]);
 
     useImperativeHandle(ref, () => containerRef.current);
 
