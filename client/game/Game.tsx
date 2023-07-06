@@ -2,7 +2,7 @@ import React, { Dispatch, SetStateAction, useEffect, useRef, useState } from "re
 import { Container, useApp } from "@pixi/react";
 import Board from "./Board.js";
 import EndTurn from "./EndTurn.js";
-import { MoveAnimationContext, MoveAnimationState } from "../MoveAnimation.js";
+import { MoveAnimationContext, MoveAnimationState } from "../animation.js";
 import { PlayerId } from "../../common/gameSlice.js";
 import Resources from "./Resources.js";
 import OpponentBoard from "./OpponentBoard.js";
@@ -59,7 +59,7 @@ export default function Game(props: { message: string }) {
   const [prepared, setPrepared] = useState([] as Target[]);
   const [highlight, setHighlight] = useState([] as Target[]);
   const game = useClientSelector((state) => state.game.current);
-  const cards = useRef({} as MoveAnimationState);
+  const cards = useRef({} as { [id: string]: MoveAnimationState });
   const timeColorFilterRef = useTimeColorFilter();
 
   useEffect(() => {

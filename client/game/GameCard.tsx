@@ -11,13 +11,13 @@ import { useDrop } from "react-dnd";
 import { Container } from "@pixi/react";
 import { CardColors, CardState } from "../../common/card.js";
 import Card, { CardProps, combineColors, isCardPropsEqual } from "../Card.js";
-import MoveAnimation, { useLastPos } from "../MoveAnimation.js";
 import { CacheContext, ConnectionContext, CosmeticContext, HighlightContext, PreparedContext } from "./Game.js";
 import { getCard } from "../../common/gameSlice.js";
 import { useClientSelector } from "../store.js";
 import { hex } from "../color.js";
 import util from "../../common/util.js";
 import { PixiContainer } from "../pixi.js";
+import { useMoveAnimation } from "../animation.js";
 
 export type GameCardProps = CardProps &
   Parameters<typeof Container>[0] & {
@@ -52,8 +52,6 @@ export default React.memo(
     const { highlight } = useContext(HighlightContext);
     const cosmetics = useContext(CosmeticContext);
     const componentRef = useRef() as MutableRefObject<PixiContainer>;
-    const { x, y } = useLastPos(props, props.state.id, componentRef);
-
     useImperativeHandle(ref, () => componentRef.current);
 
     const [{ isOver }, drop] = useDrop(
@@ -102,21 +100,25 @@ export default React.memo(
     }
 
     const shouldHighlight = (highlight?.findIndex((h) => h.id == props.state.id) ?? -1) != -1;
-    const scale = (props.scale ?? 1) * (shouldHighlight ? 1.1 : 1);
+
+    const { x, y, scale } = useMoveAnimation(props.state.id, {
+      componentRef,
+      x: props.x ?? 0,
+      y: props.y ?? 0,
+      scale: (props.scale ?? 1) * (shouldHighlight ? 1.1 : 1),
+    });
 
     return (
-      <MoveAnimation id={props.state.id} x={x} y={y} scale={scale} componentRef={componentRef}>
-        <Container {...props} ref={componentRef}>
-          <Card
-            state={props.state}
-            info={props.info}
-            cosmetic={cosmetics[props.state.id]}
-            shouldGlow={props.shouldGlow || isOver || shouldHighlight}
-            shouldDimWhenExhausted={props.shouldDimWhenExhausted}
-            borderTint={borderColors.length == 0 ? undefined : hex[combineColors(borderColors)]}
-          />
-        </Container>
-      </MoveAnimation>
+      <Container {...props} x={x} y={y} scale={scale} ref={componentRef}>
+        <Card
+          state={props.state}
+          info={props.info}
+          cosmetic={cosmetics[props.state.id]}
+          shouldGlow={props.shouldGlow || isOver || shouldHighlight}
+          shouldDimWhenExhausted={props.shouldDimWhenExhausted}
+          borderTint={borderColors.length == 0 ? undefined : hex[combineColors(borderColors)]}
+        />
+      </Container>
     );
   }),
   isGameCardPropsEqual

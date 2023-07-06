@@ -8,7 +8,7 @@ import { PlayerContext } from "./Game.js";
 import GameCard from "./GameCard.js";
 import { Container } from "@pixi/react";
 import { useTimeShadowFilter } from "../time.js";
-import { useCardInfoList } from "../cardinfolist.js";
+import { useCardInfoList } from "../CardList.js";
 
 export default function OpponentHand() {
   const player = useContext(PlayerContext);

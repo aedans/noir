@@ -6,8 +6,7 @@ import { PlayerContext } from "./Game.js";
 import { opponentOf } from "../../common/gameSlice.js";
 import GameCard, { GameCardProps } from "./GameCard.js";
 import ExpandableCardList from "../ExpandableCardList.js";
-import { Container } from "@pixi/react";
-import { useCardInfoList } from "../cardinfolist.js";
+import { useCardInfoList } from "../CardList.js";
 
 export default function OpponentGrave() {
   const player = useContext(PlayerContext);
@@ -18,9 +17,5 @@ export default function OpponentGrave() {
   const x = 0;
   const y = 0;
 
-  return (
-    <Container x={x} y={y}>
-      <ExpandableCardList cards={cards} card={card} />
-    </Container>
-  );
+  return <ExpandableCardList x={x} y={y} cards={cards} card={card} />;
 }

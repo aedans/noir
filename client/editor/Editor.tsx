@@ -7,13 +7,13 @@ import { defaultCardState } from "../../common/gameSlice.js";
 import { addDeckCard, removeDeckCard } from "../../common/decksSlice.js";
 import { targetResolution } from "../Camera.js";
 import Rectangle from "../Rectangle.js";
-import { MoveAnimationContext, MoveAnimationState } from "../MoveAnimation.js";
+import { MoveAnimationContext, MoveAnimationState } from "../animation.js";
 import { ordered } from "../../common/util.js";
 import { Container, useApp } from "@pixi/react";
 import { cardHeight, cardWidth } from "../Card.js";
 import Text from "../Text.js";
 import CardList from "../CardList.js";
-import { useCardInfoList } from "../cardinfolist.js";
+import { useCardInfoList } from "../CardList.js";
 import CardInfoCache from "../../common/CardInfoCache.js";
 import { CacheContext } from "../game/Game.js";
 import { DndProvider } from "react-dnd";
@@ -26,7 +26,7 @@ import { User } from "../../common/network.js";
 export default function Editor(props: { params: { deck: string } }) {
   const app = useApp();
   const dispatch = useClientDispatch();
-  const cards = useRef({} as MoveAnimationState);
+  const cards = useRef({} as { [id: string]: MoveAnimationState });
   const [scroll, setScroll] = useState(0);
   const [user, setUser] = useState(null as User | null);
   const [top, setTop] = useState([] as string[]);
@@ -133,9 +133,7 @@ export default function Editor(props: { params: { deck: string } }) {
           <Container y={scroll}>
             <Grid elements={sortedAllCards} maxWidth={3000} card={gridCard} />
           </Container>
-          <Container x={targetResolution.width - cardWidth} y={100}>
-            <CardList cards={sortedDeckCards} card={deckCard} expanded />
-          </Container>
+          <CardList x={targetResolution.width - cardWidth} y={100} cards={sortedDeckCards} card={deckCard} expanded />
         </MoveAnimationContext.Provider>
       </CacheContext.Provider>
     </DndProvider>

@@ -16,9 +16,5 @@ export default function Deck(props: DeckProps) {
   const x = targetResolution.width - cardWidth;
   const y = targetResolution.height - cardHeight;
 
-  return (
-    <Container x={x} y={y}>
-      <ExpandableCardList reversed cards={props.cards} card={card} />
-    </Container>
-  );
+  return <ExpandableCardList x={x} y={y} reversed cards={props.cards} card={card} />;
 }

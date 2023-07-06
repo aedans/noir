@@ -7,8 +7,7 @@ import { PlayerContext } from "./Game.js";
 import { cardHeight } from "../Card.js";
 import GameCard, { GameCardProps } from "./GameCard.js";
 import ExpandableCardList from "../ExpandableCardList.js";
-import { Container } from "@pixi/react";
-import { useCardInfoList } from "../cardinfolist.js";
+import { useCardInfoList } from "../CardList.js";
 
 export default function Grave() {
   const player = useContext(PlayerContext);
@@ -20,8 +19,6 @@ export default function Grave() {
   const y = targetResolution.height - cardHeight;
 
   return (
-    <Container x={x} y={y}>
-      <ExpandableCardList reversed cards={cards} card={card} />
-    </Container>
+    <ExpandableCardList  x={x} y={y} reversed cards={cards} card={card} />
   );
 }

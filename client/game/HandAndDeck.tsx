@@ -6,7 +6,7 @@ import { useClientSelector } from "../store.js";
 import Deck from "./Deck.js";
 import { CacheContext, PlayerContext } from "./Game.js";
 import Hand from "./Hand.js";
-import { useCardInfoList } from "../cardinfolist.js";
+import { useCardInfoList } from "../CardList.js";
 
 export default function HandAndDeck() {
   const player = useContext(PlayerContext);

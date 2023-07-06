@@ -5,7 +5,7 @@ import { targetResolution } from "../Camera.js";
 import { useClientSelector } from "../store.js";
 import { PlayerContext } from "./Game.js";
 import BoardCard from "./BoardCard.js";
-import { useCardInfoList } from "../cardinfolist.js";
+import { useCardInfoList } from "../CardList.js";
 
 export default function Board() {
   const player = useContext(PlayerContext);

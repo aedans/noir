@@ -1,10 +1,15 @@
-import React, { ReactElement, useCallback, useEffect, useState } from "react";
+import React, { ReactElement, useCallback, useContext, useEffect, useState } from "react";
 import { Container } from "@pixi/react";
-import { CardStateInfo } from "../common/card.js";
+import { CardState, CardStateInfo } from "../common/card.js";
 import { cardHeight, cardWidth, isCardInfoEqual, isCardStateEqual } from "./Card.js";
 import { GameCardProps } from "./game/GameCard.js";
+import { useClientSelector } from "./store.js";
+import { CacheContext } from "./game/Game.js";
+import { isLoaded, loadCard } from "./cards.js";
 
 export type CardListProps = {
+  x: number;
+  y: number;
   cards: CardStateInfo[];
   expanded?: boolean;
   reversed?: boolean;
@@ -26,6 +31,31 @@ export function isCardListPropsEqual(a: CardListProps, b: CardListProps) {
         isCardInfoEqual(a.cards[index].info, b.cards[index].info)
     )
   );
+}
+
+export function useCardInfoList(states: CardState[], deps: ReadonlyArray<unknown>) {
+  const [cards, setCards] = useState([] as CardStateInfo[]);
+  const cache = useContext(CacheContext);
+  const game = useClientSelector((state) => state.game.current);
+
+  function resetCards() {
+    setCards(states.filter((card) => isLoaded(card)).map((state) => ({ state, info: cache.getCardInfo(game, state) })));
+  }
+
+  useEffect(() => {
+    const promises: Promise<any>[] = [];
+    for (const card of states.filter((c) => !isLoaded(c))) {
+      try {
+        promises.push(loadCard(card).then(() => resetCards()));
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    Promise.all(promises).then(() => resetCards());
+  }, deps);
+
+  return cards;
 }
 
 export default React.memo(function CardList(props: CardListProps) {
@@ -63,8 +93,8 @@ export default React.memo(function CardList(props: CardListProps) {
             state={state}
             info={info}
             key={state.id}
-            x={cardWidth / 2}
-            y={cardHeight / 2 - heightOffset + hoverOffset}
+            x={props.x + cardWidth / 2}
+            y={props.y + cardHeight / 2 - heightOffset + hoverOffset}
             pointerover={() => pointerover(i)}
             interactive
           />
