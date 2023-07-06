@@ -145,7 +145,7 @@ export const explanations = [
   new KeywordExplanation("vip", "VIP agents cannot be targeted as long as you have a loyal agent on board"),
   new KeywordExplanation("delay", "Delay agents are exhausted for X turns after being played"),
   new KeywordExplanation("debt", "Debt cards remove X money after two turns"),
-  new KeywordExplanation("depart", "Depart agents are removed after they are exhausted X times"),
+  new KeywordExplanation("depart", "Depart agents are removed after they have been on board for X turns"),
   new KeywordExplanation("tribute", "Tribute cards remove the lowest cost card in your deck when played"),
   new SituationExplanation(
     "revealPriority",

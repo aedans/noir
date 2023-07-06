@@ -469,6 +469,18 @@ function* onEndTurn(this: Util, cache: CardInfoCache, game: GameState, payload: 
       yield* this.exhaustCard(cache, game, card, { target: card });
     }
 
+    if (card && card.props.departing > 0) {
+      yield setProp({
+        target: card,
+        name: "departing",
+        value: card.props.departing > 1 ? card.props.departing - 1 : undefined,
+      });
+
+      if (card.props.departing <= 1) {
+        yield removeCard({ source: card, target: card });
+      }
+    }
+
     if (card.props.collection != undefined) {
       yield* this.setProp(cache, game, card, {
         target: card,
@@ -502,17 +514,6 @@ function* onAdd(info: CardInfo, payload: AddCardParams): CardGenerator {
 
 function* onExhaust(info: CardInfo, game: GameState, payload: TargetCardParams): CardGenerator {
   const state = getCard(game, payload.target);
-  if (state && state.props.departing > 0) {
-    yield setProp({
-      target: payload.target,
-      name: "departing",
-      value: state.props.departing > 1 ? state.props.departing - 1 : undefined,
-    });
-
-    if (state.props.departing <= 1) {
-      yield removeCard({ source: payload.target, target: payload.target });
-    }
-  }
 
   yield* info.onExhaust(payload);
 }
