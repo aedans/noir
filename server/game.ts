@@ -134,8 +134,8 @@ function* activateCard(
   target: Target | undefined,
   prepared: Target[]
 ): CardGenerator {
-  if (card.exhausted) {
-    throw `${card.name} is exhausted`;
+  if (card.activated) {
+    throw `${card.name} has already been activated`;
   }
 
   const info = cache.getCardInfo(game, card);

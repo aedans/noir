@@ -84,7 +84,7 @@ export default React.forwardRef(function BoardCard(props: GameCardProps, ref: Re
   }
 
   const shouldGlow =
-    !props.state.exhausted &&
+    !props.state.activated &&
     props.info.hasActivate &&
     currentPlayer(game) == player &&
     util.canPayCost(

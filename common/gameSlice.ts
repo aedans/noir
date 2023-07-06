@@ -138,6 +138,7 @@ export function defaultCardState(name: string, id: string): CardState {
     name,
     hidden: true,
     exhausted: true,
+    activated: true,
     props: {},
     modifiers: [],
   };
@@ -210,7 +211,7 @@ export const gameReducers = {
   },
   activateCard: (state: GameState, action: PayloadAction<TargetCardParams>) => {
     state.history.unshift(action as GameAction);
-    updateCard(state, action.payload.target, (card) => (card.exhausted = true));
+    updateCard(state, action.payload.target, (card) => (card.activated = true));
   },
   removeCard: (state: GameState, action: PayloadAction<TargetCardParams>) => {
     state.history.unshift(action as GameAction);
@@ -258,7 +259,10 @@ export const gameReducers = {
   },
   refreshCard: (state: GameState, action: PayloadAction<TargetCardParams>) => {
     state.history.unshift(action as GameAction);
-    updateCard(state, action.payload.target, (card) => (card.exhausted = false));
+    updateCard(state, action.payload.target, (card) => {
+      card.exhausted = false;
+      card.activated = false;
+    });
   },
   exhaustCard: (state: GameState, action: PayloadAction<TargetCardParams>) => {
     state.history.unshift(action as GameAction);
