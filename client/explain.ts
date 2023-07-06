@@ -143,9 +143,9 @@ export const explanations = [
   new KeywordExplanation("protected", "Protected agents prevent the first time they would be removed", false, true),
   new KeywordExplanation("disloyal", "Disloyal agents don't prevent you from losing", true, false),
   new KeywordExplanation("vip", "VIP agents cannot be targeted as long as you have a loyal agent on board"),
-  new KeywordExplanation("delay", "Delay agents are exhausted for X turns after being played"),
-  new KeywordExplanation("debt", "Debt cards remove X money after two turns"),
-  new KeywordExplanation("depart", "Depart agents are removed after they have been on board for X turns"),
+  new KeywordExplanation("delay", "Delay agents are exhausted or activated for X turns after being played"),
+  new KeywordExplanation("debt", "Debt cards remove X money two turns after being played"),
+  new KeywordExplanation("depart", "Depart agents are removed X turns after being played"),
   new KeywordExplanation("tribute", "Tribute cards remove the lowest cost card in your deck when played"),
   new SituationExplanation(
     "revealPriority",

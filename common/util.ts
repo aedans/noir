@@ -467,6 +467,7 @@ function* onEndTurn(this: Util, cache: CardInfoCache, game: GameState, payload: 
         value: card.props.delayed > 1 ? card.props.delayed - 1 : undefined,
       });
       yield* this.exhaustCard(cache, game, card, { target: card });
+      yield* this.activateCard(cache, game, card, { target: card });
     }
 
     if (card && card.props.departing > 0) {
