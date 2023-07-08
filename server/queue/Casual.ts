@@ -44,9 +44,13 @@ export default class Casual implements Queue {
       this.games.set(id1, players[0]);
       this.games.set(id2, players[1]);
 
-      await createGame(players, async (winner, players, inits, state) => {
+      await createGame(players, async (winner, players, inits, state, isValid) => {
         this.games.delete(id1);
         this.games.delete(id2);
+
+        if (!isValid) {
+          return;
+        }
 
         const replays = await replayCollection();
         replays.insertOne({

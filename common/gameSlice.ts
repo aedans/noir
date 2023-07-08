@@ -132,7 +132,7 @@ export function updateCard(game: GameState, card: Target, f: (card: CardState) =
   }
 }
 
-export function defaultCardState(name: string, id: string): CardState {
+export function defaultCardState(name: string, id: string = name): CardState {
   return {
     id,
     name,

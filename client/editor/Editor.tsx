@@ -8,7 +8,7 @@ import { addDeckCard, removeDeckCard } from "../../common/decksSlice.js";
 import { targetResolution } from "../Camera.js";
 import Rectangle from "../Rectangle.js";
 import { MoveAnimationContext, MoveAnimationState } from "../animation.js";
-import { ordered } from "../../common/util.js";
+import { ordered, validateDeck } from "../../common/util.js";
 import { Container, useApp } from "@pixi/react";
 import { cardHeight, cardWidth } from "../Card.js";
 import Text from "../Text.js";
@@ -40,6 +40,8 @@ export default function Editor(props: { params: { deck: string } }) {
     ),
     [deck]
   );
+
+  const { errors, actualSize, expectedSize } = validateDeck(cache.current, deck);
 
   const [allCardNames, setAllCardNames] = useState([] as string[]);
   const allCards = useCardInfoList(
@@ -129,7 +131,11 @@ export default function Editor(props: { params: { deck: string } }) {
       <CacheContext.Provider value={cache.current}>
         <MoveAnimationContext.Provider value={cards}>
           <Rectangle fill={0x202020} width={targetResolution.width} height={targetResolution.height} />
-          <Text x={3800} text={Object.values(deck.cards).reduce((a, b) => a + b, 0) + " / 20"} />
+          <Text
+            x={3800}
+            text={`${actualSize} / ${expectedSize}`}
+            style={{ tint: errors.length > 0 ? 0xff0000 : 0xffffff }}
+          />
           <Container y={scroll}>
             <Grid elements={sortedAllCards} maxWidth={3000} card={gridCard} />
           </Container>

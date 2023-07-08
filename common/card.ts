@@ -10,6 +10,7 @@ import {
 import { HistoryAction } from "./historySlice.js";
 import { Filter, Util } from "./util.js";
 import CardInfoCache from "./CardInfoCache.js";
+import { Deck } from "./decksSlice.js";
 
 export type CardStateInfo = {
   state: CardState;
@@ -86,6 +87,8 @@ export type CardInfo = {
   secondaryEffectFilter: Filter;
   secondaryEffect: CardEffect;
   modifiers: { [name: string]: CardModifier };
+  validateDeck: (deck: Deck) => string[];
+  modifyDeckSize: (deck: Deck) => number;
   onAdd: CardTrigger<AddCardParams>;
   onPlay: CardTrigger<PlayCardParams>;
   onActivate: CardTrigger<TargetCardParams>;
@@ -192,6 +195,8 @@ export function runPartialCardInfoComputation(
     secondaryEffect: partial.secondaryEffect ?? (() => ({})),
     secondaryEffectFilter: partial.secondaryEffectFilter ?? {},
     modifiers: partial.modifiers ?? {},
+    validateDeck: (deck) => (deck.cards[card.name] > 2 ? [`Cannot run more than two copies of ${card.name}`] : []),
+    modifyDeckSize: () => 0,
     onAdd: partial.onAdd ?? function* () {},
     onPlay: partial.onPlay ?? function* () {},
     onActivate: partial.onActivate ?? function* () {},

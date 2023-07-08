@@ -33,7 +33,7 @@ const io: NoirServer = new Server(server, {
 
 const cards = moize(() => {
   const cards = fs.readdirSync("./public/cards").map((file) => file.substring(0, file.lastIndexOf(".")));
-  const cardStates = cards.map((name) => defaultCardState(name, name));
+  const cardStates = cards.map((name) => defaultCardState(name));
   const allCards = cardStates.map((state) => ({
     state,
     info: new LocalCardInfoCache().getCardInfo(initialGameState(), state),

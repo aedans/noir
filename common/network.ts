@@ -3,7 +3,7 @@ import { Socket as ClientSocket } from "socket.io-client";
 import { QueueName } from "../server/Queue.js";
 import { CardCosmetic, Target } from "./card.js";
 import { Deck } from "./decksSlice.js";
-import { PlayerId } from "./gameSlice.js";
+import { PlayerId, Winner } from "./gameSlice.js";
 import { HistoryAction } from "./historySlice.js";
 export type { NoirRouter } from "../server/index.js";
 export type { User, ReplayMeta, Replay } from "../server/db.js";
@@ -19,7 +19,7 @@ export type ServerToClientEvents = {
   actions: (actions: HistoryAction[], name: string) => void;
   cosmetic: (id: string, cosmetic: CardCosmetic) => void;
   error: (error: string) => void;
-  end: (winner: PlayerId) => void;
+  end: (winner: Winner) => void;
 };
 
 export type ClientToServerEvents = {

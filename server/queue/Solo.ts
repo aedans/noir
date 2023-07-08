@@ -23,11 +23,15 @@ export default class Solo implements Queue {
       this.games.set(id, player);
     }
 
-    await createGame([player, mission], async (winner, players, inits, state) => {
+    await createGame([player, mission], async (winner, players, inits, state, isValid) => {
       if (id != null) {
         this.games.delete(id);
       }
 
+      if (!isValid) {
+        return;
+      }
+      
       const replays = await replayCollection();
       replays.insertOne({
         timestamp: new Date(),

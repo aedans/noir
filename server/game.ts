@@ -21,7 +21,7 @@ import {
   liftAction,
   cleanAction,
 } from "../common/historySlice.js";
-import util, { Filter } from "../common/util.js";
+import util, { Filter, validateDeck } from "../common/util.js";
 import { PlayerAction, PlayerInit } from "../common/network.js";
 import CardInfoCache from "../common/CardInfoCache.js";
 import LocalCardInfoCache from "./LocalCardInfoCache.js";
@@ -31,7 +31,8 @@ export type OnGameEnd = (
   winner: Winner,
   players: [Player, Player],
   inits: [PlayerInit, PlayerInit],
-  state: HistoryState
+  state: HistoryState,
+  isValid: boolean,
 ) => void;
 
 function* doEndTurn(cache: CardInfoCache, game: GameState): CardGenerator {
@@ -334,6 +335,17 @@ export async function createGame(players: [Player, Player], onEnd: OnGameEnd) {
   const cache = new LocalCardInfoCache();
   const inits = await Promise.all([players[0].init(), players[1].init()]);
   for (const player of [0, 1] as const) {
+    const { errors } = validateDeck(cache, inits[player].deck);
+    if (errors.length > 0) {
+      players[player].error(errors[0]);
+      players[0].end("draw");
+      players[1].end("draw");
+      onEnd("draw", players, inits, state, false);
+      return;
+    }
+  }
+
+  for (const player of [0, 1] as const) {
     const generator = initalizePlayer(cache, state, player, inits[player]);
     sendActions(generator, player, `player${player}/init`);
   }
@@ -348,7 +360,7 @@ export async function createGame(players: [Player, Player], onEnd: OnGameEnd) {
     hasEnded = true;
     players[0].end(winner);
     players[1].end(winner);
-    onEnd(winner, players, inits, state);
+    onEnd(winner, players, inits, state, true);
   }
 
   for (const player of [0, 1] as const) {

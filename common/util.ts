@@ -49,9 +49,12 @@ import {
   ModifyCardParams,
   SetPropParams,
   StealCardParams,
+  defaultCardState,
+  initialGameState,
 } from "./gameSlice.js";
 import { historySlice, SetUndoneParams } from "./historySlice.js";
 import CardInfoCache from "./CardInfoCache.js";
+import { Deck } from "./decksSlice.js";
 
 export type Filter = {
   excludes?: Target[];
@@ -203,6 +206,31 @@ export function ordered<T>(array: T[], ordering: Order[], map: (t: T) => CardInf
 
     return 0;
   });
+}
+
+export type DeckValidationResult = {
+  errors: string[];
+  actualSize: number;
+  expectedSize: number;
+};
+
+export function validateDeck(cache: CardInfoCache, deck: Deck): DeckValidationResult {
+  const errors = [] as string[];
+  let actualSize = 0;
+  let expectedSize = 20;
+
+  for (const [name, count] of Object.entries(deck.cards)) {
+    const info = cache.getCardInfo(initialGameState(), defaultCardState(name));
+    errors.push(...info.validateDeck(deck));
+    actualSize += count;
+    expectedSize += info.modifyDeckSize(deck);
+  }
+
+  if (actualSize > expectedSize) {
+    errors.push(`Deck cannot have more than ${expectedSize} cards`);
+  }
+
+  return { errors, actualSize, expectedSize };
 }
 
 export function getTargets(this: Util, cache: CardInfoCache, game: GameState, card: Target, targetFilter: Filter) {

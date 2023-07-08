@@ -46,7 +46,9 @@ export default function Queue(props: { params: { queue: string; deck: string } }
 
     socket.on("end", (winner) => {
       setMessage("");
-      if (winner == player) {
+      if (winner == "draw") {
+        setMessage("Draw.");
+      } else if (winner == player) {
         setMessage("You Win!");
         setWon(names[opponentOf(player)]);
       } else {
