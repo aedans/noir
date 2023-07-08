@@ -138,6 +138,7 @@ io.on("connection", (socket) => {
       await queues[queue].push(socket, name, id);
     } catch (e) {
       socket.emit("error", (e as Error).message);
+      console.error(e);
     }
   });
 });
