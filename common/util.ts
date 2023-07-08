@@ -282,7 +282,6 @@ export function tryPayCost(
     players: [player],
     types: ["agent"],
     zones: ["board"],
-    excludes: [card],
     exhausted: false,
     colors,
   });
