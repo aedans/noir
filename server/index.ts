@@ -137,8 +137,12 @@ io.on("connection", (socket) => {
       const id = token ? auth.get(token) ?? null : null;
       await queues[queue].push(socket, name, id);
     } catch (e) {
-      socket.emit("error", (e as Error).message);
-      console.error(e);
+      if (typeof e == "string") {
+        socket.emit("error", e);
+      } else {
+        socket.emit("error", (e as Error).message);
+        console.error(e);
+      }
     }
   });
 });

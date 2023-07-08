@@ -12,7 +12,7 @@ export default class Casual implements Queue {
 
   async push(socket: NoirServerSocket, name: string, id: string | null): Promise<void> {
     if (id == null) {
-      throw new Error("Must be logged in to play against other players");
+      throw "Must be logged in to play against other players";
     }
 
     if (this.games.has(id)) {
