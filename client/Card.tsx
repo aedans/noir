@@ -155,7 +155,7 @@ const CardImpl = React.forwardRef(function CardImpl(props: CardProps, ref: Ref<P
   for (const [name, value] of Object.entries(props.state.props)) {
     if (value != undefined) {
       const upperName = name.charAt(0).toUpperCase() + name.slice(1);
-      propsText.push(`${upperName}: ${value}`);
+      propsText.push(`${upperName}: ${value.name ?? value}`);
     }
   }
 
