@@ -334,7 +334,7 @@ export function* revealRandom(
   card: CardState,
   number: number,
   filter: Omit<Filter, "hidden"> = {}
-): CardGenerator {
+): CardGenerator<CardState[]> {
   const opponent = util.opponent(game, card);
   const cards = this.filter(cache, game, {
     zones: ["board"],
@@ -379,8 +379,14 @@ export function* revealRandom(
       for (const target of allCards) {
         yield* this.revealCard(cache, game, card, { target });
       }
+
+      return allCards;
     }
+
+    return aliveCards;
   }
+
+  return cards;
 }
 
 export function keywordModifier(keyword: CardKeyword): CardModifier {
