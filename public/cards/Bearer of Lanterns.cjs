@@ -20,10 +20,10 @@ exports.card = (util, cache, game, card) => ({
     effect: (info, state) => {
       if(card.props.lit == true){
         return {
-          onPlay: function*(){
-            yield* info.onPlay(target) 
+          onPlay: function*(action){
+            yield* info.onPlay(action) 
             const numberToReveal = cache.getCardInfo(game, state).colors.includes("blue") ? 2 : 1;
-            yield* util.revealRandom(cache,game,card,1)
+            yield* util.revealRandom(cache,game,card,numberToReveal)
             yield* util.setProp(cache, game, card, {target: card, name: "lit", value: false})
           }
         };
