@@ -7,6 +7,7 @@ exports.card = (util, cache, game, card) => ({
     colors: ["blue"],
     activateCost: { agents: 2 },
     onPlay: function*(){
+      yield* info.onPlay(target) 
       yield* util.setProp(cache, game, card, {target: card, name: "lit", value: true})
     },
     turn: function*(){
@@ -16,35 +17,15 @@ exports.card = (util, cache, game, card) => ({
       players: [util.self(game,card)],
       zones: ["deck"],
       types: ["operation"],
-      excludes: util.filter(cache,game,{
-        colors: ["blue"]
-      })
-    },
-    secondaryEffectFilter: {
-      players: [util.self(game,card)],
-      zones: ["deck"],
-      types: ["operation"],
-      colors: ["blue"]
     },
     effect: (info, state) => {
       if(card.props.lit == true){
         return {
           onPlay: function*(){
+            const numberToReveal = cache.getCardInfo(game, state).colors.includes("blue") ? 2 : 1;
             yield* util.revealRandom(cache,game,card,1)
             yield* util.setProp(cache, game, card, {target: card, name: "lit", value: false})
           }
-          
-        };
-      }
-    },
-    secondaryEffect: (info, state) => {
-      if(card.props.lit == true){
-        return {
-          onPlay: function*(){
-            yield* util.revealRandom(cache,game,card,2)
-            yield* util.setProp(cache, game, card, {target: card, name: "lit", value: false})
-          }
-          
         };
       }
     },

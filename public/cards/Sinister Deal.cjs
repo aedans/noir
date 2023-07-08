@@ -1,7 +1,7 @@
 // @ts-check
 /** @type {import("../../common/card").PartialCardInfoComputation} */
 exports.card = (util, cache, game, card) => ({
-  text: "Tribute: agent. Gain $3 for each agent removed or stolen anywhere this turn.",
+  text: "Gain $3 for each agent removed or stolen anywhere this turn.",
   type: "operation",
   cost: { money: 0, agents: 1 },
   colors: ["purple"],
