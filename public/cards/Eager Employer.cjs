@@ -1,15 +1,15 @@
 // @ts-check
 /** @type {import("../../common/card").PartialCardInfoComputation} */
 exports.card = (util, cache, game, card) => ({
-  text: "Exhaust this and another agent: gain $3.",
+  text: "Exhaust this and another agent: gain $2.",
   type: "agent",
-  cost: { money: 8 },
+  cost: { money: 7 },
   colors: [],
-  activateCost: { agents: 1 },
+  activateCost: { agents: 2 },
   activate: function* () {
     yield* util.addMoney(cache, game, card, {
       player: util.currentPlayer(game),
-      money: 3,
+      money: 2,
     });
   },
 });

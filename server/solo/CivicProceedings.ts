@@ -28,7 +28,7 @@ export default class CivicProceedings extends MissionPlayer {
       "Aspiring Lawman": 2,
       "Expedited Training": 2,
       "Frazzled Secretary": 2,
-      "Unyielding Investigator": 2,
+      "Bearer of Lanterns": 2,
       // Interaction
       "Stern Peacekeeper": 2,
       Detain: 2,
@@ -50,7 +50,7 @@ export default class CivicProceedings extends MissionPlayer {
 
   goals: Goal[] = [
     // Early Game
-    when(lt(1), "self", basicAgents(["blue"]))(playCard(["Aspiring Lawman", "Unyielding Investigator"])),
+    when(lt(1), "self", basicAgents(["blue"]))(playCard(["Aspiring Lawman", "Bearer of Lanterns"])),
     // Win
     playCard("Prolific Jailer"),
     activateCard("Prolific Jailer", { zones: ["board"], protected: false }, true),
@@ -60,7 +60,7 @@ export default class CivicProceedings extends MissionPlayer {
     playCard("Expedited Training"),
     playCard("Frazzled Secretary"),
     activateCard("Frazzled Secretary"),
-    playCard("Unyielding Investigator"),
+    playCard("Bearer of Lanterns"),
     // Interaction
     playCard("Stern Peacekeeper"),
     playCard("Writ of Recall", { zones: ["board"] }, true),

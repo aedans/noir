@@ -2,7 +2,7 @@
 /** @type {import("../../common/card").PartialCardInfoComputation} */
 exports.card = (util, cache, game, card) => ({
   type: "agent",
-  text: "The first time this is exhausted each turn, refresh your other agents.",
+  text: "Activate this: refresh other your agents. This can only be activated once each turn.",
   cost: { money: 9 },
   turn: function* () {
     yield* util.setProp(cache, game, card, {
@@ -11,7 +11,7 @@ exports.card = (util, cache, game, card) => ({
       value: 1,
     });
   },
-  onExhaust: function* () {
+  activate: function* (){
     if (card.props.up == 1) {
       yield* util.setProp(cache, game, card, {
         target: card,

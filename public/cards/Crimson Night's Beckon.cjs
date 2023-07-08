@@ -1,12 +1,14 @@
 // @ts-check
 /** @type {import("../../common/card").PartialCardInfoComputation} */
 exports.card = (util, cache, game, card) => ({
-  text: "Remove one of your opponent's agents. Return this to your deck next turn with $2 added to its cost. ",
+  text: "Remove one of your opponent's agents. Return this to your deck next turn with $3 added to its cost. ",
   type: "operation",
-  cost: { money: 11, agents: 1,
+  cost: { money: 10, agents: 1,
   },
   targets: {
-    types: ["agent", "operation"],
+    types: ["agent"],
+    players: [util.opponent(game,card)],
+    zones: ["board","deck"]
   },
   play: function* (target) {
       yield* util.modifyCard(cache,game,card, {
@@ -21,7 +23,7 @@ exports.card = (util, cache, game, card) => ({
   },
   modifiers: {
     expensive: (info, modifier, card) => ({
-      cost: {money: info.cost.money + 2, agents: 1}
+      cost: {money: info.cost.money + 3, agents: 1}
     })
   }
 });

@@ -2,7 +2,7 @@
 /** @type {import("../../common/card").PartialCardInfoComputation} */
 exports.card = (util, cache, game, card) => ({
   type: "agent",
-  text: "When this is removed on board, set two random cards in your deck on fire. They burn away two turns from now if not played.",
+  text: "When this is removed on board, double the cost of a random card in your deck.",
   cost: { money: 4 },
   colors: ["orange"],
   onRemove: function* () {
@@ -12,21 +12,12 @@ exports.card = (util, cache, game, card) => ({
     });
     const fired = util.randoms(yourcards, 2);
     if (util.findCard(game, card).zone == "board") {
-      yield* util.modifyCard(cache, game, card, { target: fired[0], modifier: { name: "aflame", card } });
-      yield* util.setProp(cache, game, card, {
-        target: fired[0],
-        name: "aflame",
-        value: 2,
-      });
-      yield* util.modifyCard(cache, game, card, { target: fired[1], modifier: { name: "aflame", card } });
-      yield* util.setProp(cache, game, card, {
-        target: fired[1],
-        name: "aflame",
-        value: 2,
-      });
+      yield* util.modifyCard(cache, game, card, { target: fired[0], modifier: { name: "expensive", card } });
     }
   },
   modifiers: {
-    aflame: (info) => ({}),
+    expensive: (info, modifier, card) => ({
+      cost: { ...info.cost, money: info.cost.money * 2 }
+    }),
   },
 });

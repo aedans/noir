@@ -34,7 +34,7 @@ export default class UnderhandedDealings extends MissionPlayer {
       Bodyguard: 2,
       "New Hire": 2,
       // Interaction
-      "Smoking Gun's Curse": 1,
+      "Bad Deal": 1,
       Entice: 2,
       // Reveal
       "Rogue Reporter": 2,
@@ -48,7 +48,7 @@ export default class UnderhandedDealings extends MissionPlayer {
       "New Hire": 4,
       "Crispy Dollar": 2,
       Entice: 3,
-      "Smoking Gun's Curse": 2,
+      "Bad Deal": 2,
     },
   };
 
@@ -70,7 +70,7 @@ export default class UnderhandedDealings extends MissionPlayer {
       when(gt(0), "self", { vip: true, hidden: false })
     ),
     // Interaction
-    playCard("Smoking Gun's Curse", { zones: ["board"], exhausted: true }, true),
+    playCard("Bad Deal", { zones: ["board"], exhausted: true }, true),
     playCard("Entice", { zones: ["board"], minMoney: 5 }, true),
     // Reveal
     whenRevealLeft(playCard("Examine the Bodies")),

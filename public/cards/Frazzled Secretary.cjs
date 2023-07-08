@@ -2,12 +2,13 @@
 /** @type {import("../../common/card").PartialCardInfoComputation} */
 exports.card = (util, cache, game, card) => ({
   type: "agent",
-  text: "Exhaust this: your next agent costs $3 less and has Delay 1.",
+  text: "Activate this, exhaust a blue agent: your next agent costs $3 less and has Delay 1.",
   cost: { money: 6 },
   colors: ["blue"],
   turn: function* () {
     yield* util.setProp(cache, game, card, { target: card, name: "processingPaperwork", value: undefined });
   },
+  activateCost: {agents: 1},
   activate: function* () {
     yield* util.setProp(cache, game, card, { target: card, name: "processingPaperwork", value: true });
   },

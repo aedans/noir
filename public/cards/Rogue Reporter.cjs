@@ -10,6 +10,7 @@ exports.card = (util, cache, game, card) => ({
       hidden: true,
       ordering: ["money"],
       reversed: true,
+      zones: ["board","deck"]
     });
 
     if (cards.length > 0) {

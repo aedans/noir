@@ -1,7 +1,7 @@
 // @ts-check
 /** @type {import("../../common/card").PartialCardInfoComputation} */
 exports.card = (util, cache, game, card) => ({
-  text: "Tribute: agent. Gain $3 for each agent removed anywhere this turn.",
+  text: "Tribute: agent. Gain $3 for each agent removed or stolen anywhere this turn.",
   type: "operation",
   cost: { money: 0, agents: 1 },
   colors: ["purple"],
@@ -17,7 +17,7 @@ exports.card = (util, cache, game, card) => ({
     });
     const index = game.history.findIndex((action) => action.type == "game/endTurn");
     const actions = game.history.slice(0, index);
-    const removals = actions.filter((action) => action.type == "game/removeCard").length;
+    const removals = actions.filter((action) => action.type == "game/removeCard").length + actions.filter((action) => action.type == "game/stealCard").length;
     yield* util.addMoney(cache, game, card, {
       player: util.self(game, card),
       money: 3 + 3 * removals,

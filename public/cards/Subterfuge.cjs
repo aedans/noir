@@ -5,7 +5,7 @@ exports.card = (util, cache, game, card) => ({
   type: "operation",
   cost: { money: 0, agents: 1 },
   colors: ["purple"],
-  keywords: [["tribute", "operation"]],
+  keywords: [["tribute", "card"]],
   targets: {
     players: [util.opponent(game, card)],
     types: ["operation"],

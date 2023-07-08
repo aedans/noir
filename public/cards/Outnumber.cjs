@@ -3,7 +3,7 @@
 exports.card = (util, cache, game, card) => ({
   text: "If a player has fewer agents than the other player, reveal cards equal to the difference.",
   type: "operation",
-  cost: { money: 2, agents: 1 },
+  cost: { money: 1, agents: 1 },
   colors: ["orange"],
   play: function* () {
     if (

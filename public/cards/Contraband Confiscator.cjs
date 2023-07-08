@@ -2,11 +2,11 @@
 /** @type {import("../../common/card").PartialCardInfoComputation} */
 exports.card = (util, cache, game, card) => ({
   type: "agent",
-  text: "Exhaust this and another blue agent: remove an operation and gain $2.",
+  text: "Activate this, exhaust two blue agents: remove an operation and gain $2.",
   cost: { money: 10 },
   colors: ["blue"],
   keywords: [["protected"]],
-  activateCost: { agents: 1 },
+  activateCost: { agents: 2 },
   activateTargets: {
     types: ["operation"],
     zones: ["deck", "board"],

@@ -2,14 +2,15 @@
 /** @type {import("../../common/card").PartialCardInfoComputation} */
 exports.card = (util, cache, game, card) => ({
   type: "agent",
-  text: "Exhaust this and another purple agent: steal a card from your opponent's deck, putting it hidden into your deck.",
+  text: "Activate this, exhaust two purple agents: steal a card from your opponent's deck. It becomes purple.",
   keywords: [["vip"]],
   cost: { money: 12 },
   colors: ["purple"],
   activateTargets: {
     zones: ["deck"],
+    players: [util.opponent(game,card)]
   },
-  activateCost: { agents: 1 },
+  activateCost: { agents: 2 },
   activate: function* (target) {
     yield* util.modifyCard(cache, game, card, {
       target,

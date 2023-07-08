@@ -10,6 +10,7 @@ exports.card = (util, cache, game, card) => ({
     zones: ["deck", "board"],
     types: ["agent"],
   },
+  activateCost: {agents: 1},
   activate: function* (target) {
     yield* util.stealCard(cache, game, card, { target, zone: "board" });
     yield* util.modifyCard(cache, game, card, {

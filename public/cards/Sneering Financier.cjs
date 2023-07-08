@@ -8,6 +8,7 @@ exports.card = (util, cache, game, card) => ({
   activateTargets: {
     zones: ["deck"],
   },
+  activateCost: {agents: 1},
   activate: function* (target) {
     const indebt = util.getCard(game, target);
     const debtplayer = util.findCard(game, indebt).player;
