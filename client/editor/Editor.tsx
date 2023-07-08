@@ -41,8 +41,6 @@ export default function Editor(props: { params: { deck: string } }) {
     [deck]
   );
 
-  const { errors, actualSize, expectedSize } = validateDeck(cache.current, deck);
-
   const [allCardNames, setAllCardNames] = useState([] as string[]);
   const allCards = useCardInfoList(
     allCardNames.map((name) => defaultCardState(name, `${name} ${deck.cards[name] ?? 0}`)),
@@ -53,6 +51,10 @@ export default function Editor(props: { params: { deck: string } }) {
   const sortedDeckCards = ordered(deckCards, ["color", "money"], (card) => card.info);
 
   const areCardsLoaded = allCardNames.every((name) => isLoaded({ name }));
+
+  const { errors, actualSize, expectedSize } = Object.keys(deck.cards).every((name) => isLoaded({ name }))
+    ? validateDeck(cache.current, deck)
+    : { errors: [], actualSize: 0, expectedSize: 20 };
 
   function getCosmetic(name: string): CardCosmetic {
     // if (top.includes(name)) {
