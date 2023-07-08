@@ -103,16 +103,18 @@ const noirRouter = t.router({
 
 export type NoirRouter = typeof noirRouter;
 
-app.use(
-  openid.auth({
-    authRequired: false,
-    auth0Logout: true,
-    baseURL: process.env.PRODUCTION == "true" ? "https://noirccg.azurewebsites.net/" : "http://localhost:8080/",
-    clientID: "FAjKuxWF6fHa4OInqatXqp4DuMRQbNvz",
-    issuerBaseURL: "https://dev-risee24h3navjxas.us.auth0.com",
-    secret: process.env.AUTH0_SECRET,
-  })
-);
+if (process.env.AUTH0_SECRET) {
+  app.use(
+    openid.auth({
+      authRequired: false,
+      auth0Logout: true,
+      baseURL: process.env.PRODUCTION == "true" ? "https://noirccg.azurewebsites.net/" : "http://localhost:8080/",
+      clientID: "FAjKuxWF6fHa4OInqatXqp4DuMRQbNvz",
+      issuerBaseURL: "https://dev-risee24h3navjxas.us.auth0.com",
+      secret: process.env.AUTH0_SECRET ?? "",
+    })
+  );  
+}
 
 app.use(
   "/trpc",
