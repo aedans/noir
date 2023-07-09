@@ -1,7 +1,10 @@
 import moize from "moize";
 import { Collection, MongoClient } from "mongodb";
-import { GameAction, Winner } from "../common/gameSlice.js";
+import { GameAction, Winner, defaultCardState, initialGameState } from "../common/gameSlice.js";
 import { PlayerInit } from "../common/network.js";
+import LocalCardInfoCache from "./LocalCardInfoCache.js";
+import fs from "fs";
+import { ordered } from "../common/util.js";
 
 export type User = {
   _id: string;
@@ -29,3 +32,14 @@ export const noirDB = moize.promise(async () => {
 
 export const userCollection = moize.promise(async () => (await noirDB()).collection("users") as Collection<User>);
 export const replayCollection = moize.promise(async () => (await noirDB()).collection("replays") as Collection<Replay>);
+
+export const cards = moize(() => {
+  const cards = fs.readdirSync("./public/cards").map((file) => file.substring(0, file.lastIndexOf(".")));
+  const cardStates = cards.map((name) => defaultCardState(name));
+  const allCards = cardStates.map((state) => ({
+    state,
+    info: new LocalCardInfoCache().getCardInfo(initialGameState(), state),
+  }));
+  const orderedCards = ordered(allCards, ["color", "money"], (card) => card.info);
+  return orderedCards.map((card) => card.state.name);
+});

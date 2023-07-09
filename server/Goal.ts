@@ -108,6 +108,56 @@ export const activateCard =
     return { type: "do", id: card.id, prepared: [], target: targets[0] };
   };
 
+export const random: Goal = (cache: CardInfoCache, game: GameState, player: PlayerId) => {
+  
+  const random = Math.random();
+  if (random > 0.5) {
+    const deckCards = util.filter(cache, game, {
+      players: [player],
+      zones: ["deck"],
+      playable: true,
+      random: true,
+    });
+
+    if (deckCards.length == 0) {
+      return { type: "end" };
+    }
+
+    const info = cache.getCardInfo(game, deckCards[0]);
+    const targets = info.targets
+      ? util.filter(cache, game, {
+          ...info.targets,
+          random: true,
+        })
+      : [];
+
+    return { type: "do", id: deckCards[0].id, prepared: [], target: targets[0] };
+  } else if (random < 0.5) {
+    const boardCards = util.filter(cache, game, {
+      players: [player],
+      zones: ["board"],
+      activatable: true,
+      random: true,
+    });
+
+    if (boardCards.length == 0) {
+      return { type: "end" };
+    }
+
+    const info = cache.getCardInfo(game, boardCards[0]);
+    const targets = info.activateTargets
+      ? util.filter(cache, game, {
+          ...info.activateTargets,
+          random: true,
+        })
+      : [];
+
+    return { type: "do", id: boardCards[0].id, prepared: [], target: targets[0] };
+  }
+
+  return { type: "end" };
+};
+
 export const when =
   (test: (cards: CardState[]) => boolean, who: "self" | "opponent" | "all", filter: Filter) =>
   (goal: Goal): Goal =>

@@ -2,19 +2,14 @@ import cors from "cors";
 import express from "express";
 import http from "http";
 import dotenv from "dotenv";
-import fs from "fs";
 import { Server } from "socket.io";
 import { queues } from "./Queue.js";
-import { defaultCardState, initialGameState } from "../common/gameSlice.js";
-import { ordered } from "../common/util.js";
 import { ObjectId, WithId } from "mongodb";
 import { NoirServer } from "../common/network.js";
-import LocalCardInfoCache from "./LocalCardInfoCache.js";
 import openid from "express-openid-connect";
-import { ReplayMeta, replayCollection, userCollection } from "./db.js";
+import { ReplayMeta, cards, replayCollection, userCollection } from "./db.js";
 import { nanoid } from "nanoid";
 import { getTop } from "./cosmetics.js";
-import moize from "moize";
 import { inferAsyncReturnType, initTRPC } from "@trpc/server";
 import * as trpcExpress from "@trpc/server/adapters/express";
 import { z } from "zod";
@@ -29,17 +24,6 @@ const io: NoirServer = new Server(server, {
   cors: {
     origin: "*",
   },
-});
-
-const cards = moize(() => {
-  const cards = fs.readdirSync("./public/cards").map((file) => file.substring(0, file.lastIndexOf(".")));
-  const cardStates = cards.map((name) => defaultCardState(name));
-  const allCards = cardStates.map((state) => ({
-    state,
-    info: new LocalCardInfoCache().getCardInfo(initialGameState(), state),
-  }));
-  const orderedCards = ordered(allCards, ["color", "money"], (card) => card.info);
-  return orderedCards.map((card) => card.state.name);
 });
 
 const auth: Map<string, string> = new Map();

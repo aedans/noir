@@ -1,5 +1,5 @@
 import { CardInfo, CardState, PartialCardInfoComputation, runPartialCardInfoComputation } from "./card.js";
-import { GameState, findCard, getCard, initialGameState } from "./gameSlice.js";
+import { GameState, defaultCardState, findCard, getCard, initialGameState } from "./gameSlice.js";
 import util from "./util.js";
 
 export default abstract class CardInfoCache {
@@ -21,6 +21,13 @@ export default abstract class CardInfoCache {
       return this.info.get(card.id)!;
     } else {
       this.valid.add(card.id);
+      if (!this.info.has(card.id)) {
+        this.info.set(
+          card.id,
+          runPartialCardInfoComputation(() => ({}), util, this, game, card)
+        );
+      }
+
       const baseInfo = runPartialCardInfoComputation(this.getPartialCardInfoComputation(card), util, this, game, card);
       this.info.set(card.id, baseInfo);
       const info = this.updateCardInfo(game, card, baseInfo);
@@ -53,6 +60,10 @@ export default abstract class CardInfoCache {
       const card = getCard(game, modifier.card);
       if (card) {
         const modifiers = this.getCardInfo(game, card).modifiers ?? {};
+        if (!modifiers[modifier.name]) {
+          throw new Error(`Could not find modifier "${modifier.name}" on ${card.name}`);
+        }
+
         info = { ...info, ...modifiers[modifier.name](info, modifier, state) };
         this.info.set(state.id, info);
       }
