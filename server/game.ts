@@ -335,6 +335,10 @@ export async function createGame(players: [Player, Player], onEnd: OnGameEnd) {
   const cache = new LocalCardInfoCache();
   const inits = await Promise.all([players[0].init(), players[1].init()]);
   for (const player of [0, 1] as const) {
+    if (players[player].ai) {
+      continue;
+    }
+
     const { errors } = validateDeck(cache, inits[player].deck);
     if (errors.length > 0) {
       players[player].error(errors[0]);
