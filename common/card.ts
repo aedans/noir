@@ -20,6 +20,7 @@ export type CardStateInfo = {
 export type ModifierState = {
   card: Target;
   name: string;
+  props: { [name: string]: any };
 };
 
 export type CardState = {

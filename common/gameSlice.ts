@@ -96,7 +96,7 @@ export type ChangeMoneyParams = {
 };
 
 export type ModifyCardParams = TargetCardParams & {
-  modifier: ModifierState;
+  modifier: Omit<ModifierState, "props"> & Partial<Pick<ModifierState, "props">>;
 };
 
 export function findCard(game: GameState, card: Target) {
@@ -285,7 +285,7 @@ export const gameReducers = {
     const info = findCard(state, action.payload.target);
     if (info) {
       const { player, zone, index } = info;
-      state.players[player][zone][index].modifiers.push(action.payload.modifier);
+      state.players[player][zone][index].modifiers.push({ props: {}, ...action.payload.modifier });
     }
   },
 };
