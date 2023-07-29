@@ -17,6 +17,7 @@ const decks = JSON.parse(fs.readFileSync("./common/decks.json").toString());
 export default interface Player {
   id: string | null;
   name: string;
+  ai: boolean;
   init(): Promise<PlayerInit>;
   send(actions: HistoryAction[], name: string): void;
   cosmetic(id: string, cosmetic: CardCosmetic): void;
@@ -28,6 +29,7 @@ export default interface Player {
 export class SocketPlayer implements Player {
   callbacks: ((action: PlayerAction | "concede") => void)[] = [];
   actions: HistoryAction[] = [];
+  ai = false;
 
   constructor(
     public socket: NoirServerSocket,
@@ -102,6 +104,7 @@ export abstract class ComputerPlayer implements Player {
   timeout: boolean = true;
   cache: CardInfoCache = new LocalCardInfoCache();
   id = null;
+  ai = true;
 
   constructor(public player: PlayerId, public name: string) {}
 
