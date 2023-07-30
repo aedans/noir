@@ -11,7 +11,7 @@ exports.card = (util, cache, game, card) => ({
       value: 1,
     });
   },
-  activate: function* (){
+  activate: function* () {
     if (card.props.up == 1) {
       yield* util.setProp(cache, game, card, {
         target: card,

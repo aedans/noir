@@ -6,9 +6,9 @@ exports.card = (util, cache, game, card) => ({
   cost: { money: 7 },
   colors: [],
   keywords: [["disloyal"], ["protected"]],
-  activateCost: {agents: 1},
-  activate: function* (){
-    yield* util.setProp(cache,game,card, {target: card, name: "studying", value: true})
+  activateCost: { agents: 1 },
+  activate: function* () {
+    yield* util.setProp(cache, game, card, { target: card, name: "studying", value: true });
   },
   effectFilter: {
     players: [util.self(game, card)],
@@ -20,11 +20,10 @@ exports.card = (util, cache, game, card) => ({
       return {
         cost: { ...info.cost, money: info.cost.money - 3 },
         play: function* (target) {
-          yield* util.setProp(cache,game,card, {target: card, name: "studying", value: false});
+          yield* util.setProp(cache, game, card, { target: card, name: "studying", value: false });
           yield* info.play(target);
         },
       };
     }
   },
 });
-

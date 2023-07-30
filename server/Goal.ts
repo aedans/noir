@@ -109,7 +109,6 @@ export const activateCard =
   };
 
 export const random: Goal = (cache: CardInfoCache, game: GameState, player: PlayerId) => {
-  
   const random = Math.random();
   if (random > 0.5) {
     const deckCards = util.filter(cache, game, {

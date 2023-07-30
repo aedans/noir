@@ -7,11 +7,11 @@ exports.card = (util, cache, game, card) => ({
   colors: ["green"],
   onRemove: function* () {
     const cartas = util.filter(cache, game, {
-      players: [util.self(game,card)],
-      zones: ["deck"]
+      players: [util.self(game, card)],
+      zones: ["deck"],
     });
     const radom = util.randoms(cartas, 1);
-    yield* util.modifyCard(cache,game,card, {
+    yield* util.modifyCard(cache, game, card, {
       target: radom[0],
       modifier: {
         card,
@@ -22,7 +22,7 @@ exports.card = (util, cache, game, card) => ({
   modifiers: {
     cheaper: (info, modifier, card) => ({
       cost: { ...info.cost, money: info.cost.money - 4 },
-      keywords: [["debt", 2]]
-    })
-  }
+      keywords: [["debt", 2]],
+    }),
+  },
 });

@@ -20,7 +20,7 @@ export type MissionName =
 export type Difficulty = 1 | 2;
 
 export const missions: { [T in MissionName]: (playerId: PlayerId, difficulty: Difficulty) => MissionPlayer } = {
-  "Random": (player, difficulty) => new Random(player, difficulty),
+  Random: (player, difficulty) => new Random(player, difficulty),
   "Random Citizens": (player, difficulty) => new RandomCitizens(player, difficulty),
   "Daphril the Dauntless": (player, difficulty) => new Daphril(player, difficulty),
   "Civic Proceedings": (player, difficulty) => new CivicProceedings(player, difficulty),

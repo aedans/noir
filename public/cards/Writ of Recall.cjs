@@ -6,7 +6,7 @@ exports.card = (util, cache, game, card) => ({
   cost: { money: 3, agents: 1 },
   targets: {
     types: ["agent", "operation"],
-    zones: ["board"]
+    zones: ["board"],
   },
   play: function* (target) {
     yield* util.bounceCard(cache, game, card, { target });

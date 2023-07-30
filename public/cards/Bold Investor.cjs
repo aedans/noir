@@ -5,7 +5,7 @@ exports.card = (util, cache, game, card) => ({
   text: "Activate this and exhaust a green agent: gain $12. Remove this.",
   cost: { money: 8 },
   colors: ["green"],
-  activateCost: {agents: 1},
+  activateCost: { agents: 1 },
   activate: function* () {
     yield* util.addMoney(cache, game, card, {
       player: util.currentPlayer(game),

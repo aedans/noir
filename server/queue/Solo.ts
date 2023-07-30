@@ -31,7 +31,7 @@ export default class Solo implements Queue {
       if (!isValid) {
         return;
       }
-      
+
       const replays = await replayCollection();
       replays.insertOne({
         timestamp: new Date(),

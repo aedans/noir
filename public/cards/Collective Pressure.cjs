@@ -7,7 +7,7 @@ exports.card = (util, cache, game, card) => ({
   colors: ["orange"],
   targets: {
     players: [util.opponent(game, card)],
-    types: ["agent"]
+    types: ["agent"],
   },
   play: function* (target) {
     yield* util.modifyCard(cache, game, card, {

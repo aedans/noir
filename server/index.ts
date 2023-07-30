@@ -97,7 +97,7 @@ if (process.env.AUTH0_SECRET) {
       issuerBaseURL: "https://dev-risee24h3navjxas.us.auth0.com",
       secret: process.env.AUTH0_SECRET ?? "",
     })
-  );  
+  );
 }
 
 app.use(

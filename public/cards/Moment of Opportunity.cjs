@@ -6,7 +6,7 @@ exports.card = (util, cache, game, card) => ({
   type: "operation",
   targets: {
     types: ["agent"],
-    zones: ["board","deck"]
+    zones: ["board", "deck"],
   },
   play: function* (target) {
     yield* util.removeCard(cache, game, card, { target });

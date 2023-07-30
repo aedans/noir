@@ -17,7 +17,9 @@ exports.card = (util, cache, game, card) => ({
     });
     const index = game.history.findIndex((action) => action.type == "game/endTurn");
     const actions = game.history.slice(0, index);
-    const removals = actions.filter((action) => action.type == "game/removeCard").length + actions.filter((action) => action.type == "game/stealCard").length;
+    const removals =
+      actions.filter((action) => action.type == "game/removeCard").length +
+      actions.filter((action) => action.type == "game/stealCard").length;
     yield* util.addMoney(cache, game, card, {
       player: util.self(game, card),
       money: 3 + 3 * removals,

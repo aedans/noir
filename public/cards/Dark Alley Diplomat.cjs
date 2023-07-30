@@ -4,24 +4,24 @@ exports.card = (util, cache, game, card) => ({
   type: "agent",
   text: "This is all colors. When this is activated to pay for a colored card, remove that color from this.",
   cost: { money: 5 },
-  colors: card.props.colors ?? ["green", "blue", "orange","purple"],
+  colors: card.props.colors ?? ["green", "blue", "orange", "purple"],
   keywords: [["disloyal"]],
-  onPlay: function*(){
+  onPlay: function* () {
     yield* util.setProp(cache, game, card, {
       target: card,
       name: "colors",
-      value: ["green","orange","blue","purple"],
-    })
+      value: ["green", "orange", "blue", "purple"],
+    });
   },
-  onExhaust: function*(action){
-    if(action.source){
-      const remcol = util.getCard(game, action.source)
-      const remcoll = cache.getCardInfo(game, remcol).colors
-      yield* util.setProp(cache,game,card, {
+  onExhaust: function* (action) {
+    if (action.source) {
+      const remcol = util.getCard(game, action.source);
+      const remcoll = cache.getCardInfo(game, remcol).colors;
+      yield* util.setProp(cache, game, card, {
         target: card,
         name: "colors",
-        value: card.props.colors.filter((jeb) => jeb != remcoll)
-      })
+        value: card.props.colors.filter((jeb) => jeb != remcoll),
+      });
     }
-  }
+  },
 });

@@ -7,11 +7,12 @@ exports.card = (util, cache, game, card) => ({
   cost: {
     money:
       24 -
-      2*util.filter(cache, game, {
-        zones: ["board", "deck"],
-        players: [util.opponent(game, card)],
-        hidden: false,
-      }).length,
+      2 *
+        util.filter(cache, game, {
+          zones: ["board", "deck"],
+          players: [util.opponent(game, card)],
+          hidden: false,
+        }).length,
   },
   effectFilter: {
     players: [util.opponent(game, card)],
@@ -22,12 +23,14 @@ exports.card = (util, cache, game, card) => ({
     return {
       onReveal: function* () {
         const nombre = util.getCard(game, affectedCard).name;
-        if(util.currentPlayer(game) == util.self(game,card)){yield* util.addCard(cache, game, card, {
-          target: util.cid(),
-          name: nombre,
-          player: util.currentPlayer(game),
-          zone: "deck",
-        })};
+        if (util.currentPlayer(game) == util.self(game, card)) {
+          yield* util.addCard(cache, game, card, {
+            target: util.cid(),
+            name: nombre,
+            player: util.currentPlayer(game),
+            zone: "deck",
+          });
+        }
       },
     };
   },

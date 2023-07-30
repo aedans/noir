@@ -8,7 +8,7 @@ exports.card = (util, cache, game, card) => ({
   colors: ["purple"],
   activateTargets: {
     zones: ["deck"],
-    players: [util.opponent(game,card)]
+    players: [util.opponent(game, card)],
   },
   activateCost: { agents: 2 },
   activate: function* (target) {

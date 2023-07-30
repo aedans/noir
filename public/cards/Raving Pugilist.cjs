@@ -22,7 +22,7 @@ exports.card = (util, cache, game, card) => ({
       ) {
         const cards = util.filter(cache, game, {
           hidden: false,
-          zones: ["board","deck"],
+          zones: ["board", "deck"],
           players: [util.opponent(game, card)],
           types: ["agent"],
         });

@@ -5,8 +5,8 @@ exports.card = (util, cache, game, card) => ({
   type: "agent",
   cost: { money: 5 },
   keywords: [["disloyal"], ["protected"]],
-  activateCost: { agents: 1},
-  activate: function*(){
+  activateCost: { agents: 1 },
+  activate: function* () {
     yield* util.addMoney(cache, game, card, {
       player: util.currentPlayer(game),
       money: 1,

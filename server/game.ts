@@ -32,7 +32,7 @@ export type OnGameEnd = (
   players: [Player, Player],
   inits: [PlayerInit, PlayerInit],
   state: HistoryState,
-  isValid: boolean,
+  isValid: boolean
 ) => void;
 
 function* doEndTurn(cache: CardInfoCache, game: GameState): CardGenerator {

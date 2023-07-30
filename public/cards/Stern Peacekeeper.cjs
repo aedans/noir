@@ -8,11 +8,11 @@ exports.card = (util, cache, game, card) => ({
   effectFilter: {
     players: [util.opponent(game, card)],
     zones: ["deck"],
-    types: ["agent"]
+    types: ["agent"],
   },
-  activateCost: {agents: 2},
-  activate: function* (){
-    yield* util.setProp(cache,game,card, {target: card, name: "onPatrol", value: true})
+  activateCost: { agents: 2 },
+  activate: function* () {
+    yield* util.setProp(cache, game, card, { target: card, name: "onPatrol", value: true });
   },
   effect: (info, state) => {
     if (card.props.onPatrol == true) {

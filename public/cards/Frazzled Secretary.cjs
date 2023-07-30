@@ -8,7 +8,7 @@ exports.card = (util, cache, game, card) => ({
   turn: function* () {
     yield* util.setProp(cache, game, card, { target: card, name: "processingPaperwork", value: undefined });
   },
-  activateCost: {agents: 1},
+  activateCost: { agents: 1 },
   activate: function* () {
     yield* util.setProp(cache, game, card, { target: card, name: "processingPaperwork", value: true });
   },

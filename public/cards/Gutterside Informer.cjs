@@ -5,7 +5,7 @@ exports.card = (util, cache, game, card) => ({
   type: "agent",
   cost: { money: 8 },
   colors: ["purple"],
-  activateCost: {agents: 1},
+  activateCost: { agents: 1 },
   activate: function* () {
     const cards = util.filter(cache, game, {
       hidden: true,
@@ -16,7 +16,7 @@ exports.card = (util, cache, game, card) => ({
     });
 
     if (cards.length > 0) {
-      yield* util.revealCard(cache, game, card, { target: cards[0] })
+      yield* util.revealCard(cache, game, card, { target: cards[0] });
       yield* util.revealCard(cache, game, card, { target: cards[1] });
     }
   },

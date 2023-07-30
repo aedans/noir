@@ -17,7 +17,7 @@ exports.card = (util, cache, game, card) => ({
   },
   modifiers: {
     expensive: (info, modifier, card) => ({
-      cost: { ...info.cost, money: info.cost.money * 2 }
+      cost: { ...info.cost, money: info.cost.money * 2 },
     }),
   },
 });

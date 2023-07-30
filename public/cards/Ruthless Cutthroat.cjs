@@ -11,7 +11,7 @@ exports.card = (util, cache, game, card) => ({
     types: ["agent"],
     players: [util.opponent(game, card)],
   },
-  activateCost: {agents: 1},
+  activateCost: { agents: 1 },
   activate: function* (target) {
     const cards = util.filter(cache, game, {
       players: [util.self(game, card)],
