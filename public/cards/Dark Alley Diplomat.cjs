@@ -13,34 +13,42 @@ exports.card = (util, cache, game, card) => ({
       value: ["green", "orange", "blue", "purple"],
     });
   },
-  onExhaust: function* (action) {
-    if (action.source) {
-      const remcol = util.getCard(game, action.source);
-      const remcoll = cache.getCardInfo(game, remcol).colors;
+  turn: function*(){
+    if(card.props.colortemp){
       yield* util.setProp(cache, game, card, {
         target: card,
         name: "colors",
-        value: card.props.colors.filter((jeb) => jeb != remcoll),
+        value: card.props.colortemp,
+      });
+      yield* util.setProp(cache, game, card, {
+        target: card,
+        name: "colortemp",
+        value: null,
       });
     }
   },
-  /* copypasted from bearer of lanterns 
   effectFilter: {
     players: [util.self(game, card)],
     zones: ["deck"],
-    types: ["operation"],
   },
-  effect: (info, state) => {
-    if (card.props.lit == true) {
-      return {
-        onPlay: function* (action) {
-          yield* info.onPlay(action);
-          const numberToReveal = cache.getCardInfo(game, state).colors.includes("blue") ? 2 : 1;
-          yield* util.revealRandom(cache, game, card, numberToReveal);
-          yield* util.setProp(cache, game, card, { target: card, name: "lit", value: false });
-        },
-      };
-    }
+  effect: (affectedInfo, affectedCard) => {
+    return {
+      onPlay: function* () {
+        const remcol = util.getCard(game, affectedCard)
+        const remcoll = cache.getCardInfo(game, remcol).colors;
+        if(card.props.colortemp){
+          yield* util.setProp(cache, game, card, {
+            target: card,
+            name: "colortemp",
+            value: card.props.colortemp.filter((jeb) => jeb != remcoll),
+          });
+        }else{
+        yield* util.setProp(cache, game, card, {
+          target: card,
+          name: "colortemp",
+          value: card.props.colors.filter((jeb) => jeb != remcoll),
+        })};
+      },
+    };
   },
-  */
 });
