@@ -13,8 +13,8 @@ exports.card = (util, cache, game, card) => ({
       value: ["green", "orange", "blue", "purple"],
     });
   },
-  turn: function*(){
-    if(card.props.colortemp){
+  turn: function* () {
+    if (card.props.colortemp) {
       yield* util.setProp(cache, game, card, {
         target: card,
         name: "colors",
@@ -34,20 +34,21 @@ exports.card = (util, cache, game, card) => ({
   effect: (affectedInfo, affectedCard) => {
     return {
       onPlay: function* () {
-        const remcol = util.getCard(game, affectedCard)
+        const remcol = util.getCard(game, affectedCard);
         const remcoll = cache.getCardInfo(game, remcol).colors;
-        if(card.props.colortemp){
+        if (card.props.colortemp) {
           yield* util.setProp(cache, game, card, {
             target: card,
             name: "colortemp",
             value: card.props.colortemp.filter((jeb) => jeb != remcoll),
           });
-        }else{
-        yield* util.setProp(cache, game, card, {
-          target: card,
-          name: "colortemp",
-          value: card.props.colors.filter((jeb) => jeb != remcoll),
-        })};
+        } else {
+          yield* util.setProp(cache, game, card, {
+            target: card,
+            name: "colortemp",
+            value: card.props.colors.filter((jeb) => jeb != remcoll),
+          });
+        }
       },
     };
   },

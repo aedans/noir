@@ -6,14 +6,16 @@ exports.card = (util, cache, game, card) => ({
   cost: { money: 8 },
   colors: ["green"],
   activateCost: { agents: 1 },
-  turn: function*(){
-    if(card.props.bold === true){yield* util.removeCard(cache, game, card, { target: card })};
+  turn: function* () {
+    if (card.props.bold === true) {
+      yield* util.removeCard(cache, game, card, { target: card });
+    }
   },
   activate: function* () {
     yield* util.addMoney(cache, game, card, {
       player: util.currentPlayer(game),
       money: 12,
     });
-    yield* util.setProp(cache, game, card, {target: card, name: "bold", value: true})
+    yield* util.setProp(cache, game, card, { target: card, name: "bold", value: true });
   },
 });
