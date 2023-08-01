@@ -33,7 +33,8 @@ exports.card = (util, cache, game, card) => ({
   },
   effect: (affectedInfo, affectedCard) => {
     return {
-      onPlay: function* () {
+      onPlay: function* (action) {
+        yield* affectedInfo.onPlay(action);
         const remcol = util.getCard(game, affectedCard);
         const remcoll = cache.getCardInfo(game, remcol).colors;
         if (card.props.colortemp) {
