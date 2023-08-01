@@ -3,7 +3,7 @@
 exports.card = (util, cache, game, card) => ({
   type: "agent",
   text: "Activate this, exhaust two blue agents: remove an agent.",
-  cost: { money: 14 },
+  cost: { money: 13 },
   colors: ["blue"],
   keywords: [["protected"]],
   activateCost: { agents: 2 },

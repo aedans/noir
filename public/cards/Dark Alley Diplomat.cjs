@@ -2,7 +2,7 @@
 /** @type {import("../../common/card").PartialCardInfoComputation} */
 exports.card = (util, cache, game, card) => ({
   type: "agent",
-  text: "This is all colors. When this is activated to pay for a colored card, remove that color from this.",
+  text: "This is all colors. When you play a card, this loses that card's colors at the end of your turn.",
   cost: { money: 5 },
   colors: card.props.colors ?? ["green", "blue", "orange", "purple"],
   keywords: [["disloyal"]],
@@ -24,4 +24,23 @@ exports.card = (util, cache, game, card) => ({
       });
     }
   },
+  /* copypasted from bearer of lanterns 
+  effectFilter: {
+    players: [util.self(game, card)],
+    zones: ["deck"],
+    types: ["operation"],
+  },
+  effect: (info, state) => {
+    if (card.props.lit == true) {
+      return {
+        onPlay: function* (action) {
+          yield* info.onPlay(action);
+          const numberToReveal = cache.getCardInfo(game, state).colors.includes("blue") ? 2 : 1;
+          yield* util.revealRandom(cache, game, card, numberToReveal);
+          yield* util.setProp(cache, game, card, { target: card, name: "lit", value: false });
+        },
+      };
+    }
+  },
+  */
 });
