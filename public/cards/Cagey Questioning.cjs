@@ -36,7 +36,6 @@ exports.card = (util, cache, game, card) => ({
     investigated: (info, modifier, investigatedCard) => ({
       onPlay: function* (action) {
         yield* info.onPlay(action);
-        console.log(modifier);
         yield* util.modifyCard(cache, game, card, {
           target: modifier.props.investigated,
           modifier: {
