@@ -5,7 +5,6 @@ import {
   activateCard,
   afterTurn,
   afterWait,
-  coloredAgents,
   eq,
   gt,
   playCard,
@@ -64,7 +63,7 @@ export default class IndustrialDesign extends MissionPlayer {
     activateCard("Bold Investor"),
     afterTurn(5, playCard("Careful Speculation")),
     playCard("Eager Salesman"),
-    seq(playCard("Company Salesman"), when(eq(0), "self", coloredAgents)),
+    seq(playCard("Company Salesman"), when(eq(0), "self", { names: ["Eager Salesman"] })),
     seq(
       playCard("Bodyguard"),
       when(eq(0), "self", { zones: ["board"], types: ["agent"], disloyal: false }),

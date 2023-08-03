@@ -218,8 +218,6 @@ export const whenRevealLeft = when(lt(20), "opponent", { hidden: false });
 export const whenNotInPlay = (name: string, goal: Goal) =>
   when(eq(0), "self", { names: [name], zones: ["board"] })(goal);
 
-export const coloredAgents: Filter = { zones: ["board"], types: ["agent"], colors: ["purple"], activatable: false };
-
 export const basicAgents = (colors: CardColor[]): Filter => ({
   colors,
   zones: ["board"],

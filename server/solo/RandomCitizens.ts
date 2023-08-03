@@ -43,6 +43,7 @@ export default class RandomCitizens extends MissionPlayer {
     activateCard("Arms Dealer", {}, true),
     // Value
     playCard("Local Socialite"),
+    activateCard("Local Socialite"),
     playCard("Random Citizen"),
     playCard("Eager Employer"),
     // Interaction

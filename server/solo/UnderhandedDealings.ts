@@ -4,7 +4,6 @@ import {
   Goal,
   activateCard,
   basicAgents,
-  coloredAgents,
   eq,
   gt,
   lt,
