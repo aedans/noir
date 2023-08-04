@@ -3,11 +3,13 @@ import { MissionName, missions } from "./server/Mission.js";
 import Player from "./server/Player.js";
 import { createGame } from "./server/game.js";
 
-const ais: ((player: PlayerId) => Player)[] = Object.keys(missions).map((name) => (player) => {
-  const result = missions[name as MissionName](player, name == "Random Citizens" ? 2 : 1);
-  result.timeout = false;
-  return result;
-});
+const ais: ((player: PlayerId) => Player)[] = Object.keys(missions)
+  .filter((x) => x != "Random")
+  .flatMap((name) => (player) => {
+    const result = missions[name as MissionName](player, name == "Random Citizens" ? 2 : 1);
+    result.timeout = false;
+    return result;
+  });
 
 async function results() {
   const records: {

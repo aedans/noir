@@ -1,5 +1,5 @@
 import { CardColor, CardState } from "../common/card.js";
-import { GameState, PlayerId, opponentOf } from "../common/gameSlice.js";
+import { GameAction, GameState, PlayerId, opponentOf } from "../common/gameSlice.js";
 import { PlayerAction } from "../common/network.js";
 import util, { Filter, isEqual } from "../common/util.js";
 import CardInfoCache from "../common/CardInfoCache.js";
@@ -194,12 +194,12 @@ export const afterWait =
       : null;
   };
 
-export const onRemovalTurn =
-  (goal: Goal): Goal =>
+export const whenActionTurn =
+  (types: GameAction["type"][], goal: Goal): Goal =>
   (cache: CardInfoCache, game: GameState, player: PlayerId, state: GoalState) => {
     const index = game.history.findIndex((action) => action.type == "game/endTurn");
     const actions = game.history.slice(0, index);
-    const removals = actions.filter((action) => action.type == "game/removeCard").length;
+    const removals = actions.filter((action) => types.includes(action.type)).length;
     return removals > 0 ? goal(cache, game, player, state) : null;
   };
 
@@ -218,11 +218,10 @@ export const whenRevealLeft = when(lt(20), "opponent", { hidden: false });
 export const whenNotInPlay = (name: string, goal: Goal) =>
   when(eq(0), "self", { names: [name], zones: ["board"] })(goal);
 
-export const basicAgents = (colors: CardColor[]): Filter => ({
+export const agents = (colors: CardColor[]): Filter => ({
   colors,
   zones: ["board"],
   types: ["agent"],
-  hasActivate: false,
 });
 
 export function lt(number: number) {
