@@ -1,4 +1,4 @@
-import { Deck } from "../../common/decksSlice.js";
+import { Deck } from "../../common/decks.js";
 import { PlayerId } from "../../common/gameSlice.js";
 import { Goal, activateCard, gt, playCard, seq, when, whenRevealLeft } from "../Goal.js";
 import { Difficulty } from "../Mission.js";

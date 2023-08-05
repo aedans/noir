@@ -411,7 +411,7 @@ export default React.memo(
       );
 
     return (
-      <Container pivot={[cardWidth / 2, cardHeight / 2]} filters={[glowFilterRef.current, dimFilterRef.current]}>
+      <Container pivot={[cardWidth / 2, cardHeight / 2]} filters={[dimFilterRef.current, glowFilterRef.current]}>
         <Rectangle fill={0xffffff} width={cardWidth - 20} height={cardHeight - 40} x={10} y={12} ref={colorRef} />
         <Sprite width={cardWidth - 55} height={cardHeight / 2 - 40} x={30} y={60} texture={imageTexture} />
         <Sprite width={cardWidth} height={cardHeight} texture={borderTexture} />

@@ -1,7 +1,7 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { TypedUseSelectorHook, useDispatch, useSelector } from "react-redux";
 import { historySlice } from "../common/historySlice";
-import { decksSlice } from "../common/decksSlice";
+import { decksSlice } from "./decksSlice";
 
 export const store = configureStore({
   reducer: {

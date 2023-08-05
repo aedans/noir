@@ -2,7 +2,7 @@ import { Server, Socket as ServerSocket } from "socket.io";
 import { Socket as ClientSocket } from "socket.io-client";
 import { QueueName } from "../server/Queue.js";
 import { CardCosmetic, Target } from "./card.js";
-import { Deck } from "./decksSlice.js";
+import { Deck } from "../common/decks.js";
 import { PlayerId, Winner } from "./gameSlice.js";
 import { HistoryAction } from "./historySlice.js";
 export type { NoirRouter } from "../server/index.js";

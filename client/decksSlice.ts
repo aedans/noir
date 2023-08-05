@@ -1,12 +1,9 @@
 import * as toolkitRaw from "@reduxjs/toolkit";
 const { createSlice } = ((toolkitRaw as any).default ?? toolkitRaw) as typeof toolkitRaw;
 
-import defaultDecks from "./decks.json" assert { type: "json" };
 import { PayloadAction } from "@reduxjs/toolkit";
-
-export type Deck = {
-  cards: { [name: string]: number };
-};
+import { Deck } from "../common/decks.js";
+import { defaultDecks } from "../common/decks";
 
 export type DecksState = { [name: string]: Deck };
 

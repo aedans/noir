@@ -4,7 +4,7 @@ import RemoteCardInfoCache, { isLoaded, trpc } from "../cards.js";
 import Grid from "./Grid.js";
 import { useClientDispatch, useClientSelector } from "../store.js";
 import { defaultCardState } from "../../common/gameSlice.js";
-import { addDeckCard, removeDeckCard } from "../../common/decksSlice.js";
+import { addDeckCard, removeDeckCard } from "../decksSlice.js";
 import { targetResolution } from "../Camera.js";
 import Rectangle from "../Rectangle.js";
 import { MoveAnimationContext, MoveAnimationState } from "../animation.js";

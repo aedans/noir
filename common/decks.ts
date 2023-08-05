@@ -1,11 +1,15 @@
-{
-  "Custom": {
-    "cards": {
-      "Random Citizen": 2
-    }
+export type Deck = {
+  cards: { [name: string]: number };
+};
+
+export const defaultDecks = {
+  Custom: {
+    cards: {
+      "Random Citizen": 2,
+    },
   },
-  "Green": {
-    "cards": {
+  Green: {
+    cards: {
       "Brief Investigation": 1,
       "Induce Avarice": 1,
       "Information Dealer": 1,
@@ -22,32 +26,32 @@
       "Bold Investor": 1,
       "Flaunting Aristocrat": 1,
       "Tantalizing Offer": 2,
-      "Charismatic Industrialist": 1
-    }
+      "Charismatic Industrialist": 1,
+    },
   },
-  "Orange": {
-    "cards": {
+  Orange: {
+    cards: {
       "Local Socialite": 1,
       "Eager Employer": 1,
       "Rogue Reporter": 1,
       "Arms Dealer": 1,
       "Gang Up": 2,
       "Ill-fated Operative": 1,
-      "Coerce": 2,
-      "Outnumber": 1,
+      Coerce: 2,
+      Outnumber: 1,
       "The Truth, at Any Cost": 1,
       "Meandering Cynic": 2,
       "Smokestack Guide": 1,
-      "Borrow": 1,
+      Borrow: 1,
       "Raving Pugilist": 2,
       "Dues Collector": 1,
       "Take Arms": 1,
-      "Alarm Raiser": 1
-    }
+      "Alarm Raiser": 1,
+    },
   },
-  "Blue": {
-    "cards": {
-      "Detain": 2,
+  Blue: {
+    cards: {
+      Detain: 2,
       "Gang Up": 1,
       "Induce Avarice": 1,
       "Local Socialite": 1,
@@ -62,18 +66,18 @@
       "Bearer of Lanterns": 1,
       "Contraband Confiscator": 1,
       "Stern Peacekeeper": 1,
-      "Prolific Jailer": 2
-    }
+      "Prolific Jailer": 2,
+    },
   },
-  "Purple": {
-    "cards": {
+  Purple: {
+    cards: {
       "Sinister Deal": 2,
       "Local Merchant": 1,
-      "Frame": 1,
-      "Subterfuge": 1,
+      Frame: 1,
+      Subterfuge: 1,
       "Pilfered Intelligence": 2,
       "Examine the Bodies": 1,
-      "Entice": 1,
+      Entice: 1,
       "Shifty Operative": 1,
       "Strike Down": 1,
       "Bad Deal": 1,
@@ -82,7 +86,7 @@
       "Gutterside Informer": 1,
       "Undercity Tavernkeep": 1,
       "Partner in Crime": 1,
-      "Ruthless Cutthroat": 2
-    }
-  }
-}
+      "Ruthless Cutthroat": 2,
+    },
+  },
+};

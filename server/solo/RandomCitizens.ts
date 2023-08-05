@@ -1,4 +1,4 @@
-import { Deck } from "../../common/decksSlice.js";
+import { Deck } from "../../common/decks.js";
 import { PlayerId } from "../../common/gameSlice.js";
 import { Goal, activateCard, afterTurn, afterWait, playCard, whenRevealLeft } from "../Goal.js";
 import { Difficulty } from "../Mission.js";
@@ -43,6 +43,7 @@ export default class RandomCitizens extends MissionPlayer {
     activateCard("Arms Dealer", {}, true),
     // Value
     playCard("Local Socialite"),
+    activateCard("Local Socialite"),
     playCard("Random Citizen"),
     playCard("Eager Employer"),
     // Interaction

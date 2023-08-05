@@ -10,7 +10,7 @@ import {
 import { HistoryAction } from "./historySlice.js";
 import { Filter, Util } from "./util.js";
 import CardInfoCache from "./CardInfoCache.js";
-import { Deck } from "./decksSlice.js";
+import { Deck } from "../common/decks.js";
 
 export type CardStateInfo = {
   state: CardState;
