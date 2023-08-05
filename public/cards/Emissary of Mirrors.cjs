@@ -9,7 +9,6 @@ exports.card = (util, cache, game, card) => ({
       24 -
       2 *
         util.filter(cache, game, {
-          zones: ["board", "deck"],
           players: [util.opponent(game, card)],
           hidden: false,
         }).length,
@@ -17,7 +16,6 @@ exports.card = (util, cache, game, card) => ({
   effectFilter: {
     players: [util.opponent(game, card)],
     hidden: true,
-    zones: ["board", "deck"],
   },
   effect: (affectedInfo, affectedCard) => {
     return {
