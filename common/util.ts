@@ -300,7 +300,7 @@ export function tryPayCost(
     } else if (prepared.some((card) => card.id == b.id)) {
       return 1;
     } else {
-      return cache.getCardInfo(game, b).activationPriority - cache.getCardInfo(game, a).activationPriority;
+      return -cache.getCardInfo(game, b).colors.length - -cache.getCardInfo(game, a).colors.length;
     }
   });
 
@@ -503,7 +503,15 @@ function* onEndTurn(this: Util, cache: CardInfoCache, game: GameState, payload: 
       yield* this.activateCard(cache, game, card, { target: card });
     }
 
-    if (card && card.props.departing > 0) {
+    const minDepart = cache.getCardInfo(game, card).keywords
+      .filter((k): k is ["depart", number] => k[0] == "depart")
+      .reduce((a, b) => Math.min(a, b[1]), 1000);
+
+    if (minDepart < 1000 && (card.props.departing ?? 1000) >= minDepart) {
+      yield setProp({ target: card, name: "departing", value: minDepart - 1 });
+    }
+
+    if (card.props.departing > 0) {
       yield setProp({
         target: card,
         name: "departing",
@@ -511,7 +519,7 @@ function* onEndTurn(this: Util, cache: CardInfoCache, game: GameState, payload: 
       });
 
       if (card.props.departing <= 1) {
-        yield removeCard({ source: card, target: card });
+        yield* this.removeCard(cache, game, card, { target: card });
       }
     }
 
@@ -544,12 +552,6 @@ function* onAdd(info: CardInfo, payload: AddCardParams): CardGenerator {
   if (info.keywords.some((k) => k[0] == "protected")) {
     yield setProp({ target: payload.target, name: "protected", value: true });
   }
-}
-
-function* onExhaust(info: CardInfo, game: GameState, payload: TargetCardParams): CardGenerator {
-  const state = getCard(game, payload.target);
-
-  yield* info.onExhaust(payload);
 }
 
 function* onReveal(info: CardInfo, game: GameState, payload: TargetCardParams): CardGenerator {
@@ -585,14 +587,6 @@ function* onPlayCard(
   const totalDelay = info.keywords.filter((k): k is ["delay", number] => k[0] == "delay").reduce((a, b) => a + b[1], 0);
   if (totalDelay > 0) {
     yield setProp({ target: payload.target, name: "delayed", value: totalDelay });
-  }
-
-  const minDepart = info.keywords
-    .filter((k): k is ["depart", number] => k[0] == "depart")
-    .reduce((a, b) => Math.min(a, b[1]), 1000);
-
-  if (minDepart < 1000) {
-    yield setProp({ target: payload.target, name: "departing", value: minDepart });
   }
 
   if (info.keywords.some((k) => k[0] == "debt")) {
@@ -703,9 +697,7 @@ const util = {
     triggerReveal(info, game, (p) => onReveal(info, game, p))
   ),
   refreshCard: onTrigger<TargetCardParams>(refreshCard, (info, game) => triggerReveal(info, game, info.onRefresh)),
-  exhaustCard: onTrigger<TargetCardParams>(exhaustCard, (info, game) =>
-    triggerReveal(info, game, (p) => onExhaust(info, game, p))
-  ),
+  exhaustCard: onTrigger<TargetCardParams>(exhaustCard, (info, game) => triggerReveal(info, game, info.onExhaust)),
   setProp: onTrigger<SetPropParams>(setProp, (info, game) => triggerReveal(info, game, info.onSetProp)),
   modifyCard: onTrigger<ModifyCardParams>(modifyCard, (info, game) => triggerReveal(info, game, info.onModify)),
   addMoney: onTrigger<ChangeMoneyParams>(addMoney, (info, game) =>
