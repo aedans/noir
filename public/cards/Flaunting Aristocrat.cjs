@@ -25,6 +25,5 @@ exports.card = (util, cache, game, card) => ({
         });
       }
     }
-    yield* util.setProp(cache, game, card, { target: card, name: "Payments", value: card.props.Payments + 1 });
   },
 });
