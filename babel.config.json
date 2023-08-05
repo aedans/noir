@@ -1,0 +1,11 @@
+{
+  "plugins": [
+    [
+      "@babel/plugin-syntax-import-attributes",
+      {
+        "deprecatedAssertSyntax": true
+      }
+    ],
+    "@babel/plugin-transform-typescript"
+  ]
+}

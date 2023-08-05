@@ -1,4 +1,4 @@
-import { Deck } from "../../common/decksSlice.js";
+import { Deck } from "../../common/decks.js";
 import { PlayerId } from "../../common/gameSlice.js";
 import util from "../../common/util.js";
 import { random } from "../Goal.js";

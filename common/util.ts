@@ -54,7 +54,7 @@ import {
 } from "./gameSlice.js";
 import { historySlice, SetUndoneParams } from "./historySlice.js";
 import CardInfoCache from "./CardInfoCache.js";
-import { Deck } from "./decksSlice.js";
+import { Deck } from "../common/decks.js";
 
 export type Filter = {
   excludes?: Target[];

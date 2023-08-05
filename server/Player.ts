@@ -1,7 +1,6 @@
-import { Deck } from "../common/decksSlice.js";
+import { Deck } from "../common/decks.js";
 import { PlayerId, Winner, currentPlayer } from "../common/gameSlice.js";
 import { HistoryAction, batch, historySlice } from "../common/historySlice.js";
-import fs from "fs";
 import { random } from "../common/util.js";
 import { PlayerInit, PlayerAction, NoirServerSocket } from "../common/network.js";
 import { HistoryState } from "../common/historySlice.js";
@@ -11,8 +10,7 @@ import { Difficulty, MissionName } from "./Mission.js";
 import CardInfoCache from "../common/CardInfoCache.js";
 import LocalCardInfoCache from "./LocalCardInfoCache.js";
 import { CardCosmetic } from "../common/card.js";
-
-const decks = JSON.parse(fs.readFileSync("./common/decks.json").toString());
+import { defaultDecks } from "../common/decks.js";
 
 export default interface Player {
   id: string | null;
@@ -168,7 +166,7 @@ export abstract class ComputerPlayer implements Player {
 export class TestPlayer extends ComputerPlayer {
   name = "Unit";
 
-  deck = decks[random(["Green", "Blue", "Orange", "Purple"])] as Deck;
+  deck = defaultDecks[random(["Green", "Blue", "Orange", "Purple"])] as Deck;
 
   goals = [];
 }
