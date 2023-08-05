@@ -4,12 +4,9 @@ import {
   Goal,
   activateCard,
   agents,
-  eq,
-  gt,
   lt,
   whenActionTurn,
   playCard,
-  seq,
   when,
   whenNotInPlay,
   whenRevealLeft,
@@ -30,8 +27,8 @@ export default class UnderhandedDealings extends MissionPlayer {
       // Value
       "Crispy Dollar": 2,
       "Sinister Deal": 2,
-      "Shifty Operative": 2,
-      "New Hire": 4,
+      "Shifty Operative": 3,
+      "New Hire": 3,
       // Interaction
       "Bad Deal": 2,
       Entice: 2,
