@@ -79,7 +79,6 @@ export type CardInfo = {
   activateTargets?: Filter;
   activate: CardTargetAction;
   hasActivate: boolean;
-  activationPriority: number;
   turn: CardAction;
   hasEffect: boolean;
   effectFilter: Filter;
@@ -158,12 +157,6 @@ export function runPartialCardInfoComputation(
   };
 
   const hasActivate = partial.hasActivate ?? partial.activate != undefined;
-  let activationPriority = partial.activationPriority ?? 40;
-
-  if (partial.colors && partial.colors.length > 0) {
-    activationPriority -= partial.colors.length * 10;
-  }
-
   const hasEffect = partial.hasEffect ?? partial.effect != undefined;
   const hasSecondaryEffect = partial.hasSecondaryEffect ?? partial.secondaryEffect != undefined;
 
@@ -179,7 +172,6 @@ export function runPartialCardInfoComputation(
     activateTargets: partial.activateTargets,
     activate: partial.activate ?? function* () {},
     hasActivate: hasActivate,
-    activationPriority,
     turn: partial.turn ?? function* () {},
     hasEffect,
     effect: partial.effect ?? (() => ({})),

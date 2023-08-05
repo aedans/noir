@@ -300,7 +300,7 @@ export function tryPayCost(
     } else if (prepared.some((card) => card.id == b.id)) {
       return 1;
     } else {
-      return cache.getCardInfo(game, b).activationPriority - cache.getCardInfo(game, a).activationPriority;
+      return -cache.getCardInfo(game, b).colors.length - -cache.getCardInfo(game, a).colors.length;
     }
   });
 

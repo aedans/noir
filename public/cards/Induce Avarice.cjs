@@ -21,7 +21,6 @@ exports.card = (util, cache, game, card) => ({
   modifiers: {
     avaricious: (info, modifier, card) => ({
       text: `${info.text} Whenever this is activated, you lose $2.`,
-      activationPriority: info.activationPriority - 2000,
       onActivate: function* () {
         yield* util.removeMoney(cache, game, card, {
           player: util.findCard(game, card).player,
