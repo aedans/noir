@@ -13,13 +13,15 @@ export default function OpponentBoard() {
   const board = useClientSelector((state) => state.game.current.players[opponentOf(player)].board);
   const cards = useCardInfoList(board, [board]);
 
-  const x = (targetResolution.width - cards.length * (cardWidth + 10)) / 2 + cardWidth / 2;
+  const scale = Math.min(1, 8 / cards.length);
+  const scaledCardWidth = scale * cardWidth;
+  const x = (targetResolution.width - cards.length * (scaledCardWidth + 10)) / 2 + scaledCardWidth / 2;
   const y = targetResolution.height * (1 / 4) + cardHeight / 2;
 
   return (
     <>
       {cards.map(({ state, info }, i) => (
-        <GameCard info={info} state={state} key={state.id} x={x + i * (cardWidth + 10)} y={y} shouldDimWhenExhausted />
+        <GameCard info={info} state={state} key={state.id} x={x + i * (scaledCardWidth + 10)} y={y} shouldDimWhenExhausted />
       ))}
     </>
   );
