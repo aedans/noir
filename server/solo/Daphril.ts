@@ -58,9 +58,11 @@ export default class Daphril extends MissionPlayer {
     // Value
     playCard("Crispy Dollar"),
     playCard("Local Merchant"),
+    activateCard("Local Merchant"),
     playCard("Eager Employer"),
     activateCard("Eager Employer"),
     playCard("Banker"),
+    activateCard("Banker"),
     seq(
       playCard("Bodyguard"),
       when(eq(0), "self", { zones: ["board"], types: ["agent"], disloyal: false }),

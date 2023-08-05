@@ -8,8 +8,8 @@ exports.card = (util, cache, game, card) => ({
     agents: 1,
   },
   play: function* () {
-    yield* util.revealRandom(cache, game, card, 4, {
-      zones: ["deck"],
+    yield* util.revealRandom(cache, game, card, 6, {
+      zones: ["board"],
     });
   },
 });

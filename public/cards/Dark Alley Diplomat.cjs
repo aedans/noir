@@ -2,7 +2,7 @@
 /** @type {import("../../common/card").PartialCardInfoComputation} */
 exports.card = (util, cache, game, card) => ({
   type: "agent",
-  text: "This is all colors. When this is activated to pay for a colored card, remove that color from this.",
+  text: "This is all colors. When you play a card, this loses that card's colors at the end of your turn.",
   cost: { money: 5 },
   colors: card.props.colors ?? ["green", "blue", "orange", "purple"],
   keywords: [["disloyal"]],
@@ -13,15 +13,44 @@ exports.card = (util, cache, game, card) => ({
       value: ["green", "orange", "blue", "purple"],
     });
   },
-  onExhaust: function* (action) {
-    if (action.source) {
-      const remcol = util.getCard(game, action.source);
-      const remcoll = cache.getCardInfo(game, remcol).colors;
+  turn: function* () {
+    if (card.props.colortemp) {
       yield* util.setProp(cache, game, card, {
         target: card,
         name: "colors",
-        value: card.props.colors.filter((jeb) => jeb != remcoll),
+        value: card.props.colortemp,
+      });
+      yield* util.setProp(cache, game, card, {
+        target: card,
+        name: "colortemp",
+        value: null,
       });
     }
+  },
+  effectFilter: {
+    players: [util.self(game, card)],
+    zones: ["deck"],
+  },
+  effect: (affectedInfo, affectedCard) => {
+    return {
+      onPlay: function* (action) {
+        yield* affectedInfo.onPlay(action);
+        const remcol = util.getCard(game, affectedCard);
+        const remcoll = cache.getCardInfo(game, remcol).colors;
+        if (card.props.colortemp) {
+          yield* util.setProp(cache, game, card, {
+            target: card,
+            name: "colortemp",
+            value: card.props.colortemp.filter((jeb) => jeb != remcoll),
+          });
+        } else {
+          yield* util.setProp(cache, game, card, {
+            target: card,
+            name: "colortemp",
+            value: card.props.colors.filter((jeb) => jeb != remcoll),
+          });
+        }
+      },
+    };
   },
 });

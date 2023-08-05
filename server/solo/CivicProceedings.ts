@@ -5,8 +5,7 @@ import {
   activateCard,
   afterTurn,
   afterWait,
-  basicAgents,
-  eq,
+  agents,
   lt,
   playCard,
   when,
@@ -49,14 +48,13 @@ export default class CivicProceedings extends MissionPlayer {
   };
 
   goals: Goal[] = [
-    // Early Game
-    when(lt(1), "self", basicAgents(["blue"]))(playCard(["Aspiring Lawman", "Bearer of Lanterns"])),
     // Win
     playCard("Prolific Jailer"),
     activateCard("Prolific Jailer", { zones: ["board"], protected: false }, true),
     activateCard("Prolific Jailer", { zones: ["board"], vip: false }, true),
     activateCard("Prolific Jailer", {}, true),
     // Value
+    when(lt(1), "self", agents(["blue"]))(playCard(["Aspiring Lawman", "Bearer of Lanterns"])),
     playCard("Expedited Training"),
     playCard("Frazzled Secretary"),
     activateCard("Frazzled Secretary"),

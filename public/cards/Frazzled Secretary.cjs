@@ -2,7 +2,7 @@
 /** @type {import("../../common/card").PartialCardInfoComputation} */
 exports.card = (util, cache, game, card) => ({
   type: "agent",
-  text: "Activate this, exhaust a blue agent: your next agent costs $3 less and has Delay 1.",
+  text: "Activate this, exhaust a blue agent: your next agent costs $2 less and has Delay 1.",
   cost: { money: 6 },
   colors: ["blue"],
   turn: function* () {
@@ -20,7 +20,7 @@ exports.card = (util, cache, game, card) => ({
   effect: (affectedInfo, affectedCard) => {
     if (card.props.processingPaperwork == true) {
       return {
-        cost: { money: affectedInfo.cost.money - 3, agents: affectedInfo.cost.agents },
+        cost: { money: affectedInfo.cost.money - 2, agents: affectedInfo.cost.agents },
         keywords: [...affectedInfo.keywords, ["delay", 1]],
         play: function* (target) {
           yield* util.setProp(cache, game, card, { target: card, name: "processingPaperwork", value: undefined });
