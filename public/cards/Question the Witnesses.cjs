@@ -1,7 +1,7 @@
 // @ts-check
 /** @type {import("../../common/card").PartialCardInfoComputation} */
 exports.card = (util, cache, game, card) => ({
-  text: "Costs $1 less for each revealed agent. Reveal four cards in your opponent's deck.",
+  text: "Costs $1 less for each revealed agent. Reveal six of your opponent's cards.",
   type: "operation",
   cost: {
     money: 16 - util.filter(cache, game, { hidden: false, types: ["agent"], excludes: [card] }).length,
