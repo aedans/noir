@@ -57,7 +57,7 @@
     "client": "vite",
     "watch-tsc": "tsc --watch --noEmit",
     "gauntlet": "babel server --out-dir dist/server --extensions \".ts\" && babel common --out-dir dist/common --extensions \".ts\" && babel gauntlet.ts --out-dir dist --extensions \".ts\" && copyfiles public/cards/*.cjs dist && cd dist && node gauntlet.js",
-    "random": "ts-node --esm random.ts",
+    "random": "babel server --out-dir dist/server --extensions \".ts\" && babel common --out-dir dist/common --extensions \".ts\" && babel random.ts --out-dir dist --extensions \".ts\" && copyfiles public/cards/*.cjs dist && cd dist && node random.js",
     "build": "vite build",
     "dev": "concurrently --kill-others \"npm run watch-tsc\" \"npm run client\" \"npm run server\"",
     "format": "prettier --write \"**/*.{ts,js,cjs}\""
