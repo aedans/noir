@@ -1,9 +1,9 @@
 // @ts-check
 /** @type {import("../../common/card").PartialCardInfoComputation} */
 exports.card = (util, cache, game, card) => ({
-  text: "Every other turn: gain a Disloyal Civil Servant.",
+  text: "Every other turn: gain a Random Citizen. It becomes blue.",
   type: "agent",
-  cost: { money: 11 },
+  cost: { money: 10 },
   colors: ["blue"],
   onEnter: function* () {
     yield* util.setProp(cache, game, card, { target: card, name: "turns", value: 0 });
