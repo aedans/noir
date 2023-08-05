@@ -503,7 +503,15 @@ function* onEndTurn(this: Util, cache: CardInfoCache, game: GameState, payload: 
       yield* this.activateCard(cache, game, card, { target: card });
     }
 
-    if (card && card.props.departing > 0) {
+    const minDepart = cache.getCardInfo(game, card).keywords
+      .filter((k): k is ["depart", number] => k[0] == "depart")
+      .reduce((a, b) => Math.min(a, b[1]), 1000);
+
+    if (minDepart < 1000 && (card.props.departing ?? 1000) >= minDepart) {
+      yield setProp({ target: card, name: "departing", value: minDepart - 1 });
+    }
+
+    if (card.props.departing > 0) {
       yield setProp({
         target: card,
         name: "departing",
@@ -511,7 +519,7 @@ function* onEndTurn(this: Util, cache: CardInfoCache, game: GameState, payload: 
       });
 
       if (card.props.departing <= 1) {
-        yield removeCard({ source: card, target: card });
+        yield* this.removeCard(cache, game, card, { target: card });
       }
     }
 
@@ -579,14 +587,6 @@ function* onPlayCard(
   const totalDelay = info.keywords.filter((k): k is ["delay", number] => k[0] == "delay").reduce((a, b) => a + b[1], 0);
   if (totalDelay > 0) {
     yield setProp({ target: payload.target, name: "delayed", value: totalDelay });
-  }
-
-  const minDepart = info.keywords
-    .filter((k): k is ["depart", number] => k[0] == "depart")
-    .reduce((a, b) => Math.min(a, b[1]), 1000);
-
-  if (minDepart < 1000) {
-    yield setProp({ target: payload.target, name: "departing", value: minDepart });
   }
 
   if (info.keywords.some((k) => k[0] == "debt")) {
