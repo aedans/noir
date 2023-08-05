@@ -546,12 +546,6 @@ function* onAdd(info: CardInfo, payload: AddCardParams): CardGenerator {
   }
 }
 
-function* onExhaust(info: CardInfo, game: GameState, payload: TargetCardParams): CardGenerator {
-  const state = getCard(game, payload.target);
-
-  yield* info.onExhaust(payload);
-}
-
 function* onReveal(info: CardInfo, game: GameState, payload: TargetCardParams): CardGenerator {
   game = yield noop({});
   const state = getCard(game, payload.target);
@@ -703,9 +697,7 @@ const util = {
     triggerReveal(info, game, (p) => onReveal(info, game, p))
   ),
   refreshCard: onTrigger<TargetCardParams>(refreshCard, (info, game) => triggerReveal(info, game, info.onRefresh)),
-  exhaustCard: onTrigger<TargetCardParams>(exhaustCard, (info, game) =>
-    triggerReveal(info, game, (p) => onExhaust(info, game, p))
-  ),
+  exhaustCard: onTrigger<TargetCardParams>(exhaustCard, (info, game) => triggerReveal(info, game, info.onExhaust)),
   setProp: onTrigger<SetPropParams>(setProp, (info, game) => triggerReveal(info, game, info.onSetProp)),
   modifyCard: onTrigger<ModifyCardParams>(modifyCard, (info, game) => triggerReveal(info, game, info.onModify)),
   addMoney: onTrigger<ChangeMoneyParams>(addMoney, (info, game) =>
