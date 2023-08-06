@@ -1,6 +1,7 @@
 import React, { MutableRefObject, useContext, useEffect, useLayoutEffect } from "react";
 import { Container, Ticker } from "./pixi";
 import anime from "animejs";
+import { useTick } from "@pixi/react";
 
 export type MoveAnimationState = {
   x: number;
@@ -20,24 +21,16 @@ export function useMoveAnimation(
 ) {
   const state = useContext(MoveAnimationContext);
 
-  useEffect(() => {
-    function onTick() {
-      const container = props.componentRef.current;
-      if (container) {
-        state.current[id] = {
-          x: container.x,
-          y: container.y,
-          scale: container.transform.scale.x,
-        };
-      }
+  useTick(() => {
+    const container = props.componentRef.current;
+    if (container && state.current[id]) {
+      state.current[id] = {
+        x: container.x,
+        y: container.y,
+        scale: container.transform.scale.x,
+      };
     }
-
-    Ticker.shared.add(onTick);
-    return () => {
-      delete state.current[id];
-      Ticker.shared.remove(onTick);
-    };
-  }, []);
+  });
 
   useEffect(() => {
     const component = props.componentRef.current;
@@ -78,16 +71,7 @@ export function useMoveAnimation(
     }
   }, [props.scale]);
 
-  useLayoutEffect(() => {
-    const prev = state.current[id];
-    const container = props.componentRef.current;
-    if (prev && container && !props.skipPosition) {
-      container.position = prev;
-      container.scale = { x: prev.scale, y: prev.scale };
-    } else if (!props.skipScale) {
-      container.scale = { x: 0, y: 0 };
-    }
-  }, [props.x, props.y, props.scale]);
+  state.current[id] = state.current[id] ?? { x: props.x, y: props.y, scale: 0 };
 
-  return state.current[id] ?? { x: props.x, y: props.y, scale: props.scale };
+  return state.current[id];
 }

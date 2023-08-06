@@ -1,8 +1,8 @@
-import React, { MutableRefObject, Ref, useCallback, useImperativeHandle, useRef } from "react";
+import React, { MutableRefObject, Ref, useCallback, useContext, useImperativeHandle, useRef } from "react";
 import { Container } from "@pixi/react";
 import Card from "../Card.js";
 import { PixiContainer } from "../pixi.js";
-import { useMoveAnimation } from "../animation.js";
+import { MoveAnimationContext, useMoveAnimation } from "../animation.js";
 import { useClientDispatch } from "../store.js";
 import { removeDeckCard } from "../decksSlice.js";
 import { GameCardProps, isGameCardPropsEqual } from "../game/GameCard.js";
@@ -19,6 +19,7 @@ export default React.memo(
   React.forwardRef(function DeckCard(props: DeckCardProps, ref: Ref<PixiContainer>) {
     const dispatch = useClientDispatch();
     const componentRef = useRef() as MutableRefObject<PixiContainer>;
+    const context = useContext(MoveAnimationContext);
 
     const { x, y, scale } = useMoveAnimation(props.state.id, {
       componentRef,
@@ -31,7 +32,8 @@ export default React.memo(
 
     const pointerdown = useCallback(() => {
       dispatch(removeDeckCard({ deck: props.deckName, name: props.state.name }));
-    }, [props.deckName, props.state.name]);
+      delete context.current[props.state.id];
+    }, [props.state.id, props.deckName, props.state.name]);
 
     return (
       <Container {...props} interactive pointerdown={pointerdown} x={x} y={y} scale={scale} ref={componentRef}>
