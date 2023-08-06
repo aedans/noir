@@ -14,17 +14,13 @@ export const getTop = moize.promise(async (card: string): Promise<{ id: string; 
 
 export const getCosmetic = moize.promise(async (id: string | null, name: string): Promise<CardCosmetic> => {
   if (id == null) {
-    return { level: 0 };
+    return { level: 0, top: false };
   }
 
   const users = await userCollection();
-  // const top = await getTop(name);
-  // if (top.id == id) {
-  //   return { level: "top" };
-  // }
-
+  const top = await getTop(name);
   const user = await users.findOne({ _id: id });
   const exp = user?.experience[name] ?? 0;
   const level = exp < 10 ? 0 : exp < 50 ? 1 : exp < 250 ? 2 : 3;
-  return { level };
+  return { level, top: top.id == id };
 });

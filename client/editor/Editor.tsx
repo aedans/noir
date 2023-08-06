@@ -2,9 +2,8 @@ import React from "react";
 import { useEffect, useRef, useState } from "react";
 import RemoteCardInfoCache, { isLoaded, trpc } from "../cards.js";
 import Grid from "./Grid.js";
-import { useClientDispatch, useClientSelector } from "../store.js";
+import { useClientSelector } from "../store.js";
 import { defaultCardState } from "../../common/gameSlice.js";
-import { addDeckCard } from "../decksSlice.js";
 import { targetResolution } from "../Camera.js";
 import Rectangle from "../Rectangle.js";
 import { MoveAnimationContext, MoveAnimationState } from "../animation.js";
@@ -55,13 +54,9 @@ export default function Editor(props: { params: { deck: string } }) {
     : { errors: [], actualSize: 0, expectedSize: 20 };
 
   function getCosmetic(name: string): CardCosmetic {
-    // if (top.includes(name)) {
-    //   return { level: "top" };
-    // } else {
     const exp = user?.experience[name] ?? 0;
     const level = exp < 10 ? 0 : exp < 50 ? 1 : exp < 250 ? 2 : 3;
-    return { level };
-    // }
+    return { level, top: top.includes(name) };
   }
 
   useEffect(() => {

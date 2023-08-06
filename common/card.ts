@@ -34,7 +34,8 @@ export type CardState = {
 };
 
 export type CardCosmetic = {
-  level: 0 | 1 | 2 | 3 | "top";
+  level: 0 | 1 | 2 | 3;
+  top: boolean;
 };
 
 export const cardColors = ["orange", "blue", "green", "purple"] as const;
