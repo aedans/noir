@@ -109,7 +109,7 @@ export default function Editor(props: { params: { deck: string } }) {
         cosmetic={getCosmetic(data.name)}
         key={data.id}
         pointerdown={pointerdownAdd(data.name)}
-        interactive={areCardsLoaded}
+        interactive
         x={x + cardWidth / 2}
         y={y + cardHeight / 2}
       />
