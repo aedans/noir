@@ -34,6 +34,7 @@ export function useMoveAnimation(
 
     Ticker.shared.add(onTick);
     return () => {
+      delete state.current[id];
       Ticker.shared.remove(onTick);
     };
   }, []);
