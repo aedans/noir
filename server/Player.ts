@@ -27,6 +27,7 @@ export default interface Player {
 export class SocketPlayer implements Player {
   callbacks: ((action: PlayerAction | "concede") => void)[] = [];
   actions: HistoryAction[] = [];
+  cosmetics: [string, CardCosmetic][] = [];
   ai = false;
 
   constructor(
@@ -60,6 +61,10 @@ export class SocketPlayer implements Player {
     this.socket.emit("init", this.player, this.names);
     this.socket.emit("actions", this.actions, `player${this.player}/load`);
 
+    for (const [id, cosmetic] of this.cosmetics) {
+      this.socket.emit("cosmetic", id, cosmetic);
+    }
+
     return this;
   }
 
@@ -77,6 +82,7 @@ export class SocketPlayer implements Player {
 
   cosmetic(id: string, cosmetic: CardCosmetic): void {
     this.socket.emit("cosmetic", id, cosmetic);
+    this.cosmetics.push([id, cosmetic]);
   }
 
   error(message: string): void {

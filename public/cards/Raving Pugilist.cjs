@@ -9,9 +9,10 @@ exports.card = (util, cache, game, card) => ({
     yield* util.setProp(cache, game, card, { target: card, name: "turns", value: 0 });
   },
   turn: function* () {
-    yield* util.setProp(cache, game, card, { target: card, name: "turns", value: (card.props.turns + 1) % 2 });
+    if(card.props.turns){yield* util.setProp(cache, game, card, { target: card, name: "turns", value: (card.props.turns + 1) % 2 })}else(yield* util.setProp(cache,game,card, { target: card, name: "turns", value: 0}))
+    ;
 
-    if (card.props.turns == 0) {
+    if (card.props.turns == 1) {
       if (
         util.filter(cache, game, {
           hidden: false,

@@ -6,6 +6,7 @@ import { GameCardProps } from "./game/GameCard.js";
 import { useClientSelector } from "./store.js";
 import { CacheContext } from "./game/Game.js";
 import { isLoaded, loadCard } from "./cards.js";
+import { cards } from "../server/db.js";
 
 export type CardListProps = {
   x: number;
@@ -59,20 +60,20 @@ export function useCardInfoList(states: CardState[], deps: ReadonlyArray<unknown
 }
 
 export default React.memo(function CardList(props: CardListProps) {
-  const collapsedIndex = props.reversed ? 0 : props.cards.length;
+  const collapsedIndex = props.reversed ? 0 : 999;
   const [expandedIndex, setExpandedIndex] = useState(collapsedIndex);
-
-  useEffect(() => {
-    setExpandedIndex(collapsedIndex);
-  }, [props.cards.length]);
 
   const pointerover = useCallback(
     (index: number) => {
       if (props.expandOnHover) {
-        setExpandedIndex(index);
+        if (index >= props.cards.length) {
+          setExpandedIndex(collapsedIndex);
+        } else {
+          setExpandedIndex(index);
+        }
       }
     },
-    [props.expandOnHover]
+    [props.expandOnHover, props.cards.length, collapsedIndex]
   );
 
   const pointerout = useCallback(() => {

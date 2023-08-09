@@ -324,7 +324,8 @@ export async function createGame(players: [Player, Player], onEnd: OnGameEnd) {
           action.payload.target
         ) {
           const card = util.getCard(state.current, action.payload.target);
-          getCosmetic(players[player].id, card.name).then((cosmetic) => players[player].cosmetic(card.id, cosmetic));
+          const cardPlayer = util.findCard(state.current, card).player;
+          getCosmetic(players[cardPlayer].id, card.name).then((cosmetic) => players[player].cosmetic(card.id, cosmetic));
         }
       }
 
