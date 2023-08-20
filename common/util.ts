@@ -51,6 +51,9 @@ import {
   StealCardParams,
   defaultCardState,
   initialGameState,
+  addAgents,
+  removeAgents,
+  ChangeAgentsParams,
 } from "./gameSlice.js";
 import { historySlice, SetUndoneParams } from "./historySlice.js";
 import CardInfoCache from "./CardInfoCache.js";
@@ -137,7 +140,7 @@ export function filter(this: Util, cache: CardInfoCache, game: GameState, filter
       if (filter.playable != undefined && filter.playable) {
         f = f.filter((card) => {
           const info = cache.getCardInfo(game, card);
-          return this.canPayCost(cache, game, card, player, info.colors, info.cost, info.targets, []);
+          return this.canPayCost(cache, game, card, player, info.colors, info.cost, info.targets);
         });
       }
 
@@ -147,7 +150,7 @@ export function filter(this: Util, cache: CardInfoCache, game: GameState, filter
           return (
             !card.exhausted &&
             info.hasActivate &&
-            this.canPayCost(cache, game, card, player, info.colors, info.activateCost, info.activateTargets, [])
+            this.canPayCost(cache, game, card, player, info.colors, info.activateCost, info.activateTargets)
           );
         });
       }
@@ -271,41 +274,34 @@ export function tryPayCost(
   player: PlayerId,
   colors: CardColor[],
   cost: CardCost,
-  targets: Filter | undefined,
-  prepared: Target[]
-): string | { agents: CardState[]; money: number } {
+  targets: Filter | undefined
+): string | { agents: number; money: number } {
   if (cost.money > 0 && game.players[player].money < cost.money) {
     return `Not enough money to ${verb} ${name}`;
   }
 
-  const agents = this.filter(cache, game, {
-    players: [player],
+  if (cost.agents > 0 && game.players[player].agents < cost.agents) {
+    return `Not enough agents to ${verb} ${name}`;
+  }
+
+  const agents = util.filter(cache, game, {
     types: ["agent"],
+    players: [player],
     zones: ["board"],
     exhausted: false,
     colors,
   });
 
   if (agents.length < cost.agents) {
-    return `Not enough agents to ${verb} ${name}`;
+    return `Not enough colored agents to ${verb} ${name}`;
   }
 
   if (targets != undefined && this.getTargets(cache, game, card, targets).length == 0) {
     return `No valid targets for ${name}`;
   }
 
-  agents.sort((a, b) => {
-    if (prepared.some((card) => card.id == a.id)) {
-      return -1;
-    } else if (prepared.some((card) => card.id == b.id)) {
-      return 1;
-    } else {
-      return -cache.getCardInfo(game, b).colors.length - -cache.getCardInfo(game, a).colors.length;
-    }
-  });
-
   return {
-    agents: agents.slice(0, cost.agents),
+    agents: cost.agents,
     money: cost.money,
   };
 }
@@ -318,12 +314,9 @@ export function canPayCost(
   player: PlayerId,
   colors: CardColor[],
   cost: CardCost,
-  targets: Filter | undefined,
-  prepared: Target[]
+  targets: Filter | undefined
 ) {
-  return (
-    typeof this.tryPayCost(cache, game, card, "play", card.name, player, colors, cost, targets, prepared) != "string"
-  );
+  return typeof this.tryPayCost(cache, game, card, "play", card.name, player, colors, cost, targets) != "string";
 }
 
 export function* revealRandom(
@@ -503,8 +496,9 @@ function* onEndTurn(this: Util, cache: CardInfoCache, game: GameState, payload: 
       yield* this.activateCard(cache, game, card, { target: card });
     }
 
-    const minDepart = cache.getCardInfo(game, card).keywords
-      .filter((k): k is ["depart", number] => k[0] == "depart")
+    const minDepart = cache
+      .getCardInfo(game, card)
+      .keywords.filter((k): k is ["depart", number] => k[0] == "depart")
       .reduce((a, b) => Math.min(a, b[1]), 1000);
 
     if (minDepart < 1000 && (card.props.departing ?? 1000) >= minDepart) {
@@ -704,6 +698,12 @@ const util = {
     triggerReveal(info, game, undefined, (p) => p.player)
   ),
   removeMoney: onTrigger<ChangeMoneyParams>(removeMoney, (info, game) =>
+    triggerReveal(info, game, undefined, (p) => p.player)
+  ),
+  addAgents: onTrigger<ChangeAgentsParams>(addAgents, (info, game) =>
+    triggerReveal(info, game, undefined, (p) => p.player)
+  ),
+  removeAgents: onTrigger<ChangeAgentsParams>(removeAgents, (info, game) =>
     triggerReveal(info, game, undefined, (p) => p.player)
   ),
   findCard: findCard as (game: GameState, card: Target) => { player: PlayerId; zone: Zone; index: number },

@@ -11,7 +11,7 @@ import { useDrop } from "react-dnd";
 import { Container } from "@pixi/react";
 import { CardColors, CardState } from "../../common/card.js";
 import Card, { CardProps, combineColors, isCardPropsEqual } from "../Card.js";
-import { CacheContext, ConnectionContext, CosmeticContext, HighlightContext, PreparedContext } from "./Game.js";
+import { CacheContext, ConnectionContext, CosmeticContext, HighlightContext } from "./Game.js";
 import { getCard } from "../../common/gameSlice.js";
 import { useClientSelector } from "../store.js";
 import { hex } from "../color.js";
@@ -48,7 +48,6 @@ export default React.memo(
     const game = useClientSelector((state) => state.game.current);
     const cache = useContext(CacheContext);
     const connection = useContext(ConnectionContext);
-    const { prepared } = useContext(PreparedContext);
     const { highlight } = useContext(HighlightContext);
     const cosmetics = useContext(CosmeticContext);
     const componentRef = useRef() as MutableRefObject<PixiContainer>;
@@ -58,13 +57,13 @@ export default React.memo(
       () => ({
         accept: "target",
         drop: (state: CardState) => {
-          connection.emit({ type: "do", id: state.id, target: { id: props.state.id }, prepared });
+          connection.emit({ type: "do", id: state.id, target: { id: props.state.id } });
         },
         collect: (monitor) => ({
           isOver: monitor.isOver(),
         }),
       }),
-      [prepared]
+      []
     );
 
     useEffect(() => {
