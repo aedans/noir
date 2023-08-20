@@ -31,20 +31,6 @@ export const ConnectionContext = React.createContext({
   concede: () => {},
 });
 
-export const HoverContext = React.createContext(
-  {} as {
-    hover: Target[];
-    setHover: Dispatch<SetStateAction<Target[]>>;
-  }
-);
-
-export const PreparedContext = React.createContext(
-  {} as {
-    prepared: Target[];
-    setPrepared: Dispatch<SetStateAction<Target[]>>;
-  }
-);
-
 export const HighlightContext = React.createContext(
   {} as {
     highlight: Target[];
@@ -71,26 +57,22 @@ export default function Game(props: { message: string }) {
     <DndProvider backend={PIXIBackend(app)}>
       <CacheContext.Provider value={cache.current}>
         <MoveAnimationContext.Provider value={cards}>
-          <HoverContext.Provider value={{ hover, setHover }}>
-            <PreparedContext.Provider value={{ prepared, setPrepared }}>
-              <HighlightContext.Provider value={{ highlight, setHighlight }}>
-                <Container filters={[timeColorFilterRef.current]} sortableChildren>
-                  <Explanations />
-                  <Table />
-                  <OpponentBoard />
-                  <Board />
-                  <EndTurn />
-                  <Resources />
-                  <Concede />
-                  <OpponentGrave />
-                  <Grave />
-                  <OpponentHand />
-                  <HandAndDeck />
-                  <Message text={props.message} />
-                </Container>
-              </HighlightContext.Provider>
-            </PreparedContext.Provider>
-          </HoverContext.Provider>
+          <HighlightContext.Provider value={{ highlight, setHighlight }}>
+            <Container filters={[timeColorFilterRef.current]} sortableChildren>
+              <Explanations />
+              <Table />
+              <OpponentBoard />
+              <Board />
+              <EndTurn />
+              <Resources />
+              <Concede />
+              <OpponentGrave />
+              <Grave />
+              <OpponentHand />
+              <HandAndDeck />
+              <Message text={props.message} />
+            </Container>
+          </HighlightContext.Provider>
         </MoveAnimationContext.Provider>
       </CacheContext.Provider>
     </DndProvider>

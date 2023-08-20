@@ -9,6 +9,7 @@ import { PlayerContext } from "./Game.js";
 export default function Resources() {
   const player = useContext(PlayerContext);
   const money = useClientSelector((state) => state.game.current.players[player].money);
+  const agents = useClientSelector((state) => state.game.current.players[player].agents);
 
   const width = 400;
   const height = 100;
@@ -17,7 +18,7 @@ export default function Resources() {
 
   return (
     <Container x={x} y={y}>
-      <Text x={40} y={5} text={"Money: " + money} style={{ fontSize: 100, tint: 0xffffff }} />
+      <Text x={40} y={5} text={`Money: ${money}\nAgents: ${agents}`} style={{ fontSize: 100, tint: 0xffffff }} />
     </Container>
   );
 }

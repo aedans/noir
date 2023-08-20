@@ -13,6 +13,7 @@ export type Winner = PlayerId | "draw";
 
 export type PlayerState = { [zone in Zone]: CardState[] } & {
   money: number;
+  agents: number;
 };
 
 export type GameState = {
@@ -32,12 +33,14 @@ export function initialGameState(): GameState {
     players: [
       {
         money: 5,
+        agents: 0,
         deck: [],
         board: [],
         grave: [],
       },
       {
         money: 6,
+        agents: 0,
         deck: [],
         board: [],
         grave: [],
@@ -58,6 +61,7 @@ export type GameParams = Partial<TargetCardParams> &
     | StealCardParams
     | SetPropParams
     | ChangeMoneyParams
+    | ChangeAgentsParams
     | ModifyCardParams
   );
 
@@ -93,6 +97,11 @@ export type SetPropParams = TargetCardParams & {
 export type ChangeMoneyParams = {
   player: PlayerId;
   money: number;
+};
+
+export type ChangeAgentsParams = {
+  player: PlayerId;
+  agents: number;
 };
 
 export type ModifyCardParams = TargetCardParams & {
@@ -183,6 +192,7 @@ export const gameReducers = {
   },
   endTurn: (state: GameState, action: PayloadAction<NoActionParams>) => {
     state.history.unshift(action as GameAction);
+    state.players[currentPlayer(state)].agents = 0;
     state.turn++;
   },
   addCard: (state: GameState, action: PayloadAction<AddCardParams>) => {
@@ -280,6 +290,14 @@ export const gameReducers = {
     state.history.unshift(action as GameAction);
     state.players[action.payload.player].money -= Math.max(0, action.payload.money);
   },
+  addAgents: (state: GameState, action: PayloadAction<ChangeAgentsParams>) => {
+    state.history.unshift(action as GameAction);
+    state.players[action.payload.player].agents += Math.max(0, action.payload.agents);
+  },
+  removeAgents: (state: GameState, action: PayloadAction<ChangeAgentsParams>) => {
+    state.history.unshift(action as GameAction);
+    state.players[action.payload.player].agents -= Math.max(0, action.payload.agents);
+  },
   modifyCard: (state: GameState, action: PayloadAction<ModifyCardParams>) => {
     state.history.unshift(action as GameAction);
     const info = findCard(state, action.payload.target);
@@ -312,5 +330,7 @@ export const {
   setProp,
   addMoney,
   removeMoney,
+  addAgents,
+  removeAgents,
   modifyCard,
 } = gameSlice.actions;
