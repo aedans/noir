@@ -18,9 +18,9 @@ export default class StrengthInNumbers extends MissionPlayer {
       // Value
       "Dues Collector": 1,
       "Local Socialite": 1,
-      "Meandering Cynic": 2,
+      "Cut-rate Contractor": 2,
       "Ill-fated Operative": 2,
-      "Alarm Raiser": 2,
+      "Gismo Inspector": 2,
       // Interaction
       "Gang Up": 2,
       "Compelled Resignation": 2,
@@ -55,9 +55,9 @@ export default class StrengthInNumbers extends MissionPlayer {
     playCard("Dues Collector"),
     activateCard("Dues Collector"),
     playCard("Local Socialite"),
-    playCard("Meandering Cynic"),
+    playCard("Cut-rate Contractor"),
     playCard("Ill-fated Operative"),
-    playCard("Alarm Raiser"),
+    playCard("Gismo Inspector"),
     // Interaction
     playCard("Compelled Resignation", { zones: ["board"], maxMoney: 4 }, true),
     playCard("Gang Up", { zones: ["board"], protected: false, minMoney: 5 }, true),
