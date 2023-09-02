@@ -2,7 +2,7 @@
 /** @type {import("../../common/card").PartialCardInfoComputation} */
 exports.card = (util, cache, game, card) => ({
   type: "agent",
-  text: "Activate this, exhaust an agent: remove the highest cost card each in your opponent's deck and board.",
+  text: "Activate this, [1]: remove the highest cost card each in your opponent's deck and board.",
   cost: { money: 36 },
   keywords: [["vip"], ["protected"]],
   activateCost: { agents: 1 },

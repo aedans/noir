@@ -2,8 +2,8 @@
 /** @type {import("../../common/card").PartialCardInfoComputation} */
 exports.card = (util, cache, game, card) => ({
   type: "agent",
-  text: "Activate this, exhaust a green agent: give a card in a player's deck Debt 3. If it's in your deck, also reduce that card's cost by 3.",
-  cost: { money: 10 },
+  text: "Activate this, [G]: give a card in a player's deck Debt 4. If it's in your deck, also reduce that card's cost by 4.",
+  cost: { money: 10, agents: 1 },
   colors: ["green"],
   activateTargets: {
     zones: ["deck"],
@@ -32,11 +32,11 @@ exports.card = (util, cache, game, card) => ({
   },
   modifiers: {
     mydebt: (info, modifier, card) => ({
-      keywords: [["debt", 3], ...info.keywords],
-      cost: { money: info.cost.money - 3, agents: info.cost.agents },
+      keywords: [["debt", 4], ...info.keywords],
+      cost: { money: info.cost.money - 4, agents: info.cost.agents },
     }),
     yourdebt: (info, modifier, card) => ({
-      keywords: [["debt", 3], ...info.keywords],
+      keywords: [["debt", 4], ...info.keywords],
     }),
   },
 });
