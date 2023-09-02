@@ -1,7 +1,7 @@
 // @ts-check
 /** @type {import("../../common/card").PartialCardInfoComputation} */
 exports.card = (util, cache, game, card) => ({
-  text: "Activate this, exhaust two green agents: reveal a card from your opponent's deck. This doubles for each use.",
+  text: "Activate this, [G][G]: reveal a card from your opponent's deck. This doubles for each use.",
   type: "agent",
   cost: { money: 12 },
   colors: ["green"],

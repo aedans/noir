@@ -159,8 +159,7 @@ export function filter(this: Util, cache: CardInfoCache, game: GameState, filter
         f = f.filter((card) => cache.getCardInfo(game, card).hasActivate == filter.hasActivate!);
       }
 
-      for (const keyword of cardKeywords) {
-        var name = keyword()[0];
+      for (const name of Object.keys(cardKeywords)) {
         if (filter[name] != undefined) {
           f = f.filter((card) => cache.getCardInfo(game, card).keywords.some((k) => k[0] == name) == filter[name]!);
         }

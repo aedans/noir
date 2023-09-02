@@ -8,6 +8,7 @@
     "@pixi/filter-drop-shadow": "^5.2.0",
     "@pixi/filter-glow": "^5.2.1",
     "@pixi/react": "^7.1.0",
+    "@pixi/react-animated": "^7.1.1",
     "@reduxjs/toolkit": "^1.9.0",
     "@trpc/client": "^10.33.0",
     "@trpc/server": "^10.33.0",

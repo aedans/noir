@@ -7,7 +7,7 @@ export interface Explanation {
   id: string;
   text: string;
   requirements: string[];
-  relevantCards(cache: CardInfoCache, game: GameState, player: PlayerId): Target[];
+  relevantCards(cache: CardInfoCache, game: GameState, player: PlayerId, all?: boolean): Target[];
 }
 
 const baseRequirements = ["hand", "money", "reveal", "agents", "operations", "win", "revealed", "revealSelf"];
@@ -26,15 +26,15 @@ class KeywordExplanation implements Explanation {
     public opponent: boolean = true
   ) {}
 
-  relevantCards(cache: CardInfoCache, game: GameState, player: PlayerId): Target[] {
+  relevantCards(cache: CardInfoCache, game: GameState, player: PlayerId, all = false): Target[] {
     const cards: Target[] = [];
 
-    if (this.you) {
+    if (this.you || all) {
       cards.push(
         ...util.filter(cache, game, {
           players: [player],
           zones: ["deck"],
-          playable: true,
+          playable: all ? undefined : true,
           text: this.keyword,
         })
       );
@@ -48,11 +48,10 @@ class KeywordExplanation implements Explanation {
       );
     }
 
-    if (this.opponent) {
+    if (this.opponent || all) {
       cards.push(
         ...util.filter(cache, game, {
           players: [opponentOf(player)],
-          hidden: false,
           text: this.keyword,
         })
       );
@@ -70,6 +69,16 @@ class SituationExplanation implements Explanation {
     public relevantCards: Explanation["relevantCards"]
   ) {}
 }
+
+export const keywordExplanations = [
+  new KeywordExplanation("protected", "Protected agents prevent the first time they would be removed", false, true),
+  new KeywordExplanation("disloyal", "Disloyal agents don't prevent you from losing the game", true, false),
+  new KeywordExplanation("vip", "VIP agents cannot be targeted as long as you have a loyal agent on board"),
+  new KeywordExplanation("delay", "Delay agents remain exhausted for X turns after being played"),
+  new KeywordExplanation("debt", "Debt cards subtract $X money two turns after being played"),
+  new KeywordExplanation("depart", "Depart agents are removed after X turns in play"),
+  new KeywordExplanation("tribute", "Tribute cards remove the lowest cost card in your deck when played"),
+];
 
 export const explanations = [
   new SituationExplanation(
@@ -140,13 +149,6 @@ export const explanations = [
     (cache, game, player) =>
       util.filter(cache, game, { players: [player], zones: ["deck"], playable: true, text: "remove" })
   ),
-  new KeywordExplanation("protected", "Protected agents prevent the first time they would be removed", false, true),
-  new KeywordExplanation("disloyal", "Disloyal agents don't prevent you from losing", true, false),
-  new KeywordExplanation("vip", "VIP agents cannot be targeted as long as you have a loyal agent on board"),
-  new KeywordExplanation("delay", "Delay agents are exhausted or activated for X turns after being played"),
-  new KeywordExplanation("debt", "Debt cards remove X money two turns after being played"),
-  new KeywordExplanation("depart", "Depart agents are removed X turns after being played"),
-  new KeywordExplanation("tribute", "Tribute cards remove the lowest cost card in your deck when played"),
   new SituationExplanation(
     "revealPriority",
     "Reveal will prioritize your opponent's board, then deck, then grave",

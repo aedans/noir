@@ -1,9 +1,9 @@
 // @ts-check
 /** @type {import("../../common/card").PartialCardInfoComputation} */
 exports.card = (util, cache, game, card) => ({
-  text: "The next agent you play costs $6 less and gains Delay 1",
+  text: "The next agent you play costs $7 less and gains Delay 2",
   type: "operation",
-  cost: { money: 0, agents: 2 },
+  cost: { money: 0, agents: 1 },
   colors: ["blue"],
   onPlay: function* () {
     yield* util.enterCard(cache, game, card, { target: card });
@@ -15,8 +15,8 @@ exports.card = (util, cache, game, card) => ({
   },
   effect: (affectedInfo, affectedCard) => {
     return {
-      cost: { money: affectedInfo.cost.money - 6, agents: affectedInfo.cost.agents },
-      keywords: [...affectedInfo.keywords, ["delay", 1]],
+      cost: { money: affectedInfo.cost.money - 7, agents: affectedInfo.cost.agents },
+      keywords: [...affectedInfo.keywords, ["delay", 2]],
       play: function* (target) {
         yield* util.removeCard(cache, game, card, { target: card });
         yield* affectedInfo.play(target);

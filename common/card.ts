@@ -40,19 +40,20 @@ export type CardCosmetic = {
 
 export const cardColors = ["orange", "blue", "green", "purple"] as const;
 export const cardTypes = ["agent", "operation"] as const;
-export const cardKeywords = [
-  () => ["disloyal"] as const,
-  () => ["protected"] as const,
-  () => ["vip"] as const,
-  (n?: number) => ["delay", n ?? 0] as const,
-  (n?: number) => ["debt", n ?? 0] as const,
-  (n?: number) => ["depart", n ?? 0] as const,
-  (n?: CardType) => ["tribute", n ?? "card"] as const,
-] as const;
+export const cardKeywords = {
+  disloyal: () => ["disloyal"] as const,
+  protected: () => ["protected"] as const,
+  vip: () => ["vip"] as const,
+  delay: (n?: number) => ["delay", n ?? 0] as const,
+  debt: (n?: number) => ["debt", n ?? 0] as const,
+  depart: (n?: number) => ["depart", n ?? 0] as const,
+  tribute: (n?: CardType) => ["tribute", n ?? "card"] as const,
+ } as const;
 
 export type CardColor = (typeof cardColors)[number];
 export type CardType = (typeof cardTypes)[number];
-export type CardKeyword = ReturnType<(typeof cardKeywords)[number]>;
+export type CardKeywordName = keyof typeof cardKeywords;
+export type CardKeyword = ReturnType<(typeof cardKeywords)[CardKeywordName]>;
 export type CardColorFilter = CardColor | "any";
 export type CardColors = CardColor | "multicolor" | "colorless";
 
