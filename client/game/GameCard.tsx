@@ -1,6 +1,7 @@
 import React, {
   MutableRefObject,
   Ref,
+  useCallback,
   useContext,
   useEffect,
   useImperativeHandle,
@@ -11,7 +12,7 @@ import { useDrop } from "react-dnd";
 import { Container } from "@pixi/react";
 import { CardColors, CardState } from "../../common/card.js";
 import Card, { CardProps, combineColors, isCardPropsEqual } from "../Card.js";
-import { CacheContext, ConnectionContext, CosmeticContext, HighlightContext } from "./Game.js";
+import { CacheContext, ConnectionContext, CosmeticContext, HelpContext, HighlightContext } from "./Game.js";
 import { getCard } from "../../common/gameSlice.js";
 import { useClientSelector } from "../store.js";
 import { hex } from "../color.js";
@@ -50,6 +51,7 @@ export default React.memo(
     const connection = useContext(ConnectionContext);
     const { highlight } = useContext(HighlightContext);
     const cosmetics = useContext(CosmeticContext);
+    const { setHelp } = useContext(HelpContext);
     const componentRef = useRef() as MutableRefObject<PixiContainer>;
     useImperativeHandle(ref, () => componentRef.current);
 
@@ -68,7 +70,11 @@ export default React.memo(
 
     useEffect(() => {
       drop(componentRef);
-    });
+
+      return () => {
+        onmouseout();
+      };
+    }, []);
 
     useLayoutEffect(() => {
       (componentRef.current as any).convertTo3d?.();
@@ -107,8 +113,32 @@ export default React.memo(
       scale: (props.scale ?? 1) * (shouldHighlight ? 1.1 : 1),
     });
 
+    let isMousedOver = false;
+
+    const onmouseover = useCallback(() => {
+      isMousedOver = true;
+      setTimeout(() => {
+        if (isMousedOver) {
+          setHelp(props.state);
+        }
+      }, 500);
+    }, []);
+
+    const onmouseout = useCallback(() => {
+      isMousedOver = false;
+      setHelp(null);
+    }, []);
+
     return (
-      <Container {...props} x={x} y={y} scale={scale} ref={componentRef}>
+      <Container
+        {...props}
+        x={x}
+        y={y}
+        scale={scale}
+        onmouseover={onmouseover}
+        onmouseout={onmouseout}
+        ref={componentRef}
+      >
         <Card
           state={props.state}
           info={props.info}

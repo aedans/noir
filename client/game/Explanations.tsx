@@ -1,18 +1,22 @@
 import React, { useLayoutEffect } from "react";
 import { Dispatch, MutableRefObject, SetStateAction, useContext, useEffect, useRef, useState } from "react";
-import { Explanation, explain, isExplained, setExplained } from "../explain.js";
+import { Explanation, explain, isExplained, keywordExplanations, setExplained } from "../explain.js";
 import { useClientSelector } from "../store.js";
-import { CacheContext, HighlightContext, PlayerContext } from "./Game.js";
+import { CacheContext, HelpContext, HighlightContext, PlayerContext } from "./Game.js";
 import Rectangle from "../Rectangle.js";
-import { Container } from "@pixi/react";
+import { Container } from "@pixi/react-animated";
+import { Spring } from "react-spring";
 import Text from "../Text.js";
 import { targetResolution } from "../Camera.js";
 import anime from "animejs";
 import { PixiContainer } from "../pixi.js";
+import { CardState } from "../../common/card.js";
 
 export type ExplanationProps = {
+  index: number;
   explanation: Explanation;
-  setExplanations: Dispatch<SetStateAction<Explanation[]>>;
+  setClickExplanations?: Dispatch<SetStateAction<Explanation[]>>;
+  help?: CardState | null;
 };
 
 export const explanationFontSize = 56;
@@ -28,19 +32,25 @@ export function ExplanationPopup(props: ExplanationProps) {
   const { setHighlight } = useContext(HighlightContext);
   const game = useClientSelector((state) => state.game.current);
   const relevantCards = props.explanation.relevantCards(cache, game, player);
+  const allRelevantCards = props.explanation.relevantCards(cache, game, player, true);
 
   useLayoutEffect(() => {
     ref.current.alpha = 0;
-  }, [])
+  }, []);
 
-  useEffect(() => {
+  function animateAlpha(alpha: number, complete: () => void = () => {}) {
     anime({
       targets: ref.current,
       duration: 300,
       easing: "linear",
-      alpha: 1,
+      alpha,
+      complete,
     });
-  }, [props.explanation.id]);
+  }
+
+  useEffect(() => {
+    animateAlpha(1);
+  }, []);
 
   function pointerover() {
     setHighlight((hs) => [...hs, ...relevantCards.filter((c) => !hs.find((h) => h.id == c.id))]);
@@ -51,64 +61,95 @@ export function ExplanationPopup(props: ExplanationProps) {
   }
 
   function pointerdown() {
-    setExplained(props.explanation);
     pointerout();
-    anime({
-      targets: ref.current,
-      duration: 300,
-      easing: "linear",
-      alpha: 0,
-      complete: () => {
-        props.setExplanations((es) => es.filter((e) => e.id != props.explanation.id));
-      },
+    animateAlpha(0, () => {
+      if (props.setClickExplanations) {
+        setExplained(props.explanation);
+        props.setClickExplanations((es) => es.filter((e) => e.id != props.explanation.id));
+      }
     });
   }
 
+  if (
+    typeof props.help != "undefined" &&
+    (props.help == null || !allRelevantCards.some((c) => c.id == props.help!.id))
+  ) {
+    animateAlpha(0);
+  }
+
+  if (props.help && allRelevantCards.some((c) => c.id == props.help!.id)) {
+    animateAlpha(1);
+  }
+
   return (
-    <Container
-      pointerover={pointerover}
-      pointerout={pointerout}
-      pointerdown={pointerdown}
-      interactive
-      ref={ref}
-    >
-      <Rectangle width={explanationWidth} height={explanationHeight} fill={0} />
-      <Rectangle
-        x={explanationBorder}
-        y={explanationBorder}
-        width={explanationWidth - explanationBorder * 2}
-        height={explanationHeight - explanationBorder * 2}
-        fill={0xffffff}
-      />
-      <Text
-        x={explanationMargin}
-        y={explanationMargin}
-        text={props.explanation.text}
-        style={{ fontSize: explanationFontSize, tint: 0, maxWidth: explanationWidth - explanationMargin * 2 }}
-      />
-    </Container>
+    <Spring to={{ y: props.index * (explanationHeight - explanationBorder) }} delay={300}>
+      {(p) => (
+        <Container
+          pointerover={pointerover}
+          pointerout={pointerout}
+          pointerdown={pointerdown}
+          interactive
+          {...p}
+          ref={ref}
+        >
+          <Rectangle width={explanationWidth} height={explanationHeight} fill={0} />
+          <Rectangle
+            x={explanationBorder}
+            y={explanationBorder}
+            width={explanationWidth - explanationBorder * 2}
+            height={explanationHeight - explanationBorder * 2}
+            fill={0xffffff}
+          />
+          <Text
+            x={explanationMargin}
+            y={explanationMargin}
+            text={props.explanation.text}
+            style={{ fontSize: explanationFontSize, tint: 0, maxWidth: explanationWidth - explanationMargin * 2 }}
+          />
+        </Container>
+      )}
+    </Spring>
   );
 }
 
 export default function Explanations() {
   const player = useContext(PlayerContext);
   const cache = useContext(CacheContext);
+  const { help } = useContext(HelpContext);
   const game = useClientSelector((state) => state.game);
-  const [explanations, setExplanations] = useState([] as Explanation[]);
+  const [clickExplanations, setClickExplanations] = useState([] as Explanation[]);
+  const [tempExplanations, setTempExplanations] = useState([] as Explanation[]);
 
   useEffect(() => {
     const newExplanations = explain(cache, game.current, player).filter((e) => !isExplained(e));
-    setExplanations((es) => [...es, ...newExplanations.filter((e1) => !es.find((e2) => e1.text == e2.text))]);
+    setClickExplanations((es) => [...es, ...newExplanations.filter((e1) => !es.find((e2) => e1.text == e2.text))]);
   }, [game]);
 
-  const explanation =
-    explanations.length > 0 ? (
-      <ExplanationPopup explanation={explanations[0]} setExplanations={setExplanations} />
-    ) : null;
+  useEffect(() => {
+    if (help != null) {
+      setTempExplanations(
+        keywordExplanations.filter((e) =>
+          e.relevantCards(cache, game.current, player, true).some((c) => c.id == help.id)
+        )
+      );
+    } else {
+      setTimeout(() => {
+        setTempExplanations([]);
+      }, 300);
+    }
+  }, [help]);
+
+  const clicks = clickExplanations.map((e, i) => (
+    <ExplanationPopup explanation={e} setClickExplanations={setClickExplanations} index={i} key={`click-${e.id}`} />
+  ));
+
+  const temps = tempExplanations.map((e, i) => (
+    <ExplanationPopup explanation={e} help={help} index={clickExplanations.length + i} key={`temp-${e.id}`} />
+  ));
 
   return (
     <Container x={targetResolution.width - explanationWidth} zIndex={10000}>
-      {explanation}
+      {[...clicks, ...temps]}
     </Container>
   );
 }

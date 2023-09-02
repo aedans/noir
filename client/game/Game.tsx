@@ -9,7 +9,7 @@ import OpponentBoard from "./OpponentBoard.js";
 import OpponentHand from "./OpponentHand.js";
 import Message from "./Message.js";
 import Grave from "./Grave.js";
-import { CardCosmetic, Target } from "../../common/card.js";
+import { CardCosmetic, CardState, Target } from "../../common/card.js";
 import HandAndDeck from "./HandAndDeck.js";
 import OpponentGrave from "./OpponentGrave.js";
 import { PlayerAction } from "../../common/network.js";
@@ -31,6 +31,11 @@ export const ConnectionContext = React.createContext({
   concede: () => {},
 });
 
+export const HelpContext = React.createContext({
+  setHelp: (_: CardState | null) => {},
+  help: null as null | CardState,
+});
+
 export const HighlightContext = React.createContext(
   {} as {
     highlight: Target[];
@@ -41,40 +46,40 @@ export const HighlightContext = React.createContext(
 export default function Game(props: { message: string }) {
   const app = useApp();
   const cache = useRef(new RemoteCardInfoCache() as CardInfoCache);
-  const [hover, setHover] = useState([] as Target[]);
-  const [prepared, setPrepared] = useState([] as Target[]);
   const [highlight, setHighlight] = useState([] as Target[]);
   const game = useClientSelector((state) => state.game.current);
   const cards = useRef({} as { [id: string]: MoveAnimationState });
   const timeColorFilterRef = useTimeColorFilter();
+  const [help, setHelp] = useState(null as CardState | null);
 
   useEffect(() => {
-    setPrepared([]);
     cache.current.reset();
   }, [game]);
 
   return (
     <DndProvider backend={PIXIBackend(app)}>
-      <CacheContext.Provider value={cache.current}>
-        <MoveAnimationContext.Provider value={cards}>
-          <HighlightContext.Provider value={{ highlight, setHighlight }}>
-            <Container filters={[timeColorFilterRef.current]} sortableChildren>
-              <Explanations />
-              <Table />
-              <OpponentBoard />
-              <Board />
-              <EndTurn />
-              <Resources />
-              <Concede />
-              <OpponentGrave />
-              <Grave />
-              <OpponentHand />
-              <HandAndDeck />
-              <Message text={props.message} />
-            </Container>
-          </HighlightContext.Provider>
-        </MoveAnimationContext.Provider>
-      </CacheContext.Provider>
+      <HelpContext.Provider value={{ help, setHelp }}>
+        <CacheContext.Provider value={cache.current}>
+          <MoveAnimationContext.Provider value={cards}>
+            <HighlightContext.Provider value={{ highlight, setHighlight }}>
+              <Container filters={[timeColorFilterRef.current]} sortableChildren>
+                <Table />
+                <OpponentBoard />
+                <Board />
+                <EndTurn />
+                <Resources />
+                <Concede />
+                <OpponentGrave />
+                <Grave />
+                <OpponentHand />
+                <HandAndDeck />
+                <Explanations />
+                <Message text={props.message} />
+              </Container>
+            </HighlightContext.Provider>
+          </MoveAnimationContext.Provider>
+        </CacheContext.Provider>
+      </HelpContext.Provider>
     </DndProvider>
   );
 }
