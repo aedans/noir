@@ -86,7 +86,7 @@ export const defaultDecks = {
       "Gutterside Informer": 1,
       "Undercity Tavernkeep": 1,
       "Partner in Crime": 1,
-      "Ruthless Cutthroat": 2,
+      "Problem Solver": 2,
     },
   },
 };

@@ -23,7 +23,7 @@ export default class StrengthInNumbers extends MissionPlayer {
       "Alarm Raiser": 2,
       // Interaction
       "Gang Up": 2,
-      "Collective Pressure": 2,
+      "Compelled Resignation": 2,
       // Reveal
       Coerce: 2,
       "Information Dealer": 2,
@@ -59,7 +59,7 @@ export default class StrengthInNumbers extends MissionPlayer {
     playCard("Ill-fated Operative"),
     playCard("Alarm Raiser"),
     // Interaction
-    playCard("Collective Pressure", { zones: ["board"], maxMoney: 4 }, true),
+    playCard("Compelled Resignation", { zones: ["board"], maxMoney: 4 }, true),
     playCard("Gang Up", { zones: ["board"], protected: false, minMoney: 5 }, true),
     // Reveal
     whenRevealLeft(playCard("Coerce")),

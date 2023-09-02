@@ -3,7 +3,7 @@
 exports.card = (util, cache, game, card) => ({
   text: "Every other turn: if your opponent has at least four revealed agents, remove one of them.",
   type: "agent",
-  cost: { money: 7 },
+  cost: { money: 8 },
   colors: ["orange"],
   onEnter: function* () {
     yield* util.setProp(cache, game, card, { target: card, name: "turns", value: 0 });
