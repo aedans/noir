@@ -23,7 +23,7 @@ export default class UnderhandedDealings extends MissionPlayer {
   deck1: Deck = {
     cards: {
       // Win
-      "Ruthless Cutthroat": 2,
+      "Problem Solver": 2,
       // Value
       "Crispy Dollar": 2,
       "Sinister Deal": 2,
@@ -52,10 +52,10 @@ export default class UnderhandedDealings extends MissionPlayer {
     // Early Game
     when(lt(2), "self", agents(["purple"]))(playCard(["Random Citizen", "Shifty Operative", "New Hire"])),
     // Win
-    playCard("Ruthless Cutthroat"),
-    activateCard("Ruthless Cutthroat", { zones: ["board"], protected: false }, true),
-    activateCard("Ruthless Cutthroat", { zones: ["board"], vip: false }, true),
-    activateCard("Ruthless Cutthroat", {}, true),
+    playCard("Problem Solver"),
+    activateCard("Problem Solver", { zones: ["board"], protected: false }, true),
+    activateCard("Problem Solver", { zones: ["board"], vip: false }, true),
+    activateCard("Problem Solver", {}, true),
     // Value
     playCard("Crispy Dollar"),
     when(lt(1), "self", agents(["purple"]))(playCard(["Shifty Operative", "New Hire"])),
