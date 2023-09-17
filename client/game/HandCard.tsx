@@ -1,13 +1,11 @@
 import React from "react";
-import { Ref, useRef, MutableRefObject, useState, useImperativeHandle, useEffect } from "react";
+import { Ref, useRef, MutableRefObject, useImperativeHandle, useEffect } from "react";
 import { useDrag } from "react-dnd";
-import { cardHeight } from "../Card.js";
-import GameCard, { GameCardProps } from "./GameCard.js";
+import GameCard, { GameCardProps, gameCardHeight, gameCardHeightDiff, gameCardScale } from "./GameCard.js";
 import { PixiContainer } from "../pixi.js";
 
 export default React.forwardRef(function HandCard(props: GameCardProps, ref: Ref<PixiContainer>) {
   const cardRef = useRef() as MutableRefObject<PixiContainer>;
-  const [zoom, setZoom] = useState(false);
 
   useImperativeHandle(ref, () => cardRef.current);
 
@@ -32,7 +30,7 @@ export default React.forwardRef(function HandCard(props: GameCardProps, ref: Ref
   });
 
   let x = props.x;
-  let y = zoom ? (props.y ?? 0) - cardHeight / 10 : props.y;
+  let y = props.y;
 
   if (cardRef.current && isDragging && globalPosition) {
     const position = cardRef.current.parent.toLocal({ x: globalPosition.x, y: globalPosition.y });
@@ -40,31 +38,8 @@ export default React.forwardRef(function HandCard(props: GameCardProps, ref: Ref
     y = position.y;
   }
 
-  function pointerover() {
-    if (!isDragging) {
-      setZoom(true);
-    }
-  }
-
-  function pointerout() {
-    if (!isDragging) {
-      setZoom(false);
-    }
-  }
-
-  const scale = zoom ? 1.2 : 1;
-
   const card = (
-    <GameCard
-      {...props}
-      x={x}
-      y={y}
-      scale={scale}
-      ref={cardRef}
-      interactive={!isDragging || !props.info.targets}
-      pointerover={pointerover}
-      pointerout={pointerout}
-    />
+    <GameCard {...props} x={x} y={y} ref={cardRef} zoomOffsetY={-gameCardHeightDiff} zIndex={isDragging ? 10000 : props.zIndex} />
   );
 
   return card;

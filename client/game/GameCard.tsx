@@ -7,11 +7,12 @@ import React, {
   useImperativeHandle,
   useLayoutEffect,
   useRef,
+  useState,
 } from "react";
 import { useDrop } from "react-dnd";
 import { Container } from "@pixi/react";
 import { CardColors, CardState } from "../../common/card.js";
-import Card, { CardProps, combineColors, isCardPropsEqual } from "../Card.js";
+import Card, { CardProps, cardHeight, cardWidth, combineColors, isCardPropsEqual } from "../Card.js";
 import { CacheContext, ConnectionContext, CosmeticContext, HelpContext, HighlightContext } from "./Game.js";
 import { getCard } from "../../common/gameSlice.js";
 import { useClientSelector } from "../store.js";
@@ -29,7 +30,16 @@ export type GameCardProps = CardProps &
     zIndex?: number;
     angle?: number;
     interactive?: boolean;
+    zoomOffsetX?: number;
+    zoomOffsetY?: number;
   };
+
+export const gameCardScale = 1;
+export const gameCardZoom = 1.2;
+export const gameCardWidth = cardWidth * gameCardScale;
+export const gameCardHeight = cardHeight * gameCardScale;
+export const gameCardWidthDiff = (gameCardWidth * (gameCardZoom - 1)) / 2
+export const gameCardHeightDiff = (gameCardHeight * (gameCardZoom - 1)) / 2
 
 export function isGameCardPropsEqual(a: GameCardProps, b: GameCardProps) {
   return (
@@ -53,6 +63,7 @@ export default React.memo(
     const cosmetics = useContext(CosmeticContext);
     const { setHelp } = useContext(HelpContext);
     const componentRef = useRef() as MutableRefObject<PixiContainer>;
+    const [zoom, setZoom] = useState(false);
     useImperativeHandle(ref, () => componentRef.current);
 
     const [{ isOver }, drop] = useDrop(
@@ -108,23 +119,25 @@ export default React.memo(
 
     const { x, y, scale } = useMoveAnimation(props.state.id, {
       componentRef,
-      x: props.x ?? 0,
-      y: props.y ?? 0,
-      scale: (props.scale ?? 1) * (shouldHighlight ? 1.1 : 1),
+      x: (props.x ?? 0) + (zoom ? props.zoomOffsetX ?? 0 : 0),
+      y: (props.y ?? 0) + (zoom ? props.zoomOffsetY ?? 0 : 0),
+      scale: (props.scale ?? 1) * (shouldHighlight ? 1.1 : 1) * gameCardScale * (zoom ? gameCardZoom : 1),
     });
 
     let isMousedOver = false;
 
     const onmouseover = useCallback(() => {
+      setZoom(true);
       isMousedOver = true;
       setTimeout(() => {
         if (isMousedOver) {
           setHelp(props.state);
         }
-      }, 500);
+      }, 1000);
     }, []);
 
     const onmouseout = useCallback(() => {
+      setZoom(false);
       isMousedOver = false;
       setHelp(null);
     }, []);
@@ -137,6 +150,7 @@ export default React.memo(
         scale={scale}
         onmouseover={onmouseover}
         onmouseout={onmouseout}
+        interactive
         ref={componentRef}
       >
         <Card

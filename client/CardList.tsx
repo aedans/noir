@@ -1,20 +1,21 @@
 import React, { ReactElement, useCallback, useContext, useEffect, useState } from "react";
 import { Container } from "@pixi/react";
 import { CardState, CardStateInfo } from "../common/card.js";
-import { cardHeight, cardWidth, isCardInfoEqual, isCardStateEqual } from "./Card.js";
+import { isCardInfoEqual, isCardStateEqual } from "./Card.js";
 import { GameCardProps } from "./game/GameCard.js";
 import { useClientSelector } from "./store.js";
 import { CacheContext } from "./game/Game.js";
 import { isLoaded, loadCard } from "./cards.js";
-import { cards } from "../server/db.js";
 
 export type CardListProps = {
   x: number;
   y: number;
+  cardWidth: number;
+  cardHeight: number;
+  hoverScale?: number;
   cards: CardStateInfo[];
   expanded?: boolean;
   reversed?: boolean;
-  collapseOnPointerOut?: boolean;
   expandOnHover?: boolean;
   card: (props: GameCardProps) => ReactElement;
 };
@@ -23,7 +24,6 @@ export function isCardListPropsEqual(a: CardListProps, b: CardListProps) {
   return (
     a.expanded == b.expanded &&
     a.reversed == b.reversed &&
-    a.collapseOnPointerOut == b.collapseOnPointerOut &&
     a.card == b.card &&
     a.cards.length == b.cards.length &&
     a.cards.every(
@@ -77,25 +77,23 @@ export default React.memo(function CardList(props: CardListProps) {
   );
 
   const pointerout = useCallback(() => {
-    if (props.collapseOnPointerOut) {
-      setExpandedIndex(collapsedIndex);
-    }
-  }, [props.collapseOnPointerOut, collapsedIndex]);
+    setExpandedIndex(collapsedIndex);
+  }, [collapsedIndex]);
 
   return (
     <Container pointerout={pointerout} interactive sortableChildren>
       {props.cards.map(({ state, info }, i) => {
-        const heightOffset = (props.reversed ? i : -i) * cardHeight * (props.expanded ? 0.1 : 0);
+        const heightOffset = (props.reversed ? i : -i) * props.cardHeight * (props.expanded ? 0.1 : 0);
         const shouldHoverOffset = props.expanded && (props.reversed ? i < expandedIndex : i > expandedIndex);
-        const hoverOffset = shouldHoverOffset ? cardHeight * 0.8 : 0;
+        const hoverOffset = shouldHoverOffset ? props.cardHeight * ((props.hoverScale ?? 1) - 0.2) : 0;
         return (
           <props.card
             zIndex={20 + (props.reversed ? -i : i)}
             state={state}
             info={info}
             key={state.id}
-            x={props.x + cardWidth / 2}
-            y={props.y + cardHeight / 2 - heightOffset + hoverOffset}
+            x={props.x + props.cardWidth / 2}
+            y={props.y + props.cardHeight / 2 - heightOffset + hoverOffset}
             pointerover={() => pointerover(i)}
             interactive
           />

@@ -122,9 +122,10 @@ export default function Editor(props: { params: { deck: string } }) {
             y={100}
             cards={sortedDeckCards}
             card={deckCard}
+            cardWidth={cardWidth}
+            cardHeight={cardHeight}
             expanded
             expandOnHover
-            collapseOnPointerOut
           />
         </MoveAnimationContext.Provider>
       </CacheContext.Provider>

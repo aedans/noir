@@ -63,7 +63,6 @@ export function useMoveAnimation(
       anime({
         targets: component.transform.scale,
         duration: 700,
-        delay: -20,
         easing: "easeOutExpo",
         x: props.scale ?? 0,
         y: props.scale ?? 0,

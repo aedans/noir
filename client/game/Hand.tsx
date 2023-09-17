@@ -2,9 +2,9 @@ import React from "react";
 import { targetResolution } from "../Camera.js";
 import { CardStateInfo } from "../../common/card.js";
 import HandCard from "./HandCard.js";
-import { cardHeight, cardWidth } from "../Card.js";
 import { useTimeShadowFilter } from "../time.js";
 import { Container } from "@pixi/react";
+import { gameCardHeight, gameCardWidth } from "./GameCard.js";
 
 export type HandProps = {
   cards: CardStateInfo[];
@@ -13,13 +13,13 @@ export type HandProps = {
 export default function Hand(props: HandProps) {
   const timeShadowFilterRef = useTimeShadowFilter(10);
 
-  let offset = cardWidth - 20;
+  let offset = gameCardWidth - 20;
   if (offset * props.cards.length > 2500) {
     offset /= (offset * props.cards.length) / 2500;
   }
 
-  const x = (targetResolution.width - props.cards.length * offset) / 2 + cardWidth / 2;
-  const y = targetResolution.height * (3 / 4) + cardHeight / 2 + 20;
+  const x = (targetResolution.width - props.cards.length * offset) / 2 + gameCardWidth / 2;
+  const y = targetResolution.height - gameCardHeight / 2 + 20;
 
   return (
     <Container filters={[timeShadowFilterRef.current]} zIndex={1} sortableChildren>
