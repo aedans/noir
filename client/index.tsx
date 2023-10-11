@@ -1,4 +1,9 @@
+import { auth, trpc } from "./cards.js";
 import { Application, Assets, settings } from "./pixi.js";
+
+if (auth.token == null) {
+  trpc.auth.query().then(({ token }) => auth.token = token);
+}
 
 settings.RENDER_OPTIONS!.antialias = true;
 

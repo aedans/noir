@@ -1,17 +1,26 @@
 import { AnyAction } from "redux";
 import { CardState, PartialCardInfoComputation } from "../common/card";
 import CardInfoCache from "../common/CardInfoCache";
-import { createTRPCProxyClient, httpLink } from "@trpc/client";
+import { createTRPCProxyClient, httpBatchLink, httpLink, splitLink } from "@trpc/client";
 import { NoirRouter } from "../common/network";
 import superjson from "superjson";
 
 export const serverOrigin = window.location.origin.toString().replace(/5173/g, "8080");
+export const auth: { token: string | null } = { token: null };
 
 export const trpc = createTRPCProxyClient<NoirRouter>({
   transformer: superjson,
   links: [
-    httpLink({
-      url: `${serverOrigin}/trpc`,
+    splitLink({
+      condition(op) {
+        return auth.token != null || !["auth", "user", "top"].includes(op.path);
+      },
+      true: httpBatchLink({
+        url: `${serverOrigin}/trpc`,
+      }),
+      false: httpLink({
+        url: `${serverOrigin}/trpc`,
+      }),
     }),
   ],
 });
