@@ -95,9 +95,9 @@ export default class AI {
         const { zone } = findCard(game, target)!;
         let evaluation = targeter(this.settings, target);
         if (zone == "deck") {
-          evaluation += this.evaluateCardPlay(game, target, cache, depth + 1)[0];
+          evaluation *= this.evaluateCardPlay(game, target, cache, depth + 1)[0];
         } else if (zone == "board") {
-          evaluation += this.evaluateCardActivate(game, target, cache, depth + 1)[0];
+          evaluation *= this.evaluateCardActivate(game, target, cache, depth + 1)[0];
         }
 
         if (evaluation > bestEval) {
