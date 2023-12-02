@@ -18,7 +18,7 @@ if (!isMainThread) {
     console.log(`Round ${number + 1}`);
     const promises: Promise<void>[] = [];
 
-    for (let i = 0; i < 8; i++) {
+    for (let i = 0; i < 16; i++) {
       promises.push(new Promise((resolve) => {
         const worker = new Worker("./random.js");
         worker.postMessage(undefined);

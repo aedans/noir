@@ -1,12 +1,11 @@
 import { Deck } from "../../common/decks.js";
 import { PlayerId } from "../../common/gameSlice.js";
-import { Goal, activateCard, gt, playCard, seq, when, whenRevealLeft } from "../Goal.js";
 import { Difficulty } from "../Mission.js";
 import { MissionPlayer } from "../Player.js";
 
 export default class StrengthInNumbers extends MissionPlayer {
   constructor(player: PlayerId, difficulty: Difficulty) {
-    super(player, "Strength in Numbers", difficulty);
+    super(player, "Strength in Numbers", difficulty, {});
   }
 
   deck1: Deck = {
@@ -38,32 +37,4 @@ export default class StrengthInNumbers extends MissionPlayer {
       "Ill-fated Operative": 3,
     },
   };
-
-  goals: Goal[] = [
-    // Win
-    seq(playCard("Raving Pugilist"), when(gt(5), "opponent", { hidden: false, types: ["agent"] })),
-    playCard("Arms Dealer"),
-    activateCard("Arms Dealer", { zones: ["board"], protected: false }, true),
-    activateCard("Arms Dealer", { zones: ["board"], vip: false }, true),
-    activateCard("Arms Dealer", {}, true),
-    seq(
-      playCard("Take Arms"),
-      when(gt(1), "self", { zones: ["board"], types: ["agent"], colors: ["orange"], exhausted: false }),
-      when(gt(1), "opponent", { types: ["agent"], zones: ["board"], protected: false })
-    ),
-    // Value
-    playCard("Dues Collector"),
-    activateCard("Dues Collector"),
-    playCard("Local Socialite"),
-    playCard("Cut-rate Contractor"),
-    playCard("Ill-fated Operative"),
-    playCard("Gismo Inspector"),
-    // Interaction
-    playCard("Compelled Resignation", { zones: ["board"], maxMoney: 4 }, true),
-    playCard("Gang Up", { zones: ["board"], protected: false, minMoney: 5 }, true),
-    // Reveal
-    whenRevealLeft(playCard("Coerce")),
-    whenRevealLeft(playCard("Information Dealer")),
-    whenRevealLeft(activateCard("Information Dealer")),
-  ];
 }

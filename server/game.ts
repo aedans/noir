@@ -115,7 +115,7 @@ function* playCard(cache: CardInfoCache, game: GameState, card: CardState, targe
 
   yield* util.playCard(cache, game, card, { target: card, type: info.type });
   yield* payCost(cache, game, card, "play", card.name, info.colors, info.cost, info.targets);
-  yield* info.play(target!);
+  yield* info.play(target);
 }
 
 function* activateCard(

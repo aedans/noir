@@ -11,6 +11,7 @@ import { HistoryAction } from "./historySlice.js";
 import { Filter, Util } from "./util.js";
 import CardInfoCache from "./CardInfoCache.js";
 import { Deck } from "../common/decks.js";
+import { AISettings } from "../server/AI.js";
 
 export type CardStateInfo = {
   state: CardState;
@@ -64,10 +65,12 @@ export type CardCost = {
 
 export type CardGenerator<T = void> = Generator<GameAction | HistoryAction, T, any>;
 export type CardAction = () => CardGenerator;
-export type CardTargetAction = (target: Target) => CardGenerator;
+export type CardTargetAction = (target: Target | undefined) => CardGenerator;
 export type CardModifier = (card: CardInfo, modifier: ModifierState, state: CardState) => Partial<CardInfo>;
 export type CardEffect = (card: CardInfo, state: CardState) => Partial<CardInfo> | undefined;
 export type CardTrigger<T> = (payload: T) => CardGenerator;
+export type CardTargeter = (settings: AISettings) => Target;
+export type CardEvaluator = (settigs: AISettings, target: Target | undefined) => number;
 
 export type CardInfo = {
   text: string;
@@ -103,6 +106,10 @@ export type CardInfo = {
   onExhaust: CardTrigger<TargetCardParams>;
   onSetProp: CardTrigger<TargetCardParams>;
   onModify: CardTrigger<ModifyCardParams>;
+  bestTarget?: CardTargeter;
+  bestActivateTarget?: CardTargeter;
+  evaluatePlay: CardEvaluator;
+  evaluateActivate: CardEvaluator;
 };
 
 export type PartialCardInfoComputation = (
@@ -135,6 +142,8 @@ export type PartialCardInfoComputation = (
   onExhaust?: CardTrigger<TargetCardParams>;
   onSetProp?: CardTrigger<TargetCardParams>;
   onModify?: CardTrigger<ModifyCardParams>;
+  evaluatePlay?: CardEvaluator;
+  evaluateActivate?: CardEvaluator;
 };
 
 export type Target = { id: string };
@@ -196,5 +205,7 @@ export function runPartialCardInfoComputation(
     onExhaust: partial.onExhaust ?? function* () {},
     onSetProp: partial.onSetProp ?? function* () {},
     onModify: partial.onSetProp ?? function* () {},
+    evaluatePlay: partial.evaluateActivate ?? (() => 0),
+    evaluateActivate: partial.evaluateActivate ?? (() => 0),
   };
 }

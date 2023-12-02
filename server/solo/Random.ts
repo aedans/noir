@@ -1,7 +1,6 @@
 import { Deck } from "../../common/decks.js";
 import { PlayerId } from "../../common/gameSlice.js";
 import util from "../../common/util.js";
-import { random } from "../Goal.js";
 import { Difficulty } from "../Mission.js";
 import { MissionPlayer } from "../Player.js";
 import { cards } from "../db.js";
@@ -27,10 +26,9 @@ function randomDeck() {
 
 export default class Random extends MissionPlayer {
   constructor(player: PlayerId, difficulty: Difficulty) {
-    super(player, "Random", difficulty);
+    super(player, "Random", difficulty, {});
   }
 
   deck1: Deck = randomDeck();
   deck2: Deck = this.deck1;
-  goals = [random];
 }

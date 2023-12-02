@@ -1,22 +1,11 @@
 import { Deck } from "../../common/decks.js";
 import { PlayerId } from "../../common/gameSlice.js";
-import {
-  Goal,
-  activateCard,
-  afterTurn,
-  afterWait,
-  agents,
-  lt,
-  playCard,
-  when,
-  whenRevealLeft,
-} from "../Goal.js";
 import { Difficulty } from "../Mission.js";
 import { MissionPlayer } from "../Player.js";
 
 export default class CivicProceedings extends MissionPlayer {
   constructor(player: PlayerId, difficulty: Difficulty) {
-    super(player, "Civic Proceedings", difficulty);
+    super(player, "Civic Proceedings", difficulty, {});
   }
 
   deck1: Deck = {
@@ -46,26 +35,4 @@ export default class CivicProceedings extends MissionPlayer {
       Detain: 3,
     },
   };
-
-  goals: Goal[] = [
-    // Win
-    playCard("Prolific Jailer"),
-    activateCard("Prolific Jailer", { zones: ["board"], protected: false }, true),
-    activateCard("Prolific Jailer", { zones: ["board"], vip: false }, true),
-    activateCard("Prolific Jailer", {}, true),
-    // Value
-    when(lt(1), "self", agents(["blue"]))(playCard(["Aspiring Lawman", "Bearer of Lanterns"])),
-    playCard("Expedited Training"),
-    playCard("Frazzled Secretary"),
-    activateCard("Frazzled Secretary"),
-    playCard("Bearer of Lanterns"),
-    // Interaction
-    playCard("Stern Peacekeeper"),
-    playCard("Writ of Recall", { zones: ["board"] }, true),
-    playCard("Detain", { zones: ["board"] }, true),
-    // Reveal
-    whenRevealLeft(playCard("Information Dealer")),
-    whenRevealLeft(activateCard("Information Dealer")),
-    whenRevealLeft(afterTurn(1, afterWait("Snoop Around", 1, playCard("Snoop Around")))),
-  ];
 }

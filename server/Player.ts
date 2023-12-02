@@ -5,17 +5,17 @@ import { random } from "../common/util.js";
 import { PlayerInit, PlayerAction, NoirServerSocket } from "../common/network.js";
 import { HistoryState } from "../common/historySlice.js";
 import { initialHistoryState } from "../common/historySlice.js";
-import { Goal, GoalState, runGoals } from "./Goal.js";
 import { Difficulty, MissionName } from "./Mission.js";
 import CardInfoCache from "../common/CardInfoCache.js";
 import LocalCardInfoCache from "./LocalCardInfoCache.js";
 import { CardCosmetic } from "../common/card.js";
 import { defaultDecks } from "../common/decks.js";
+import AI, { AISettings } from "./AI.js";
 
 export default interface Player {
   id: string | null;
   name: string;
-  ai: boolean;
+  ai: AI | null;
   init(): Promise<PlayerInit>;
   send(actions: HistoryAction[], name: string): void;
   cosmetic(id: string, cosmetic: CardCosmetic): void;
@@ -28,7 +28,7 @@ export class SocketPlayer implements Player {
   callbacks: ((action: PlayerAction | "concede") => void)[] = [];
   actions: HistoryAction[] = [];
   cosmetics: [string, CardCosmetic][] = [];
-  ai = false;
+  ai = null;
 
   constructor(
     public socket: NoirServerSocket,
@@ -99,18 +99,19 @@ export class SocketPlayer implements Player {
   }
 }
 
-export abstract class ComputerPlayer implements Player {
+export abstract class AIPlayer implements Player {
   callbacks: ((action: PlayerAction) => void)[] = [];
   history: HistoryState = initialHistoryState();
-  state: GoalState = { lastPlay: {} };
   invalid: PlayerAction[] = [];
   valid: PlayerAction[] = [];
   timeout: boolean = true;
   cache: CardInfoCache = new LocalCardInfoCache();
   id = null;
-  ai = true;
+  ai: AI;
 
-  constructor(public player: PlayerId, public name: string) {}
+  constructor(public player: PlayerId, public name: string, public settings: Partial<AISettings>,) {
+    this.ai = new AI(settings);
+  }
 
   init(): Promise<PlayerInit> {
     return Promise.resolve({ deck: this.deck });
@@ -131,9 +132,7 @@ export abstract class ComputerPlayer implements Player {
     const current = currentPlayer(this.history.current);
     if (current == this.player) {
       this.cache.reset();
-      let action = runGoals(this.cache, this.history.current, this.player, this.goals, this.state, this.invalid) ?? {
-        type: "end",
-      };
+      const action = this.ai.bestAction(this.history.current, this.cache, this.invalid);
 
       this.valid.push(action);
 
@@ -165,21 +164,17 @@ export abstract class ComputerPlayer implements Player {
   end() {}
 
   abstract deck: Deck;
-
-  abstract goals: Goal[];
 }
 
-export class TestPlayer extends ComputerPlayer {
+export class TestPlayer extends AIPlayer {
   name = "Unit";
 
   deck = defaultDecks[random(["Green", "Blue", "Orange", "Purple"])] as Deck;
-
-  goals = [];
 }
 
-export abstract class MissionPlayer extends ComputerPlayer {
-  constructor(public player: PlayerId, name: MissionName, public difficulty: Difficulty) {
-    super(player, `${name} level ${difficulty}`);
+export abstract class MissionPlayer extends AIPlayer {
+  constructor(public player: PlayerId, name: MissionName, public difficulty: Difficulty, settings: Partial<AISettings>) {
+    super(player, `${name} level ${difficulty}`, settings);
   }
 
   abstract deck1: Deck;

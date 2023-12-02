@@ -1,23 +1,11 @@
 import { Deck } from "../../common/decks.js";
 import { PlayerId } from "../../common/gameSlice.js";
-import {
-  Goal,
-  activateCard,
-  agents,
-  lt,
-  whenActionTurn,
-  playCard,
-  when,
-  whenNotInPlay,
-  whenRevealLeft,
-  afterWait,
-} from "../Goal.js";
 import { Difficulty } from "../Mission.js";
 import { MissionPlayer } from "../Player.js";
 
 export default class UnderhandedDealings extends MissionPlayer {
   constructor(player: PlayerId, difficulty: Difficulty) {
-    super(player, "Underhanded Dealings", difficulty);
+    super(player, "Underhanded Dealings", difficulty, {});
   }
 
   deck1: Deck = {
@@ -47,25 +35,4 @@ export default class UnderhandedDealings extends MissionPlayer {
       "Bad Deal": 3,
     },
   };
-
-  goals: Goal[] = [
-    // Early Game
-    when(lt(2), "self", agents(["purple"]))(playCard(["Random Citizen", "Shifty Operative", "New Hire"])),
-    // Win
-    playCard("Problem Solver"),
-    activateCard("Problem Solver", { zones: ["board"], protected: false }, true),
-    activateCard("Problem Solver", { zones: ["board"], vip: false }, true),
-    activateCard("Problem Solver", {}, true),
-    // Value
-    playCard("Crispy Dollar"),
-    when(lt(1), "self", agents(["purple"]))(playCard(["Shifty Operative", "New Hire"])),
-    whenActionTurn(["game/removeCard", "game/stealCard"], playCard("Sinister Deal")),
-    // Interaction
-    playCard("Bad Deal", { zones: ["board"] }, true),
-    playCard("Entice", { zones: ["board"], minMoney: 6 }, true),
-    // Reveal
-    whenRevealLeft(afterWait("Examine the Bodies", 1, playCard("Examine the Bodies"))),
-    whenRevealLeft(whenNotInPlay("Gutterside Informer", playCard("Gutterside Informer"))),
-    whenRevealLeft(activateCard("Gutterside Informer")),
-  ];
 }
