@@ -1,8 +1,8 @@
 import CardInfoCache from "../common/CardInfoCache";
-import { CardCost } from "../common/card";
-import { GameState } from "../common/gameSlice";
+import { CardCost, CardState, CardTargetEvaluator, Target } from "../common/card";
+import { GameState, findCard } from "../common/gameSlice.js";
 import { PlayerAction } from "../common/network";
-import util from "../common/util.js";
+import util, { Filter } from "../common/util.js";
 
 export type AISettings = {
   agentCostValue: number;
@@ -23,10 +23,11 @@ export default class AI {
   }
 
   bestAction(game: GameState, cache: CardInfoCache, invalid: PlayerAction[]): PlayerAction {
-    const actions = [...this.getCardPlayActions(game, cache), ...this.getCardActivateActions(game, cache)]
-      .filter(([_, action]) => invalid.every(x => JSON.stringify(action) != JSON.stringify(x)));
+    const actions = [...this.getCardPlayActions(game, cache), ...this.getCardActivateActions(game, cache)].filter(
+      ([_, action]) => invalid.every((x) => JSON.stringify(action) != JSON.stringify(x))
+    );
 
-    let bestActionValue = this.settings.endTurnValue
+    let bestActionValue = this.settings.endTurnValue;
     let bestAction: PlayerAction = { type: "end" };
     for (const [value, action] of actions) {
       if (value > bestActionValue) {
@@ -41,20 +42,71 @@ export default class AI {
   *getCardPlayActions(game: GameState, cache: CardInfoCache): Generator<[number, PlayerAction]> {
     const player = util.currentPlayer(game);
     for (const card of util.filter(cache, game, { zones: ["deck"], playable: true, players: [player] })) {
-      const info = cache.getCardInfo(game, card);
-      const target = info.bestActivateTarget?.(this.settings);
-      const evaluation = this.evaluateCost(info.cost) + info.evaluatePlay(this.settings, target);
+      const [evaluation, target] = this.evaluateCardPlay(game, card, cache);
       yield [evaluation, { type: "do", id: card.id, target }];
     }
+  }
+
+  evaluateCardPlay(
+    game: GameState,
+    card: CardState,
+    cache: CardInfoCache,
+    depth: number = 0
+  ): [number, Target | undefined] {
+    const info = cache.getCardInfo(game, card);
+    const target = this.bestTarget(info.targets, info.evaluateTarget, game, cache, depth);
+    const evaluation = this.evaluateCost(info.cost) + info.evaluate(this.settings, target);
+    return [evaluation, target];
   }
 
   *getCardActivateActions(game: GameState, cache: CardInfoCache): Generator<[number, PlayerAction]> {
     const player = util.currentPlayer(game);
     for (const card of util.filter(cache, game, { zones: ["board"], activatable: true, players: [player] })) {
-      const info = cache.getCardInfo(game, card);
-      const target = info.bestTarget?.(this.settings);
-      const evaluation = this.evaluateCost(info.activateCost) + info.evaluateActivate(this.settings, target);
+      const [evaluation, target] = this.evaluateCardActivate(game, card, cache);
       yield [evaluation, { type: "do", id: card.id, target }];
+    }
+  }
+
+  evaluateCardActivate(
+    game: GameState,
+    card: CardState,
+    cache: CardInfoCache,
+    depth: number = 0
+  ): [number, Target | undefined] {
+    const info = cache.getCardInfo(game, card);
+    const target = this.bestTarget(info.activateTargets, info.evaluateActivateTarget, game, cache, depth);
+    const evaluation = this.evaluateCost(info.activateCost) + info.evaluateActivate(this.settings, target);
+    return [evaluation, target];
+  }
+
+  bestTarget(
+    targets: Filter | undefined,
+    targeter: CardTargetEvaluator,
+    game: GameState,
+    cache: CardInfoCache,
+    depth: number
+  ): Target | undefined {
+    if (targets == undefined || depth >= 1) {
+      return undefined;
+    } else {
+      let bestTarget: Target | undefined = undefined;
+      let bestEval = 0;
+      for (const target of util.filter(cache, game, targets)) {
+        const { zone } = findCard(game, target)!;
+        let evaluation = targeter(this.settings, target);
+        if (zone == "deck") {
+          evaluation += this.evaluateCardPlay(game, target, cache, depth + 1)[0];
+        } else if (zone == "board") {
+          evaluation += this.evaluateCardActivate(game, target, cache, depth + 1)[0];
+        }
+
+        if (evaluation > bestEval) {
+          bestEval = evaluation;
+          bestTarget = target;
+        }
+      }
+
+      return bestTarget;
     }
   }
 

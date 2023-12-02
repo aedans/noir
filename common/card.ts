@@ -69,7 +69,7 @@ export type CardTargetAction = (target: Target | undefined) => CardGenerator;
 export type CardModifier = (card: CardInfo, modifier: ModifierState, state: CardState) => Partial<CardInfo>;
 export type CardEffect = (card: CardInfo, state: CardState) => Partial<CardInfo> | undefined;
 export type CardTrigger<T> = (payload: T) => CardGenerator;
-export type CardTargeter = (settings: AISettings) => Target;
+export type CardTargetEvaluator = (settings: AISettings, target: Target) => number;
 export type CardEvaluator = (settigs: AISettings, target: Target | undefined) => number;
 
 export type CardInfo = {
@@ -106,9 +106,9 @@ export type CardInfo = {
   onExhaust: CardTrigger<TargetCardParams>;
   onSetProp: CardTrigger<TargetCardParams>;
   onModify: CardTrigger<ModifyCardParams>;
-  bestTarget?: CardTargeter;
-  bestActivateTarget?: CardTargeter;
-  evaluatePlay: CardEvaluator;
+  evaluateTarget: CardTargetEvaluator;
+  evaluateActivateTarget: CardTargetEvaluator;
+  evaluate: CardEvaluator;
   evaluateActivate: CardEvaluator;
 };
 
@@ -142,7 +142,9 @@ export type PartialCardInfoComputation = (
   onExhaust?: CardTrigger<TargetCardParams>;
   onSetProp?: CardTrigger<TargetCardParams>;
   onModify?: CardTrigger<ModifyCardParams>;
-  evaluatePlay?: CardEvaluator;
+  evaluateTarget?: CardTargetEvaluator;
+  evaluateActivateTarget?: CardTargetEvaluator;
+  evaluate?: CardEvaluator;
   evaluateActivate?: CardEvaluator;
 };
 
@@ -205,7 +207,9 @@ export function runPartialCardInfoComputation(
     onExhaust: partial.onExhaust ?? function* () {},
     onSetProp: partial.onSetProp ?? function* () {},
     onModify: partial.onSetProp ?? function* () {},
-    evaluatePlay: partial.evaluateActivate ?? (() => 0),
+    evaluateTarget: partial.evaluateTarget ?? (() => 0),
+    evaluateActivateTarget: partial.evaluateActivateTarget ?? (() => 0),
+    evaluate: partial.evaluate ?? (() => 0),
     evaluateActivate: partial.evaluateActivate ?? (() => 0),
   };
 }
