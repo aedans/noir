@@ -1,5 +1,5 @@
 import CardInfoCache from "../common/CardInfoCache";
-import { CardColor, CardFactor, CardState, CardTargetEvaluator, Target } from "../common/card";
+import { CardColor, CardEvaluator, CardFactor, CardState, Target } from "../common/card";
 import { GameState, currentPlayer, findCard } from "../common/gameSlice.js";
 import { PlayerAction } from "../common/network";
 import util, { Filter } from "../common/util.js";
@@ -8,6 +8,12 @@ export type AISettings = {
   endTurnValue: number;
   agentValue: number;
   activateValueFactor: number;
+  removeValue: number;
+  removeValueFactor: number;
+  stealValue: number;
+  stealValueFactor: number;
+  revealValue: number;
+  revealDeckValue: number;
   debtValue: number;
   delayValue: number;
   departValue: number;
@@ -25,9 +31,15 @@ export default class AI {
   constructor(settings: Partial<AISettings>) {
     this.settings = Object.assign(
       {
-        endTurnValue: -.01,
+        endTurnValue: -0.01,
         agentValue: 4,
         activateValueFactor: 1.5,
+        removeValue: .01,
+        removeValueFactor: 1,
+        stealValue: .01,
+        stealValueFactor: 2,
+        revealValue: 1,
+        revealDeckValue: 0.5,
         debtValue: -0.5,
         delayValue: -1,
         departValue: -4,
@@ -76,8 +88,7 @@ export default class AI {
     depth: number = 0
   ): [number, Target | undefined] {
     const info = cache.getCardInfo(game, card);
-    const target = this.bestTarget(info.targets, info.evaluateTarget, info.factor, game, cache, depth);
-    let evaluation = info.evaluate(this.settings, target);
+    let [evaluation, target] = this.evaluateWithTargets(info.targets, info.evaluate, info.factor, game, cache, depth);
 
     if (info.type == "agent") {
       evaluation += this.settings.agentValue;
@@ -85,7 +96,7 @@ export default class AI {
       for (const color of info.colors) {
         evaluation += this.settings[`${color}AgentValue`];
       }
-      
+
       evaluation += this.evaluateCardActivate(game, card, cache, depth)[0] * this.settings.activateValueFactor;
     }
 
@@ -137,34 +148,32 @@ export default class AI {
     depth: number = 0
   ): [number, Target | undefined] {
     const info = cache.getCardInfo(game, card);
-    const target = this.bestTarget(
+    return this.evaluateWithTargets(
       info.activateTargets,
-      info.evaluateActivateTarget,
+      info.evaluateActivate,
       info.activateFactor,
       game,
       cache,
       depth
     );
-    const evaluation = info.evaluateActivate(this.settings, target);
-    return [evaluation, target];
   }
 
-  bestTarget(
+  evaluateWithTargets(
     targets: Filter | undefined,
-    targeter: CardTargetEvaluator,
+    evaluator: CardEvaluator,
     factor: CardFactor,
     game: GameState,
     cache: CardInfoCache,
     depth: number
-  ): Target | undefined {
+  ): [number, Target | undefined] {
     if (targets == undefined || depth >= 1) {
-      return undefined;
+      return [evaluator(this.settings, undefined)[0], undefined];
     } else {
       let bestTarget: Target | undefined = undefined;
       let bestEval = 0;
       for (const target of util.filter(cache, game, targets)) {
         const { zone, player } = findCard(game, target)!;
-        let [evaluation, evaluationFactor] = targeter(this.settings, target);
+        let [evaluation, evaluationFactor] = evaluator(this.settings, target);
         if (zone == "deck" && evaluationFactor > 0) {
           evaluation += evaluationFactor * this.evaluateCardPlay(game, target, cache, depth + 1)[0];
         } else if (zone == "board" && evaluationFactor > 0) {
@@ -183,7 +192,7 @@ export default class AI {
         }
       }
 
-      return bestTarget;
+      return [bestEval, bestTarget];
     }
   }
 }

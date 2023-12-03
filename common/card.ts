@@ -69,8 +69,7 @@ export type CardTargetAction = (target: Target) => CardGenerator;
 export type CardModifier = (card: CardInfo, modifier: ModifierState, state: CardState) => Partial<CardInfo>;
 export type CardEffect = (card: CardInfo, state: CardState) => Partial<CardInfo> | undefined;
 export type CardTrigger<T> = (payload: T) => CardGenerator;
-export type CardTargetEvaluator = (settings: AISettings, target: Target) => [number, number];
-export type CardEvaluator = (settigs: AISettings, target: Target | undefined) => number;
+export type CardEvaluator = (settings: AISettings, target: Target | undefined) => [number, number];
 export type CardFactor = "positive" | "negative" | "neutral";
 
 export type CardInfo = {
@@ -109,8 +108,6 @@ export type CardInfo = {
   onModify: CardTrigger<ModifyCardParams>;
   factor: CardFactor;
   activateFactor: CardFactor;
-  evaluateTarget: CardTargetEvaluator;
-  evaluateActivateTarget: CardTargetEvaluator;
   evaluate: CardEvaluator;
   evaluateActivate: CardEvaluator;
 };
@@ -145,8 +142,6 @@ export type PartialCardInfoComputation = (
   onExhaust?: CardTrigger<TargetCardParams>;
   onSetProp?: CardTrigger<TargetCardParams>;
   onModify?: CardTrigger<ModifyCardParams>;
-  evaluateTarget?: CardTargetEvaluator;
-  evaluateActivateTarget?: CardTargetEvaluator;
   evaluate?: CardEvaluator;
   evaluateActivate?: CardEvaluator;
 };
@@ -210,11 +205,9 @@ export function runPartialCardInfoComputation(
     onExhaust: partial.onExhaust ?? function* () {},
     onSetProp: partial.onSetProp ?? function* () {},
     onModify: partial.onSetProp ?? function* () {},
-    factor: "neutral",
-    activateFactor: "neutral",
-    evaluateTarget: partial.evaluateTarget ?? (() => [0.01, 0]),
-    evaluateActivateTarget: partial.evaluateActivateTarget ?? (() => [0.01, 0]),
-    evaluate: partial.evaluate ?? (() => 0.01),
-    evaluateActivate: partial.evaluateActivate ?? (() => 0.01),
+    factor: partial.factor ?? "neutral",
+    activateFactor: partial.activateFactor ?? "neutral",
+    evaluate: partial.evaluate ?? (() => [0.01, 0]),
+    evaluateActivate: partial.evaluateActivate ?? (() => [0.01, 0]),
   };
 }

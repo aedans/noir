@@ -10,4 +10,6 @@ exports.card = (util, cache, game, card) => ({
   play: function* (target) {
     yield* util.removeCard(cache, game, card, { target });
   },
+  factor: "negative",
+  evaluate: (settings) => [settings.removeValue, settings.removeValueFactor],
 });

@@ -1,5 +1,4 @@
 //@ts-check
-
 /** @type {import("../../common/card").PartialCardInfoComputation} */
 exports.card = (util, cache, game, card) => ({
   type: "agent",
@@ -14,4 +13,6 @@ exports.card = (util, cache, game, card) => ({
     yield* util.removeCard(cache, game, card, { target });
     yield* util.refreshCard(cache, game, card, { target: card });
   },
+  activateFactor: "negative",
+  evaluateActivate: (settings) => [settings.removeValue, settings.removeValueFactor],
 });

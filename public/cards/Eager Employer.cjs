@@ -12,4 +12,5 @@ exports.card = (util, cache, game, card) => ({
       money: 2,
     });
   },
+  evaluateActivate: () => [2, 0],
 });
