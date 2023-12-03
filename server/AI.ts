@@ -55,7 +55,7 @@ export default class AI {
   ): [number, Target | undefined] {
     const info = cache.getCardInfo(game, card);
     const target = this.bestTarget(info.targets, info.evaluateTarget, info.factor, game, cache, depth);
-    const evaluation = this.evaluateCost(info.cost) + info.evaluate(this.settings, target);
+    const evaluation = this.evaluateCost(this.settings, info.cost) + info.evaluate(this.settings, target);
     return [evaluation, target];
   }
 
@@ -82,7 +82,8 @@ export default class AI {
       cache,
       depth
     );
-    const evaluation = this.evaluateCost(info.activateCost) + info.evaluateActivate(this.settings, target);
+    const evaluation =
+      this.evaluateCost(this.settings, info.activateCost) + info.evaluateActivate(this.settings, target);
     return [evaluation, target];
   }
 
@@ -110,7 +111,7 @@ export default class AI {
 
         if (factor == "positive") {
           evaluation *= player == currentPlayer(game) ? 1 : -1;
-        } else if (factor == "negative") {          
+        } else if (factor == "negative") {
           evaluation *= player == currentPlayer(game) ? -1 : 1;
         }
 
@@ -124,7 +125,7 @@ export default class AI {
     }
   }
 
-  evaluateCost(cost: CardCost) {
-    return cost.money + cost.agents * 2;
+  evaluateCost(settings: AISettings, cost: CardCost) {
+    return cost.money + cost.agents * settings.agentCostValue;
   }
 }
