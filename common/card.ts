@@ -212,9 +212,9 @@ export function runPartialCardInfoComputation(
     onModify: partial.onSetProp ?? function* () {},
     factor: "neutral",
     activateFactor: "neutral",
-    evaluateTarget: partial.evaluateTarget ?? (() => 0),
-    evaluateActivateTarget: partial.evaluateActivateTarget ?? (() => 0),
-    evaluate: partial.evaluate ?? (() => 0),
-    evaluateActivate: partial.evaluateActivate ?? (() => 0),
+    evaluateTarget: partial.evaluateTarget ?? (() => 0.01),
+    evaluateActivateTarget: partial.evaluateActivateTarget ?? (() => 0.01),
+    evaluate: partial.evaluate ?? (() => 0.01),
+    evaluateActivate: partial.evaluateActivate ?? (() => 0.01),
   };
 }
