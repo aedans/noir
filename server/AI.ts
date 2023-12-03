@@ -1,6 +1,6 @@
 import CardInfoCache from "../common/CardInfoCache";
-import { CardCost, CardState, CardTargetEvaluator, Target } from "../common/card";
-import { GameState, findCard } from "../common/gameSlice.js";
+import { CardCost, CardFactor, CardState, CardTargetEvaluator, Target } from "../common/card";
+import { GameState, currentPlayer, findCard } from "../common/gameSlice.js";
 import { PlayerAction } from "../common/network";
 import util, { Filter } from "../common/util.js";
 
@@ -54,7 +54,7 @@ export default class AI {
     depth: number = 0
   ): [number, Target | undefined] {
     const info = cache.getCardInfo(game, card);
-    const target = this.bestTarget(info.targets, info.evaluateTarget, game, cache, depth);
+    const target = this.bestTarget(info.targets, info.evaluateTarget, info.factor, game, cache, depth);
     const evaluation = this.evaluateCost(info.cost) + info.evaluate(this.settings, target);
     return [evaluation, target];
   }
@@ -74,7 +74,14 @@ export default class AI {
     depth: number = 0
   ): [number, Target | undefined] {
     const info = cache.getCardInfo(game, card);
-    const target = this.bestTarget(info.activateTargets, info.evaluateActivateTarget, game, cache, depth);
+    const target = this.bestTarget(
+      info.activateTargets,
+      info.evaluateActivateTarget,
+      info.activateFactor,
+      game,
+      cache,
+      depth
+    );
     const evaluation = this.evaluateCost(info.activateCost) + info.evaluateActivate(this.settings, target);
     return [evaluation, target];
   }
@@ -82,6 +89,7 @@ export default class AI {
   bestTarget(
     targets: Filter | undefined,
     targeter: CardTargetEvaluator,
+    factor: CardFactor,
     game: GameState,
     cache: CardInfoCache,
     depth: number
@@ -92,12 +100,18 @@ export default class AI {
       let bestTarget: Target | undefined = undefined;
       let bestEval = 0;
       for (const target of util.filter(cache, game, targets)) {
-        const { zone } = findCard(game, target)!;
+        const { zone, player } = findCard(game, target)!;
         let evaluation = targeter(this.settings, target);
         if (zone == "deck") {
-          evaluation *= this.evaluateCardPlay(game, target, cache, depth + 1)[0];
+          evaluation += this.evaluateCardPlay(game, target, cache, depth + 1)[0];
         } else if (zone == "board") {
-          evaluation *= this.evaluateCardActivate(game, target, cache, depth + 1)[0];
+          evaluation += this.evaluateCardActivate(game, target, cache, depth + 1)[0];
+        }
+
+        if (factor == "positive") {
+          evaluation *= player == currentPlayer(game) ? 1 : -1;
+        } else if (factor == "negative") {          
+          evaluation *= player == currentPlayer(game) ? -1 : 1;
         }
 
         if (evaluation > bestEval) {

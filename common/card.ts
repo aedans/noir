@@ -49,7 +49,7 @@ export const cardKeywords = {
   debt: (n?: number) => ["debt", n ?? 0] as const,
   depart: (n?: number) => ["depart", n ?? 0] as const,
   tribute: (n?: CardType) => ["tribute", n ?? "card"] as const,
- } as const;
+} as const;
 
 export type CardColor = (typeof cardColors)[number];
 export type CardType = (typeof cardTypes)[number];
@@ -71,6 +71,7 @@ export type CardEffect = (card: CardInfo, state: CardState) => Partial<CardInfo>
 export type CardTrigger<T> = (payload: T) => CardGenerator;
 export type CardTargetEvaluator = (settings: AISettings, target: Target) => number;
 export type CardEvaluator = (settigs: AISettings, target: Target | undefined) => number;
+export type CardFactor = "positive" | "negative" | "neutral";
 
 export type CardInfo = {
   text: string;
@@ -106,6 +107,8 @@ export type CardInfo = {
   onExhaust: CardTrigger<TargetCardParams>;
   onSetProp: CardTrigger<TargetCardParams>;
   onModify: CardTrigger<ModifyCardParams>;
+  factor: CardFactor;
+  activateFactor: CardFactor;
   evaluateTarget: CardTargetEvaluator;
   evaluateActivateTarget: CardTargetEvaluator;
   evaluate: CardEvaluator;
@@ -207,6 +210,8 @@ export function runPartialCardInfoComputation(
     onExhaust: partial.onExhaust ?? function* () {},
     onSetProp: partial.onSetProp ?? function* () {},
     onModify: partial.onSetProp ?? function* () {},
+    factor: "neutral",
+    activateFactor: "neutral",
     evaluateTarget: partial.evaluateTarget ?? (() => 0),
     evaluateActivateTarget: partial.evaluateActivateTarget ?? (() => 0),
     evaluate: partial.evaluate ?? (() => 0),
