@@ -1,12 +1,22 @@
 import CardInfoCache from "../common/CardInfoCache";
-import { CardCost, CardFactor, CardState, CardTargetEvaluator, Target } from "../common/card";
+import { CardColor, CardFactor, CardState, CardTargetEvaluator, Target } from "../common/card";
 import { GameState, currentPlayer, findCard } from "../common/gameSlice.js";
 import { PlayerAction } from "../common/network";
 import util, { Filter } from "../common/util.js";
 
 export type AISettings = {
-  agentCostValue: number;
   endTurnValue: number;
+  agentValue: number;
+  activateValueFactor: number;
+  debtValue: number;
+  delayValue: number;
+  departValue: number;
+  tributeValue: number;
+  disloyalValue: number;
+  vipValueFactor: number;
+  protectedValueFactor: number;
+} & {
+  [color in CardColor as `${color}AgentValue`]: number;
 };
 
 export default class AI {
@@ -15,8 +25,20 @@ export default class AI {
   constructor(settings: Partial<AISettings>) {
     this.settings = Object.assign(
       {
-        agentCostValue: 2,
-        endTurnValue: 0,
+        endTurnValue: -.01,
+        agentValue: 4,
+        activateValueFactor: 1.5,
+        debtValue: -0.5,
+        delayValue: -1,
+        departValue: -4,
+        tributeValue: -2,
+        disloyalValue: -1,
+        vipValueFactor: 1.5,
+        protectedValueFactor: 1.5,
+        blueAgentValue: 1,
+        orangeAgentValue: 1,
+        greenAgentValue: 1,
+        purpleAgentValue: 1,
       } as AISettings,
       settings
     );
@@ -55,7 +77,48 @@ export default class AI {
   ): [number, Target | undefined] {
     const info = cache.getCardInfo(game, card);
     const target = this.bestTarget(info.targets, info.evaluateTarget, info.factor, game, cache, depth);
-    const evaluation = this.evaluateCost(this.settings, info.cost) + info.evaluate(this.settings, target);
+    let evaluation = info.evaluate(this.settings, target);
+
+    if (info.type == "agent") {
+      evaluation += this.settings.agentValue;
+
+      for (const color of info.colors) {
+        evaluation += this.settings[`${color}AgentValue`];
+      }
+      
+      evaluation += this.evaluateCardActivate(game, card, cache, depth)[0] * this.settings.activateValueFactor;
+    }
+
+    for (const keyword of info.keywords) {
+      if (keyword[0] == "debt") {
+        evaluation += keyword[1] * this.settings.debtValue;
+      }
+
+      if (keyword[0] == "delay") {
+        evaluation += keyword[1] * this.settings.delayValue;
+      }
+
+      if (keyword[0] == "depart") {
+        evaluation += (1 / keyword[1]) * this.settings.departValue;
+      }
+
+      if (keyword[0] == "tribute") {
+        evaluation += this.settings.tributeValue;
+      }
+
+      if (keyword[0] == "disloyal") {
+        evaluation += this.settings.disloyalValue;
+      }
+
+      if (keyword[0] == "vip") {
+        evaluation *= this.settings.vipValueFactor;
+      }
+
+      if (keyword[0] == "protected") {
+        evaluation *= this.settings.protectedValueFactor;
+      }
+    }
+
     return [evaluation, target];
   }
 
@@ -82,8 +145,7 @@ export default class AI {
       cache,
       depth
     );
-    const evaluation =
-      this.evaluateCost(this.settings, info.activateCost) + info.evaluateActivate(this.settings, target);
+    const evaluation = info.evaluateActivate(this.settings, target);
     return [evaluation, target];
   }
 
@@ -123,9 +185,5 @@ export default class AI {
 
       return bestTarget;
     }
-  }
-
-  evaluateCost(settings: AISettings, cost: CardCost) {
-    return cost.money + cost.agents * settings.agentCostValue;
   }
 }
