@@ -11,7 +11,7 @@ import { HistoryAction } from "./historySlice.js";
 import { Filter, Util } from "./util.js";
 import CardInfoCache from "./CardInfoCache.js";
 import { Deck } from "../common/decks.js";
-import { AISettings } from "../server/AI.js";
+import AI, { AISettings } from "../server/AI.js";
 
 export type CardStateInfo = {
   state: CardState;
@@ -69,7 +69,7 @@ export type CardTargetAction = (target: Target) => CardGenerator;
 export type CardModifier = (card: CardInfo, modifier: ModifierState, state: CardState) => Partial<CardInfo>;
 export type CardEffect = (card: CardInfo, state: CardState) => Partial<CardInfo> | undefined;
 export type CardTrigger<T> = (payload: T) => CardGenerator;
-export type CardEvaluator = (settings: AISettings, target: Target | undefined) => [number, number];
+export type CardEvaluator = (ai: AI, target: Target | undefined) => [number, number];
 export type CardFactor = "positive" | "negative" | "neutral";
 
 export type CardInfo = {

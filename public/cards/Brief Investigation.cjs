@@ -9,5 +9,5 @@ exports.card = (util, cache, game, card) => ({
       zones: ["deck"],
     });
   },
-  evaluate: (settings) => [settings.revealDeckValue, 0]
+  evaluate: (ai) => [ai.settings.revealDeckValue, 0],
 });

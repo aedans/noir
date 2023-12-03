@@ -11,5 +11,5 @@ exports.card = (util, cache, game, card) => ({
     yield* util.removeCard(cache, game, card, { target });
   },
   factor: "negative",
-  evaluate: (settings) => [settings.removeValue, settings.removeValueFactor],
+  evaluate: (ai, target) => ai.evaluateRemove(game, cache, target),
 });

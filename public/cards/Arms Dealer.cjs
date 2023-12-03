@@ -14,5 +14,5 @@ exports.card = (util, cache, game, card) => ({
     yield* util.refreshCard(cache, game, card, { target: card });
   },
   activateFactor: "negative",
-  evaluateActivate: (settings) => [settings.removeValue, settings.removeValueFactor],
+  evaluateActivate: (ai, target) => ai.evaluateRemove(game, cache, target),
 });

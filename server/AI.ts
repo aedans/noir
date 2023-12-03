@@ -1,6 +1,6 @@
 import CardInfoCache from "../common/CardInfoCache";
 import { CardColor, CardEvaluator, CardFactor, CardState, Target } from "../common/card";
-import { GameState, currentPlayer, findCard } from "../common/gameSlice.js";
+import { GameState, currentPlayer, findCard, getCard } from "../common/gameSlice.js";
 import { PlayerAction } from "../common/network";
 import util, { Filter } from "../common/util.js";
 
@@ -10,6 +10,7 @@ export type AISettings = {
   activateValueFactor: number;
   removeValue: number;
   removeValueFactor: number;
+  removeProtectedValueFactor: number;
   stealValue: number;
   stealValueFactor: number;
   revealValue: number;
@@ -36,6 +37,7 @@ export default class AI {
         activateValueFactor: 1.5,
         removeValue: .01,
         removeValueFactor: 1,
+        removeProtectedValueFactor: .5,
         stealValue: .01,
         stealValueFactor: 2,
         revealValue: 1,
@@ -167,13 +169,13 @@ export default class AI {
     depth: number
   ): [number, Target | undefined] {
     if (targets == undefined || depth >= 1) {
-      return [evaluator(this.settings, undefined)[0], undefined];
+      return [evaluator(this, undefined)[0], undefined];
     } else {
       let bestTarget: Target | undefined = undefined;
       let bestEval = 0;
       for (const target of util.filter(cache, game, targets)) {
         const { zone, player } = findCard(game, target)!;
-        let [evaluation, evaluationFactor] = evaluator(this.settings, target);
+        let [evaluation, evaluationFactor] = evaluator(this, target);
         if (zone == "deck" && evaluationFactor > 0) {
           evaluation += evaluationFactor * this.evaluateCardPlay(game, target, cache, depth + 1)[0];
         } else if (zone == "board" && evaluationFactor > 0) {
@@ -193,6 +195,23 @@ export default class AI {
       }
 
       return [bestEval, bestTarget];
+    }
+  }
+
+  evaluateRemove(game: GameState, cache: CardInfoCache, target: Target | undefined): [number, number] {
+    if (target == undefined) {
+      return [this.settings.removeValue, this.settings.removeValueFactor];
+    } else {
+      const state = getCard(game, target)!;
+      const info = cache.getCardInfo(game, state);
+      
+      let { removeValue, removeValueFactor } = this.settings;
+
+      if (info.keywords.some(x => x[0] == "protected")) {
+        removeValueFactor *= this.settings.removeProtectedValueFactor;
+      }
+
+      return [removeValue, removeValueFactor]
     }
   }
 }
