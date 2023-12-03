@@ -164,11 +164,11 @@ export default class AI {
       let bestEval = 0;
       for (const target of util.filter(cache, game, targets)) {
         const { zone, player } = findCard(game, target)!;
-        let evaluation = targeter(this.settings, target);
-        if (zone == "deck") {
-          evaluation += this.evaluateCardPlay(game, target, cache, depth + 1)[0];
-        } else if (zone == "board") {
-          evaluation += this.evaluateCardActivate(game, target, cache, depth + 1)[0];
+        let [evaluation, evaluationFactor] = targeter(this.settings, target);
+        if (zone == "deck" && evaluationFactor > 0) {
+          evaluation += evaluationFactor * this.evaluateCardPlay(game, target, cache, depth + 1)[0];
+        } else if (zone == "board" && evaluationFactor > 0) {
+          evaluation += evaluationFactor * this.evaluateCardActivate(game, target, cache, depth + 1)[0];
         }
 
         if (factor == "positive") {
