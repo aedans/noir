@@ -30,32 +30,31 @@ export default class AI {
   settings: AISettings;
 
   constructor(settings: Partial<AISettings>) {
-    this.settings = Object.assign(
-      {
-        endTurnValue: -0.01,
-        agentValue: 4,
-        activateValueFactor: 1.5,
-        removeValue: .01,
-        removeValueFactor: 1,
-        removeProtectedValueFactor: .5,
-        stealValue: .01,
-        stealValueFactor: 2,
-        revealValue: 1,
-        revealDeckValue: 0.5,
-        debtValue: -0.5,
-        delayValue: -1,
-        departValue: -4,
-        tributeValue: -2,
-        disloyalValue: -1,
-        vipValueFactor: 1.5,
-        protectedValueFactor: 1.5,
-        blueAgentValue: 1,
-        orangeAgentValue: 1,
-        greenAgentValue: 1,
-        purpleAgentValue: 1,
-      } as AISettings,
-      settings
-    );
+    const defaultSettings: AISettings = {
+      endTurnValue: -0.01,
+      agentValue: 4,
+      activateValueFactor: 1.5,
+      removeValue: 0.01,
+      removeValueFactor: 1,
+      removeProtectedValueFactor: 0.5,
+      stealValue: 0.01,
+      stealValueFactor: 2,
+      revealValue: 1,
+      revealDeckValue: 0.5,
+      debtValue: -0.5,
+      delayValue: -1,
+      departValue: -4,
+      tributeValue: -2,
+      disloyalValue: -1,
+      vipValueFactor: 1.5,
+      protectedValueFactor: 1.5,
+      blueAgentValue: 1,
+      orangeAgentValue: 1,
+      greenAgentValue: 1,
+      purpleAgentValue: 1,
+    };
+
+    this.settings = Object.assign(defaultSettings, settings);
   }
 
   bestAction(game: GameState, cache: CardInfoCache, invalid: PlayerAction[]): PlayerAction {
@@ -204,14 +203,14 @@ export default class AI {
     } else {
       const state = getCard(game, target)!;
       const info = cache.getCardInfo(game, state);
-      
+
       let { removeValue, removeValueFactor } = this.settings;
 
-      if (info.keywords.some(x => x[0] == "protected")) {
+      if (info.keywords.some((x) => x[0] == "protected")) {
         removeValueFactor *= this.settings.removeProtectedValueFactor;
       }
 
-      return [removeValue, removeValueFactor]
+      return [removeValue, removeValueFactor];
     }
   }
 }
