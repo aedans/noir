@@ -1,11 +1,12 @@
 import CardInfoCache from "../common/CardInfoCache";
-import { CardColor, CardEvaluator, CardFactor, CardState, Target } from "../common/card";
+import { CardColor, CardCost, CardEvaluator, CardFactor, CardState, Target } from "../common/card";
 import { GameState, currentPlayer, findCard, getCard } from "../common/gameSlice.js";
 import { PlayerAction } from "../common/network";
 import util, { Filter } from "../common/util.js";
 
 export type AISettings = {
   endTurnValue: number;
+  agentCostValueFactor: number;
   agentValue: number;
   activateValueFactor: number;
   removeValue: number;
@@ -32,6 +33,7 @@ export default class AI {
   constructor(settings: Partial<AISettings>) {
     const defaultSettings: AISettings = {
       endTurnValue: -0.01,
+      agentCostValueFactor: 2,
       agentValue: 4,
       activateValueFactor: 1.5,
       removeValue: 0.01,
@@ -78,7 +80,7 @@ export default class AI {
     const player = util.currentPlayer(game);
     for (const card of util.filter(cache, game, { zones: ["deck"], playable: true, players: [player] })) {
       const [evaluation, target] = this.evaluateCardPlay(game, card, cache);
-      yield [evaluation, { type: "do", id: card.id, target }];
+      yield [evaluation / this.evaluateCost(cache.getCardInfo(game, card).cost), { type: "do", id: card.id, target }];
     }
   }
 
@@ -138,7 +140,7 @@ export default class AI {
     const player = util.currentPlayer(game);
     for (const card of util.filter(cache, game, { zones: ["board"], activatable: true, players: [player] })) {
       const [evaluation, target] = this.evaluateCardActivate(game, card, cache);
-      yield [evaluation, { type: "do", id: card.id, target }];
+      yield [evaluation / this.evaluateCost(cache.getCardInfo(game, card).activateCost), { type: "do", id: card.id, target }];
     }
   }
 
@@ -212,5 +214,9 @@ export default class AI {
 
       return [removeValue, removeValueFactor];
     }
+  }
+
+  evaluateCost(cost: CardCost) {
+    return cost.money + cost.agents * this.settings.agentCostValueFactor;
   }
 }
