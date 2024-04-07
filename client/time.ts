@@ -36,7 +36,7 @@ const shadows = [
 
 export function useTimeColorFilter() {
   const player = useContext(PlayerContext);
-  const turn = useClientSelector((state) => Math.floor((state.game.current.turn - player + 1) / 2) % colors.length);
+  const turn = useClientSelector((state) => Math.floor((state.game.turn - player + 1) / 2) % colors.length);
   const colorFilterRef = useRef(new PixiFilters.ColorMatrixFilter());
   const lastColor = useRef(getRGB(colors[turn]));
 
@@ -70,7 +70,7 @@ export function useTimeColorFilter() {
 
 export function useTimeShadowFilter(shadow: number) {
   const player = useContext(PlayerContext);
-  const turn = useClientSelector((state) => Math.floor((state.game.current.turn - player + 1) / 2) % shadows.length);
+  const turn = useClientSelector((state) => Math.floor((state.game.turn - player + 1) / 2) % shadows.length);
   const shadowFilterRef = useRef(new DropShadowFilter({ blur: 1 }));
 
   useLayoutEffect(() => {

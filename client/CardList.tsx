@@ -37,7 +37,7 @@ export function isCardListPropsEqual(a: CardListProps, b: CardListProps) {
 export function useCardInfoList(states: CardState[], deps: ReadonlyArray<unknown>) {
   const [cards, setCards] = useState([] as CardStateInfo[]);
   const cache = useContext(CacheContext);
-  const game = useClientSelector((state) => state.game.current);
+  const game = useClientSelector((state) => state.game);
 
   function resetCards() {
     setCards(states.filter((card) => isLoaded(card)).map((state) => ({ state, info: cache.getCardInfo(game, state) })));

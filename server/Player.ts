@@ -1,10 +1,7 @@
 import { Deck } from "../common/decks.js";
-import { PlayerId, Winner, currentPlayer } from "../common/gameSlice.js";
-import { HistoryAction, batch, historySlice } from "../common/historySlice.js";
+import { GameAction, GameState, PlayerId, Winner, currentPlayer, gameSlice, initialGameState } from "../common/gameSlice.js";
 import { random } from "../common/util.js";
 import { PlayerInit, PlayerAction, NoirServerSocket } from "../common/network.js";
-import { HistoryState } from "../common/historySlice.js";
-import { initialHistoryState } from "../common/historySlice.js";
 import { Difficulty, MissionName } from "./Mission.js";
 import CardInfoCache from "../common/CardInfoCache.js";
 import LocalCardInfoCache from "./LocalCardInfoCache.js";
@@ -17,7 +14,7 @@ export default interface Player {
   name: string;
   ai: AI | null;
   init(): Promise<PlayerInit>;
-  send(actions: HistoryAction[], name: string): void;
+  send(actions: GameAction[], name: string): void;
   cosmetic(id: string, cosmetic: CardCosmetic): void;
   error(message: string): void;
   end(winner: Winner): void;
@@ -26,7 +23,7 @@ export default interface Player {
 
 export class SocketPlayer implements Player {
   callbacks: ((action: PlayerAction | "concede") => void)[] = [];
-  actions: HistoryAction[] = [];
+  actions: GameAction[] = [];
   cosmetics: [string, CardCosmetic][] = [];
   ai = null;
 
@@ -75,7 +72,7 @@ export class SocketPlayer implements Player {
     });
   }
 
-  send(actions: HistoryAction[], name: string) {
+  send(actions: GameAction[], name: string) {
     this.socket.emit("actions", actions, name);
     this.actions.push(...actions);
   }
@@ -101,7 +98,7 @@ export class SocketPlayer implements Player {
 
 export abstract class AIPlayer implements Player {
   callbacks: ((action: PlayerAction) => void)[] = [];
-  history: HistoryState = initialHistoryState();
+  state: GameState = initialGameState();
   invalid: PlayerAction[] = [];
   valid: PlayerAction[] = [];
   timeout: boolean = true;
@@ -117,8 +114,10 @@ export abstract class AIPlayer implements Player {
     return Promise.resolve({ deck: this.deck });
   }
 
-  send(actions: HistoryAction[]): void {
-    this.history = historySlice.reducer(this.history, batch({ actions }));
+  send(actions: GameAction[]): void {
+    for (const action of actions) {
+      this.state = gameSlice.reducer(this.state, action);
+    }
 
     this.invalid = [];
     this.valid = [];
@@ -129,10 +128,10 @@ export abstract class AIPlayer implements Player {
   cosmetic(): void {}
 
   doAction() {
-    const current = currentPlayer(this.history.current);
+    const current = currentPlayer(this.state);
     if (current == this.player) {
       this.cache.reset();
-      const action = this.ai.bestAction(this.history.current, this.cache, this.invalid);
+      const action = this.ai.bestAction(this.state, this.cache, this.invalid);
 
       this.valid.push(action);
 

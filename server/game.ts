@@ -3,8 +3,10 @@ import {
   currentPlayer,
   findCard,
   GameAction,
+  gameSlice,
   GameState,
   getCard,
+  initialGameState,
   noop,
   opponentOf,
   PlayerId,
@@ -12,17 +14,7 @@ import {
   Winner,
 } from "../common/gameSlice.js";
 import { CardColor, CardCost, CardGenerator, CardState, Target } from "../common/card.js";
-import {
-  HistoryAction,
-  historySlice,
-  HistoryState,
-  initialHistoryState,
-  setAction,
-  setHidden,
-  liftAction,
-  cleanAction,
-} from "../common/historySlice.js";
-import util, { Filter, validateDeck } from "../common/util.js";
+import util, { Filter, isRevealed, validateDeck } from "../common/util.js";
 import { PlayerAction, PlayerInit } from "../common/network.js";
 import CardInfoCache from "../common/CardInfoCache.js";
 import LocalCardInfoCache from "./LocalCardInfoCache.js";
@@ -32,7 +24,7 @@ export type OnGameEnd = (
   winner: Winner,
   players: [Player, Player],
   inits: [PlayerInit, PlayerInit],
-  state: HistoryState,
+  state: GameState,
   isValid: boolean
 ) => void;
 
@@ -164,7 +156,7 @@ function* doAction(cache: CardInfoCache, game: GameState, action: PlayerAction):
     yield* doCard(cache, game, action.id, action.target);
   }
 
-  const toReveal: Target[] = [];
+  const toReveal: CardState[] = [];
   for (const card of util.filter(cache, game, { zones: ["board"], hidden: true })) {
     if (toReveal.some((c) => c.id == card.id)) {
       continue;
@@ -184,7 +176,8 @@ function* doAction(cache: CardInfoCache, game: GameState, action: PlayerAction):
   }
 
   for (const target of toReveal) {
-    yield revealCard({ target });
+    const { zone, player } = findCard(game, target)!;
+    yield revealCard({ target, zone, player });
   }
 }
 
@@ -211,15 +204,10 @@ function hasWinner(cache: CardInfoCache, game: GameState): Winner | null {
   }
 }
 
-function* initalizePlayer(
-  cache: CardInfoCache,
-  state: HistoryState,
-  player: PlayerId,
-  init: PlayerInit
-): CardGenerator {
+function* initializePlayer(cache: CardInfoCache, state: GameState, player: PlayerId, init: PlayerInit): CardGenerator {
   for (const [name, number] of Object.entries(init.deck.cards)) {
     for (let i = 0; i < number; i++) {
-      yield* util.addCard(cache, state.current, undefined, {
+      yield* util.addCard(cache, state, undefined, {
         target: util.cid(),
         name,
         player,
@@ -230,81 +218,33 @@ function* initalizePlayer(
 }
 
 export async function createGame(players: [Player, Player], onEnd: OnGameEnd) {
-  let state = initialHistoryState();
+  let state = initialGameState();
 
   function sendActions(generator: CardGenerator, source: PlayerId, name: string) {
-    const length = state.history.length;
-
-    let newState = state;
-    let next = generator.next(state.current);
-    const historyActions: HistoryAction[] = [];
+    let next = generator.next(state);
+    const actions: GameAction[] = [];
     while (!next.done) {
-      const action = cleanAction(liftAction(newState.history.length, next.value as GameAction));
-      historyActions.push(action);
-      newState = historySlice.reducer(newState, action);
-      next = generator.next(newState.current);
+      actions.push(next.value);
+      state = gameSlice.reducer(state, next.value);
+      next = generator.next(state);
     }
 
-    state = newState;
-
-    const gameActions = state.history.slice(length);
-
     for (const player of [0, 1] as const) {
-      function isHidden(action: GameAction) {
-        return (
-          source != null &&
-          action.payload.target &&
-          player != source &&
-          getCard(state.current, action.payload.target)?.hidden
-        );
-      }
+      const revealedActions = actions
+        .filter((x) => x.type != "game/noop")
+        .filter((action) => !action.payload.target || player == source || isRevealed(state, action.payload.target?.id));
 
-      function hide(action: GameAction, i: number) {
-        if (
-          source != null &&
-          action.payload.target &&
-          player != source &&
-          getCard(state.current, action.payload.target)?.hidden
-        ) {
-          return setHidden({ target: { id: action.payload.target.id }, index: length + i });
-        } else {
-          return setAction({ action, index: length + i });
-        }
-      }
-
-      function reveal(action: GameAction) {
+      for (const action of revealedActions) {
         if (action.type == "game/revealCard" && action.payload.target) {
-          const id = action.payload.target.id;
-          return state.history.flatMap((action, index) => {
-            return action.payload.target?.id == id ? [setAction({ action, index })] : [];
-          });
-        } else {
-          return [];
-        }
-      }
-
-      const actions = [
-        ...gameActions.map(hide),
-        ...gameActions.flatMap(reveal),
-        ...historyActions.filter((action) => action.type == "history/setUndone"),
-      ];
-
-      actions.sort((a, b) => a.payload.index - b.payload.index);
-
-      for (const action of gameActions) {
-        if (
-          (action.type == "game/revealCard" || (action.type == "game/addCard" && !isHidden(action))) &&
-          action.payload.target
-        ) {
-          const card = util.getCard(state.current, action.payload.target);
-          const cardPlayer = util.findCard(state.current, card).player;
+          const card = util.getCard(state, action.payload.target);
+          const cardPlayer = util.findCard(state, card).player;
           getCosmetic(players[cardPlayer].id, card.name).then((cosmetic) =>
             players[player].cosmetic(card.id, cosmetic)
           );
         }
       }
 
-      players[player].send(actions, name);
+      players[player].send(revealedActions, name);
     }
   }
 
@@ -326,7 +266,7 @@ export async function createGame(players: [Player, Player], onEnd: OnGameEnd) {
   }
 
   for (const player of [0, 1] as const) {
-    const generator = initalizePlayer(cache, state, player, inits[player]);
+    const generator = initializePlayer(cache, state, player, inits[player]);
     sendActions(generator, player, `player${player}/init`);
   }
 
@@ -354,17 +294,17 @@ export async function createGame(players: [Player, Player], onEnd: OnGameEnd) {
         return;
       }
 
-      if (player != currentPlayer(state.current)) {
+      if (player != currentPlayer(state)) {
         players[player].error("Not your turn");
         return;
       }
 
       try {
         cache.reset();
-        const generator = doAction(cache, state.current, action);
+        const generator = doAction(cache, state, action);
         sendActions(generator, player, `player${player}/${action.type}Action`);
 
-        const winner = hasWinner(cache, state.current);
+        const winner = hasWinner(cache, state);
         if (winner != null) {
           tryEndGame(winner);
           return;
@@ -373,7 +313,7 @@ export async function createGame(players: [Player, Player], onEnd: OnGameEnd) {
         if (typeof e == "string") {
           players[player].error(e);
         } else {
-          console.error(e);
+          throw e;
         }
       }
     });

@@ -15,8 +15,9 @@ exports.card = (util, cache, game, card) => ({
       ordering: ["money"],
       excludes: [card],
     });
-    const index = game.history.findIndex((action) => action.type == "game/endTurn");
-    const actions = game.history.slice(0, index);
+    const history = [...game.history].reverse();
+    const index = history.findIndex((action) => action.type == "game/endTurn");
+    const actions = history.slice(0, index);
     const removals =
       actions.filter((action) => action.type == "game/removeCard").length +
       actions.filter((action) => action.type == "game/stealCard").length;

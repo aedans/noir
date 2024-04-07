@@ -10,7 +10,7 @@ import { currentPlayer } from "../../common/gameSlice.js";
 export default function EndTurn() {
   const connection = useContext(ConnectionContext);
   const player = useContext(PlayerContext);
-  const turn = useClientSelector((state) => state.game.current.turn);
+  const turn = useClientSelector((state) => state.game.turn);
 
   const width = 400;
   const height = 100;

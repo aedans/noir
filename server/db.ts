@@ -35,10 +35,11 @@ export const replayCollection = moize.promise(async () => (await noirDB()).colle
 
 export const cards = moize(() => {
   const cards = fs.readdirSync("./public/cards").map((file) => file.substring(0, file.lastIndexOf(".")));
-  const cardStates = cards.map((name) => defaultCardState(name));
+  const cardStates = cards.map((name) => defaultCardState(name, name));
+  const cache = new LocalCardInfoCache();
   const allCards = cardStates.map((state) => ({
     state,
-    info: new LocalCardInfoCache().getCardInfo(initialGameState(), state),
+    info: cache.getDefaultCardInfo(state),
   }));
   const orderedCards = ordered(allCards, ["color", "money"], (card) => card.info);
   return orderedCards.map((card) => card.state.name);

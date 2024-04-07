@@ -11,7 +11,7 @@ export default React.forwardRef(function BoardCard(props: GameCardProps, ref: Re
   const player = useContext(PlayerContext);
   const cache = useContext(CacheContext);
   const connection = useContext(ConnectionContext);
-  const game = useClientSelector((state) => state.game.current);
+  const game = useClientSelector((state) => state.game);
   const cardRef = useRef() as MutableRefObject<PixiContainer>;
 
   useImperativeHandle(ref, () => cardRef.current);

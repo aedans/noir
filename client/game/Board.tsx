@@ -9,7 +9,7 @@ import { gameCardHeight, gameCardWidth, gameCardWidthDiff } from "./GameCard.js"
 
 export default function Board() {
   const player = useContext(PlayerContext);
-  const board = useClientSelector((state) => state.game.current.players[player].board);
+  const board = useClientSelector((state) => state.game.players[player].board);
   const cards = useCardInfoList(board, [board]);
 
   const scale = Math.min(1, 8 / cards.length);

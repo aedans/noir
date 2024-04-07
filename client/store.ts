@@ -1,11 +1,11 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { TypedUseSelectorHook, useDispatch, useSelector } from "react-redux";
-import { historySlice } from "../common/historySlice";
 import { decksSlice } from "./decksSlice";
+import { gameSlice } from "../common/gameSlice";
 
 export const store = configureStore({
   reducer: {
-    game: historySlice.reducer,
+    game: gameSlice.reducer,
     decks: decksSlice.reducer,
   },
 });
@@ -17,11 +17,11 @@ export const useClientDispatch: () => ClientDispatch = useDispatch;
 export const useClientSelector: TypedUseSelectorHook<ClientState> = useSelector;
 
 export function updateLocalStorage() {
-  if (localStorage.getItem("v") != "4") {
+  if (localStorage.getItem("v") != "5") {
     localStorage.clear();
   }
 
-  localStorage.setItem("v", "4");
+  localStorage.setItem("v", "5");
 }
 
 export function getUsername(): string {

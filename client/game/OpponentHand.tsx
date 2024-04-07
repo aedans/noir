@@ -11,7 +11,7 @@ import { useCardInfoList } from "../CardList.js";
 
 export default function OpponentHand() {
   const player = useContext(PlayerContext);
-  const deck = useClientSelector((state) => state.game.current.players[opponentOf(player)].deck);
+  const deck = useClientSelector((state) => state.game.players[opponentOf(player)].deck);
   const cards = useCardInfoList(deck, [deck]);
   const timeShadowFilterRef = useTimeShadowFilter(10);
 

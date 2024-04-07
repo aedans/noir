@@ -47,7 +47,7 @@ export default function Game(props: { message: string }) {
   const app = useApp();
   const cache = useRef(new RemoteCardInfoCache() as CardInfoCache);
   const [highlight, setHighlight] = useState([] as Target[]);
-  const game = useClientSelector((state) => state.game.current);
+  const game = useClientSelector((state) => state.game);
   const cards = useRef({} as { [id: string]: MoveAnimationState });
   const timeColorFilterRef = useTimeColorFilter();
   const [help, setHelp] = useState(null as CardState | null);

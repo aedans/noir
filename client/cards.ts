@@ -69,7 +69,7 @@ export async function loadCardsFromAction(action: AnyAction) {
     await loadCard({ name: action.payload.name });
   }
 
-  if (action.type == "history/setAction") {
-    await loadCardsFromAction(action.payload.action);
+  if (action.type == "game/revealCard" && action.payload.target?.name) {
+    await loadCard({ name: action.payload.target.name });
   }
 }

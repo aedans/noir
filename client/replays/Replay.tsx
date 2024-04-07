@@ -1,8 +1,7 @@
 import { WithId } from "mongodb";
 import React, { useEffect, useState } from "react";
-import { GameAction, isPlayerAction } from "../../common/gameSlice.js";
-import { batch, liftAction, reset } from "../../common/historySlice.js";
-import { loadCardsFromAction, serverOrigin, trpc } from "../cards.js";
+import { GameAction, isPlayerAction, reset } from "../../common/gameSlice.js";
+import { loadCardsFromAction, trpc } from "../cards.js";
 import Game, { ConnectionContext, PlayerContext } from "../game/Game.js";
 import { useClientDispatch } from "../store.js";
 
@@ -21,7 +20,6 @@ export default function Replay(props: { params: { id: string } }) {
 
       let history = replay.history.filter((x) => (x.type as any) != "game/protectCard");
 
-      let index = 0;
       while (history.length > 0) {
         const nextIndex = history.slice(1).findIndex((action) => isPlayerAction(action)) + 1;
         const length = nextIndex <= 0 ? history.length : nextIndex;
@@ -30,14 +28,16 @@ export default function Replay(props: { params: { id: string } }) {
 
         for (const action of actions) {
           await loadCardsFromAction(action);
+          dispatch(action);
+
+          if (action.type == "game/playCard" || action.type == "game/activateCard" || action.type == "game/endTurn") {
+            await new Promise((resolve) => setTimeout(resolve, 1000));
+          }
         }
 
         if (stop) {
           return;
         }
-
-        dispatch(batch({ actions: actions.map((action) => liftAction(index++, action)) }));
-        await new Promise((resolve) => setTimeout(resolve, 1000));
       }
 
       setReplay(replay);
@@ -45,7 +45,7 @@ export default function Replay(props: { params: { id: string } }) {
 
     return () => {
       stop = true;
-      dispatch(reset());
+      dispatch(reset({}));
     };
   }, []);
 

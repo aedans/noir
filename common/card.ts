@@ -5,13 +5,13 @@ import {
   GameState,
   ModifyCardParams,
   PlayCardParams,
+  RevealCardParams,
   TargetCardParams,
 } from "./gameSlice.js";
-import { HistoryAction } from "./historySlice.js";
 import { Filter, Util } from "./util.js";
 import CardInfoCache from "./CardInfoCache.js";
 import { Deck } from "../common/decks.js";
-import AI, { AISettings } from "../server/AI.js";
+import AI from "../server/AI.js";
 
 export type CardStateInfo = {
   state: CardState;
@@ -63,7 +63,7 @@ export type CardCost = {
   agents: number;
 };
 
-export type CardGenerator<T = void> = Generator<GameAction | HistoryAction, T, any>;
+export type CardGenerator<T = void> = Generator<GameAction, T, any>;
 export type CardAction = () => CardGenerator;
 export type CardTargetAction = (target: Target) => CardGenerator;
 export type CardModifier = (card: CardInfo, modifier: ModifierState, state: CardState) => Partial<CardInfo>;
@@ -101,7 +101,7 @@ export type CardInfo = {
   onEnter: CardTrigger<TargetCardParams>;
   onBounce: CardTrigger<TargetCardParams>;
   onSteal: CardTrigger<TargetCardParams>;
-  onReveal: CardTrigger<TargetCardParams>;
+  onReveal: CardTrigger<RevealCardParams>;
   onRefresh: CardTrigger<TargetCardParams>;
   onExhaust: CardTrigger<TargetCardParams>;
   onSetProp: CardTrigger<TargetCardParams>;

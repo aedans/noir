@@ -54,8 +54,8 @@ import {
   addAgents,
   removeAgents,
   ChangeAgentsParams,
+  RevealCardParams,
 } from "./gameSlice.js";
-import { historySlice, SetUndoneParams } from "./historySlice.js";
 import CardInfoCache from "./CardInfoCache.js";
 import { Deck } from "../common/decks.js";
 
@@ -222,7 +222,7 @@ export function validateDeck(cache: CardInfoCache, deck: Deck): DeckValidationRe
   let expectedSize = 20;
 
   for (const [name, count] of Object.entries(deck.cards)) {
-    const info = cache.getCardInfo(initialGameState(), defaultCardState(name));
+    const info = cache.getCardInfo(initialGameState(), defaultCardState(name, `${name} ${count}`));
     errors.push(...info.validateDeck(deck));
     actualSize += count;
     expectedSize += info.modifyDeckSize(deck);
@@ -324,57 +324,27 @@ export function* revealRandom(
   game: GameState,
   card: CardState,
   number: number,
-  filter: Omit<Filter, "hidden"> = {}
+  filter: Omit<Filter, "players" | "hidden" | "number"> = {}
 ): CardGenerator<CardState[]> {
   const opponent = util.opponent(game, card);
-  const cards = this.filter(cache, game, {
-    zones: ["board"],
-    players: [opponent],
-    hidden: true,
-    random: true,
-    number: number,
-    excludes: [card, ...(filter.excludes ?? [])],
-    ...filter,
-  });
+  const cards: CardState[] = [];
 
-  for (const target of cards) {
-    yield* this.revealCard(cache, game, card, { target });
-  }
-
-  if (cards.length < number) {
-    const aliveCards = this.filter(cache, game, {
-      zones: ["deck", "board"],
-      players: [opponent],
-      hidden: true,
-      random: true,
-      number: number - cards.length,
-      excludes: [card, ...cards, ...(filter.excludes ?? [])],
-      ...filter,
-    });
-
-    for (const target of aliveCards) {
-      yield* this.revealCard(cache, game, card, { target });
-    }
-
-    if (cards.length + aliveCards.length < number) {
-      const allCards = this.filter(cache, game, {
-        zones: ["deck", "board", "grave"],
+  for (const zone of ["board", "deck", "grave"] as const) {
+    if (cards.length < number && (!filter.zones || filter.zones.includes(zone))) {
+      cards.push(...this.filter(cache, game, {
+        zones: [zone],
         players: [opponent],
         hidden: true,
         random: true,
-        number: number - cards.length - aliveCards.length,
-        excludes: [card, ...cards, ...aliveCards, ...(filter.excludes ?? [])],
+        number: number - cards.length,
         ...filter,
-      });
-
-      for (const target of allCards) {
-        yield* this.revealCard(cache, game, card, { target });
-      }
-
-      return allCards;
+      }));
     }
+  }
 
-    return aliveCards;
+  for (const target of cards) {
+    const { player, zone } = findCard(game, target)!;
+    yield* this.revealCard(cache, game, card, { target, player, zone });
   }
 
   return cards;
@@ -405,6 +375,10 @@ export function randoms<T>(ts: T[], number: number) {
 
 export function isEqual<T>(a: T, b: T) {
   return JSON.stringify(a) == JSON.stringify(b);
+}
+
+export function isRevealed(game: GameState, id: string) {
+  return game.history.some((action) => action.type == "game/revealCard" && action.payload.target?.id == id);
 }
 
 export function onTrigger<T extends GameParams>(
@@ -440,20 +414,22 @@ function triggerReveal<T extends GameParams>(
   ...[selectTarget]: T extends TargetCardParams ? [undefined?] : [(payload: T) => PlayerId]
 ): CardTrigger<T> {
   return function* (payload) {
-    if (trigger) {
-      yield* trigger(payload);
-    }
-
     if (payload.source) {
-      const sourcePlayer = findCard(game, payload.source)?.player;
+      game = yield noop({});
+      const { player, zone, index } = findCard(game, payload.source)!;
       const targetPlayer = selectTarget
         ? (selectTarget as (payload: T) => PlayerId)(payload)
         : findCard(game, payload.target!)?.player;
 
-      if (sourcePlayer != targetPlayer) {
-        const reveal: TargetCardParams = { source: payload.source, target: payload.source };
+      if (player != targetPlayer) {
+        const target = game.players[player][zone][index];
+        const reveal: RevealCardParams = { source: payload.source, target, player, zone };
         yield revealCard(reveal);
         yield* info.onReveal(reveal);
+      }
+
+      if (trigger) {
+        yield* trigger(payload);
       }
     }
   };
@@ -467,12 +443,13 @@ function* revealSource(
   payload: Omit<TargetCardParams, "source">
 ) {
   if (source) {
-    const sourcePlayer = findCard(game, source)?.player;
+    const { player, zone, index } = findCard(game, source)!;
     const targetPlayer = findCard(game, payload.target)?.player;
 
-    if (sourcePlayer != targetPlayer) {
-      const reveal: TargetCardParams = { source: source, target: source };
-      yield* util.revealCard(cache, game, source, { target: source });
+    if (player != targetPlayer) {
+      const target = game.players[player][zone][index];
+      const reveal: RevealCardParams = { source, target, player, zone };
+      yield* util.revealCard(cache, game, source, reveal);
 
       const state = getCard(game, source);
       if (state) {
@@ -547,17 +524,13 @@ function* onAdd(info: CardInfo, payload: AddCardParams): CardGenerator {
   }
 }
 
-function* onReveal(info: CardInfo, game: GameState, payload: TargetCardParams): CardGenerator {
+function* onReveal(info: CardInfo, game: GameState, payload: RevealCardParams): CardGenerator {
   game = yield noop({});
   const state = getCard(game, payload.target);
 
   if (state && state.hidden) {
     yield* info.onReveal(payload);
   }
-}
-
-function setUndone(game: GameState, payload: SetUndoneParams) {
-  return historySlice.actions.setUndone({ index: game.history.length - payload.index - 1 });
 }
 
 function* onPlayCard(
@@ -567,28 +540,12 @@ function* onPlayCard(
   source: Target | undefined,
   payload: Omit<PlayCardParams, "source">
 ): CardGenerator {
-  yield playCard({ source, ...payload });
-
   const card = getCard(game, payload.target);
   if (!card) {
     return;
   }
 
   const info = cache.getCardInfo(game, card);
-  yield* info.onPlay({ ...payload, source });
-
-  const totalDelay = info.keywords.filter((k): k is ["delay", number] => k[0] == "delay").reduce((a, b) => a + b[1], 0);
-  if (totalDelay > 0) {
-    yield setProp({ target: payload.target, name: "delayed", value: totalDelay });
-  }
-
-  if (info.keywords.some((k) => k[0] == "debt")) {
-    yield setProp({ target: payload.target, name: "collection", value: 2 });
-
-    if (info.type == "operation") {
-      yield* util.enterCard(cache, game, card, { target: card });
-    }
-  }
 
   const totalTribute = {
     cards: info.keywords.filter(([name, type]) => name == "tribute" && type == "card").length,
@@ -634,6 +591,25 @@ function* onPlayCard(
   if (lowestOperations.length < totalTribute.operations) {
     throw "Not enough operations to tribute";
   }
+  
+  yield* revealSource(this, cache, game, source, payload);
+
+  yield playCard({ source, ...payload });
+
+  yield* info.onPlay({ ...payload, source });
+
+  const totalDelay = info.keywords.filter((k): k is ["delay", number] => k[0] == "delay").reduce((a, b) => a + b[1], 0);
+  if (totalDelay > 0) {
+    yield setProp({ target: payload.target, name: "delayed", value: totalDelay });
+  }
+
+  if (info.keywords.some((k) => k[0] == "debt")) {
+    yield setProp({ target: payload.target, name: "collection", value: 2 });
+
+    if (info.type == "operation") {
+      yield* util.enterCard(cache, game, card, { target: card });
+    }
+  }
 
   for (const target of [
     ...lowestCards.slice(0, totalTribute.cards),
@@ -648,8 +624,6 @@ function* onPlayCard(
   } else {
     yield* info.onEnter(payload);
   }
-
-  yield* revealSource(this, cache, game, source, payload);
 }
 
 function* onRemoveCard(
@@ -686,7 +660,7 @@ const util = {
   enterCard: onTrigger<TargetCardParams>(enterCard, (info, game) => triggerReveal(info, game, info.onEnter)),
   bounceCard: onTrigger<TargetCardParams>(bounceCard, (info, game) => triggerReveal(info, game, info.onBounce)),
   stealCard: onTrigger<StealCardParams>(stealCard, (info, game) => triggerReveal(info, game, info.onSteal)),
-  revealCard: onTrigger<TargetCardParams>(revealCard, (info, game) =>
+  revealCard: onTrigger<RevealCardParams>(revealCard, (info, game) =>
     triggerReveal(info, game, (p) => onReveal(info, game, p))
   ),
   refreshCard: onTrigger<TargetCardParams>(refreshCard, (info, game) => triggerReveal(info, game, info.onRefresh)),
@@ -707,7 +681,6 @@ const util = {
   ),
   findCard: findCard as (game: GameState, card: Target) => { player: PlayerId; zone: Zone; index: number },
   getCard: getCard as (game: GameState, card: Target) => CardState,
-  setUndone,
   opponentOf,
   currentPlayer,
   self,
@@ -722,6 +695,7 @@ const util = {
   cid,
   random,
   randoms,
+  isRevealed,
   noop,
 };
 

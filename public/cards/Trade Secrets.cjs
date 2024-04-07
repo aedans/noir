@@ -25,6 +25,10 @@ exports.card = (util, cache, game, card) => ({
       reversed: true,
       excludes: [card],
     });
-    yield* util.revealCard(cache, game, card, { target: deckards[0] });
+
+    if (deckards.length > 0) {
+      const { player, zone } = util.findCard(game, deckards[0]);
+      yield* util.revealCard(cache, game, card, { target: deckards[0], player, zone });  
+    }
   },
 });

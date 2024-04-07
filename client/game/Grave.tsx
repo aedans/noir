@@ -17,7 +17,7 @@ import { useCardInfoList } from "../CardList.js";
 
 export default function Grave() {
   const player = useContext(PlayerContext);
-  const grave = useClientSelector((state) => state.game.current.players[player].grave);
+  const grave = useClientSelector((state) => state.game.players[player].grave);
   const cards = useCardInfoList([...grave].reverse(), [grave]);
   const card = useCallback((props: GameCardProps) => <GameCard {...props} zoomOffsetY={gameCardHeightDiff} />, []);
 

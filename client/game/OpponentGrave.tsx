@@ -17,7 +17,7 @@ import { useCardInfoList } from "../CardList.js";
 
 export default function OpponentGrave() {
   const player = useContext(PlayerContext);
-  const grave = useClientSelector((state) => state.game.current.players[opponentOf(player)].grave);
+  const grave = useClientSelector((state) => state.game.players[opponentOf(player)].grave);
   const cards = useCardInfoList([...grave], [grave]);
   const card = useCallback((props: GameCardProps) => <GameCard {...props} zoomOffsetY={gameCardHeightDiff} />, []);
 

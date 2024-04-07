@@ -9,7 +9,7 @@ import { useCardInfoList } from "../CardList.js";
 
 export default function OpponentBoard() {
   const player = useContext(PlayerContext);
-  const board = useClientSelector((state) => state.game.current.players[opponentOf(player)].board);
+  const board = useClientSelector((state) => state.game.players[opponentOf(player)].board);
   const cards = useCardInfoList(board, [board]);
 
   const scale = Math.min(1, 8 / cards.length);

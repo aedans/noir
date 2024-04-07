@@ -6,7 +6,7 @@ exports.card = (util, cache, game, card) => ({
   cost: { money: 5, agents: 2 },
   colors: [],
   play: function* () {
-    const index = game.history.findIndex((action) => {
+    const index = [...game.history].reverse().findIndex((action) => {
       if (action.type != "game/removeCard" || !action.payload.target) {
         return false;
       }
@@ -21,6 +21,6 @@ exports.card = (util, cache, game, card) => ({
       throw "Your opponent has removed none of your agents";
     }
 
-    yield util.setUndone(game, { index });
+    // yield util.setUndone(game, { index });
   },
 });

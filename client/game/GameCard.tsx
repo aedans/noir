@@ -56,7 +56,7 @@ export function isGameCardPropsEqual(a: GameCardProps, b: GameCardProps) {
 
 export default React.memo(
   React.forwardRef(function GameCard(props: GameCardProps, ref: Ref<PixiContainer>) {
-    const game = useClientSelector((state) => state.game.current);
+    const game = useClientSelector((state) => state.game);
     const cache = useContext(CacheContext);
     const connection = useContext(ConnectionContext);
     const { highlight } = useContext(HighlightContext);

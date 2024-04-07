@@ -155,8 +155,9 @@ export const explanations = [
     baseRequirements,
     (cache, game, player) => {
       const opponent = opponentOf(player);
-      const actionIndex = game.history.findIndex((action) => isPlayerAction(action));
-      const refs = game.history
+      const history = [...game.history].reverse();
+      const actionIndex = history.findIndex((action) => isPlayerAction(action));
+      const refs = history
         .slice(0, actionIndex)
         .filter((action) => action.type == "game/revealCard")
         .map((reveal) => (reveal.payload.target ? findCard(game, reveal.payload.target) : null))

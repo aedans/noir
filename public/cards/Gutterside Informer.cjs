@@ -7,17 +7,9 @@ exports.card = (util, cache, game, card) => ({
   colors: ["purple"],
   activateCost: { agents: 1 },
   activate: function* () {
-    const cards = util.filter(cache, game, {
-      hidden: true,
+    util.revealRandom(cache, game, card, 2, {
+      random: false,
       ordering: ["money"],
-      reversed: false,
-      zones: ["board", "deck"],
-      players: [util.opponent(game, card)],
     });
-
-    if (cards.length > 0) {
-      yield* util.revealCard(cache, game, card, { target: cards[0] });
-      yield* util.revealCard(cache, game, card, { target: cards[1] });
-    }
   },
 });

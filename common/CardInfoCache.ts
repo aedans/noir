@@ -1,5 +1,5 @@
 import { CardInfo, CardState, PartialCardInfoComputation, runPartialCardInfoComputation } from "./card.js";
-import { GameState, defaultCardState, findCard, getCard, initialGameState } from "./gameSlice.js";
+import { GameState, findCard, getCard, initialGameState } from "./gameSlice.js";
 import util from "./util.js";
 
 export default abstract class CardInfoCache {

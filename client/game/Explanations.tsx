@@ -30,7 +30,7 @@ export function ExplanationPopup(props: ExplanationProps) {
   const player = useContext(PlayerContext);
   const cache = useContext(CacheContext);
   const { setHighlight } = useContext(HighlightContext);
-  const game = useClientSelector((state) => state.game.current);
+  const game = useClientSelector((state) => state.game);
   const relevantCards = props.explanation.relevantCards(cache, game, player);
   const allRelevantCards = props.explanation.relevantCards(cache, game, player, true);
 
@@ -121,7 +121,7 @@ export default function Explanations() {
   const [tempExplanations, setTempExplanations] = useState([] as Explanation[]);
 
   useEffect(() => {
-    const newExplanations = explain(cache, game.current, player).filter((e) => !isExplained(e));
+    const newExplanations = explain(cache, game, player).filter((e) => !isExplained(e));
     setClickExplanations((es) => [...es, ...newExplanations.filter((e1) => !es.find((e2) => e1.text == e2.text))]);
   }, [game]);
 
@@ -129,7 +129,7 @@ export default function Explanations() {
     if (help != null) {
       setTempExplanations(
         keywordExplanations.filter((e) =>
-          e.relevantCards(cache, game.current, player, true).some((c) => c.id == help.id)
+          e.relevantCards(cache, game, player, true).some((c) => c.id == help.id)
         )
       );
     } else {

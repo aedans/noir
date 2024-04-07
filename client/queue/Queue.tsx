@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { io } from "socket.io-client";
 import { useLocation } from "wouter";
-import { PlayerId, opponentOf } from "../../common/gameSlice.js";
-import { batch, reset } from "../../common/historySlice.js";
+import { PlayerId, opponentOf, reset } from "../../common/gameSlice.js";
 import { NoirClientSocket, QueueName } from "../../common/network.js";
 import Button from "../Button.js";
 import { targetResolution } from "../Camera.js";
@@ -29,9 +28,8 @@ export default function Queue(props: { params: { queue: string; deck: string } }
       (async () => {
         for (const action of actions) {
           await loadCardsFromAction(action);
+          dispatch(action);
         }
-
-        dispatch(batch({ actions }));
       })();
     });
 
@@ -80,7 +78,7 @@ export default function Queue(props: { params: { queue: string; deck: string } }
 
     return () => {
       socket?.close();
-      dispatch(reset());
+      dispatch(reset({}));
     };
   }, []);
 
