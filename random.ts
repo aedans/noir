@@ -2,7 +2,22 @@ import { createGame } from "./server/game.js";
 import Random from "./server/solo/Random.js";
 import { isMainThread, Worker, parentPort } from "worker_threads";
 
-if (!isMainThread) {
+if (process.argv.includes("--sync")) {
+  let index = 0;
+  while (true) {
+    try {
+      const players: [Random, Random] = [new Random(0, 1), new Random(1, 1)];
+      players[0].timeout = false;
+      players[1].timeout = false;
+  
+      await createGame(players, (winner) => {
+        console.log(`Game ${index++} winner: ${winner}`);
+      });
+    } catch (e) {
+      throw e;
+    }
+  }
+} else if (!isMainThread) {
   parentPort?.on("message", async (index: string) => {
     const players: [Random, Random] = [new Random(0, 1), new Random(1, 1)];
     players[0].timeout = false;

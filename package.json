@@ -61,6 +61,7 @@
     "dev": "concurrently --kill-others \"npm run watch\" \"npm run client\" \"npm run server\"",
     "gauntlet": "npm run build-server && copyfiles public/cards/*.cjs dist && cd dist && node gauntlet.js",
     "random": "npm run build-server && copyfiles public/cards/*.cjs dist && cd dist && node random.js",
+    "random-sync": "npm run build-server && copyfiles public/cards/*.cjs dist && cd dist && node random.js --sync",
     "start": "npm run build-server",
     "format": "prettier --write \"**/*.{ts,js,cjs}\""
   },
