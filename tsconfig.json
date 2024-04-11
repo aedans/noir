@@ -3,9 +3,11 @@
     "esModuleInterop": true,
     "moduleResolution": "Node",
     "target": "ES2022",
+    "module": "ES2022",
     "jsx": "react",
     "resolveJsonModule": true,
-    "module": "ESNext",
-    "strictNullChecks": true
+    "strictNullChecks": true,
+    "outDir": "./dist",
+    "skipLibCheck": true
   }
 }
