@@ -1,5 +1,13 @@
 import { Deck } from "../common/decks.js";
-import { GameAction, GameState, PlayerId, Winner, currentPlayer, gameSlice, initialGameState } from "../common/gameSlice.js";
+import {
+  GameAction,
+  GameState,
+  PlayerId,
+  Winner,
+  currentPlayer,
+  gameSlice,
+  initialGameState,
+} from "../common/gameSlice.js";
 import { random } from "../common/util.js";
 import { PlayerInit, PlayerAction, NoirServerSocket } from "../common/network.js";
 import { Difficulty, MissionName } from "./Mission.js";
@@ -106,7 +114,7 @@ export abstract class AIPlayer implements Player {
   id = null;
   ai: AI;
 
-  constructor(public player: PlayerId, public name: string, public settings: Partial<AISettings>,) {
+  constructor(public player: PlayerId, public name: string, public settings: Partial<AISettings>) {
     this.ai = new AI(settings);
   }
 
@@ -135,17 +143,14 @@ export abstract class AIPlayer implements Player {
 
       this.valid.push(action);
 
-      if (this.timeout) {
-        setTimeout(() => {
+      setTimeout(
+        () => {
           for (const callback of this.callbacks) {
             callback(action);
           }
-        }, 1000);
-      } else {
-        for (const callback of this.callbacks) {
-          callback(action);
-        }
-      }
+        },
+        this.timeout ? 1000 : 0
+      );
     }
   }
 
@@ -172,7 +177,12 @@ export class TestPlayer extends AIPlayer {
 }
 
 export abstract class MissionPlayer extends AIPlayer {
-  constructor(public player: PlayerId, name: MissionName, public difficulty: Difficulty, settings: Partial<AISettings>) {
+  constructor(
+    public player: PlayerId,
+    name: MissionName,
+    public difficulty: Difficulty,
+    settings: Partial<AISettings>
+  ) {
     super(player, `${name} level ${difficulty}`, settings);
   }
 

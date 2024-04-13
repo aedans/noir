@@ -79,7 +79,7 @@ export default class AI {
   *getCardPlayActions(game: GameState, cache: CardInfoCache): Generator<[number, PlayerAction]> {
     const player = util.currentPlayer(game);
     for (const card of util.filter(cache, game, { zones: ["deck"], playable: true, players: [player] })) {
-      const [evaluation, target] = this.evaluateCardPlay(game, card, cache);
+      const [evaluation, target] = this.evaluateCardPlay(game, card, cache, 0);
       yield [evaluation / this.evaluateCost(cache.getCardInfo(game, card).cost), { type: "do", id: card.id, target }];
     }
   }
@@ -88,7 +88,7 @@ export default class AI {
     game: GameState,
     card: CardState,
     cache: CardInfoCache,
-    depth: number = 0
+    depth: number
   ): [number, Target | undefined] {
     const info = cache.getCardInfo(game, card);
     let [evaluation, target] = this.evaluateWithTargets(info.targets, info.evaluate, info.factor, game, cache, depth);
@@ -139,7 +139,7 @@ export default class AI {
   *getCardActivateActions(game: GameState, cache: CardInfoCache): Generator<[number, PlayerAction]> {
     const player = util.currentPlayer(game);
     for (const card of util.filter(cache, game, { zones: ["board"], activatable: true, players: [player] })) {
-      const [evaluation, target] = this.evaluateCardActivate(game, card, cache);
+      const [evaluation, target] = this.evaluateCardActivate(game, card, cache, 0);
       yield [evaluation / this.evaluateCost(cache.getCardInfo(game, card).activateCost), { type: "do", id: card.id, target }];
     }
   }
@@ -148,7 +148,7 @@ export default class AI {
     game: GameState,
     card: CardState,
     cache: CardInfoCache,
-    depth: number = 0
+    depth: number
   ): [number, Target | undefined] {
     const info = cache.getCardInfo(game, card);
     return this.evaluateWithTargets(
