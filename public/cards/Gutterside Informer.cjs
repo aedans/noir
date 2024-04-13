@@ -7,9 +7,9 @@ exports.card = (util, cache, game, card) => ({
   colors: ["purple"],
   activateCost: { agents: 1 },
   activate: function* () {
-    util.revealRandom(cache, game, card, 2, {
-      random: false,
+    const cards = yield* util.revealRandom(cache, game, card, 2, {
       ordering: ["money"],
     });
+    console.log(cards);
   },
 });
