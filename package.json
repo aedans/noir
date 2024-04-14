@@ -62,7 +62,7 @@
     "gauntlet": "npm run build-server && cd dist && node gauntlet.js",
     "random": "npm run build-server && cd dist && node random.js",
     "random-sync": "npm run build-server && cd dist && node random.js --sync",
-    "start": "npm run build-server",
+    "start": "npm run server",
     "format": "prettier --write \"**/*.{ts,js,cjs}\""
   },
   "author": "",
