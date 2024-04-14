@@ -37,39 +37,39 @@ export default abstract class CardInfoCache {
   }
 
   updateCardInfo(game: GameState, state: CardState, info: CardInfo) {
-    // if (!findCard(game, state)) {
-    //   return info;
-    // }
+    if (!findCard(game, state)) {
+      return info;
+    }
 
-    // this.info.set(state.id, info);
+    this.info.set(state.id, info);
 
-    // for (const card of util.filter(this, game, { zones: ["board"] })) {
-    //   const cardInfo = this.getCardInfo(game, card);
-    //   if (util.filter(this, game, cardInfo.effectFilter).find((c) => c.id == state.id)) {
-    //     info = { ...info, ...cardInfo.effect(info, state) };
-    //     this.info.set(state.id, info);
-    //   }
+    for (const card of util.filter(this, game, { zones: ["board"] })) {
+      const cardInfo = this.getCardInfo(game, card);
+      if (util.filter(this, game, cardInfo.effectFilter).find((c) => c.id == state.id)) {
+        info = { ...info, ...cardInfo.effect(info, state) };
+        this.info.set(state.id, info);
+      }
 
-    //   if (util.filter(this, game, cardInfo.secondaryEffectFilter).find((c) => c.id == state.id)) {
-    //     info = { ...info, ...cardInfo.secondaryEffect(info, state) };
-    //     this.info.set(state.id, info);
-    //   }
-    // }
+      if (util.filter(this, game, cardInfo.secondaryEffectFilter).find((c) => c.id == state.id)) {
+        info = { ...info, ...cardInfo.secondaryEffect(info, state) };
+        this.info.set(state.id, info);
+      }
+    }
 
-    // for (const modifier of state.modifiers) {
-    //   const card = getCard(game, modifier.card);
-    //   if (card) {
-    //     const modifiers = this.getCardInfo(game, card).modifiers ?? {};
-    //     if (!modifiers[modifier.name]) {
-    //       throw new Error(`Could not find modifier "${modifier.name}" on ${card.name}`);
-    //     }
+    for (const modifier of state.modifiers) {
+      const card = getCard(game, modifier.card);
+      if (card) {
+        const modifiers = this.getCardInfo(game, card).modifiers ?? {};
+        if (!modifiers[modifier.name]) {
+          throw new Error(`Could not find modifier "${modifier.name}" on ${card.name}`);
+        }
 
-    //     info = { ...info, ...modifiers[modifier.name](info, modifier, state) };
-    //     this.info.set(state.id, info);
-    //   }
-    // }
+        info = { ...info, ...modifiers[modifier.name](info, modifier, state) };
+        this.info.set(state.id, info);
+      }
+    }
 
-    // this.info.set(state.id, info);
+    this.info.set(state.id, info);
 
     return info;
   }
