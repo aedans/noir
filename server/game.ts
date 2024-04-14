@@ -1,6 +1,7 @@
 import Player from "./Player.js";
 import {
   currentPlayer,
+  endTurn,
   findCard,
   GameAction,
   gameSlice,
@@ -9,8 +10,11 @@ import {
   initialGameState,
   noop,
   opponentOf,
+  playCard,
+  PlayCardParams,
   PlayerId,
   revealCard,
+  setProp,
   Winner,
 } from "../common/gameSlice.js";
 import { CardColor, CardCost, CardGenerator, CardState, Target } from "../common/card.js";
@@ -30,7 +34,8 @@ export type OnGameEnd = (
 
 function* doEndTurn(cache: CardInfoCache, game: GameState): CardGenerator {
   const player = currentPlayer(game);
-  yield* util.addMoney(cache, game, undefined, { player, money: 2 });
+
+  yield endTurn({});
 
   for (const card of game.players[player].board) {
     if (card.exhausted || card.activated) {
@@ -41,6 +46,61 @@ function* doEndTurn(cache: CardInfoCache, game: GameState): CardGenerator {
   }
 
   game = yield noop({});
+
+  for (const card of util.filter(cache, game, { zones: ["board"], players: [currentPlayer(game)] })) {
+    if (card.props.delayed != undefined) {
+      yield* util.setProp(cache, game, card, {
+        target: card,
+        name: "delayed",
+        value: card.props.delayed > 1 ? card.props.delayed - 1 : undefined,
+      });
+      yield* util.exhaustCard(cache, game, card, { target: card });
+      yield* util.activateCard(cache, game, card, { target: card });
+    }
+
+    const minDepart = cache
+      .getCardInfo(game, card)
+      .keywords.filter((k): k is ["depart", number] => k[0] == "depart")
+      .reduce((a, b) => Math.min(a, b[1]), 1000);
+
+    if (minDepart < 1000 && (card.props.departing ?? 1000) >= minDepart) {
+      yield setProp({ target: card, name: "departing", value: minDepart - 1 });
+    }
+
+    if (card.props.departing > 0) {
+      yield setProp({
+        target: card,
+        name: "departing",
+        value: card.props.departing > 1 ? card.props.departing - 1 : undefined,
+      });
+
+      if (card.props.departing <= 1) {
+        yield* util.removeCard(cache, game, card, { target: card });
+      }
+    }
+
+    if (card.props.collection != undefined) {
+      yield* util.setProp(cache, game, card, {
+        target: card,
+        name: "collection",
+        value: card.props.collection > 1 ? card.props.collection - 1 : undefined,
+      });
+
+      if (card.props.collection <= 1) {
+        const player = util.findCard(game, card)?.player;
+        const info = cache.getCardInfo(game, card);
+        const money = info.keywords.filter((k): k is ["debt", number] => k[0] == "debt").reduce((a, b) => a + b[1], 0);
+        yield* util.removeMoney(cache, game, card, { player, money });
+
+        if (info.type == "operation") {
+          yield* util.removeCard(cache, game, card, { target: card });
+        }
+      }
+    }
+  }
+
+  game = yield noop({});
+
   const agents = util.filter(cache, game, {
     types: ["agent"],
     zones: ["board"],
@@ -48,8 +108,7 @@ function* doEndTurn(cache: CardInfoCache, game: GameState): CardGenerator {
     exhausted: false,
   });
 
-  yield* util.endTurn(cache, game, {});
-
+  yield* util.addMoney(cache, game, undefined, { player, money: 2 });
   yield* util.addAgents(cache, game, undefined, { player, agents: agents.length });
 }
 
@@ -100,17 +159,94 @@ function* payCost(
   }
 }
 
-function* playCard(cache: CardInfoCache, game: GameState, card: CardState, target: Target | undefined): CardGenerator {
+function* doPlayCard(cache: CardInfoCache, game: GameState, card: CardState, target: Target | undefined): CardGenerator {
   const info = cache.getCardInfo(game, card);
 
   validateTargets(cache, game, card, info.targets, target);
 
-  yield* util.playCard(cache, game, card, { target: card, type: info.type });
+  const totalTribute = {
+    cards: info.keywords.filter(([name, type]) => name == "tribute" && type == "card").length,
+    agents: info.keywords.filter(([name, type]) => name == "tribute" && type == "agent").length,
+    operations: info.keywords.filter(([name, type]) => name == "tribute" && type == "operation").length,
+  };
+
+  const lowestCards = util.filter(cache, game, {
+    players: [util.self(game, card)],
+    zones: ["deck"],
+    types: ["operation"],
+    random: true,
+    ordering: ["money"],
+    excludes: [card],
+  });
+
+  const lowestAgents = util.filter(cache, game, {
+    players: [util.self(game, card)],
+    zones: ["deck"],
+    types: ["agent"],
+    random: true,
+    ordering: ["money"],
+    excludes: [card],
+  });
+
+  const lowestOperations = util.filter(cache, game, {
+    players: [util.self(game, card)],
+    zones: ["deck"],
+    types: ["operation"],
+    random: true,
+    ordering: ["money"],
+    excludes: [card],
+  });
+
+  if (lowestCards.length < totalTribute.cards) {
+    throw "Not enough cards to tribute";
+  }
+
+  if (lowestAgents.length < totalTribute.agents) {
+    throw "Not enough agents to tribute";
+  }
+
+  if (lowestOperations.length < totalTribute.operations) {
+    throw "Not enough operations to tribute";
+  }
+
+  const payload: PlayCardParams = { source: card, target: card, type: info.type };
+
+  yield playCard(payload);
+
+  yield* info.onPlay(payload);
+
+  const totalDelay = info.keywords.filter((k): k is ["delay", number] => k[0] == "delay").reduce((a, b) => a + b[1], 0);
+  if (totalDelay > 0) {
+    yield setProp({ target: payload.target, name: "delayed", value: totalDelay });
+  }
+
+  if (info.keywords.some((k) => k[0] == "debt")) {
+    yield setProp({ target: payload.target, name: "collection", value: 2 });
+
+    if (info.type == "operation") {
+      yield* util.enterCard(cache, game, card, { target: card });
+    }
+  }
+
+  for (const target of [
+    ...lowestCards.slice(0, totalTribute.cards),
+    ...lowestAgents.slice(0, totalTribute.agents),
+    ...lowestOperations.slice(0, totalTribute.operations),
+  ]) {
+    yield* util.removeCard(cache, game, card, { target });
+  }
+
+  if (info.type == "operation") {
+    yield* info.onRemove(payload);
+  } else {
+    yield* info.onEnter(payload);
+  }
+
   yield* payCost(cache, game, card, "play", card.name, info.colors, info.cost, info.targets);
   yield* info.play(target!);
 }
 
-function* activateCard(
+function* doActivateCard(
   cache: CardInfoCache,
   game: GameState,
   card: CardState,
@@ -142,9 +278,9 @@ function* doCard(cache: CardInfoCache, game: GameState, id: string, target: Targ
     }
 
     if (zone == "deck") {
-      yield* playCard(cache, game, game.players[player][zone][index], target);
+      yield* doPlayCard(cache, game, game.players[player][zone][index], target);
     } else if (zone == "board") {
-      yield* activateCard(cache, game, game.players[player][zone][index], target);
+      yield* doActivateCard(cache, game, game.players[player][zone][index], target);
     }
   }
 }
