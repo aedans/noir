@@ -9,5 +9,5 @@ exports.card = (util, cache, game, card) => ({
   activate: function* () {
     yield* util.revealRandom(cache, game, card, 1, {});
   },
-  evaluate: (ai) => [ai.settings.revealValue, 0]
+  evaluate: (ai) => [ai.settings.revealValue, 0],
 });

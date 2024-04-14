@@ -331,14 +331,16 @@ export function* revealRandom(
 
   for (const zone of ["board", "deck", "grave"] as const) {
     if (cards.length < number && (!filter.zones || filter.zones.includes(zone))) {
-      cards.push(...this.filter(cache, game, {
-        zones: [zone],
-        players: [opponent],
-        hidden: true,
-        random: true,
-        number: number - cards.length,
-        ...filter,
-      }));
+      cards.push(
+        ...this.filter(cache, game, {
+          zones: [zone],
+          players: [opponent],
+          hidden: true,
+          random: true,
+          number: number - cards.length,
+          ...filter,
+        })
+      );
     }
   }
 
@@ -591,7 +593,7 @@ function* onPlayCard(
   if (lowestOperations.length < totalTribute.operations) {
     throw "Not enough operations to tribute";
   }
-  
+
   yield* revealSource(this, cache, game, source, payload);
 
   yield playCard({ source, ...payload });

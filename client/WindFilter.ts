@@ -30,7 +30,7 @@ void main(void)
 	vTextureCoord = filterTextureCoord();
 	vFilterCoord = ( filterMatrix * vec3( vTextureCoord, 1.0)  ).xy;
 }
-`
+`;
 
 const fragment = `
 varying vec2 vFilterCoord;
@@ -67,13 +67,18 @@ export default class WindFilter extends Filter {
       time: (new Date().valueOf() - start) / 1000,
     });
   }
-  
+
   setSprite(sprite: ISpriteMaskTarget) {
     this.sprite = sprite;
     this.matrix = new Matrix();
   }
 
-  apply(filterManager: FilterSystem, input: RenderTexture, output: RenderTexture, clearMode?: CLEAR_MODES | undefined): void {
+  apply(
+    filterManager: FilterSystem,
+    input: RenderTexture,
+    output: RenderTexture,
+    clearMode?: CLEAR_MODES | undefined
+  ): void {
     this.uniforms.filterMatrix = filterManager.calculateSpriteMatrix(this.matrix, this.sprite);
     this.uniforms.time = (new Date().valueOf() - start) / 1000;
 

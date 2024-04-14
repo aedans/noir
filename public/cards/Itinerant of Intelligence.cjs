@@ -23,14 +23,14 @@ exports.card = (util, cache, game, card) => ({
         zones: ["board"],
         types: ["agent"],
         excludes: [card],
-        hasActivate: true
+        hasActivate: true,
       });
       const agentos = util.filter(cache, game, {
         players: [util.self(game, card)],
         zones: ["board"],
         types: ["agent"],
         excludes: [card],
-        hasActivate: false
+        hasActivate: false,
       });
       for (const agen of activatos) {
         yield* util.refreshCard(cache, game, card, { target: agen });

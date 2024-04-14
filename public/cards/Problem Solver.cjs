@@ -16,14 +16,15 @@ exports.card = (util, cache, game, card) => ({
     yield* util.removeCard(cache, game, card, { target });
   },
   effectFilter: {
-    players: [util.self(game,card)],
+    players: [util.self(game, card)],
     types: ["agent"],
-    zones: ["deck","board"]
+    zones: ["deck", "board"],
   },
   effect: (affectedInfo, affectedCard) => {
     return {
-      onRemove: function* (){
-        yield* util.refreshCard(cache, game, card, {target: card})
-    }
-  }},
-})
+      onRemove: function* () {
+        yield* util.refreshCard(cache, game, card, { target: card });
+      },
+    };
+  },
+});

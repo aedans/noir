@@ -188,8 +188,7 @@ function clearBoard(state: GameState, player: PlayerId) {
 }
 
 export const gameReducers = {
-  noop: (state: GameState, action: PayloadAction<{}>) => {
-  },
+  noop: (state: GameState, action: PayloadAction<{}>) => {},
   reset: (state: GameState, action: PayloadAction<{}>) => {
     return initialGameState();
   },

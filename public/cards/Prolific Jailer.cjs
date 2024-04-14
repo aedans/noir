@@ -5,7 +5,7 @@ exports.card = (util, cache, game, card) => ({
   text: "Activate this, [B][B]: remove an agent.",
   cost: { money: 12 },
   colors: ["blue"],
-  keywords: [["protected"],["delay",1]],
+  keywords: [["protected"], ["delay", 1]],
   activateCost: { agents: 2 },
   activateTargets: {
     zones: ["board", "deck"],

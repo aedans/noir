@@ -7,5 +7,5 @@ exports.card = (util, cache, game, card) => ({
   play: function* () {
     yield* util.revealRandom(cache, game, card, 2, {});
   },
-  evaluate: (ai) => [ai.settings.revealValue * 2, 0]
+  evaluate: (ai) => [ai.settings.revealValue * 2, 0],
 });

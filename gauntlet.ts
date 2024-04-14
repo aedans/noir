@@ -49,36 +49,38 @@ if (isMainThread) {
             continue;
           }
 
-          promises.push(runGame([name1, name2]).then((winner) => {
-            const verbs: { [key in Winner]: string } = {
-              [0]: "wins",
-              [1]: "loses",
-              draw: "draws",
-            };
+          promises.push(
+            runGame([name1, name2]).then((winner) => {
+              const verbs: { [key in Winner]: string } = {
+                [0]: "wins",
+                [1]: "loses",
+                draw: "draws",
+              };
 
-            console.log(`${name1} ${verbs[winner]} against ${name2}`);
+              console.log(`${name1} ${verbs[winner]} against ${name2}`);
 
-            for (const name of [name1, name2]) {
-              if (!(name in records)) {
-                records[name] = { wins: 0, losses: 0, draws: 0 };
+              for (const name of [name1, name2]) {
+                if (!(name in records)) {
+                  records[name] = { wins: 0, losses: 0, draws: 0 };
+                }
               }
-            }
 
-            if (winner == 0) {
-              records[name1].wins++;
-              records[name2].losses++;
-            }
+              if (winner == 0) {
+                records[name1].wins++;
+                records[name2].losses++;
+              }
 
-            if (winner == 1) {
-              records[name1].losses++;
-              records[name2].wins++;
-            }
+              if (winner == 1) {
+                records[name1].losses++;
+                records[name2].wins++;
+              }
 
-            if (winner == "draw") {
-              records[name1].draws++;
-              records[name2].draws++;
-            }
-          }));
+              if (winner == "draw") {
+                records[name1].draws++;
+                records[name2].draws++;
+              }
+            })
+          );
         }
       }
     }

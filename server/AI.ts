@@ -140,7 +140,10 @@ export default class AI {
     const player = util.currentPlayer(game);
     for (const card of util.filter(cache, game, { zones: ["board"], activatable: true, players: [player] })) {
       const [evaluation, target] = this.evaluateCardActivate(game, card, cache, 0);
-      yield [evaluation / this.evaluateCost(cache.getCardInfo(game, card).activateCost), { type: "do", id: card.id, target }];
+      yield [
+        evaluation / this.evaluateCost(cache.getCardInfo(game, card).activateCost),
+        { type: "do", id: card.id, target },
+      ];
     }
   }
 

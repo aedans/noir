@@ -14,7 +14,7 @@ export default class LocalCardInfoCache extends CardInfoCache {
     }
 
     if (!cards[card.name]) {
-      const path = `../public/cards/${card.name}.cjs`;  
+      const path = `../public/cards/${card.name}.cjs`;
       cards[card.name] = require(path).card;
     }
 

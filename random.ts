@@ -9,7 +9,7 @@ if (process.argv.includes("--sync")) {
       const players: [Random, Random] = [new Random(0, 1), new Random(1, 1)];
       players[0].timeout = false;
       players[1].timeout = false;
-  
+
       await createGame(players, (winner) => {
         console.log(`Game ${index++} winner: ${winner}`);
       });

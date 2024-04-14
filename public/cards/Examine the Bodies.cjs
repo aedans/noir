@@ -7,12 +7,19 @@ exports.card = (util, cache, game, card) => ({
   keywords: [["tribute", "agent"]],
   colors: ["purple"],
   play: function* () {
-    yield* util.revealRandom(cache, game, card, 2 + util.filter(cache, game, {
-      zones: ["grave"],
-      types: ["agent"],
-      excludes: [card],
-    }).length, {
-      zones: ["board"],
-    });
+    yield* util.revealRandom(
+      cache,
+      game,
+      card,
+      2 +
+        util.filter(cache, game, {
+          zones: ["grave"],
+          types: ["agent"],
+          excludes: [card],
+        }).length,
+      {
+        zones: ["board"],
+      }
+    );
   },
 });
