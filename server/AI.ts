@@ -80,7 +80,10 @@ export default class AI {
     const player = util.currentPlayer(game);
     for (const card of util.filter(cache, game, { zones: ["deck"], playable: true, players: [player] })) {
       const [evaluation, target] = this.evaluateCardPlay(game, card, cache, 0);
-      yield [evaluation / this.evaluateCost(cache.getCardInfo(game, card).cost), { type: "do", id: card.id, target }];
+      yield [
+        evaluation / this.evaluateCost(cache.getCardInfo(game, card).cost),
+        { type: "do", id: card.id, target, prepared: [] },
+      ];
     }
   }
 
@@ -142,7 +145,7 @@ export default class AI {
       const [evaluation, target] = this.evaluateCardActivate(game, card, cache, 0);
       yield [
         evaluation / this.evaluateCost(cache.getCardInfo(game, card).activateCost),
-        { type: "do", id: card.id, target },
+        { type: "do", id: card.id, target, prepared: [] },
       ];
     }
   }

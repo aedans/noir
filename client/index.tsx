@@ -1,6 +1,8 @@
 import { auth, trpc } from "./cards.js";
 import { Application, Assets, settings } from "./pixi.js";
 
+document.addEventListener('contextmenu', event => event.preventDefault());
+
 if (auth.token == null) {
   trpc.auth.query().then(({ token }) => auth.token = token);
 }

@@ -308,6 +308,7 @@ export default React.memo(
       anime({
         targets: lastColor.current,
         duration: 700,
+        delay: 100,
         easing: "easeOutExpo",
         r,
         g,
@@ -329,6 +330,7 @@ export default React.memo(
       anime({
         targets: lastHiddenTint.current,
         duration: 700,
+        delay: 100,
         easing: "easeOutExpo",
         r,
         g,
@@ -358,6 +360,7 @@ export default React.memo(
       anime({
         targets: borderTintRef.current,
         duration: 700,
+        delay: 100,
         easing: "easeOutExpo",
         alpha,
       });
@@ -366,6 +369,7 @@ export default React.memo(
       anime({
         targets: lastBorderTint.current,
         duration: 700,
+        delay: 100,
         easing: "easeOutExpo",
         r,
         g,
@@ -384,6 +388,7 @@ export default React.memo(
       anime({
         targets: dimFilterRef.current,
         duration: 700,
+        delay: 100,
         easing: "easeOutExpo",
         alpha,
         update() {
@@ -397,17 +402,18 @@ export default React.memo(
     }, [props.info.colors]);
 
     useEffect(() => {
-      const outerStrength = props.shouldGlow ? 4 : 0;
+      const outerStrength = props.shouldGlow && !(props.shouldDimWhenExhausted && props.state.exhausted) ? 4 : 0;
       anime({
         targets: glowFilterRef.current,
         duration: 700,
+        delay: 100,
         easing: "easeOutExpo",
         outerStrength,
         update() {
           glowFilterRef.current.enabled = glowFilterRef.current.outerStrength != 0;
         },
       });
-    }, [props.shouldGlow]);
+    }, [props.shouldGlow, props.shouldDimWhenExhausted, props.state.exhausted]);
 
     const info = texture ? (
       <Sprite texture={texture} />

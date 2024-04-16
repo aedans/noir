@@ -2,7 +2,7 @@
 /** @type {import("../../common/card").PartialCardInfoComputation} */
 exports.card = (util, cache, game, card) => ({
   type: "agent",
-  text: "Activate this: refresh your other agents, and gain an agent activation for each one without an activated ability. This can only be activated once each turn.",
+  text: "[A]: refresh your other agents. This can only be activated once each turn.",
   cost: { money: 9 },
   turn: function* () {
     yield* util.setProp(cache, game, card, {
@@ -35,10 +35,6 @@ exports.card = (util, cache, game, card) => ({
       for (const agen of activatos) {
         yield* util.refreshCard(cache, game, card, { target: agen });
       }
-      yield* util.addAgents(cache, game, card, {
-        player: util.currentPlayer(game),
-        agents: agentos.length,
-      });
     }
   },
 });

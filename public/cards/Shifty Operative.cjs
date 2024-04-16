@@ -22,7 +22,7 @@ exports.card = (util, cache, game, card) => ({
         },
       });
       yield* util.modifyCard(cache, game, card, {
-        target: punger[1],
+        target: punger[E],
         modifier: {
           card,
           name: "Tribute",

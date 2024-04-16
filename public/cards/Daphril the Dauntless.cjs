@@ -2,10 +2,9 @@
 /** @type {import("../../common/card").PartialCardInfoComputation} */
 exports.card = (util, cache, game, card) => ({
   type: "agent",
-  text: "Activate this, [1]: remove the highest cost card each in your opponent's deck and board.",
+  text: "[A]: remove the highest cost card each in your opponent's deck and board.",
   cost: { money: 36 },
   keywords: [["vip"], ["protected"]],
-  activateCost: { agents: 1 },
   activate: function* () {
     const deckstuff = util.filter(cache, game, {
       hidden: false,

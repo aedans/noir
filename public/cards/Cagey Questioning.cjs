@@ -16,12 +16,12 @@ exports.card = (util, cache, game, card) => ({
           card,
           name: "investigated",
           props: {
-            investigated: revealed[1],
+            investigated: revealed[E],
           },
         },
       });
       yield* util.modifyCard(cache, game, card, {
-        target: revealed[1],
+        target: revealed[E],
         modifier: {
           card,
           name: "investigated",

@@ -13,7 +13,6 @@ export type Winner = PlayerId | "draw";
 
 export type PlayerState = { [zone in Zone]: CardState[] } & {
   money: number;
-  agents: number;
 };
 
 export type GameState = {
@@ -33,14 +32,12 @@ export function initialGameState(): GameState {
     players: [
       {
         money: 5,
-        agents: 0,
         deck: [],
         board: [],
         grave: [],
       },
       {
         money: 6,
-        agents: 0,
         deck: [],
         board: [],
         grave: [],
@@ -61,7 +58,6 @@ export type GameParams = Partial<TargetCardParams> &
     | StealCardParams
     | SetPropParams
     | ChangeMoneyParams
-    | ChangeAgentsParams
     | ModifyCardParams
   );
 
@@ -103,11 +99,6 @@ export type SetPropParams = TargetCardParams & {
 export type ChangeMoneyParams = {
   player: PlayerId;
   money: number;
-};
-
-export type ChangeAgentsParams = {
-  player: PlayerId;
-  agents: number;
 };
 
 export type ModifyCardParams = TargetCardParams & {
@@ -154,7 +145,6 @@ export function defaultCardState(name: string, id: string): CardState {
     name,
     hidden: true,
     exhausted: true,
-    activated: true,
     props: {},
     modifiers: [],
   };
@@ -196,8 +186,7 @@ export const gameReducers = {
     state.history.push(action as GameAction);
   },
   endTurn: (state: GameState, action: PayloadAction<NoActionParams>) => {
-    state.history.push(action as GameAction);
-    state.players[currentPlayer(state)].agents = 0;
+    state.history.unshift(action as GameAction);
     state.turn++;
   },
   addCard: (state: GameState, action: PayloadAction<AddCardParams>) => {
@@ -226,7 +215,7 @@ export const gameReducers = {
   },
   activateCard: (state: GameState, action: PayloadAction<TargetCardParams>) => {
     state.history.push(action as GameAction);
-    updateCard(state, action.payload.target, (card) => (card.activated = true));
+    updateCard(state, action.payload.target, (card) => (card.exhausted = true));
   },
   removeCard: (state: GameState, action: PayloadAction<TargetCardParams>) => {
     state.history.push(action as GameAction);
@@ -282,7 +271,6 @@ export const gameReducers = {
     state.history.push(action as GameAction);
     updateCard(state, action.payload.target, (card) => {
       card.exhausted = false;
-      card.activated = false;
     });
   },
   exhaustCard: (state: GameState, action: PayloadAction<TargetCardParams>) => {
@@ -300,14 +288,6 @@ export const gameReducers = {
   removeMoney: (state: GameState, action: PayloadAction<ChangeMoneyParams>) => {
     state.history.push(action as GameAction);
     state.players[action.payload.player].money -= Math.max(0, action.payload.money);
-  },
-  addAgents: (state: GameState, action: PayloadAction<ChangeAgentsParams>) => {
-    state.history.push(action as GameAction);
-    state.players[action.payload.player].agents += Math.max(0, action.payload.agents);
-  },
-  removeAgents: (state: GameState, action: PayloadAction<ChangeAgentsParams>) => {
-    state.history.push(action as GameAction);
-    state.players[action.payload.player].agents -= Math.max(0, action.payload.agents);
   },
   modifyCard: (state: GameState, action: PayloadAction<ModifyCardParams>) => {
     state.history.push(action as GameAction);
@@ -342,7 +322,5 @@ export const {
   setProp,
   addMoney,
   removeMoney,
-  addAgents,
-  removeAgents,
   modifyCard,
 } = gameSlice.actions;

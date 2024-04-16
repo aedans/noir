@@ -2,7 +2,7 @@
 /** @type {import("../../common/card").PartialCardInfoComputation} */
 exports.card = (util, cache, game, card) => ({
   type: "agent",
-  text: "Activate this, [B][B]: The next agent your opponent plays has Delay 1.",
+  text: "[A][E]: The next agent your opponent plays has Delay 1.",
   cost: { money: 7, agents: 1 },
   colors: ["blue"],
   effectFilter: {
@@ -10,7 +10,7 @@ exports.card = (util, cache, game, card) => ({
     zones: ["deck"],
     types: ["agent"],
   },
-  activateCost: { agents: 2 },
+  activateCost: { agents: 1 },
   activate: function* () {
     yield* util.setProp(cache, game, card, { target: card, name: "onPatrol", value: true });
   },

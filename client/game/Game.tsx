@@ -36,6 +36,18 @@ export const HelpContext = React.createContext({
   help: null as null | CardState,
 });
 
+export type CostDisplay = {
+  exhausted: Target[];
+  prepared: Target[];
+};
+
+export const CostDisplayContext = React.createContext(
+  {} as {
+    costDisplay: CostDisplay;
+    setCostDisplay: Dispatch<SetStateAction<CostDisplay>>;
+  }
+);
+
 export const HighlightContext = React.createContext(
   {} as {
     highlight: Target[];
@@ -46,38 +58,45 @@ export const HighlightContext = React.createContext(
 export default function Game(props: { message: string }) {
   const app = useApp();
   const cache = useRef(new RemoteCardInfoCache() as CardInfoCache);
-  const [highlight, setHighlight] = useState([] as Target[]);
   const game = useClientSelector((state) => state.game);
   const cards = useRef({} as { [id: string]: MoveAnimationState });
   const timeColorFilterRef = useTimeColorFilter();
   const [help, setHelp] = useState(null as CardState | null);
+  const [costDisplay, setCostDisplay] = useState({ exhausted: [], prepared: [] } as CostDisplay);
+  const [highlight, setHighlight] = useState([] as Target[]);
 
   useEffect(() => {
     cache.current.reset();
+    setCostDisplay(({ exhausted }) => ({
+      exhausted: exhausted,
+      prepared: [],
+    }));
   }, [game]);
 
   return (
     <DndProvider backend={PIXIBackend(app)}>
       <HelpContext.Provider value={{ help, setHelp }}>
         <CacheContext.Provider value={cache.current}>
-          <MoveAnimationContext.Provider value={cards}>
-            <HighlightContext.Provider value={{ highlight, setHighlight }}>
-              <Container filters={[timeColorFilterRef.current]} sortableChildren>
-                <Table />
-                <OpponentBoard />
-                <Board />
-                <EndTurn />
-                <Resources />
-                <Concede />
-                <OpponentGrave />
-                <Grave />
-                <OpponentHand />
-                <HandAndDeck />
-                <Explanations />
-                <Message text={props.message} />
-              </Container>
-            </HighlightContext.Provider>
-          </MoveAnimationContext.Provider>
+          <CostDisplayContext.Provider value={{ costDisplay, setCostDisplay }}>
+            <MoveAnimationContext.Provider value={cards}>
+              <HighlightContext.Provider value={{ highlight, setHighlight }}>
+                <Container filters={[timeColorFilterRef.current]} sortableChildren>
+                  <Table />
+                  <OpponentBoard />
+                  <Board />
+                  <EndTurn />
+                  <Resources />
+                  <Concede />
+                  <OpponentGrave />
+                  <Grave />
+                  <OpponentHand />
+                  <HandAndDeck />
+                  <Explanations />
+                  <Message text={props.message} />
+                </Container>
+              </HighlightContext.Provider>
+            </MoveAnimationContext.Provider>
+          </CostDisplayContext.Provider>
         </CacheContext.Provider>
       </HelpContext.Provider>
     </DndProvider>

@@ -11,7 +11,7 @@ export default function Concede() {
   const width = 400;
   const height = 100;
   const x = targetResolution.width - width;
-  const y = (targetResolution.height - height) / 2 + 300;
+  const y = (targetResolution.height - height) / 2 + 200;
 
   function pointerdown() {
     connection.concede();

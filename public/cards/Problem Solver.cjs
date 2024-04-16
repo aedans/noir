@@ -2,7 +2,7 @@
 /** @type {import("../../common/card").PartialCardInfoComputation} */
 exports.card = (util, cache, game, card) => ({
   type: "agent",
-  text: "Activate this, [P]: remove one of your opponent's cards. When one of your cards is removed, Refresh this.",
+  text: "[A]: remove one of your opponent's cards. When one of your cards is removed, refresh this.",
   cost: { money: 12, agents: 2 },
   keywords: [["protected"]],
   colors: ["purple"],
@@ -11,7 +11,6 @@ exports.card = (util, cache, game, card) => ({
     types: ["agent", "operation"],
     players: [util.opponent(game, card)],
   },
-  activateCost: { agents: 1 },
   activate: function* (target) {
     yield* util.removeCard(cache, game, card, { target });
   },

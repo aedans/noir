@@ -13,7 +13,14 @@ import { useDrop } from "react-dnd";
 import { Container } from "@pixi/react";
 import { CardColors, CardState } from "../../common/card.js";
 import Card, { CardProps, cardHeight, cardWidth, combineColors, isCardPropsEqual } from "../Card.js";
-import { CacheContext, ConnectionContext, CosmeticContext, HelpContext, HighlightContext } from "./Game.js";
+import {
+  CacheContext,
+  ConnectionContext,
+  CosmeticContext,
+  CostDisplayContext,
+  HelpContext,
+  HighlightContext,
+} from "./Game.js";
 import { getCard } from "../../common/gameSlice.js";
 import { useClientSelector } from "../store.js";
 import { hex } from "../color.js";
@@ -38,8 +45,8 @@ export const gameCardScale = 1;
 export const gameCardZoom = 1.2;
 export const gameCardWidth = cardWidth * gameCardScale;
 export const gameCardHeight = cardHeight * gameCardScale;
-export const gameCardWidthDiff = (gameCardWidth * (gameCardZoom - 1)) / 2
-export const gameCardHeightDiff = (gameCardHeight * (gameCardZoom - 1)) / 2
+export const gameCardWidthDiff = (gameCardWidth * (gameCardZoom - 1)) / 2;
+export const gameCardHeightDiff = (gameCardHeight * (gameCardZoom - 1)) / 2;
 
 export function isGameCardPropsEqual(a: GameCardProps, b: GameCardProps) {
   return (
@@ -59,6 +66,7 @@ export default React.memo(
     const game = useClientSelector((state) => state.game);
     const cache = useContext(CacheContext);
     const connection = useContext(ConnectionContext);
+    const { costDisplay } = useContext(CostDisplayContext);
     const { highlight } = useContext(HighlightContext);
     const cosmetics = useContext(CosmeticContext);
     const { setHelp } = useContext(HelpContext);
@@ -70,13 +78,13 @@ export default React.memo(
       () => ({
         accept: "target",
         drop: (state: CardState) => {
-          connection.emit({ type: "do", id: state.id, target: { id: props.state.id } });
+          connection.emit({ type: "do", id: state.id, target: { id: props.state.id }, prepared: costDisplay.prepared });
         },
         collect: (monitor) => ({
           isOver: monitor.isOver(),
         }),
       }),
-      []
+      [costDisplay.prepared]
     );
 
     useEffect(() => {

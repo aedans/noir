@@ -19,7 +19,7 @@ export default function HandAndDeck() {
     const deck = [] as CardStateInfo[];
 
     for (const card of ordered(cards, ["color", "money"], (card) => card.info)) {
-      if (util.canPayCost(cache, game, card.state, player, card.info.colors, card.info.cost, card.info.targets)) {
+      if (util.canPayCost(cache, game, card.state, player, card.info.colors, card.info.cost, card.info.targets, [])) {
         hand.push(card);
       } else {
         deck.push(card);
