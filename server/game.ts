@@ -381,7 +381,7 @@ export async function createGame(players: [Player, Player], onEnd: OnGameEnd) {
         .filter((action) => !action.payload.target || player == source || isRevealed(state, action.payload.target?.id));
 
       for (const action of revealedActions) {
-        if (action.type == "game/revealCard" && action.payload.target) {
+        if (action.payload.target) {
           const card = util.getCard(state, action.payload.target);
           const cardPlayer = util.findCard(state, card).player;
           getCosmetic(players[cardPlayer].id, card.name).then((cosmetic) =>
