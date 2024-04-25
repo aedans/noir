@@ -15,7 +15,7 @@ export default class Tutorial1 extends SoloPlayer {
 
   playerDeck: Deck = {
     cards: {
-      "Double Agent": 2,
+      "Random Citizen": 1,
       "Eager Employer": 1,
       "Strike Down": 2,
       "Snoop Around": 1,

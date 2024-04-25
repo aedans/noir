@@ -1,6 +1,6 @@
 import CardInfoCache from "../common/CardInfoCache";
 import { CardKeyword, Target } from "../common/card";
-import { GameState, PlayerId, findCard, isPlayerAction, opponentOf } from "../common/gameSlice";
+import { GameState, PlayerId, findCard, getCard, isPlayerAction, opponentOf } from "../common/gameSlice";
 import util from "../common/util";
 
 export interface Explanation {
@@ -10,7 +10,7 @@ export interface Explanation {
   relevantCards(cache: CardInfoCache, game: GameState, player: PlayerId, all?: boolean): Target[];
 }
 
-const baseRequirements = ["hand", "money", "reveal", "agents", "operations", "win", "revealed", "revealSelf"];
+const baseRequirements = ["hand", "money", "agent", "operation", "activate", "win"];
 
 class KeywordExplanation implements Explanation {
   get id() {
@@ -102,52 +102,40 @@ export const explanations = [
         : []
   ),
   new SituationExplanation(
-    "reveal",
-    "Your opponent's cards begin the game hidden and must be revealed",
-    [],
-    (cache, game, player) =>
-      util.filter(cache, game, { players: [player], zones: ["deck"], playable: true, text: "reveal" })
-  ),
-  new SituationExplanation(
-    "agents",
-    "Agents stay on board when played and can be exhausted once each turn",
+    "agent",
+    "Agents stay on board and can be exhausted once each turn to pay for agent costs",
     ["hand"],
     (cache, game, player) => util.filter(cache, game, { players: [player], types: ["agent"], zones: ["board"] })
   ),
   new SituationExplanation(
-    "operations",
+    "operation",
     "Operations go to the grave immediately after being played",
     ["hand"],
     (cache, game, player) => util.filter(cache, game, { players: [player], types: ["operation"], zones: ["grave"] })
   ),
   new SituationExplanation(
-    "cost",
-    "Money is used to pay for money costs; Agents are exhausted to pay for agent costs",
-    ["money", "agents"],
+    "activate",
+    "Agents can be exhausted to activate their ability",
+    ["agent"],
     (cache, game, player) =>
-      util.filter(cache, game, { players: [player], zones: ["deck"], playable: true, minAgents: 1 })
-  ),
-  new SituationExplanation(
-    "revealed",
-    "Your can see which cards your opponent has revealed",
-    ["reveal"],
-    (cache, game, player) => util.filter(cache, game, { players: [player], hidden: false })
-  ),
-  new SituationExplanation(
-    "revealSelf",
-    "Cards that affect your opponent reveal themselves",
-    ["reveal"],
-    (cache, game, player) =>
-      game.history
-        .filter((x) => x.type == "game/revealCard" && x.payload.source?.id == x.payload.target?.id)
-        .map((x) => x.payload.target!)
+      util.filter(cache, game, { players: [player], zones: ["board"], activatable: true })
   ),
   new SituationExplanation(
     "win",
     "You win the game when you remove all of your opponent's agents",
-    ["agents", "reveal"],
+    ["agent"],
     (cache, game, player) =>
       util.filter(cache, game, { players: [player], zones: ["deck"], playable: true, text: "remove" })
+  ),
+  new SituationExplanation(
+    "revealSelf",
+    "Cards that affect your opponent reveal themselves",
+    baseRequirements,
+    (cache, game, player) =>
+      game.history
+        .filter((x) => x.type == "game/revealCard" && x.payload.source?.id == x.payload.target?.id)
+        .map((x) => x.payload.target!)
+        .filter(x => cache.getCardInfo(game, getCard(game, x)!).type == "agent")
   ),
   new SituationExplanation(
     "revealPriority",
