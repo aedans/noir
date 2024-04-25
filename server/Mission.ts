@@ -1,5 +1,5 @@
 import { PlayerId } from "../common/gameSlice.js";
-import { MissionPlayer } from "./Player.js";
+import { SoloPlayer } from "./Player.js";
 import CivicProceedings from "./solo/CivicProceedings.js";
 import Daphril from "./solo/Daphril.js";
 import IndustrialDesign from "./solo/IndustrialDesign.js";
@@ -7,6 +7,7 @@ import Random from "./solo/Random.js";
 import RandomCitizens from "./solo/RandomCitizens.js";
 import StrengthInNumbers from "./solo/StrengthInNumbers.js";
 import UnderhandedDealings from "./solo/UnderhandedDealings.js";
+import Tutorial1 from "./solo/Tutorial.js";
 
 export type MissionName =
   | "Random"
@@ -17,9 +18,14 @@ export type MissionName =
   | "Strength in Numbers"
   | "Underhanded Dealings";
 
+export type TutorialName = `Tutorial ${number}`;
+
 export type Difficulty = 1 | 2;
 
-export const missions: { [T in MissionName]: (playerId: PlayerId, difficulty: Difficulty) => MissionPlayer } = {
+export const missions: {
+  [T in MissionName | TutorialName]: (playerId: PlayerId, difficulty: Difficulty) => SoloPlayer;
+} = {
+  "Tutorial 1": (player) => new Tutorial1(player),
   Random: (player, difficulty) => new Random(player, difficulty),
   "Random Citizens": (player, difficulty) => new RandomCitizens(player, difficulty),
   "Daphril the Dauntless": (player, difficulty) => new Daphril(player, difficulty),

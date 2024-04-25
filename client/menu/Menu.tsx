@@ -3,10 +3,15 @@ import { Container } from "@pixi/react";
 import Button from "../Button.js";
 import { targetResolution } from "../Camera.js";
 import { useLocation } from "wouter";
-import { auth, serverOrigin, trpc } from "../cards.js";
+import { auth, serverOrigin } from "../cards.js";
+import { hasWon } from "../wins.js";
 
 export default function Menu() {
   const [_, setLocation] = useLocation();
+
+  if (!hasWon("Tutorial 1")) {
+    setLocation("/queue/Tutorial 1/");
+  }
 
   return (
     <Container x={targetResolution.width / 2} y={targetResolution.height / 2 - 200}>
@@ -31,8 +36,15 @@ export default function Menu() {
         }}
       />
       <Button
-        text={auth.token == null ? "Login" : "Logout"}
+        text="Tutorial"
         y={600}
+        pointerdown={() => {
+          setLocation("/queue/Tutorial 1/");
+        }}
+      />
+      <Button
+        text={auth.token == null ? "Login" : "Logout"}
+        y={800}
         pointerdown={() => {
           const endpoint = auth.token == null ? "login" : "logout";
           window.location.href = `${serverOrigin}/${endpoint}?returnTo=${window.location.host}`;

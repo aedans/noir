@@ -37,6 +37,7 @@ export default function Noir(props: NoirProps) {
               <Route path="/play" component={Play} />
               <Route path="/solo" component={Solo} />
               <Route path="/enqueue/:queue" component={Enqueue} />
+              <Route path="/queue/:queue" component={Queue} />
               <Route path="/queue/:queue/:deck" component={Queue} />
               <Route path="/decks" component={Decks} />
               <Route path="/edit/:deck" component={Editor} />

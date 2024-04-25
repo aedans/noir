@@ -1,0 +1,24 @@
+import { Deck } from "../../common/decks.js";
+import { PlayerId } from "../../common/gameSlice.js";
+import { SoloPlayer } from "../Player.js";
+
+export default class Tutorial1 extends SoloPlayer {
+  constructor(player: PlayerId) {
+    super(player, "Tutorial 1");
+  }
+
+  deck1: Deck = {
+    cards: {
+      "Double Agent": 2,
+    }
+  };
+
+  playerDeck: Deck = {
+    cards: {
+      "Double Agent": 2,
+      "Eager Employer": 1,
+      "Strike Down": 2,
+      "Snoop Around": 1,
+    }
+  }
+}

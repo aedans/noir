@@ -10,7 +10,7 @@ import {
 } from "../common/gameSlice.js";
 import { random } from "../common/util.js";
 import { PlayerInit, PlayerAction, NoirServerSocket } from "../common/network.js";
-import { Difficulty, MissionName } from "./Mission.js";
+import { Difficulty, MissionName, TutorialName } from "./Mission.js";
 import CardInfoCache from "../common/CardInfoCache.js";
 import LocalCardInfoCache from "./LocalCardInfoCache.js";
 import { CardCosmetic } from "../common/card.js";
@@ -39,7 +39,8 @@ export class SocketPlayer implements Player {
     public socket: NoirServerSocket,
     public player: PlayerId,
     public names: readonly [string, string],
-    public id: string | null
+    public id: string | null,
+    public deck?: Deck
   ) {
     this.connect(socket);
   }
@@ -75,7 +76,7 @@ export class SocketPlayer implements Player {
 
   init(): Promise<PlayerInit> {
     return new Promise((resolve, reject) => {
-      this.socket.once("init", (deck) => resolve({ deck }));
+      this.socket.once("init", (deck) => resolve({ deck: this.deck ?? deck }));
       this.socket.emit("init", this.player, this.names);
     });
   }
@@ -176,21 +177,23 @@ export class TestPlayer extends AIPlayer {
   deck = defaultDecks[random(["Green", "Blue", "Orange", "Purple"])] as Deck;
 }
 
-export abstract class MissionPlayer extends AIPlayer {
+export abstract class SoloPlayer extends AIPlayer {
   constructor(
     public player: PlayerId,
-    name: MissionName,
-    public difficulty: Difficulty,
-    settings: Partial<AISettings>
+    name: MissionName | TutorialName,
+    public difficulty?: Difficulty,
+    settings: Partial<AISettings> = {}
   ) {
-    super(player, `${name} level ${difficulty}`, settings);
+    super(player, difficulty ? `${name} level ${difficulty}` : name, settings);
   }
 
   abstract deck1: Deck;
 
-  abstract deck2: Deck;
+  deck2: Deck | undefined;
+
+  playerDeck?: Deck | undefined;
 
   get deck(): Deck {
-    return this.difficulty == 1 ? this.deck1 : this.deck2;
+    return this.deck2 && this.difficulty == 1 ? this.deck2 : this.deck1;
   }
 }

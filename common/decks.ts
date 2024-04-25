@@ -5,7 +5,7 @@ export type Deck = {
 export const defaultDecks = {
   Custom: {
     cards: {
-      "Random Citizen": 2,
+      "Double Agent": 2,
     },
   },
   Green: {

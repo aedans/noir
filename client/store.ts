@@ -2,6 +2,7 @@ import { configureStore } from "@reduxjs/toolkit";
 import { TypedUseSelectorHook, useDispatch, useSelector } from "react-redux";
 import { decksSlice } from "./decksSlice";
 import { gameSlice } from "../common/gameSlice";
+import { generateUsername } from "unique-username-generator";
 
 export const store = configureStore({
   reducer: {
@@ -17,11 +18,11 @@ export const useClientDispatch: () => ClientDispatch = useDispatch;
 export const useClientSelector: TypedUseSelectorHook<ClientState> = useSelector;
 
 export function updateLocalStorage() {
-  if (localStorage.getItem("v") != "5") {
+  if (localStorage.getItem("v") != "6") {
     localStorage.clear();
   }
 
-  localStorage.setItem("v", "5");
+  localStorage.setItem("v", "6");
 }
 
 export function getUsername(): string {
@@ -29,13 +30,9 @@ export function getUsername(): string {
   if (user != null) {
     return user;
   } else {
-    while (true) {
-      const name = window.prompt("Username");
-      if (name != null && name != "") {
-        localStorage.setItem("user", name);
-        return name;
-      }
-    }
+    const name = generateUsername()
+    localStorage.setItem("user", name);
+    return name;
   }
 }
 

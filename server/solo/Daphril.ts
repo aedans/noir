@@ -1,9 +1,9 @@
 import { Deck } from "../../common/decks.js";
 import { PlayerId } from "../../common/gameSlice.js";
 import { Difficulty } from "../Mission.js";
-import { MissionPlayer } from "../Player.js";
+import { SoloPlayer } from "../Player.js";
 
-export default class Daphril extends MissionPlayer {
+export default class Daphril extends SoloPlayer {
   constructor(player: PlayerId, difficulty: Difficulty) {
     super(player, "Daphril the Dauntless", difficulty, {});
   }

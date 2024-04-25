@@ -11,7 +11,7 @@ import { getUsername, useClientDispatch, useClientSelector } from "../store.js";
 import { setWon } from "../wins.js";
 import { CardCosmetic } from "../../common/card.js";
 
-export default function Queue(props: { params: { queue: string; deck: string } }) {
+export default function Queue(props: { params: { queue: string; deck?: string } }) {
   let [player, setPlayer] = useState(null as PlayerId | null);
   let [names, setNames] = useState(["", ""] as readonly [string, string]);
   const [socket, setSocket] = useState(null as NoirClientSocket | null);
@@ -47,7 +47,7 @@ export default function Queue(props: { params: { queue: string; deck: string } }
       if (winner == "draw") {
         setMessage("Draw.");
       } else if (winner == player) {
-        setMessage("You Win!");
+        setMessage(`You Win!`);
         setWon(names[opponentOf(player)]);
       } else {
         setMessage("You Lose.");
@@ -62,7 +62,13 @@ export default function Queue(props: { params: { queue: string; deck: string } }
       setPlayer((player = p));
       setNames((names = ns));
 
-      socket.emit("init", decks[decodeURIComponent(props.params.deck)]);
+      if (props.params.deck) {
+        socket.emit("init", decks[decodeURIComponent(props.params.deck)]);
+      } else {
+        socket.emit("init", {
+          cards: {},
+        });
+      }
     });
 
     setSocket(socket);

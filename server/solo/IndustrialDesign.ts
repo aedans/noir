@@ -1,9 +1,9 @@
 import { Deck } from "../../common/decks.js";
 import { PlayerId } from "../../common/gameSlice.js";
 import { Difficulty } from "../Mission.js";
-import { MissionPlayer } from "../Player.js";
+import { SoloPlayer } from "../Player.js";
 
-export default class IndustrialDesign extends MissionPlayer {
+export default class IndustrialDesign extends SoloPlayer {
   constructor(player: PlayerId, difficulty: Difficulty) {
     super(player, "Industrial Design", difficulty, {});
   }

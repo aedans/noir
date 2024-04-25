@@ -6,13 +6,24 @@ exports.card = (util, cache, game, card) => ({
   cost: { money: 4 },
   colors: card.props.colors ?? [],
   onPlay: function* () {
-    const filter = { players: [util.opponent(game, card)], zones: ["deck"] };
+    const coloredCards = util.filter(cache, game, {
+      players: [util.opponent(game, card)],
+      zones: ["deck"],
+    }).filter(state => cache.getCardInfo(game, state).colors.length > 0);
+    
+    if (coloredCards.length == 0) {
+      return;
+    }
+
     const { colors } = util
       .randoms(["orange", "blue", "green", "purple"], 4)
       .map((color) => ({
         colors: [color],
-        number: util.filter(cache, game, { players: [util.opponent(game, card)], zones: ["deck"], colors: [color] })
-          .length,
+        number: util.filter(cache, game, {
+          players: [util.opponent(game, card)],
+          zones: ["deck"],
+          colors: [color],
+        }).length,
       }))
       .reduce((a, b) => (a.number > b.number ? a : b), { colors: [], number: 0 });
     yield* util.setProp(cache, game, card, { target: card, name: "colors", value: colors });

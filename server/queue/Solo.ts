@@ -2,13 +2,13 @@ import { NoirServerSocket } from "../../common/network.js";
 import { SocketPlayer } from "../Player.js";
 import Queue from "../Queue.js";
 import { createGame } from "../game.js";
-import { Difficulty, MissionName, missions } from "../Mission.js";
+import { Difficulty, MissionName, TutorialName, missions } from "../Mission.js";
 import { replayCollection } from "../db.js";
 
 export default class Solo implements Queue {
   games: Map<string, SocketPlayer> = new Map();
 
-  constructor(public name: MissionName, public difficulty: Difficulty) {}
+  constructor(public name: MissionName | TutorialName, public difficulty: Difficulty) {}
 
   async push(socket: NoirServerSocket, name: string, id: string): Promise<void> {
     if (id != null && this.games.has(id)) {
@@ -17,7 +17,7 @@ export default class Solo implements Queue {
     }
 
     const mission = missions[this.name](1, this.difficulty);
-    const player = new SocketPlayer(socket, 0, [name, mission.name], id);
+    const player = new SocketPlayer(socket, 0, [name, mission.name], id, mission.playerDeck);
 
     if (id != null) {
       this.games.set(id, player);
