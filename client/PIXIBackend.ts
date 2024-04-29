@@ -86,17 +86,13 @@ const PIXIBackend: (app: Application) => BackendFactory = (app: Application) => 
     }
 
     function onTick() {
-      if (manager.getMonitor().isDragging()) {
-        ddx *= 0.95;
-        ddy *= 0.95;
-      } else {
-        ddx = ddy = 0;
-      }
+      ddx *= 0.95;
+      ddy *= 0.95;
 
       ddx = Math.max(-50, Math.min(ddx, 50));
       ddy = Math.max(-50, Math.min(ddy, 50));
 
-      const inv = 100000;
+      const inv = 150;
       if (node == reticle) {
         filter.dx = -ddy / inv;
         filter.dy = ddx / inv;

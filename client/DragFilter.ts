@@ -20,8 +20,8 @@ void main(void)
   mat3 zRotationMatrix = mat3(cos(dz), -sin(dz), 0, sin(dz), cos(dz), 0, 0, 0, 1);
   mat3 rotationMatrix = xRotationMatrix * yRotationMatrix * zRotationMatrix;
 
-  vec3 pRelative = (rotationMatrix * vec3((aVertexPosition - .5) * outputFrame.zw, 0.0)) + vec3(0.0, 0.0, 1.0);
-  vec2 pAbsolute = (pRelative.xy / pRelative.z) + outputFrame.xy + (outputFrame.zw * 0.5);
+  vec3 pRelative = (rotationMatrix * vec3((aVertexPosition - 0.5), 0.0)) + vec3(0.0, 0.0, 2.0);
+  vec2 pAbsolute = ((pRelative.xy / pRelative.z) * outputFrame.zw * 2.0) + outputFrame.xy + (outputFrame.zw * 0.5);
 
   gl_Position = vec4(projectionMatrix * vec3(pAbsolute, 1.0), 1.0);
 
