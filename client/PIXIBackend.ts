@@ -96,6 +96,9 @@ const PIXIBackend: (app: Application) => BackendFactory = (app: Application) => 
       if (node == reticle) {
         filter.dx = -ddy / inv;
         filter.dy = ddx / inv;
+
+        filter.enabled = Math.abs(filter.dx) >= 0.01 && Math.abs(filter.dy) >= 0.01;
+        console.log(filter.enabled)
       }
     }
 
