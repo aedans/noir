@@ -75,11 +75,13 @@ export default function Queue(props: { params: { queue: string; deck?: string } 
 
     trpc.auth
       .query()
-      .then((profile) => {
-        socket.emit("queue", decodeURIComponent(props.params.queue) as QueueName, getUsername(), profile.token);
+      .then(async (profile) => {
+        const username = await getUsername();
+        socket.emit("queue", decodeURIComponent(props.params.queue) as QueueName, username, profile.token);
       })
-      .catch(() => {
-        socket.emit("queue", decodeURIComponent(props.params.queue) as QueueName, getUsername(), null);
+      .catch(async () => {
+        const username = await getUsername();
+        socket.emit("queue", decodeURIComponent(props.params.queue) as QueueName, username, null);
       });
 
     return () => {

@@ -2,7 +2,6 @@ import { configureStore } from "@reduxjs/toolkit";
 import { TypedUseSelectorHook, useDispatch, useSelector } from "react-redux";
 import { decksSlice } from "./decksSlice";
 import { gameSlice } from "../common/gameSlice";
-import { generateUsername } from "unique-username-generator";
 
 export const store = configureStore({
   reducer: {
@@ -25,12 +24,13 @@ export function updateLocalStorage() {
   localStorage.setItem("v", "6");
 }
 
-export function getUsername(): string {
+export async function getUsername(): Promise<string> {
   const user = localStorage.getItem("user");
   if (user != null) {
     return user;
   } else {
-    const name = generateUsername()
+    const generator = import("unique-username-generator");
+    const name = (await generator).generateUsername("-");
     localStorage.setItem("user", name);
     return name;
   }
