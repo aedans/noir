@@ -56,6 +56,7 @@ void main(void)
   }
 }
 `;
+
 const start = new Date().valueOf();
 
 export default class WindFilter extends Filter {

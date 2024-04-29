@@ -1,5 +1,4 @@
-import { Graphics, Ticker } from "./pixi.js";
-import { Camera3d } from "pixi-projection";
+import { Container, Graphics, Ticker } from "./pixi.js";
 import React, { Context, MutableRefObject, ReactNode } from "react";
 import { PixiComponent, applyDefaultProps } from "@pixi/react";
 
@@ -18,7 +17,7 @@ mask.beginFill(0xffffff);
 mask.drawRect(0, 0, targetResolution.width, targetResolution.height);
 mask.endFill();
 
-export function onResize(camera: Camera3d) {
+export function onResize(camera: Container) {
   let width = window.innerWidth;
   let height = window.innerHeight;
 
@@ -32,14 +31,13 @@ export function onResize(camera: Camera3d) {
 
   camera.position.set((window.innerWidth - width) / 2, (window.innerHeight - height) / 2);
   camera.scale.set(width / targetResolution.width, height / targetResolution.height);
-  camera.setPlanes(targetResolution.width / 2, 30, 10000, true);
 }
 
-export const CameraContext = React.createContext(undefined as unknown) as Context<MutableRefObject<Camera3d>>;
+export const CameraContext = React.createContext(undefined as unknown) as Context<MutableRefObject<Container>>;
 
 const CustomCamera = PixiComponent("CustomCamera", {
   create() {
-    const instance = new Camera3d();
+    const instance = new Container();
     Ticker.shared.add(() => onResize(instance));
     onResize(instance);
     instance.addChild(mask);
@@ -52,7 +50,7 @@ const CustomCamera = PixiComponent("CustomCamera", {
 });
 
 export default function Camera(props: CameraProps) {
-  const ref = React.useRef() as MutableRefObject<Camera3d>;
+  const ref = React.useRef() as MutableRefObject<Container>;
 
   return (
     <CustomCamera innerRef={ref}>

@@ -20,7 +20,6 @@
     "moize": "^6.1.5",
     "mongodb": "^5.1.0",
     "nanoid": "^3.3.4",
-    "pixi-projection": "^1.0.0",
     "pixi-stats": "^1.0.7",
     "prop-types": "^15.8.1",
     "react": "^18.2.0",

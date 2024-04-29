@@ -1,6 +1,5 @@
 import React, {
   MutableRefObject,
-  ReactNode,
   Ref,
   useEffect,
   useImperativeHandle,
@@ -8,7 +7,7 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { Container, Sprite, useApp, useTick } from "@pixi/react";
+import { Container, Sprite, useApp } from "@pixi/react";
 import Rectangle, { RectangleProps } from "./Rectangle.js";
 import { targetResolution } from "./Camera.js";
 import { CardColors, CardCosmetic, CardCost, CardInfo, CardKeyword, CardState, ModifierState } from "../common/card.js";
@@ -26,6 +25,7 @@ import anime from "animejs";
 import { GlowFilter } from "@pixi/filter-glow";
 import { colorlessColor, getColor, getRGB, hex } from "./color.js";
 import WindFilter from "./WindFilter.js";
+import DragFilter from "./DragFilter.js";
 
 export const cardHeight = targetResolution.height / 4;
 export const cardWidth = cardHeight * (1 / 1.4);
@@ -287,7 +287,6 @@ export default React.memo(
     useLayoutEffect(() => {
       const hiddenColor = props.state.hidden ? 0xaaaaaa : 0xffffff;
 
-      (containerRef.current as any).convertTo3d?.();
       colorRef.current.tint = color;
       borderBannerRef.current.tint = hiddenColor;
       borderCostRef.current.tint = hiddenColor;
@@ -445,7 +444,10 @@ export default React.memo(
       );
 
     return (
-      <Container pivot={[cardWidth / 2, cardHeight / 2]} filters={[dimFilterRef.current, glowFilterRef.current]}>
+      <Container
+        pivot={[cardWidth / 2, cardHeight / 2]}
+        filters={[dimFilterRef.current, glowFilterRef.current]}
+      >
         <Rectangle fill={0xffffff} width={cardWidth - 20} height={cardHeight - 40} x={10} y={14} ref={colorRef} />
         <Sprite width={cardWidth - 55} height={cardHeight / 2 - 40} x={30} y={60} texture={imageTexture} />
         <Sprite width={cardWidth} height={cardHeight} texture={borderTexture} />

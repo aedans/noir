@@ -95,10 +95,6 @@ export default React.memo(
       };
     }, []);
 
-    useLayoutEffect(() => {
-      (componentRef.current as any).convertTo3d?.();
-    }, []);
-
     const borderColors: CardColors[] = [];
     for (const modifier of props.state.modifiers) {
       const card = getCard(game, modifier.card);

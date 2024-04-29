@@ -1,23 +1,29 @@
 import { GlowFilter } from "@pixi/filter-glow";
 import anime from "animejs";
 import { BackendFactory, DragDropManager } from "dnd-core";
-import { IDisplayObject3d } from "pixi-projection";
 import { Application, DisplayObject, Sprite, Texture, Ticker } from "./pixi.js";
+import DragFilter from "./DragFilter.js";
 
 type Identifier = string | symbol;
-type DisplayObject3d = DisplayObject & Partial<IDisplayObject3d>;
 
 const reticleTexture = Texture.from("/reticle.png");
 
 const PIXIBackend: (app: Application) => BackendFactory = (app: Application) => (manager: DragDropManager) => {
-  let currentObject: DisplayObject3d | null = null;
-  let targetObjects: { [id: Identifier]: DisplayObject3d } = {};
+  let currentObject: DisplayObject | null = null;
+  let targetObjects: { [id: Identifier]: DisplayObject } = {};
 
-  function dragify(sourceId: Identifier, node: DisplayObject3d, reticle: DisplayObject) {
+  function dragify(sourceId: Identifier, node: DisplayObject, reticle: DisplayObject) {
     let ddx = 0;
     let ddy = 0;
     let initIndex: number | null = null;
     let initVisible: boolean | null;
+
+    const filter = new DragFilter();
+    if (!reticle.filters) {
+      reticle.filters = [filter];
+    } else {
+      reticle.filters.push(filter);
+    }
 
     function mouseDownListener(e: any) {
       if (currentObject == null) {
@@ -81,8 +87,8 @@ const PIXIBackend: (app: Application) => BackendFactory = (app: Application) => 
 
     function onTick() {
       if (manager.getMonitor().isDragging()) {
-        ddx *= 0.9;
-        ddy *= 0.9;
+        ddx *= 0.95;
+        ddy *= 0.95;
       } else {
         ddx = ddy = 0;
       }
@@ -90,9 +96,10 @@ const PIXIBackend: (app: Application) => BackendFactory = (app: Application) => 
       ddx = Math.max(-50, Math.min(ddx, 50));
       ddy = Math.max(-50, Math.min(ddy, 50));
 
-      if (node.euler && node == reticle) {
-        node.euler.yaw = ddx / 100;
-        node.euler.pitch = -ddy / 100;
+      const inv = 100000;
+      if (node == reticle) {
+        filter.dx = -ddy / inv;
+        filter.dy = ddx / inv;
       }
     }
 
@@ -114,17 +121,17 @@ const PIXIBackend: (app: Application) => BackendFactory = (app: Application) => 
     setup: () => {},
     teardown: () => {},
     profile: () => ({}),
-    connectDropTarget: (targetId: Identifier, node: DisplayObject3d, options: any) => {
+    connectDropTarget: (targetId: Identifier, node: DisplayObject, options: any) => {
       targetObjects[targetId] = node;
 
       return () => {
         delete targetObjects[targetId];
       };
     },
-    connectDragSource: (sourceId: Identifier, node: DisplayObject3d) => {
+    connectDragSource: (sourceId: Identifier, node: DisplayObject) => {
       return dragify(sourceId, node, node);
     },
-    connectDragPreview: (sourceId: Identifier, node: DisplayObject3d) => {
+    connectDragPreview: (sourceId: Identifier, node: DisplayObject) => {
       var reticle = new Sprite(reticleTexture);
       reticle.width = 100;
       reticle.height = 100;
