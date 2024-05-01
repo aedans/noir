@@ -97,7 +97,7 @@ const PIXIBackend: (app: Application) => BackendFactory = (app: Application) => 
         filter.dx = -ddy / inv;
         filter.dy = ddx / inv;
 
-        filter.enabled = Math.abs(filter.dx) >= 0.0001 && Math.abs(filter.dy) >= 0.0001;
+        filter.enabled = Math.abs(filter.dx) >= 0.0001 || Math.abs(filter.dy) >= 0.0001;
       }
     }
 
