@@ -30,7 +30,7 @@ export default function Replay(props: { params: { id: string } }) {
           await loadCardsFromAction(action);
           dispatch(action);
 
-          if (action.type == "game/playCard" || action.type == "game/activateCard" || action.type == "game/endTurn") {
+          if (action.type == "game/playCard" || action.type == "game/activateCard") {
             await new Promise((resolve) => setTimeout(resolve, 1000));
           }
         }

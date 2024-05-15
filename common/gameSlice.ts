@@ -186,7 +186,7 @@ export const gameReducers = {
     state.history.push(action as GameAction);
   },
   endTurn: (state: GameState, action: PayloadAction<NoActionParams>) => {
-    state.history.unshift(action as GameAction);
+    state.history.push(action as GameAction);
     state.turn++;
   },
   addCard: (state: GameState, action: PayloadAction<AddCardParams>) => {
