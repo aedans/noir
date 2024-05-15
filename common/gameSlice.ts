@@ -21,11 +21,6 @@ export type GameState = {
   turn: number;
 };
 
-export type PlayerZone = {
-  zone: Zone;
-  player: PlayerId;
-};
-
 export function initialGameState(): GameState {
   return {
     history: [],
@@ -47,61 +42,85 @@ export function initialGameState(): GameState {
   };
 }
 
-export type GameAction = PayloadAction<GameParams, `game/${keyof typeof gameReducers}`>;
+// export type GameAction = PayloadAction<GameParams, `game/${keyof typeof gameReducers}`>;
+export type GameAction = PayloadAction<{ source: Target | undefined; target?: Target }> & (
+  | PayloadAction<
+      TargetParams,
+      | "game/activateCard"
+      | "game/removeCard"
+      | "game/enterCard"
+      | "game/bounceCard"
+      | "game/refreshCard"
+      | "game/exhaustCard"
+    >
+  | PayloadAction<NoActionParams, "game/endTurn" | "game/noop" | "game/reset">
+  | PayloadAction<RevealCardParams, "game/revealCard">
+  | PayloadAction<UndoneActionParams, "game/undone">
+  | PayloadAction<AddCardParams, "game/addCard">
+  | PayloadAction<PlayCardParams, "game/playCard">
+  | PayloadAction<StealCardParams, "game/stealCard">
+  | PayloadAction<SetPropParams, "game/setProp">
+  | PayloadAction<ChangeMoneyParams, "game/addMoney" | "game/removeMoney">
+  | PayloadAction<ModifyCardParams, "game/modifyCard">
+);
 
-export type GameParams = Partial<TargetCardParams> &
-  (
-    | NoActionParams
-    | UndoneActionParams
-    | AddCardParams
-    | PlayCardParams
-    | StealCardParams
-    | SetPropParams
-    | ChangeMoneyParams
-    | ModifyCardParams
-  );
+export type GameParams =
+  | TargetParams
+  | NoActionParams
+  | RevealCardParams
+  | UndoneActionParams
+  | AddCardParams
+  | PlayCardParams
+  | StealCardParams
+  | SetPropParams
+  | ChangeMoneyParams
+  | ModifyCardParams;
 
-export type TargetCardParams = {
-  source?: Target;
+export type SourceParams = {
+  source: Target | undefined;
+};
+
+export type TargetParams = SourceParams & {
   target: Target;
 };
 
-export type NoActionParams = {};
+export type NoActionParams = SourceParams & {};
 
-export type UndoneActionParams = {
+export type UndoneActionParams = SourceParams & {
   action: GameAction;
 };
 
-export type AddCardParams = PlayerZone &
-  TargetCardParams & {
-    name: string;
-  };
+export type AddCardParams = TargetParams & {
+  zone: Zone;
+  player: PlayerId;
+  name: string;
+};
 
-export type PlayCardParams = TargetCardParams & {
+export type PlayCardParams = TargetParams & {
   type: CardType;
 };
 
-export type StealCardParams = TargetCardParams & {
+export type StealCardParams = TargetParams & {
   zone: Zone;
 };
 
-export type RevealCardParams = TargetCardParams & {
+export type RevealCardParams = TargetParams & {
   player: PlayerId;
   zone: Zone;
   target: CardState;
 };
 
-export type SetPropParams = TargetCardParams & {
+export type SetPropParams = TargetParams & {
   name: string;
   value: any;
 };
 
-export type ChangeMoneyParams = {
+export type ChangeMoneyParams = SourceParams & {
   player: PlayerId;
   money: number;
 };
 
-export type ModifyCardParams = TargetCardParams & {
+export type ModifyCardParams = TargetParams & {
   modifier: Omit<ModifierState, "props"> & Partial<Pick<ModifierState, "props">>;
 };
 
@@ -178,8 +197,8 @@ function clearBoard(state: GameState, player: PlayerId) {
 }
 
 export const gameReducers = {
-  noop: (state: GameState, action: PayloadAction<{}>) => {},
-  reset: (state: GameState, action: PayloadAction<{}>) => {
+  noop: (state: GameState, action: PayloadAction<NoActionParams>) => {},
+  reset: (state: GameState, action: PayloadAction<NoActionParams>) => {
     return initialGameState();
   },
   undone: (state: GameState, action: PayloadAction<UndoneActionParams>) => {
@@ -213,11 +232,11 @@ export const gameReducers = {
       state.players[player][zone].splice(index, 1);
     }
   },
-  activateCard: (state: GameState, action: PayloadAction<TargetCardParams>) => {
+  activateCard: (state: GameState, action: PayloadAction<TargetParams>) => {
     state.history.push(action as GameAction);
     updateCard(state, action.payload.target, (card) => (card.exhausted = true));
   },
-  removeCard: (state: GameState, action: PayloadAction<TargetCardParams>) => {
+  removeCard: (state: GameState, action: PayloadAction<TargetParams>) => {
     state.history.push(action as GameAction);
     const info = findCard(state, action.payload.target);
     if (info) {
@@ -227,7 +246,7 @@ export const gameReducers = {
       state.players[player][zone].splice(index, 1);
     }
   },
-  enterCard: (state: GameState, action: PayloadAction<TargetCardParams>) => {
+  enterCard: (state: GameState, action: PayloadAction<TargetParams>) => {
     state.history.push(action as GameAction);
     const info = findCard(state, action.payload.target);
     if (info) {
@@ -237,7 +256,7 @@ export const gameReducers = {
       clearBoard(state, player);
     }
   },
-  bounceCard: (state: GameState, action: PayloadAction<TargetCardParams>) => {
+  bounceCard: (state: GameState, action: PayloadAction<TargetParams>) => {
     state.history.push(action as GameAction);
     const info = findCard(state, action.payload.target);
     if (info) {
@@ -267,13 +286,13 @@ export const gameReducers = {
       state.players[action.payload.player][action.payload.zone].push({ ...action.payload.target, hidden: false });
     }
   },
-  refreshCard: (state: GameState, action: PayloadAction<TargetCardParams>) => {
+  refreshCard: (state: GameState, action: PayloadAction<TargetParams>) => {
     state.history.push(action as GameAction);
     updateCard(state, action.payload.target, (card) => {
       card.exhausted = false;
     });
   },
-  exhaustCard: (state: GameState, action: PayloadAction<TargetCardParams>) => {
+  exhaustCard: (state: GameState, action: PayloadAction<TargetParams>) => {
     state.history.push(action as GameAction);
     updateCard(state, action.payload.target, (card) => (card.exhausted = true));
   },

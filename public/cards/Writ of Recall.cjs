@@ -9,6 +9,6 @@ exports.card = (util, cache, game, card) => ({
     zones: ["board"],
   },
   play: function* (target) {
-    yield* util.bounceCard(cache, game, card, { target });
+    yield util.bounceCard({ source: card, target });
   },
 });

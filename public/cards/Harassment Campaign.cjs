@@ -11,7 +11,8 @@ exports.card = (util, cache, game, card) => ({
     zones: ["board"],
   },
   play: function* (target) {
-    yield* util.modifyCard(cache, game, card, {
+    yield util.modifyCard({
+      source: card,
       target,
       modifier: {
         card,
@@ -20,9 +21,9 @@ exports.card = (util, cache, game, card) => ({
     });
 
     const money = game.players[util.self(game, card)].money;
-    yield* util.setProp(cache, game, card, { target, name: "harassed", value: money });
-    yield* util.removeMoney(cache, game, card, { player: util.self(game, card), money });
-    yield* util.bounceCard(cache, game, card, { target });
+    yield util.setProp({ source: card, target, name: "harassed", value: money });
+    yield util.removeMoney({ source: card, player: util.self(game, card), money });
+    yield util.bounceCard({ source: card, target });
   },
   modifiers: {
     harassed: (info, modifier, card) => ({

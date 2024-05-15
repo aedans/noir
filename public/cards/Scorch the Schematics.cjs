@@ -10,6 +10,6 @@ exports.card = (util, cache, game, card) => ({
     players: [util.opponent(game, card)],
   },
   play: function* (target) {
-    yield* util.removeCard(cache, game, card, { target });
+    yield util.removeCard({ source: card, target });
   },
 });

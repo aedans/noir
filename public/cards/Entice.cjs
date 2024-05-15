@@ -11,14 +11,15 @@ exports.card = (util, cache, game, card) => ({
     maxMoney: 9,
   },
   play: function* (target) {
-    yield* util.modifyCard(cache, game, card, {
+    yield util.modifyCard({
+      source: card,
       target,
       modifier: {
         card,
         name: "disloyal",
       },
     });
-    yield* util.stealCard(cache, game, card, { target, zone: "deck" });
+    yield util.stealCard({ source: card, target, zone: "deck" });
   },
   modifiers: {
     disloyal: (info, modifier, card) => ({

@@ -8,21 +8,16 @@ import {
   cardKeywords,
   CardModifier,
   CardState,
-  CardTrigger,
   CardType,
   Target,
 } from "./card.js";
 import {
   addCard,
-  AddCardParams,
   addMoney,
   bounceCard,
-  endTurn,
   enterCard,
   exhaustCard,
   findCard,
-  GameAction,
-  GameParams,
   GameState,
   getCard,
   PlayerId,
@@ -31,7 +26,6 @@ import {
   removeMoney,
   revealCard,
   setProp,
-  TargetCardParams,
   Zone,
   zones,
   stealCard,
@@ -40,18 +34,10 @@ import {
   opponent,
   self,
   modifyCard,
-  playCard,
-  PlayCardParams,
   noop,
-  NoActionParams,
   activateCard,
-  ChangeMoneyParams,
-  ModifyCardParams,
-  SetPropParams,
-  StealCardParams,
   defaultCardState,
   initialGameState,
-  RevealCardParams,
 } from "./gameSlice.js";
 import CardInfoCache from "./CardInfoCache.js";
 import { Deck } from "../common/decks.js";
@@ -354,7 +340,7 @@ export function* revealRandom(
 
   for (const target of cards) {
     const { player, zone } = findCard(game, target)!;
-    yield* this.revealCard(cache, game, card, { target, player, zone });
+    yield revealCard({ source: card, target, player, zone });
   }
 
   return cards;
@@ -391,147 +377,20 @@ export function isRevealed(game: GameState, id: string) {
   return game.history.some((action) => action.type == "game/revealCard" && action.payload.target?.id == id);
 }
 
-export function onTrigger<T extends GameParams>(
-  trigger: (payload: T) => GameAction,
-  selector?: (info: CardInfo, game: GameState) => CardTrigger<T>,
-  init: boolean = false
-) {
-  return function* (
-    cache: CardInfoCache,
-    game: GameState,
-    source: Target | undefined,
-    sourceless: Omit<T, "source">
-  ): CardGenerator {
-    const payload = { ...sourceless, source } as T;
-    const newGame = yield trigger(payload);
-    if (init) {
-      game = newGame;
-    }
-
-    if (selector && sourceless.target) {
-      const card = getCard(game, sourceless.target);
-      if (card) {
-        yield* selector(cache.getCardInfo(game, card), game)(payload);
-      }
-    }
-  };
-}
-
-function triggerReveal<T extends GameParams>(
-  info: CardInfo,
-  game: GameState,
-  trigger?: CardTrigger<T>,
-  ...[selectTarget]: T extends TargetCardParams ? [undefined?] : [(payload: T) => PlayerId]
-): CardTrigger<T> {
-  return function* (payload) {
-    if (payload.source) {
-      game = yield noop({});
-      const { player, zone, index } = findCard(game, payload.source)!;
-      const targetPlayer = selectTarget
-        ? (selectTarget as (payload: T) => PlayerId)(payload)
-        : findCard(game, payload.target!)?.player;
-
-      if (player != targetPlayer) {
-        const target = game.players[player][zone][index];
-        const reveal: RevealCardParams = { source: payload.source, target, player, zone };
-        yield revealCard(reveal);
-        yield* info.onReveal(reveal);
-      }
-
-      if (trigger) {
-        yield* trigger(payload);
-      }
-    }
-  };
-}
-
-export function* revealSource(
-  util: Util,
-  cache: CardInfoCache,
-  game: GameState,
-  source: Target | undefined,
-  payload: Omit<TargetCardParams, "source">
-) {
-  if (source) {
-    const { player, zone, index } = findCard(game, source)!;
-    const targetPlayer = findCard(game, payload.target)?.player;
-
-    if (player != targetPlayer) {
-      const target = game.players[player][zone][index];
-      const reveal: RevealCardParams = { source, target, player, zone };
-      yield* util.revealCard(cache, game, source, reveal);
-
-      const state = getCard(game, source);
-      if (state) {
-        const info = cache.getCardInfo(game, state);
-        yield* info.onReveal(reveal);
-      }
-    }
-  }
-}
-
-function* onAdd(info: CardInfo, payload: AddCardParams): CardGenerator {
-  yield* info.onAdd(payload);
-
-  if (info.keywords.some((k) => k[0] == "protected")) {
-    yield setProp({ target: payload.target, name: "protected", value: true });
-  }
-}
-
-function* onReveal(info: CardInfo, game: GameState, payload: RevealCardParams): CardGenerator {
-  game = yield noop({});
-  const state = getCard(game, payload.target);
-
-  if (state && state.hidden) {
-    yield* info.onReveal(payload);
-  }
-}
-
-function* onRemoveCard(
-  this: Util,
-  cache: CardInfoCache,
-  game: GameState,
-  source: Target | undefined,
-  payload: Omit<TargetCardParams, "source">
-) {
-  const card = getCard(game, payload.target);
-
-  if (!card) {
-    return;
-  }
-
-  const info = cache.getCardInfo(game, card);
-
-  if (!card.props.protected) {
-    yield removeCard({ source, ...payload });
-    yield* info.onRemove(payload);
-  } else {
-    yield* this.setProp(cache, game, source, { target: payload.target, name: "protected", value: false });
-  }
-
-  yield* revealSource(this, cache, game, source, payload);
-}
-
 const util = {
-  addCard: onTrigger<AddCardParams>(addCard, (info, game) => triggerReveal(info, game, (p) => onAdd(info, p)), true),
-  activateCard: onTrigger<TargetCardParams>(activateCard, (info, game) => triggerReveal(info, game, info.onActivate)),
-  removeCard: onRemoveCard,
-  enterCard: onTrigger<TargetCardParams>(enterCard, (info, game) => triggerReveal(info, game, info.onEnter)),
-  bounceCard: onTrigger<TargetCardParams>(bounceCard, (info, game) => triggerReveal(info, game, info.onBounce)),
-  stealCard: onTrigger<StealCardParams>(stealCard, (info, game) => triggerReveal(info, game, info.onSteal)),
-  revealCard: onTrigger<RevealCardParams>(revealCard, (info, game) =>
-    triggerReveal(info, game, (p) => onReveal(info, game, p))
-  ),
-  refreshCard: onTrigger<TargetCardParams>(refreshCard, (info, game) => triggerReveal(info, game, info.onRefresh)),
-  exhaustCard: onTrigger<TargetCardParams>(exhaustCard, (info, game) => triggerReveal(info, game, info.onExhaust)),
-  setProp: onTrigger<SetPropParams>(setProp, (info, game) => triggerReveal(info, game, info.onSetProp)),
-  modifyCard: onTrigger<ModifyCardParams>(modifyCard, (info, game) => triggerReveal(info, game, info.onModify)),
-  addMoney: onTrigger<ChangeMoneyParams>(addMoney, (info, game) =>
-    triggerReveal(info, game, undefined, (p) => p.player)
-  ),
-  removeMoney: onTrigger<ChangeMoneyParams>(removeMoney, (info, game) =>
-    triggerReveal(info, game, undefined, (p) => p.player)
-  ),
+  addCard,
+  activateCard,
+  removeCard,
+  enterCard,
+  bounceCard,
+  stealCard,
+  revealCard,
+  refreshCard,
+  exhaustCard,
+  setProp,
+  modifyCard,
+  addMoney,
+  removeMoney,
   findCard: findCard as (game: GameState, card: Target) => { player: PlayerId; zone: Zone; index: number },
   getCard: getCard as (game: GameState, card: Target) => CardState,
   opponentOf,

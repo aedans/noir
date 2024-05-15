@@ -6,8 +6,9 @@ exports.card = (util, cache, game, card) => ({
   cost: { money: 5 },
   colors: card.props.colors ?? ["green", "blue", "orange", "purple"],
   keywords: [["disloyal"]],
-  onPlay: function* () {
-    yield* util.setProp(cache, game, card, {
+  play: function* () {
+    yield util.setProp({
+      source: card,
       target: card,
       name: "colors",
       value: ["green", "orange", "blue", "purple"],
@@ -15,12 +16,14 @@ exports.card = (util, cache, game, card) => ({
   },
   turn: function* () {
     if (card.props.colortemp) {
-      yield* util.setProp(cache, game, card, {
+      yield util.setProp({
+        source: card,
         target: card,
         name: "colors",
         value: card.props.colortemp,
       });
-      yield* util.setProp(cache, game, card, {
+      yield util.setProp({
+        source: card,
         target: card,
         name: "colortemp",
         value: null,
@@ -33,18 +36,20 @@ exports.card = (util, cache, game, card) => ({
   },
   effect: (affectedInfo, affectedCard) => {
     return {
-      onPlay: function* (action) {
-        yield* affectedInfo.onPlay(action);
+      play: function* (action) {
+        yield* affectedInfo.play(action);
         const remcol = util.getCard(game, affectedCard);
         const remcoll = cache.getCardInfo(game, remcol).colors;
         if (card.props.colortemp) {
-          yield* util.setProp(cache, game, card, {
+          yield util.setProp({
+            source: card,
             target: card,
             name: "colortemp",
             value: card.props.colortemp.filter((jeb) => jeb != remcoll),
           });
         } else {
-          yield* util.setProp(cache, game, card, {
+          yield util.setProp({
+            source: card,
             target: card,
             name: "colortemp",
             value: card.props.colors.filter((jeb) => jeb != remcoll),

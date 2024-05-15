@@ -6,7 +6,8 @@ import {
   ModifyCardParams,
   PlayCardParams,
   RevealCardParams,
-  TargetCardParams,
+  TargetParams,
+  gameSlice,
 } from "./gameSlice.js";
 import { Filter, Util } from "./util.js";
 import CardInfoCache from "./CardInfoCache.js";
@@ -62,12 +63,12 @@ export type CardCost = {
   agents: number;
 };
 
-export type CardGenerator<T = void> = Generator<GameAction, T, any>;
+export type CardGenerator<T = void> = Generator<GameAction, T, GameState>;
 export type CardAction = () => CardGenerator;
 export type CardTargetAction = (target: Target) => CardGenerator;
 export type CardModifier = (card: CardInfo, modifier: ModifierState, state: CardState) => Partial<CardInfo>;
 export type CardEffect = (card: CardInfo, state: CardState) => Partial<CardInfo> | undefined;
-export type CardTrigger<T> = (payload: T) => CardGenerator;
+export type CardTrigger = (action: GameAction) => CardGenerator<true | void>;
 export type CardEvaluator = (ai: AI, target: Target | undefined) => [number, number];
 export type CardFactor = "positive" | "negative" | "neutral";
 
@@ -93,18 +94,7 @@ export type CardInfo = {
   modifiers: { [name: string]: CardModifier };
   validateDeck: (deck: Deck) => string[];
   modifyDeckSize: (deck: Deck) => number;
-  onAdd: CardTrigger<AddCardParams>;
-  onPlay: CardTrigger<PlayCardParams>;
-  onActivate: CardTrigger<TargetCardParams>;
-  onRemove: CardTrigger<TargetCardParams>;
-  onEnter: CardTrigger<TargetCardParams>;
-  onBounce: CardTrigger<TargetCardParams>;
-  onSteal: CardTrigger<TargetCardParams>;
-  onReveal: CardTrigger<RevealCardParams>;
-  onRefresh: CardTrigger<TargetCardParams>;
-  onExhaust: CardTrigger<TargetCardParams>;
-  onSetProp: CardTrigger<TargetCardParams>;
-  onModify: CardTrigger<ModifyCardParams>;
+  onTarget: CardTrigger;
   factor: CardFactor;
   activateFactor: CardFactor;
   evaluate: CardEvaluator;
@@ -129,18 +119,7 @@ export type PartialCardInfoComputation = (
   secondaryEffectFilter?: Filter;
   secondaryEffect?: CardEffect;
   modifiers?: { [name: string]: CardModifier };
-  onAdd?: CardTrigger<AddCardParams>;
-  onPlay?: CardTrigger<PlayCardParams>;
-  onActivate?: CardTrigger<TargetCardParams>;
-  onRemove?: CardTrigger<TargetCardParams>;
-  onEnter?: CardTrigger<TargetCardParams>;
-  onBounce?: CardTrigger<TargetCardParams>;
-  onSteal?: CardTrigger<TargetCardParams>;
-  onReveal?: CardTrigger<TargetCardParams>;
-  onRefresh?: CardTrigger<TargetCardParams>;
-  onExhaust?: CardTrigger<TargetCardParams>;
-  onSetProp?: CardTrigger<TargetCardParams>;
-  onModify?: CardTrigger<ModifyCardParams>;
+  onTarget?: CardTrigger;
   evaluate?: CardEvaluator;
   evaluateActivate?: CardEvaluator;
 };
@@ -192,21 +171,21 @@ export function runPartialCardInfoComputation(
     modifiers: partial.modifiers ?? {},
     validateDeck: (deck) => (deck.cards[card.name] > 2 ? [`Cannot run more than two copies of ${card.name}`] : []),
     modifyDeckSize: () => 0,
-    onAdd: partial.onAdd ?? function* () {},
-    onPlay: partial.onPlay ?? function* () {},
-    onActivate: partial.onActivate ?? function* () {},
-    onRemove: partial.onRemove ?? function* () {},
-    onEnter: partial.onEnter ?? function* () {},
-    onBounce: partial.onBounce ?? function* () {},
-    onSteal: partial.onSteal ?? function* () {},
-    onReveal: partial.onReveal ?? function* () {},
-    onRefresh: partial.onRefresh ?? function* () {},
-    onExhaust: partial.onExhaust ?? function* () {},
-    onSetProp: partial.onSetProp ?? function* () {},
-    onModify: partial.onSetProp ?? function* () {},
+    onTarget: partial.onTarget ?? function* () {},
     factor: partial.factor ?? "neutral",
     activateFactor: partial.activateFactor ?? "neutral",
     evaluate: partial.evaluate ?? (() => [0.01, 0]),
     evaluateActivate: partial.evaluateActivate ?? (() => [0.01, 0]),
   };
+}
+
+export function runCardGenerator(state: GameState, generator: CardGenerator<any>): [GameAction[], GameState] {
+  const actions: GameAction[] = [];
+  let next = generator.next(state);
+  while (!next.done) {
+    actions.push(next.value);
+    state = gameSlice.reducer(state, next.value);
+    next = generator.next(state);
+  }
+  return [actions, state];
 }

@@ -10,7 +10,8 @@ exports.card = (util, cache, game, card) => ({
     types: ["agent"],
   },
   play: function* (target) {
-    yield* util.modifyCard(cache, game, card, {
+    yield util.modifyCard({
+      source: card,
       target,
       modifier: {
         card,
@@ -21,11 +22,15 @@ exports.card = (util, cache, game, card) => ({
   modifiers: {
     avaricious: (info, modifier, card) => ({
       text: `${info.text} Whenever this is activated, you lose $2.`,
-      onActivate: function* () {
-        yield* util.removeMoney(cache, game, card, {
-          player: util.findCard(game, card).player,
-          money: 2,
-        });
+      onTarget: function* (action) {
+        info.onTarget(action);
+        if (action.type == "game/activateCard") {
+          yield util.removeMoney({
+            source: card,
+            player: util.findCard(game, card).player,
+            money: 2,
+          });
+        }
       },
     }),
   },

@@ -86,7 +86,7 @@ export default function Queue(props: { params: { queue: string; deck?: string } 
 
     return () => {
       socket?.close();
-      dispatch(reset({}));
+      dispatch(reset({ source: undefined }));
     };
   }, []);
 

@@ -10,8 +10,8 @@ exports.card = (util, cache, game, card) => ({
     zones: ["board", "deck"],
   },
   activate: function* (target) {
-    yield* util.removeCard(cache, game, card, { target });
-    yield* util.refreshCard(cache, game, card, { target: card });
+    yield util.removeCard({ source: card, target });
+    yield util.refreshCard({ source: card, target: card });
   },
   activateFactor: "negative",
   evaluateActivate: (ai, target) => ai.evaluateRemove(game, cache, target),

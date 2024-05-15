@@ -7,7 +7,7 @@ exports.card = (util, cache, game, card) => ({
   colors: [],
   keywords: [["disloyal"], ["protected"]],
   activate: function* () {
-    yield* util.setProp(cache, game, card, { target: card, name: "studying", value: true });
+    yield util.setProp({ source: card, target: card, name: "studying", value: true });
   },
   effectFilter: {
     players: [util.self(game, card)],
@@ -19,7 +19,7 @@ exports.card = (util, cache, game, card) => ({
       return {
         cost: { ...info.cost, money: info.cost.money - 3 },
         play: function* (target) {
-          yield* util.setProp(cache, game, card, { target: card, name: "studying", value: false });
+          yield util.setProp({ source: card, target: card, name: "studying", value: false });
           yield* info.play(target);
         },
       };

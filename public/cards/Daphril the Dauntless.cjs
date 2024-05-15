@@ -14,7 +14,7 @@ exports.card = (util, cache, game, card) => ({
       zones: ["deck"],
     });
     if (deckstuff.length > 0) {
-      yield* util.removeCard(cache, game, card, { target: deckstuff[0] });
+      yield util.removeCard({ source: card, target: deckstuff[0] });
     }
     const boardstuff = util.filter(cache, game, {
       hidden: false,
@@ -24,7 +24,7 @@ exports.card = (util, cache, game, card) => ({
       zones: ["board"],
     });
     if (boardstuff.length > 0) {
-      yield* util.removeCard(cache, game, card, { target: boardstuff[0] });
+      yield util.removeCard({ source: card, target: boardstuff[0] });
     }
   },
 });

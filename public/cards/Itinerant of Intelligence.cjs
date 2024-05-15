@@ -5,7 +5,8 @@ exports.card = (util, cache, game, card) => ({
   text: "[A]: refresh your other agents. This can only be activated once each turn.",
   cost: { money: 9 },
   turn: function* () {
-    yield* util.setProp(cache, game, card, {
+    yield util.setProp({
+      source: card,
       target: card,
       name: "up",
       value: 1,
@@ -13,7 +14,8 @@ exports.card = (util, cache, game, card) => ({
   },
   activate: function* () {
     if (card.props.up == 1) {
-      yield* util.setProp(cache, game, card, {
+      yield util.setProp({
+        source: card,
         target: card,
         name: "up",
         value: 0,
@@ -33,7 +35,7 @@ exports.card = (util, cache, game, card) => ({
         hasActivate: false,
       });
       for (const agen of activatos) {
-        yield* util.refreshCard(cache, game, card, { target: agen });
+        yield util.refreshCard({ source: card, target: agen });
       }
     }
   },

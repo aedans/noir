@@ -5,29 +5,33 @@ exports.card = (util, cache, game, card) => ({
   type: "agent",
   cost: { money: 4 },
   colors: ["purple"],
-  onRemove: function* () {
-    const cards = util.filter(cache, game, {
-      players: [util.self(game, card)],
-      colors: ["purple"],
-      zones: ["deck"],
-      excludes: [card],
-    });
-    const punger = util.randoms(cards, 2);
-    if (util.findCard(game, card).zone == "board") {
-      yield* util.modifyCard(cache, game, card, {
-        target: punger[0],
-        modifier: {
-          card,
-          name: "Tribute",
-        },
+  onTarget: function* (action) {
+    if (action.type == "game/removeCard") {
+      const cards = util.filter(cache, game, {
+        players: [util.self(game, card)],
+        colors: ["purple"],
+        zones: ["deck"],
+        excludes: [card],
       });
-      yield* util.modifyCard(cache, game, card, {
-        target: punger[E],
-        modifier: {
-          card,
-          name: "Tribute",
-        },
-      });
+      const punger = util.randoms(cards, 2);
+      if (util.findCard(game, card).zone == "board") {
+        yield util.modifyCard({
+          source: card,
+          target: punger[0],
+          modifier: {
+            card,
+            name: "Tribute",
+          },
+        });
+        yield util.modifyCard({
+          source: card,
+          target: punger[1],
+          modifier: {
+            card,
+            name: "Tribute",
+          },
+        });
+      }  
     }
   },
   modifiers: {

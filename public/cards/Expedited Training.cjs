@@ -5,8 +5,8 @@ exports.card = (util, cache, game, card) => ({
   type: "operation",
   cost: { money: 0, agents: 1 },
   colors: ["blue"],
-  onPlay: function* () {
-    yield* util.enterCard(cache, game, card, { target: card });
+  play: function* () {
+    yield util.enterCard({ source: card, target: card });
   },
   effectFilter: {
     zones: ["deck"],
@@ -18,7 +18,7 @@ exports.card = (util, cache, game, card) => ({
       cost: { money: affectedInfo.cost.money - 7, agents: affectedInfo.cost.agents },
       keywords: [...affectedInfo.keywords, ["delay", 2]],
       play: function* (target) {
-        yield* util.removeCard(cache, game, card, { target: card });
+        yield util.removeCard({ source: card, target: card });
         yield* affectedInfo.play(target);
       },
     };

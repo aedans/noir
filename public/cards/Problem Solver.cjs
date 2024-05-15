@@ -12,7 +12,7 @@ exports.card = (util, cache, game, card) => ({
     players: [util.opponent(game, card)],
   },
   activate: function* (target) {
-    yield* util.removeCard(cache, game, card, { target });
+    yield util.removeCard({ source: card, target });
   },
   effectFilter: {
     players: [util.self(game, card)],
@@ -21,8 +21,11 @@ exports.card = (util, cache, game, card) => ({
   },
   effect: (affectedInfo, affectedCard) => {
     return {
-      onRemove: function* () {
-        yield* util.refreshCard(cache, game, card, { target: card });
+      onTarget: function* (action) {
+        affectedInfo.onTarget(action);
+        if (action.type == "game/removeCard") {
+          yield util.refreshCard({ source: card, target: card });
+        }
       },
     };
   },

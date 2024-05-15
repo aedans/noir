@@ -10,18 +10,20 @@ exports.card = (util, cache, game, card) => ({
       zones: ["deck"],
     });
     if (revealed.length == 2) {
-      yield* util.modifyCard(cache, game, card, {
+      yield util.modifyCard({
+        source: card,
         target: revealed[0],
         modifier: {
           card,
           name: "investigated",
           props: {
-            investigated: revealed[E],
+            investigated: revealed[1],
           },
         },
       });
-      yield* util.modifyCard(cache, game, card, {
-        target: revealed[E],
+      yield util.modifyCard({
+        source: card,
+        target: revealed[1],
         modifier: {
           card,
           name: "investigated",
@@ -34,9 +36,10 @@ exports.card = (util, cache, game, card) => ({
   },
   modifiers: {
     investigated: (info, modifier, investigatedCard) => ({
-      onPlay: function* (action) {
-        yield* info.onPlay(action);
-        yield* util.modifyCard(cache, game, card, {
+      play: function* (action) {
+        yield* info.play(action);
+        yield util.modifyCard({
+          source: card,
           target: modifier.props.investigated,
           modifier: {
             card,

@@ -6,10 +6,10 @@ exports.card = (util, cache, game, card) => ({
   cost: { money: 6 },
   colors: ["blue"],
   turn: function* () {
-    yield* util.setProp(cache, game, card, { target: card, name: "processingPaperwork", value: undefined });
+    yield util.setProp({ source: card, target: card, name: "processingPaperwork", value: undefined });
   },
   activate: function* () {
-    yield* util.setProp(cache, game, card, { target: card, name: "processingPaperwork", value: true });
+    yield util.setProp({ source: card, target: card, name: "processingPaperwork", value: true });
   },
   effectFilter: {
     zones: ["deck"],
@@ -22,7 +22,7 @@ exports.card = (util, cache, game, card) => ({
         cost: { money: affectedInfo.cost.money - 2, agents: affectedInfo.cost.agents },
         keywords: [...affectedInfo.keywords, ["delay", 1]],
         play: function* (target) {
-          yield* util.setProp(cache, game, card, { target: card, name: "processingPaperwork", value: undefined });
+          yield util.setProp({ source: card, target: card, name: "processingPaperwork", value: undefined });
           yield* affectedInfo.play(target);
         },
       };

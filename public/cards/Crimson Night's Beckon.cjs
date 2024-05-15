@@ -10,15 +10,16 @@ exports.card = (util, cache, game, card) => ({
     zones: ["board", "deck"],
   },
   play: function* (target) {
-    yield* util.modifyCard(cache, game, card, {
+    yield util.modifyCard({
+      source: card,
       target: card,
       modifier: {
         card,
         name: "expensive",
       },
     });
-    yield* util.removeCard(cache, game, card, { target });
-    yield* util.bounceCard(cache, game, card, { target: card });
+    yield util.removeCard({ source: card, target });
+    yield util.bounceCard({ source: card, target: card });
   },
   modifiers: {
     expensive: (info, modifier, card) => ({

@@ -5,19 +5,17 @@ exports.card = (util, cache, game, card) => ({
   type: "operation",
   cost: { money: 3, agents: 1 },
   colors: ["green"],
-  onPlay: function* () {
-    yield* util.enterCard(cache, game, card, { target: card });
-  },
-  onEnter: function* () {
-    yield* util.setProp(cache, game, card, { target: card, name: "turns", value: 2 });
+  play: function* () {
+    yield util.enterCard({ source: card, target: card });
+    yield util.setProp({ source: card, target: card, name: "turns", value: 2 });
   },
   turn: function* () {
     if (card.props.turns === 0) {
-      yield* util.addMoney(cache, game, card, { player: util.self(game, card), money: 8 });
-      yield* util.removeCard(cache, game, card, { target: card });
-      yield* util.setProp(cache, game, card, { target: card, name: "turns", value: undefined });
+      yield util.addMoney({ source: card, player: util.self(game, card), money: 8 });
+      yield util.removeCard({ source: card, target: card });
+      yield util.setProp({ source: card, target: card, name: "turns", value: undefined });
     } else {
-      yield* util.setProp(cache, game, card, { target: card, name: "turns", value: card.props.turns - 1 });
+      yield util.setProp({ source: card, target: card, name: "turns", value: card.props.turns - 1 });
     }
   },
 });

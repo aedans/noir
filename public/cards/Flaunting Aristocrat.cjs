@@ -7,11 +7,11 @@ exports.card = (util, cache, game, card) => ({
   colors: ["green"],
   keywords: [["vip"]],
   play: function* () {
-    yield* util.setProp(cache, game, card, { target: card, name: "revealAmount", value: 1 });
+    yield util.setProp({ source: card, target: card, name: "revealAmount", value: 1 });
   },
   activateCost: { agents: 1 },
   activate: function* () {
-    yield* util.setProp(cache, game, card, { target: card, name: "revealAmount", value: 2 * card.props.revealAmount });
+    yield util.setProp({ source: card, target: card, name: "revealAmount", value: 2 * card.props.revealAmount });
     if (util.filter(cache, game, { hidden: true, zones: ["deck"], players: [util.opponent(game, card)] }).length > 0) {
       yield* util.revealRandom(cache, game, card, card.props.revealAmount, {
         zones: ["deck"],

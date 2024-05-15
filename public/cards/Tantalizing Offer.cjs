@@ -11,6 +11,6 @@ exports.card = (util, cache, game, card) => ({
     zones: ["board"],
   },
   play: function* (target) {
-    yield* util.stealCard(cache, game, card, { target, zone: "board" });
+    yield util.stealCard({ source: card, target, zone: "board" });
   },
 });

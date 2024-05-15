@@ -19,15 +19,19 @@ exports.card = (util, cache, game, card) => ({
   },
   effect: (affectedInfo, affectedCard) => {
     return {
-      onReveal: function* () {
-        const nombre = util.getCard(game, affectedCard).name;
-        if (util.currentPlayer(game) == util.self(game, card)) {
-          yield* util.addCard(cache, game, card, {
-            target: util.cid(),
-            name: nombre,
-            player: util.currentPlayer(game),
-            zone: "deck",
-          });
+      onTarget: function* (action) {
+        affectedInfo.onTarget(action);
+        if (action.type == "game/revealCard") {
+          const nombre = util.getCard(game, affectedCard).name;
+          if (util.currentPlayer(game) == util.self(game, card)) {
+            yield util.addCard({
+              source: card,
+              target: util.cid(),
+              name: nombre,
+              player: util.currentPlayer(game),
+              zone: "deck",
+            });
+          }
         }
       },
     };

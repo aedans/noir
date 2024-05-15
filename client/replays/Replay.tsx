@@ -45,7 +45,7 @@ export default function Replay(props: { params: { id: string } }) {
 
     return () => {
       stop = true;
-      dispatch(reset({}));
+      dispatch(reset({ source: undefined }));
     };
   }, []);
 

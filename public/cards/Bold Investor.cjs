@@ -6,10 +6,11 @@ exports.card = (util, cache, game, card) => ({
   cost: { money: 8 },
   colors: ["green"],
   activate: function* () {
-    yield* util.addMoney(cache, game, card, {
+    yield util.addMoney({
+      source: card,
       player: util.currentPlayer(game),
       money: 12,
     });
-    yield* util.removeCard(cache, game, card, { target: card });
+    yield util.removeCard({ source: card, target: card });
   },
 });

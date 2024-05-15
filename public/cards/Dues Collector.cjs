@@ -14,8 +14,9 @@ exports.card = (util, cache, game, card) => ({
       exhausted: false,
     });
     for (const agent of agentos) {
-      yield* util.exhaustCard(cache, game, card, { target: agent });
-      yield* util.addMoney(cache, game, card, {
+      yield util.exhaustCard({ source: card, target: agent });
+      yield util.addMoney({
+        source: card,
         player: util.self(game, card),
         money: 1,
       });

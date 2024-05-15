@@ -7,7 +7,8 @@ exports.card = (util, cache, game, card) => ({
   play: function* () {
     const revealed = yield* util.revealRandom(cache, game, card, 1);
     if (revealed.length > 0) {
-      yield* util.modifyCard(cache, game, card, {
+      yield util.modifyCard({
+        source: card,
         target: revealed[0],
         modifier: {
           card,
@@ -19,13 +20,16 @@ exports.card = (util, cache, game, card) => ({
   modifiers: {
     framed: (info, modifier, card) => ({
       text: `${info.text} When removed, copies of Frame are returned to deck.`,
-      onRemove: function* () {
-        const yardframes = util.filter(cache, game, {
-          zones: ["grave"],
-          names: ["Frame"],
-        });
-        for (const frambo of yardframes) {
-          yield* util.bounceCard(cache, game, card, { target: frambo });
+      onTarget: function* (action) {
+        info.onTarget(action);
+        if (action.type == "game/removeCard") {
+          const yardframes = util.filter(cache, game, {
+            zones: ["grave"],
+            names: ["Frame"],
+          });
+          for (const frambo of yardframes) {
+            yield util.bounceCard({ source: card, target: frambo });
+          }
         }
       },
     }),

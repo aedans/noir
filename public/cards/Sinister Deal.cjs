@@ -21,7 +21,8 @@ exports.card = (util, cache, game, card) => ({
     const removals =
       actions.filter((action) => action.type == "game/removeCard").length +
       actions.filter((action) => action.type == "game/stealCard").length;
-    yield* util.addMoney(cache, game, card, {
+    yield util.addMoney({
+      source: card,
       player: util.self(game, card),
       money: 3 + 3 * removals,
     });

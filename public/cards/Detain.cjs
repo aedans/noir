@@ -21,15 +21,16 @@ exports.card = (util, cache, game, card) => ({
     zones: ["board"],
   },
   play: function* (target) {
-    yield* util.modifyCard(cache, game, card, {
+    yield util.modifyCard({
+      source: card,
       target,
       modifier: {
         card,
         name: "slowed",
       },
     });
-    yield* util.exhaustCard(cache, game, card, { target });
-    yield* util.bounceCard(cache, game, card, { target });
+    yield util.exhaustCard({ source: card, target });
+    yield util.bounceCard({ source: card, target });
   },
   modifiers: {
     slowed: util.keywordModifier(["delay", 2]),

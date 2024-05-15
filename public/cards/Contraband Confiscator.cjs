@@ -12,8 +12,9 @@ exports.card = (util, cache, game, card) => ({
     zones: ["deck", "board"],
   },
   activate: function* (target) {
-    yield* util.removeCard(cache, game, card, { target });
-    yield* util.addMoney(cache, game, card, {
+    yield util.removeCard({ source: card, target });
+    yield util.addMoney({
+      source: card,
       player: util.findCard(game, card).player,
       money: 2,
     });

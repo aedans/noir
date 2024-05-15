@@ -12,14 +12,14 @@ exports.card = (util, cache, game, card) => ({
   },
   activateCost: { agents: 1 },
   activate: function* () {
-    yield* util.setProp(cache, game, card, { target: card, name: "onPatrol", value: true });
+    yield util.setProp({ source: card, target: card, name: "onPatrol", value: true });
   },
   effect: (info, state) => {
     if (card.props.onPatrol == true) {
       return {
         keywords: [...info.keywords, ["delay", 1]],
         play: function* (target) {
-          yield* util.exhaustCard(cache, game, card, { target: card });
+          yield util.exhaustCard({ source: card, target: card });
           yield* info.play(target);
         },
       };

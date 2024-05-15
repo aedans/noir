@@ -6,7 +6,7 @@ exports.card = (util, cache, game, card) => ({
   cost: { money: 2, agents: 1 },
   targets: {},
   play: function* (target) {
-    yield* util.modifyCard(cache, game, card, { target, modifier: { name: "cleared", card } });
+    yield util.modifyCard({ source: card, target, modifier: { name: "cleared", card } });
   },
   modifiers: {
     cleared: (info) => ({

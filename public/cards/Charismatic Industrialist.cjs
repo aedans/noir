@@ -11,8 +11,9 @@ exports.card = (util, cache, game, card) => ({
     types: ["agent"],
   },
   activate: function* (target) {
-    yield* util.stealCard(cache, game, card, { target, zone: "board" });
-    yield* util.modifyCard(cache, game, card, {
+    yield util.stealCard({ source: card, target, zone: "board" });
+    yield util.modifyCard({
+      source: card,
       target,
       modifier: {
         card,

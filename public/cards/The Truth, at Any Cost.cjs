@@ -14,6 +14,6 @@ exports.card = (util, cache, game, card) => ({
     yield* util.revealRandom(cache, game, card, 5, {
       zones: ["deck"],
     });
-    yield* util.removeCard(cache, game, card, { target });
+    yield util.removeCard({ source: card, target });
   },
 });

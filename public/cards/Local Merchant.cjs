@@ -6,7 +6,8 @@ exports.card = (util, cache, game, card) => ({
   cost: { money: 5 },
   keywords: [["disloyal"], ["protected"]],
   activate: function* () {
-    yield* util.addMoney(cache, game, card, {
+    yield util.addMoney({
+      source: card,
       player: util.currentPlayer(game),
       money: 1,
     });

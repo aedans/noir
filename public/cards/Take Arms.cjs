@@ -21,7 +21,7 @@ exports.card = (util, cache, game, card) => ({
       zones: ["board"],
     });
     for (const target of util.randoms(cards, this.cost?.agents ?? 0)) {
-      yield* util.removeCard(cache, game, card, { target });
+      yield util.removeCard({ source: card, target });
     }
   },
 });

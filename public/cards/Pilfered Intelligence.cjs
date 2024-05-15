@@ -5,9 +5,11 @@ exports.card = (util, cache, game, card) => ({
   type: "operation",
   colors: ["purple"],
   cost: { money: 3, agents: 1 },
-  onRemove: function* () {
-    if (util.currentPlayer(game) == util.self(game, card)) {
-      yield* util.revealRandom(cache, game, card, 3, {});
+  onTarget: function* (action) {
+    if (action.type == "game/removeCard") {
+      if (util.currentPlayer(game) == util.self(game, card)) {
+        yield* util.revealRandom(cache, game, card, 3, {});
+      }  
     }
   },
   play: function* () {

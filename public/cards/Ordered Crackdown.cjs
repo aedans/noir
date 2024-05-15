@@ -5,11 +5,9 @@ exports.card = (util, cache, game, card) => ({
   text: "Delay 2. Remove each of your opponent's revealed cards that cost $12 or less.",
   cost: { money: 8, agents: 4 },
   colors: ["blue"],
-  onPlay: function* () {
-    yield* util.enterCard(cache, game, card, { target: card });
-  },
-  onEnter: function* () {
-    yield* util.setProp(cache, game, card, { target: card, name: "turns", value: 2 });
+  play: function* () {
+    yield util.enterCard({ source: card, target: card });
+    yield util.setProp({ source: card, target: card, name: "turns", value: 2 });
   },
   turn: function* () {
     if (card.props.turns === 0) {
@@ -19,12 +17,12 @@ exports.card = (util, cache, game, card) => ({
         maxMoney: 12,
       });
       for (const card of cards) {
-        yield* util.removeCard(cache, game, card, { target: card });
+        yield util.removeCard({ source: card, target: card });
       }
-      yield* util.removeCard(cache, game, card, { target: card });
-      yield* util.setProp(cache, game, card, { target: card, name: "turns", value: undefined });
+      yield util.removeCard({ source: card, target: card });
+      yield util.setProp({ source: card, target: card, name: "turns", value: undefined });
     } else {
-      yield* util.setProp(cache, game, card, { target: card, name: "turns", value: card.props.turns - 1 });
+      yield util.setProp({ source: card, target: card, name: "turns", value: card.props.turns - 1 });
     }
   },
 });

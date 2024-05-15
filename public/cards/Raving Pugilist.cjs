@@ -5,14 +5,14 @@ exports.card = (util, cache, game, card) => ({
   type: "agent",
   cost: { money: 8 },
   colors: ["orange"],
-  onEnter: function* () {
-    yield* util.setProp(cache, game, card, { target: card, name: "turns", value: 0 });
+  play: function* () {
+    yield util.setProp({ source: card, target: card, name: "turns", value: 0 });
   },
   turn: function* () {
     if (card.props.turns == 0) {
-      yield* util.setProp(cache, game, card, { target: card, name: "turns", value: (card.props.turns + 1) % 2 });
+      yield util.setProp({ source: card, target: card, name: "turns", value: (card.props.turns + 1) % 2 });
     } else { 
-      yield* util.setProp(cache, game, card, { target: card, name: "turns", value: 0 }) 
+      yield util.setProp({ source: card, target: card, name: "turns", value: 0 }) 
     };
 
     if (card.props.turns == 1) {
@@ -31,7 +31,7 @@ exports.card = (util, cache, game, card) => ({
           types: ["agent"],
         });
         for (const target of util.randoms(cards, 1)) {
-          yield* util.removeCard(cache, game, card, { target });
+          yield util.removeCard({ source: card, target });
         }
       }
     }

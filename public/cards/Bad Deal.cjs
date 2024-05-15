@@ -11,6 +11,6 @@ exports.card = (util, cache, game, card) => ({
   },
   colors: ["purple"],
   play: function* (target) {
-    yield* util.removeCard(cache, game, card, { target });
+    yield util.removeCard({ source: card, target });
   },
 });

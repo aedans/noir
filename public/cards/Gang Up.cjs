@@ -9,7 +9,7 @@ exports.card = (util, cache, game, card) => ({
     zones: ["board"],
   },
   play: function* (target) {
-    yield* util.removeCard(cache, game, card, { target });
+    yield util.removeCard({ source: card, target });
   },
   factor: "negative",
   evaluate: (ai, target) => ai.evaluateRemove(game, cache, target),

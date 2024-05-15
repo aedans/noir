@@ -5,7 +5,7 @@ exports.card = (util, cache, game, card) => ({
   text: "This gains the color of the most common color in your opponent's deck.",
   cost: { money: 4 },
   colors: card.props.colors ?? [],
-  onPlay: function* () {
+  play: function* () {
     const coloredCards = util.filter(cache, game, {
       players: [util.opponent(game, card)],
       zones: ["deck"],
@@ -26,6 +26,6 @@ exports.card = (util, cache, game, card) => ({
         }).length,
       }))
       .reduce((a, b) => (a.number > b.number ? a : b), { colors: [], number: 0 });
-    yield* util.setProp(cache, game, card, { target: card, name: "colors", value: colors });
+    yield util.setProp({ source: card, target: card, name: "colors", value: colors });
   },
 });

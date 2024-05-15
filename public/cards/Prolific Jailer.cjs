@@ -12,6 +12,6 @@ exports.card = (util, cache, game, card) => ({
     types: ["agent"],
   },
   activate: function* (target) {
-    yield* util.removeCard(cache, game, card, { target });
+    yield util.removeCard({ source: card, target });
   },
 });

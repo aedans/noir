@@ -12,7 +12,8 @@ exports.card = (util, cache, game, card) => ({
     const indebt = util.getCard(game, target);
     const debtplayer = util.findCard(game, indebt).player;
     if (debtplayer == util.self(game, card)) {
-      yield* util.modifyCard(cache, game, card, {
+      yield util.modifyCard({
+        source: card,
         target,
         modifier: {
           card,
@@ -20,7 +21,8 @@ exports.card = (util, cache, game, card) => ({
         },
       });
     } else {
-      yield* util.modifyCard(cache, game, card, {
+      yield util.modifyCard({
+        source: card,
         target,
         modifier: {
           card,
