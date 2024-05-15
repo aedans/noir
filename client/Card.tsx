@@ -280,7 +280,7 @@ export default React.memo(
 
         cleanup.current = [];
       };
-    }, [props.info]);
+    }, [props.info, props.state]);
 
     useImperativeHandle(ref, () => containerRef.current);
 
