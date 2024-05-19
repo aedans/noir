@@ -44,9 +44,8 @@ export default class RemoteCardInfoCache extends CardInfoCache {
 
 async function getPartialCardInfoComputation(card: { name: string }) {
   try {
-    const cardString = await fetch(`${serverOrigin}/cards/${card.name}.cjs`).then((x) => x.text());
-    const cardInfo = {} as { card: PartialCardInfoComputation };
-    new Function("exports", cardString)(cardInfo);
+    const cardString = await fetch(`${serverOrigin}/cards/${card.name}.js`).then((x) => x.text());
+    const cardInfo = (await import(/* @vite-ignore */ `data:text/javascript,${cardString}`)) as { card: PartialCardInfoComputation };
     return cardInfo.card;
   } catch (e) {
     console.error(`Error loading card ${card.name}`);

@@ -34,7 +34,7 @@ export const userCollection = moize.promise(async () => (await noirDB()).collect
 export const replayCollection = moize.promise(async () => (await noirDB()).collection("replays") as Collection<Replay>);
 
 export const cards = moize(() => {
-  const cards = fs.readdirSync("./public/cards").map((file) => file.substring(0, file.lastIndexOf(".")));
+  const cards = fs.readdirSync("./cards").map((file) => file.substring(0, file.lastIndexOf(".")));
   const cardStates = cards.map((name) => defaultCardState(name, name));
   const cache = new LocalCardInfoCache();
   const allCards = cardStates.map((state) => ({

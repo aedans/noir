@@ -94,5 +94,5 @@ if (isMainThread) {
     }
   }
 
-  await results();
+  results();
 }
