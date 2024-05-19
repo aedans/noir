@@ -58,18 +58,24 @@ export default React.forwardRef(function BoardCard(props: GameCardProps, ref: Re
   function pointerdown(e: any) {
     if (props.state.exhausted || props.info.type != "agent") {
       return;
-    } else if (!props.info.activateTargets && e.nativeEvent.which == 1) {
-      connection.emit({ type: "do", id: props.state.id, prepared: costDisplay.prepared });
-    } else if (!isPrepared) {
-      setCostDisplay(({ exhausted, prepared }) => ({
-        exhausted,
-        prepared: [...prepared, props.state],
-      }));
-    } else if (isPrepared) {
-      setCostDisplay(({ exhausted, prepared }) => ({
-        exhausted,
-        prepared: prepared.filter((card) => card.id != props.state.id),
-      }));
+    }
+
+    if (e.nativeEvent.which == 1) {
+      if (!props.info.activateTargets) {
+        connection.emit({ type: "do", id: props.state.id, prepared: costDisplay.prepared });
+      }
+    } else if (e.nativeEvent.which == 3) {
+      if (!isPrepared) {
+        setCostDisplay(({ exhausted, prepared }) => ({
+          exhausted,
+          prepared: [...prepared, props.state],
+        }));
+      } else {
+        setCostDisplay(({ exhausted, prepared }) => ({
+          exhausted,
+          prepared: prepared.filter((card) => card.id != props.state.id),
+        }));
+      }
     }
   }
 
