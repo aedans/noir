@@ -16,6 +16,8 @@ export const card: PartialCardInfoComputation = (util, cache, game, card) => ({
         yield util.modifyCard({ source: card, target: fired[0], modifier: { name: "expensive", card } });
       }  
     }
+
+    return false;
   },
   modifiers: {
     expensive: (info, modifier, card) => ({

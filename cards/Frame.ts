@@ -21,7 +21,6 @@ export const card: PartialCardInfoComputation = (util, cache, game, card) => ({
     framed: (info, modifier, card) => ({
       text: `${info.text} When removed, copies of Frame are returned to deck.`,
       onTarget: function* (action) {
-        info.onTarget(action);
         if (action.type == "game/removeCard") {
           const yardframes = util.filter(cache, game, {
             zones: ["grave"],
@@ -31,6 +30,8 @@ export const card: PartialCardInfoComputation = (util, cache, game, card) => ({
             yield util.bounceCard({ source: card, target: frambo });
           }
         }
+
+        return yield* info.onTarget(action);
       },
     }),
   },

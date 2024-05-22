@@ -1,5 +1,6 @@
 import { CardInfo, CardState, PartialCardInfoComputation, runPartialCardInfoComputation } from "./card.js";
 import { GameState, findCard, getCard, initialGameState } from "./gameSlice.js";
+import { cardKeywordEffects } from "./keywords.js";
 import util from "./util.js";
 
 export default abstract class CardInfoCache {
@@ -42,6 +43,10 @@ export default abstract class CardInfoCache {
     }
 
     this.info.set(state.id, info);
+
+    for (const keyword of info.keywords) {
+      info = cardKeywordEffects[keyword[0]](this, game, state, keyword, info);
+    }
 
     for (const card of util.filter(this, game, { zones: ["board"] })) {
       const cardInfo = this.getCardInfo(game, card);

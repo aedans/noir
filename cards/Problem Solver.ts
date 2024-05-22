@@ -22,10 +22,11 @@ export const card: PartialCardInfoComputation = (util, cache, game, card) => ({
   effect: (affectedInfo, affectedCard) => {
     return {
       onTarget: function* (action) {
-        affectedInfo.onTarget(action);
         if (action.type == "game/removeCard") {
           yield util.refreshCard({ source: card, target: card });
         }
+
+        return yield* affectedInfo.onTarget(action);
       },
     };
   },

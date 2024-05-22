@@ -20,7 +20,6 @@ export const card: PartialCardInfoComputation = (util, cache, game, card) => ({
   effect: (affectedInfo, affectedCard) => {
     return {
       onTarget: function* (action) {
-        affectedInfo.onTarget(action);
         if (action.type == "game/revealCard") {
           const nombre = util.getCard(game, affectedCard).name;
           if (util.currentPlayer(game) == util.self(game, card)) {
@@ -33,6 +32,8 @@ export const card: PartialCardInfoComputation = (util, cache, game, card) => ({
             });
           }
         }
+
+        return yield* affectedInfo.onTarget(action);
       },
     };
   },

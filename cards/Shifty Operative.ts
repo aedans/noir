@@ -31,8 +31,10 @@ export const card: PartialCardInfoComputation = (util, cache, game, card) => ({
             name: "Tribute",
           },
         });
-      }  
+      }
     }
+    
+    return false;
   },
   modifiers: {
     Tribute: util.keywordModifier(["tribute", "agent"]),

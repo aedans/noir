@@ -49,59 +49,6 @@ function* doEndTurn(cache: CardInfoCache, game: GameState): CardGenerator {
       yield refreshCard({ source: card, target: card });
     }
 
-    if (card.props.delayed != undefined) {
-      yield setProp({
-        source: card,
-        target: card,
-        name: "delayed",
-        value: card.props.delayed > 1 ? card.props.delayed - 1 : undefined,
-      });
-      yield exhaustCard({ source: card, target: card });
-      yield activateCard({ source: card, target: card });
-    }
-
-    const minDepart = cache
-      .getCardInfo(game, card)
-      .keywords.filter((k): k is ["depart", number] => k[0] == "depart")
-      .reduce((a, b) => Math.min(a, b[1]), 1000);
-
-    if (minDepart < 1000 && (card.props.departing ?? 1000) >= minDepart) {
-      yield setProp({ source: card, target: card, name: "departing", value: minDepart - 1 });
-    }
-
-    if (card.props.departing > 0) {
-      yield setProp({
-        source: card,
-        target: card,
-        name: "departing",
-        value: card.props.departing > 1 ? card.props.departing - 1 : undefined,
-      });
-
-      if (card.props.departing <= 1) {
-        yield removeCard({ source: card, target: card });
-      }
-    }
-
-    if (card.props.collection != undefined) {
-      yield setProp({
-        source: card,
-        target: card,
-        name: "collection",
-        value: card.props.collection > 1 ? card.props.collection - 1 : undefined,
-      });
-
-      if (card.props.collection <= 1) {
-        const player = findCard(game, card)!.player;
-        const info = cache.getCardInfo(game, card);
-        const money = info.keywords.filter((k): k is ["debt", number] => k[0] == "debt").reduce((a, b) => a + b[1], 0);
-        yield removeMoney({ source: card, player, money });
-
-        if (info.type == "operation") {
-          yield removeCard({ source: card, target: card });
-        }
-      }
-    }
-
     yield* cache.getCardInfo(game, card).turn();
   }
 
@@ -167,75 +114,9 @@ function* doPlayCard(
 
   validateTargets(cache, game, card, info.targets, target);
 
-  const totalTribute = {
-    cards: info.keywords.filter(([name, type]) => name == "tribute" && type == "card").length,
-    agents: info.keywords.filter(([name, type]) => name == "tribute" && type == "agent").length,
-    operations: info.keywords.filter(([name, type]) => name == "tribute" && type == "operation").length,
-  };
-
-  const lowestCards = util.filter(cache, game, {
-    players: [util.self(game, card)],
-    zones: ["deck"],
-    types: ["operation"],
-    random: true,
-    ordering: ["money"],
-    excludes: [card],
-  });
-
-  const lowestAgents = util.filter(cache, game, {
-    players: [util.self(game, card)],
-    zones: ["deck"],
-    types: ["agent"],
-    random: true,
-    ordering: ["money"],
-    excludes: [card],
-  });
-
-  const lowestOperations = util.filter(cache, game, {
-    players: [util.self(game, card)],
-    zones: ["deck"],
-    types: ["operation"],
-    random: true,
-    ordering: ["money"],
-    excludes: [card],
-  });
-
-  if (lowestCards.length < totalTribute.cards) {
-    throw "Not enough cards to tribute";
-  }
-
-  if (lowestAgents.length < totalTribute.agents) {
-    throw "Not enough agents to tribute";
-  }
-
-  if (lowestOperations.length < totalTribute.operations) {
-    throw "Not enough operations to tribute";
-  }
-
   const payload: PlayCardParams = { source: card, target: card, type: info.type };
 
   yield playCard(payload);
-
-  const totalDelay = info.keywords.filter((k): k is ["delay", number] => k[0] == "delay").reduce((a, b) => a + b[1], 0);
-  if (totalDelay > 0) {
-    yield setProp({ source: card, target: payload.target, name: "delayed", value: totalDelay });
-  }
-
-  if (info.keywords.some((k) => k[0] == "debt")) {
-    yield setProp({ source: card, target: payload.target, name: "collection", value: 3 });
-
-    if (info.type == "operation") {
-      yield enterCard({ source: card, target: card });
-    }
-  }
-
-  for (const target of [
-    ...lowestCards.slice(0, totalTribute.cards),
-    ...lowestAgents.slice(0, totalTribute.agents),
-    ...lowestOperations.slice(0, totalTribute.operations),
-  ]) {
-    yield removeCard({ source: card, target });
-  }
 
   yield* payCost(cache, game, card, "play", card.name, info.colors, info.cost, info.targets, prepared);
   yield* info.play(target!);
@@ -298,22 +179,28 @@ function* doCard(
 }
 
 function* doGameAction(cache: CardInfoCache, game: GameState, action: GameAction, depth: number = 0): CardGenerator {
-  yield action;
-
   if (depth >= 8) {
+    yield action;
     return;
   }
-  
+
   if (action.payload.target) {
     const card = getCard(game, action.payload.target);
     if (card) {
       const info = cache.getCardInfo(game, card);
-      const [actions] = runCardGenerator(game, info.onTarget(action));
+      const [actions, _, shouldIgnore] = runCardGenerator(game, info.onTarget(action));
+      
       for (const action of actions) {
         yield* doGameAction(cache, game, action, depth + 1);
       }
+
+      if (shouldIgnore) {
+        return;
+      }
     }
   }
+
+  yield action;
 }
 
 function* doPlayerAction(cache: CardInfoCache, game: GameState, action: PlayerAction): CardGenerator {
@@ -347,7 +234,7 @@ function* doPlayerAction(cache: CardInfoCache, game: GameState, action: PlayerAc
     const { zone, player } = findCard(game, target)!;
     actions.push(revealCard({ source: undefined, target, zone, player }));
   }
-  
+
   for (const action of actions) {
     yield* doGameAction(cache, game, action);
   }
@@ -395,7 +282,7 @@ export async function createGame(players: [Player, Player], onEnd: OnGameEnd) {
   let state = initialGameState();
 
   function sendActions(generator: CardGenerator, source: PlayerId, name: string) {
-    const [actions, newState] = runCardGenerator(state, generator)
+    const [actions, newState] = runCardGenerator(state, generator);
     state = newState;
 
     for (const player of [0, 1] as const) {

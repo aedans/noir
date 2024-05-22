@@ -1,16 +1,5 @@
 import { nanoid } from "nanoid/non-secure";
-import {
-  CardColor,
-  CardCost,
-  CardGenerator,
-  CardInfo,
-  CardKeyword,
-  cardKeywords,
-  CardModifier,
-  CardState,
-  CardType,
-  Target,
-} from "./card.js";
+import { CardColor, CardCost, CardGenerator, CardInfo, CardModifier, CardState, CardType, Target } from "./card.js";
 import {
   addCard,
   addMoney,
@@ -41,6 +30,7 @@ import {
 } from "./gameSlice.js";
 import CardInfoCache from "./CardInfoCache.js";
 import { Deck } from "../common/decks.js";
+import { CardKeyword, cardKeywords } from "./keywords.js";
 
 export type Filter = {
   excludes?: Target[];

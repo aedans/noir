@@ -21,6 +21,8 @@ export const card: PartialCardInfoComputation = (util, cache, game, card) => ({
         },
       });  
     }
+
+    return false;
   },
   modifiers: {
     cheaper: (info, modifier, card) => ({

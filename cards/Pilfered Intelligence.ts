@@ -11,6 +11,8 @@ export const card: PartialCardInfoComputation = (util, cache, game, card) => ({
         yield* util.revealRandom(cache, game, card, 3, {});
       }  
     }
+
+    return false;
   },
   play: function* () {
     yield* util.revealRandom(cache, game, card, 3, {});

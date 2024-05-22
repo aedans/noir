@@ -25,6 +25,8 @@ export const card: PartialCardInfoComputation = (util, cache, game, card) => ({
         },
       });
     }
+
+    return false;
   },
   modifiers: {
     purple: (info) => ({

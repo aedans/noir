@@ -23,7 +23,6 @@ export const card: PartialCardInfoComputation = (util, cache, game, card) => ({
     avaricious: (info, modifier, card) => ({
       text: `${info.text} Whenever this is activated, you lose $2.`,
       onTarget: function* (action) {
-        info.onTarget(action);
         if (action.type == "game/activateCard") {
           yield util.removeMoney({
             source: card,
@@ -31,6 +30,8 @@ export const card: PartialCardInfoComputation = (util, cache, game, card) => ({
             money: 2,
           });
         }
+
+        return yield* info.onTarget(action);
       },
     }),
   },

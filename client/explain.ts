@@ -1,6 +1,7 @@
 import CardInfoCache from "../common/CardInfoCache";
-import { CardKeyword, Target } from "../common/card";
+import { Target } from "../common/card";
 import { GameState, PlayerId, findCard, getCard, isPlayerAction, opponentOf } from "../common/gameSlice";
+import { CardKeyword } from "../common/keywords";
 import util from "../common/util";
 
 export interface Explanation {
@@ -74,7 +75,7 @@ export const keywordExplanations = [
   new KeywordExplanation("protected", "Protected agents prevent the first time they would be removed", false, true),
   new KeywordExplanation("disloyal", "Disloyal agents don't prevent you from losing the game", true, false),
   new KeywordExplanation("vip", "VIP agents cannot be targeted as long as you have a loyal agent on board"),
-  new KeywordExplanation("delay", "Delay agents remain exhausted for X turns after being played"),
+  new KeywordExplanation("delay", "Delay cards cannot be used for X turns after being played"),
   new KeywordExplanation("debt", "Debt cards subtract $X money two turns after being played"),
   new KeywordExplanation("depart", "Depart agents are removed after X turns in play"),
   new KeywordExplanation("tribute", "Tribute cards remove the lowest cost card in your deck when played"),
@@ -117,8 +118,7 @@ export const explanations = [
     "activate",
     "Agents can be exhausted to activate their ability",
     ["agent"],
-    (cache, game, player) =>
-      util.filter(cache, game, { players: [player], zones: ["board"], activatable: true })
+    (cache, game, player) => util.filter(cache, game, { players: [player], zones: ["board"], activatable: true })
   ),
   new SituationExplanation(
     "win",
@@ -135,7 +135,7 @@ export const explanations = [
       game.history
         .filter((x) => x.type == "game/revealCard" && x.payload.source?.id == x.payload.target?.id)
         .map((x) => x.payload.target!)
-        .filter(x => cache.getCardInfo(game, getCard(game, x)!).type == "agent")
+        .filter((x) => cache.getCardInfo(game, getCard(game, x)!).type == "agent")
   ),
   new SituationExplanation(
     "revealPriority",

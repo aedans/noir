@@ -1,18 +1,10 @@
 import { DeepPartial } from "redux";
-import {
-  AddCardParams,
-  GameAction,
-  GameState,
-  ModifyCardParams,
-  PlayCardParams,
-  RevealCardParams,
-  TargetParams,
-  gameSlice,
-} from "./gameSlice.js";
+import { GameAction, GameState, gameSlice } from "./gameSlice.js";
 import { Filter, Util } from "./util.js";
 import CardInfoCache from "./CardInfoCache.js";
 import { Deck } from "../common/decks.js";
 import AI from "../server/AI.js";
+import { CardKeyword } from "./keywords.js";
 
 export type CardStateInfo = {
   state: CardState;
@@ -41,20 +33,9 @@ export type CardCosmetic = {
 
 export const cardColors = ["orange", "blue", "green", "purple"] as const;
 export const cardTypes = ["agent", "operation"] as const;
-export const cardKeywords = {
-  disloyal: () => ["disloyal"] as const,
-  protected: () => ["protected"] as const,
-  vip: () => ["vip"] as const,
-  delay: (n?: number) => ["delay", n ?? 0] as const,
-  debt: (n?: number) => ["debt", n ?? 0] as const,
-  depart: (n?: number) => ["depart", n ?? 0] as const,
-  tribute: (n?: CardType) => ["tribute", n ?? "card"] as const,
-} as const;
 
 export type CardColor = (typeof cardColors)[number];
 export type CardType = (typeof cardTypes)[number];
-export type CardKeywordName = keyof typeof cardKeywords;
-export type CardKeyword = ReturnType<(typeof cardKeywords)[CardKeywordName]>;
 export type CardColorFilter = CardColor | "any";
 export type CardColors = CardColor | "multicolor" | "colorless";
 
@@ -68,7 +49,7 @@ export type CardAction = () => CardGenerator;
 export type CardTargetAction = (target: Target) => CardGenerator;
 export type CardModifier = (card: CardInfo, modifier: ModifierState, state: CardState) => Partial<CardInfo>;
 export type CardEffect = (card: CardInfo, state: CardState) => Partial<CardInfo> | undefined;
-export type CardTrigger = (action: GameAction) => CardGenerator<true | void>;
+export type CardTrigger = (action: GameAction) => CardGenerator<boolean>;
 export type CardEvaluator = (ai: AI, target: Target | undefined) => [number, number];
 export type CardFactor = "positive" | "negative" | "neutral";
 
@@ -171,7 +152,7 @@ export function runPartialCardInfoComputation(
     modifiers: partial.modifiers ?? {},
     validateDeck: (deck) => (deck.cards[card.name] > 2 ? [`Cannot run more than two copies of ${card.name}`] : []),
     modifyDeckSize: () => 0,
-    onTarget: partial.onTarget ?? function* () {},
+    onTarget: partial.onTarget ?? function* () { return false; },
     factor: partial.factor ?? "neutral",
     activateFactor: partial.activateFactor ?? "neutral",
     evaluate: partial.evaluate ?? (() => [0.01, 0]),
@@ -179,7 +160,7 @@ export function runPartialCardInfoComputation(
   };
 }
 
-export function runCardGenerator(state: GameState, generator: CardGenerator<any>): [GameAction[], GameState] {
+export function runCardGenerator<T>(state: GameState, generator: CardGenerator<T>): [GameAction[], GameState, T] {
   const actions: GameAction[] = [];
   let next = generator.next(state);
   while (!next.done) {
@@ -187,5 +168,5 @@ export function runCardGenerator(state: GameState, generator: CardGenerator<any>
     state = gameSlice.reducer(state, next.value);
     next = generator.next(state);
   }
-  return [actions, state];
+  return [actions, state, next.value];
 }
