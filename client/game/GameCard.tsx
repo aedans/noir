@@ -36,7 +36,7 @@ export type GameCardProps = CardProps &
     y?: number;
     zIndex?: number;
     angle?: number;
-    interactive?: boolean;
+    eventMode?: string;
     zoomOffsetX?: number;
     zoomOffsetY?: number;
   };
@@ -57,7 +57,7 @@ export function isGameCardPropsEqual(a: GameCardProps, b: GameCardProps) {
     a.y == b.y &&
     a.zIndex == b.zIndex &&
     a.angle == b.angle &&
-    a.interactive == b.interactive
+    a.eventMode == b.eventMode
   );
 }
 
@@ -154,7 +154,7 @@ export default React.memo(
         scale={scale}
         onmouseover={onmouseover}
         onmouseout={onmouseout}
-        interactive
+        eventMode="static"
         ref={componentRef}
       >
         <Card

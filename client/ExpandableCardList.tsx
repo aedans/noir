@@ -13,7 +13,7 @@ export default function ExpandableCardList(props: Omit<CardListProps, "expanded"
   }, [isExpanded, props.cards.length]);
 
   return (
-    <Container pointerdown={pointerdown} interactive>
+    <Container pointerdown={pointerdown} eventMode="static">
       <CardList expanded={isExpanded} expandOnHover {...props} />
     </Container>
   );

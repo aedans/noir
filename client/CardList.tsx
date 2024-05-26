@@ -81,7 +81,7 @@ export default React.memo(function CardList(props: CardListProps) {
   }, [collapsedIndex]);
 
   return (
-    <Container pointerout={pointerout} interactive sortableChildren>
+    <Container pointerout={pointerout} eventMode="static" sortableChildren>
       {props.cards.map(({ state, info }, i) => {
         const heightOffset = (props.reversed ? i : -i) * props.cardHeight * (props.expanded ? 0.1 : 0);
         const shouldHoverOffset = props.expanded && (props.reversed ? i < expandedIndex : i > expandedIndex);
@@ -95,7 +95,7 @@ export default React.memo(function CardList(props: CardListProps) {
             x={props.x + props.cardWidth / 2}
             y={props.y + props.cardHeight / 2 - heightOffset + hoverOffset}
             pointerover={() => pointerover(i)}
-            interactive
+            eventMode="static"
           />
         );
       })}

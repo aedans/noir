@@ -26,7 +26,7 @@ export default React.memo(
     }, [props.deckName, props.state.name]);
 
     return (
-      <Container {...props} scale={1} interactive pointerdown={pointerdown} ref={componentRef}>
+      <Container {...props} scale={1} eventMode="static" pointerdown={pointerdown} ref={componentRef}>
         <Card info={props.info} state={props.state} cosmetic={props.cosmetic} />
       </Container>
     );

@@ -151,7 +151,7 @@ export default React.forwardRef(function BoardCard(props: GameCardProps, ref: Re
       shouldGlow={shouldGlow}
       shouldDimWhenExhausted
       ref={cardRef}
-      interactive
+      eventMode="static"
       pointerdown={pointerdown}
       pointerover={pointerover}
       pointerout={pointerout}

@@ -88,7 +88,7 @@ export function ExplanationPopup(props: ExplanationProps) {
           pointerover={pointerover}
           pointerout={pointerout}
           pointerdown={pointerdown}
-          interactive
+          eventMode="static"
           {...p}
           ref={ref}
         >

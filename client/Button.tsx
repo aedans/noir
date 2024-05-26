@@ -18,7 +18,7 @@ export default function Button(props: ButtonProps) {
 
   return (
     <Container
-      interactive
+      eventMode="static"
       pointerdown={props.pointerdown}
       mouseover={() => {
         anime({

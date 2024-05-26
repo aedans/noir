@@ -18,7 +18,7 @@ export default function Concede() {
   }
 
   return (
-    <Container x={x} y={y} interactive pointerdown={pointerdown}>
+    <Container x={x} y={y} eventMode="static" pointerdown={pointerdown}>
       <Text x={40} y={10} text={"Concede"} style={{ fontSize: 100, tint: 0x000000 }} />
     </Container>
   );
