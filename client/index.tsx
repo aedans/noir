@@ -1,11 +1,15 @@
 import { auth, trpc } from "./cards.js";
 import { Application, Assets, settings } from "./pixi.js";
 
-document.addEventListener('contextmenu', event => event.preventDefault());
+document.addEventListener("contextmenu", (event) => event.preventDefault());
 
-if (auth.token == null) {
-  trpc.auth.query().then(({ token }) => auth.token = token);
-}
+(async () => {
+  try {
+    if (auth.token == null) {
+      auth.token = (await trpc.auth.query()).token;
+    }
+  } catch (e) {}
+})();
 
 settings.RENDER_OPTIONS!.antialias = true;
 
@@ -19,10 +23,12 @@ const app = new Application({
   autoDensity: true,
 });
 
-Promise.all([import("./Noir"), import("react"), import("@pixi/react"), Assets.load("/Oswald.fnt")]).then(([Noir, React, { createRoot }]) => {
-  const root = createRoot(app.stage);
-  root.render(<Noir.default app={app} />);
-});
+Promise.all([import("./Noir"), import("react"), import("@pixi/react"), Assets.load("/Oswald.fnt")]).then(
+  ([Noir, React, { createRoot }]) => {
+    const root = createRoot(app.stage);
+    root.render(<Noir.default app={app} />);
+  }
+);
 
 import("./store").then((store) => {
   store.updateLocalStorage();
