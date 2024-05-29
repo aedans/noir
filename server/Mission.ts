@@ -18,14 +18,14 @@ export type MissionName =
   | "Strength in Numbers"
   | "Underhanded Dealings";
 
-export type TutorialName = `Tutorial ${number}`;
+export type TutorialName = "Tutorial";
 
 export type Difficulty = 1 | 2;
 
 export const missions: {
   [T in MissionName | TutorialName]: (playerId: PlayerId, difficulty: Difficulty) => SoloPlayer;
 } = {
-  "Tutorial 1": (player) => new Tutorial1(player),
+  Tutorial: (player) => new Tutorial1(player),
   Random: (player, difficulty) => new Random(player, difficulty),
   "Random Citizens": (player, difficulty) => new RandomCitizens(player, difficulty),
   "Daphril the Dauntless": (player, difficulty) => new Daphril(player, difficulty),

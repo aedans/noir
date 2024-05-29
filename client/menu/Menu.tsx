@@ -9,8 +9,8 @@ import { hasWon } from "../wins.js";
 export default function Menu() {
   const [_, setLocation] = useLocation();
 
-  if (!hasWon("Tutorial 1")) {
-    setLocation("/queue/Tutorial 1/");
+  if (!hasWon("Tutorial")) {
+    setLocation("/queue/Tutorial/");
   }
 
   return (
@@ -39,7 +39,7 @@ export default function Menu() {
         text="Tutorial"
         y={600}
         pointerdown={() => {
-          setLocation("/queue/Tutorial 1/");
+          setLocation("/queue/Tutorial/");
         }}
       />
       <Button

@@ -4,7 +4,7 @@ import { SoloPlayer } from "../Player.js";
 
 export default class Tutorial1 extends SoloPlayer {
   constructor(player: PlayerId) {
-    super(player, "Tutorial 1");
+    super(player, "Tutorial");
   }
 
   deck1: Deck = {

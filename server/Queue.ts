@@ -9,7 +9,7 @@ export type QueueName = "test" | "casual" | TutorialName | `${MissionName} level
 export const queues: { [T in QueueName]: Queue } = {
   test: new Test(),
   casual: new Casual(),
-  "Tutorial 1": new Solo("Tutorial 1", 1),
+  "Tutorial": new Solo("Tutorial", 1),
   "Random level 1": new Solo("Random", 1),
   "Random level 2": new Solo("Random", 2),
   "Random Citizens level 1": new Solo("Random Citizens", 1),
