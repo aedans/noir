@@ -41,8 +41,9 @@ export type GameCardProps = CardProps &
     zoomOffsetY?: number;
   };
 
-export const gameCardScale = 1;
-export const gameCardZoom = 1.2;
+export const gameCardScale = .9;
+export const gameCardZoomScale = 1;
+export const gameCardZoom = gameCardZoomScale / gameCardScale;
 export const gameCardWidth = cardWidth * gameCardScale;
 export const gameCardHeight = cardHeight * gameCardScale;
 export const gameCardWidthDiff = (gameCardWidth * (gameCardZoom - 1)) / 2;
