@@ -36,7 +36,8 @@ const shadows = [
 
 export function useTimeColorFilter() {
   const player = useContext(PlayerContext);
-  const turn = useClientSelector((state) => Math.floor((state.game.turn - player + 1) / 2) % colors.length);
+  // const turn = useClientSelector((state) => Math.floor((state.game.turn - player + 1) / 2) % colors.length);
+  const turn = 0;
   const colorFilterRef = useRef(new PixiFilters.ColorMatrixFilter());
   const lastColor = useRef(getRGB(colors[turn]));
 
