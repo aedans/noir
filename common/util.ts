@@ -276,7 +276,15 @@ export function tryPayCost(
     } else if (prepared.some((card) => card.id == b.id)) {
       return 1;
     } else {
-      return -cache.getCardInfo(game, b).colors.length - -cache.getCardInfo(game, a).colors.length;
+      const aCardInfo = cache.getCardInfo(game, a);
+      const bCardInfo = cache.getCardInfo(game, b);
+      if (aCardInfo.hasActivate && !bCardInfo.hasActivate) {
+        return 1;
+      } else if (bCardInfo.hasActivate && !aCardInfo.hasActivate) {
+        return -1;
+      } else {
+        return -bCardInfo.colors.length - -aCardInfo.colors.length;
+      }
     }
   });
 
