@@ -2,7 +2,7 @@ import type { PartialCardInfoComputation } from "../common/card";
 
 export const card: PartialCardInfoComputation = (util, cache, game, card) => ({
   type: "agent",
-  text: "[A]: give a card in a player's deck Debt 4. If it's in your deck, also reduce that card's cost by 4.",
+  text: "Activate this, exhaust an agent: give a card in a player's deck Debt 4. If it's in your deck, also reduce that card's cost by 4.",
   cost: { money: 10, agents: 1 },
   colors: ["green"],
   activateTargets: {

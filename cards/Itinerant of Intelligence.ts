@@ -2,7 +2,7 @@ import type { PartialCardInfoComputation } from "../common/card";
 
 export const card: PartialCardInfoComputation = (util, cache, game, card) => ({
   type: "agent",
-  text: "[A]: refresh your other agents. This can only be activated once each turn.",
+  text: "Activate this, exhaust an agent: refresh your other agents. This can only be activated once each turn.",
   cost: { money: 9 },
   turn: function* () {
     yield util.setProp({
