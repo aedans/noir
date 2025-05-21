@@ -19,7 +19,7 @@ const app = new Application({
   view: canvasElement,
   width: window.screen.width,
   height: window.screen.height,
-  resolution: window.devicePixelRatio,
+  resolution: 1,
   autoDensity: true,
 });
 
