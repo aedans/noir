@@ -1,7 +1,7 @@
 import type { PartialCardInfoComputation } from "../common/card";
 
 export const card: PartialCardInfoComputation = (util, cache, game, card) => ({
-  text: "[A]: gain $1.",
+  text: "Activate this, exhaust an agent: gain $1.",
   type: "agent",
   cost: { money: 5 },
   keywords: [["disloyal"], ["protected"]],
