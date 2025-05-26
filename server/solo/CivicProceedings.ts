@@ -5,7 +5,7 @@ import { SoloPlayer } from "../Player.js";
 
 export default class CivicProceedings extends SoloPlayer {
   constructor(player: PlayerId, difficulty: Difficulty) {
-    super(player, "Civic Proceedings", difficulty, {});
+    super(player, "Civic Proceedings", difficulty);
   }
 
   deck1: Deck = {

@@ -26,7 +26,7 @@ function randomDeck() {
 
 export default class Random extends SoloPlayer {
   constructor(player: PlayerId, difficulty: Difficulty) {
-    super(player, "Random", difficulty, {});
+    super(player, "Random", difficulty);
   }
 
   deck1: Deck = randomDeck();

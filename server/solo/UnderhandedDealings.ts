@@ -5,7 +5,7 @@ import { SoloPlayer } from "../Player.js";
 
 export default class UnderhandedDealings extends SoloPlayer {
   constructor(player: PlayerId, difficulty: Difficulty) {
-    super(player, "Underhanded Dealings", difficulty, {});
+    super(player, "Underhanded Dealings", difficulty);
   }
 
   deck1: Deck = {

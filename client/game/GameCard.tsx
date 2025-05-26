@@ -5,7 +5,6 @@ import React, {
   useContext,
   useEffect,
   useImperativeHandle,
-  useLayoutEffect,
   useRef,
   useState,
 } from "react";
@@ -20,6 +19,7 @@ import {
   CostDisplayContext,
   HelpContext,
   HighlightContext,
+  PlanContext,
 } from "./Game.js";
 import { getCard } from "../../common/gameSlice.js";
 import { useClientSelector } from "../store.js";
@@ -41,7 +41,7 @@ export type GameCardProps = CardProps &
     zoomOffsetY?: number;
   };
 
-export const gameCardScale = .9;
+export const gameCardScale = 0.9;
 export const gameCardZoomScale = 1;
 export const gameCardZoom = gameCardZoomScale / gameCardScale;
 export const gameCardWidth = cardWidth * gameCardScale;
@@ -66,11 +66,11 @@ export default React.memo(
   React.forwardRef(function GameCard(props: GameCardProps, ref: Ref<PixiContainer>) {
     const game = useClientSelector((state) => state.game);
     const cache = useContext(CacheContext);
-    const connection = useContext(ConnectionContext);
     const { costDisplay } = useContext(CostDisplayContext);
     const { highlight } = useContext(HighlightContext);
     const cosmetics = useContext(CosmeticContext);
     const { setHelp } = useContext(HelpContext);
+    const { setPlan } = useContext(PlanContext);
     const componentRef = useRef() as MutableRefObject<PixiContainer>;
     const [zoom, setZoom] = useState(false);
     useImperativeHandle(ref, () => componentRef.current);
@@ -79,7 +79,13 @@ export default React.memo(
       () => ({
         accept: "target",
         drop: (state: CardState) => {
-          connection.emit({ type: "do", id: state.id, target: { id: props.state.id }, prepared: costDisplay.prepared });
+          setPlan((plan) => [
+            ...plan,
+            {
+              card: state,
+              action: { id: state.id, target: { id: props.state.id }, prepared: costDisplay.prepared },
+            },
+          ]);
         },
         collect: (monitor) => ({
           isOver: monitor.isOver(),

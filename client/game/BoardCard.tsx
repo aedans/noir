@@ -1,8 +1,7 @@
 import React, { Ref, useContext, useRef, MutableRefObject, useImperativeHandle, useEffect } from "react";
 import { useDrag } from "react-dnd";
-import { currentPlayer } from "../../common/gameSlice.js";
 import { useClientSelector } from "../store.js";
-import { CacheContext, ConnectionContext, CostDisplayContext, PlayerContext } from "./Game.js";
+import { CacheContext, CostDisplayContext, PlanContext, PlayerContext } from "./Game.js";
 import GameCard, { GameCardProps } from "./GameCard.js";
 import util from "../../common/util.js";
 import { PixiContainer } from "../pixi.js";
@@ -10,9 +9,9 @@ import { PixiContainer } from "../pixi.js";
 export default React.forwardRef(function BoardCard(props: GameCardProps, ref: Ref<PixiContainer>) {
   const player = useContext(PlayerContext);
   const cache = useContext(CacheContext);
-  const connection = useContext(ConnectionContext);
   const game = useClientSelector((state) => state.game);
   const { costDisplay, setCostDisplay } = useContext(CostDisplayContext);
+  const { setPlan } = useContext(PlanContext);
   const cardRef = useRef() as MutableRefObject<PixiContainer>;
 
   const isExhausted = costDisplay.exhausted.some((card) => card.id == props.state.id);
@@ -62,7 +61,7 @@ export default React.forwardRef(function BoardCard(props: GameCardProps, ref: Re
 
     if (e.nativeEvent.which == 1) {
       if (!props.info.activateTargets) {
-        connection.emit({ type: "do", id: props.state.id, prepared: costDisplay.prepared });
+        setPlan((plan) => [...plan, { card: props.state, action: { id: props.state.id, prepared: costDisplay.prepared } }]);
       }
     } else if (e.nativeEvent.which == 3) {
       if (!isPrepared) {
@@ -123,7 +122,6 @@ export default React.forwardRef(function BoardCard(props: GameCardProps, ref: Re
   const shouldGlow =
     !props.state.exhausted &&
     props.info.hasActivate &&
-    currentPlayer(game) == player &&
     util.canPayCost(
       cache,
       game,

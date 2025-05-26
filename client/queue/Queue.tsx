@@ -102,7 +102,7 @@ export default function Queue(props: { params: { queue: string; deck?: string } 
     return (
       <ConnectionContext.Provider
         value={{
-          emit: (action) => socket.emit("action", action),
+          turn: (turn) => socket.emit("turn", turn),
           concede: () => socket.emit("concede"),
         }}
       >

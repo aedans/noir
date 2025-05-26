@@ -5,7 +5,7 @@ import { SoloPlayer } from "../Player.js";
 
 export default class IndustrialDesign extends SoloPlayer {
   constructor(player: PlayerId, difficulty: Difficulty) {
-    super(player, "Industrial Design", difficulty, {});
+    super(player, "Industrial Design", difficulty);
   }
 
   deck1: Deck = {

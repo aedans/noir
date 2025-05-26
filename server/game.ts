@@ -3,13 +3,10 @@ import {
   activateCard,
   addCard,
   addMoney,
-  currentPlayer,
   endTurn,
-  enterCard,
   exhaustCard,
   findCard,
   GameAction,
-  gameSlice,
   GameState,
   getCard,
   initialGameState,
@@ -18,10 +15,8 @@ import {
   PlayCardParams,
   PlayerId,
   refreshCard,
-  removeCard,
   removeMoney,
   revealCard,
-  setProp,
   Winner,
 } from "../common/gameSlice.js";
 import { CardColor, CardCost, CardGenerator, CardState, runCardGenerator, Target } from "../common/card.js";
@@ -39,9 +34,7 @@ export type OnGameEnd = (
   isValid: boolean
 ) => void;
 
-function* doEndTurn(cache: CardInfoCache, game: GameState): CardGenerator {
-  const player = currentPlayer(game);
-
+function* doEndTurn(cache: CardInfoCache, game: GameState, player: PlayerId): CardGenerator {
   yield endTurn({ source: undefined });
 
   for (const card of game.players[player].board) {
@@ -77,6 +70,7 @@ function validateTargets(
 function* payCost(
   cache: CardInfoCache,
   game: GameState,
+  player: PlayerId,
   card: Target,
   verb: string,
   name: string,
@@ -85,7 +79,6 @@ function* payCost(
   targets: Filter | undefined,
   prepared: Target[]
 ) {
-  const player = currentPlayer(game);
   const result = util.tryPayCost(cache, game, card, verb, name, player, colors, cost, targets, prepared);
 
   if (typeof result == "string") {
@@ -106,6 +99,7 @@ function* payCost(
 function* doPlayCard(
   cache: CardInfoCache,
   game: GameState,
+  player: PlayerId,
   card: CardState,
   target: Target | undefined,
   prepared: Target[]
@@ -118,13 +112,14 @@ function* doPlayCard(
 
   yield playCard(payload);
 
-  yield* payCost(cache, game, card, "play", card.name, info.colors, info.cost, info.targets, prepared);
+  yield* payCost(cache, game, player, card, "play", card.name, info.colors, info.cost, info.targets, prepared);
   yield* info.play(target!);
 }
 
 function* doActivateCard(
   cache: CardInfoCache,
   game: GameState,
+  player: PlayerId,
   card: CardState,
   target: Target | undefined,
   prepared: Target[]
@@ -145,6 +140,7 @@ function* doActivateCard(
   yield* payCost(
     cache,
     game,
+    player,
     card,
     "activate",
     card.name,
@@ -159,6 +155,7 @@ function* doActivateCard(
 function* doCard(
   cache: CardInfoCache,
   game: GameState,
+  self: PlayerId,
   id: string,
   target: Target | undefined,
   prepared: Target[]
@@ -166,14 +163,14 @@ function* doCard(
   const info = findCard(game, { id });
   if (info) {
     const { player, zone, index } = info;
-    if (currentPlayer(game) != player) {
+    if (self != player) {
       throw `Cannot use opponent's cards`;
     }
 
     if (zone == "deck") {
-      yield* doPlayCard(cache, game, game.players[player][zone][index], target, prepared);
+      yield* doPlayCard(cache, game, self, game.players[player][zone][index], target, prepared);
     } else if (zone == "board") {
-      yield* doActivateCard(cache, game, game.players[player][zone][index], target, prepared);
+      yield* doActivateCard(cache, game, self, game.players[player][zone][index], target, prepared);
     }
   }
 }
@@ -189,7 +186,7 @@ function* doGameAction(cache: CardInfoCache, game: GameState, action: GameAction
     if (card) {
       const info = cache.getCardInfo(game, card);
       const [actions, _, shouldIgnore] = runCardGenerator(game, info.onTarget(action));
-      
+
       for (const action of actions) {
         yield* doGameAction(cache, game, action, depth + 1);
       }
@@ -203,13 +200,9 @@ function* doGameAction(cache: CardInfoCache, game: GameState, action: GameAction
   yield action;
 }
 
-function* doPlayerAction(cache: CardInfoCache, game: GameState, action: PlayerAction): CardGenerator {
+function* doPlayerAction(cache: CardInfoCache, game: GameState, player: PlayerId, action: PlayerAction): CardGenerator {
   const actions: GameAction[] = [];
-  if (action.type == "end") {
-    actions.push(...runCardGenerator(game, doEndTurn(cache, game))[0]);
-  } else if (action.type == "do") {
-    actions.push(...runCardGenerator(game, doCard(cache, game, action.id, action.target, action.prepared))[0]);
-  }
+  actions.push(...runCardGenerator(game, doCard(cache, game, player, action.id, action.target, action.prepared))[0]);
 
   const toReveal: CardState[] = [];
   for (const card of util.filter(cache, game, { zones: ["board"], hidden: true })) {
@@ -307,10 +300,6 @@ export async function createGame(players: [Player, Player], onEnd: OnGameEnd) {
   const cache = new LocalCardInfoCache();
   const inits = await Promise.all([players[0].init(), players[1].init()]);
   for (const player of [0, 1] as const) {
-    if (players[player].ai) {
-      continue;
-    }
-
     const { errors } = validateDeck(cache, inits[player].deck);
     if (errors.length > 0) {
       players[player].error(errors[0]);
@@ -339,39 +328,40 @@ export async function createGame(players: [Player, Player], onEnd: OnGameEnd) {
     onEnd(winner, players, inits, state, true);
   }
 
-  for (const player of [0, 1] as const) {
-    players[player].onAction((action) => {
-      if (hasEnded) {
-        return;
-      }
+  while (!hasEnded) {    
+    const turns = await Promise.all(players.map((x) => x.turn()));
 
-      if (action == "concede") {
-        tryEndGame(opponentOf(player));
-        return;
-      }
+    for (let i = 0; turns.some((turn) => i < turn.length); i++) {
+      for (const player of [0, 1] as const) {
+        try {
+          if (i >= turns[player].length) {
+            continue;
+          }
 
-      if (player != currentPlayer(state)) {
-        players[player].error("Not your turn");
-        return;
-      }
+          const action = turns[player][i];
 
-      try {
-        cache.reset();
-        const generator = doPlayerAction(cache, state, action);
-        sendActions(generator, player, `player${player}/${action.type}Action`);
+          cache.reset();
+          const generator = doPlayerAction(cache, state, player, action);
+          sendActions(generator, player, `player${player}/doAction`);
 
-        const winner = hasWinner(cache, state);
-        if (winner != null) {
-          tryEndGame(winner);
-          return;
-        }
-      } catch (e) {
-        if (typeof e == "string") {
-          players[player].error(e);
-        } else {
-          throw e;
+          const winner = hasWinner(cache, state);
+          if (winner != null) {
+            tryEndGame(winner);
+            return;
+          }
+        } catch (e) {
+          if (typeof e == "string") {
+            players[player].error(e);
+          } else {
+            throw e;
+          }
         }
       }
-    });
+    }
+
+    for (const player of [0, 1] as const) {
+      const generator = doEndTurn(cache, state, player);
+      sendActions(generator, player, `player${player}/endAction`);
+    }
   }
 }

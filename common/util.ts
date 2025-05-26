@@ -19,7 +19,6 @@ import {
   zones,
   stealCard,
   opponentOf,
-  currentPlayer,
   opponent,
   self,
   modifyCard,
@@ -209,7 +208,7 @@ export function validateDeck(cache: CardInfoCache, deck: Deck): DeckValidationRe
 }
 
 export function getTargets(this: Util, cache: CardInfoCache, game: GameState, card: Target, targetFilter: Filter) {
-  const opponent = this.opponent(game, card);
+  const opponent = this.opponent(game, card)!;
 
   const bodyguards = this.filter(cache, game, {
     players: [opponent],
@@ -318,7 +317,7 @@ export function* revealRandom(
   number: number,
   filter: Omit<Filter, "players" | "hidden" | "number"> = {}
 ): CardGenerator<CardState[]> {
-  const opponent = util.opponent(game, card);
+  const opponent = util.opponent(game, card)!;
   const cards: CardState[] = [];
 
   for (const zone of ["board", "deck", "grave"] as const) {
@@ -392,9 +391,8 @@ const util = {
   findCard: findCard as (game: GameState, card: Target) => { player: PlayerId; zone: Zone; index: number },
   getCard: getCard as (game: GameState, card: Target) => CardState,
   opponentOf,
-  currentPlayer,
-  self,
-  opponent,
+  opponent: (game: GameState, card: Target) => opponent(game, card)!,
+  self: (game: GameState, card: Target) => self(game, card)!,
   filter,
   ordered,
   getTargets,

@@ -5,7 +5,7 @@ import { SoloPlayer } from "../Player.js";
 
 export default class Daphril extends SoloPlayer {
   constructor(player: PlayerId, difficulty: Difficulty) {
-    super(player, "Daphril the Dauntless", difficulty, {});
+    super(player, "Daphril the Dauntless", difficulty);
   }
 
   deck1: Deck = {

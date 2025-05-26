@@ -8,7 +8,7 @@ export const card: PartialCardInfoComputation = (util, cache, game, card) => ({
   activate: function* () {
     yield util.addMoney({
       source: card,
-      player: util.currentPlayer(game),
+      player: util.self(game, card),
       money: 1,
     });
   },

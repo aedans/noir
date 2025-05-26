@@ -3,7 +3,6 @@ import { GameAction, GameState, gameSlice } from "./gameSlice.js";
 import { Filter, Util } from "./util.js";
 import CardInfoCache from "./CardInfoCache.js";
 import { Deck } from "../common/decks.js";
-import AI from "../server/AI.js";
 import { CardKeyword } from "./keywords.js";
 
 export type CardStateInfo = {
@@ -50,7 +49,6 @@ export type CardTargetAction = (target: Target) => CardGenerator;
 export type CardModifier = (card: CardInfo, modifier: ModifierState, state: CardState) => Partial<CardInfo>;
 export type CardEffect = (card: CardInfo, state: CardState) => Partial<CardInfo> | undefined;
 export type CardTrigger = (action: GameAction) => CardGenerator<boolean>;
-export type CardEvaluator = (ai: AI, target: Target | undefined) => [number, number];
 export type CardFactor = "positive" | "negative" | "neutral";
 
 export type CardInfo = {
@@ -78,8 +76,6 @@ export type CardInfo = {
   onTarget: CardTrigger;
   factor: CardFactor;
   activateFactor: CardFactor;
-  evaluate: CardEvaluator;
-  evaluateActivate: CardEvaluator;
 };
 
 export type PartialCardInfoComputation = (
@@ -101,8 +97,6 @@ export type PartialCardInfoComputation = (
   secondaryEffect?: CardEffect;
   modifiers?: { [name: string]: CardModifier };
   onTarget?: CardTrigger;
-  evaluate?: CardEvaluator;
-  evaluateActivate?: CardEvaluator;
 };
 
 export type Target = { id: string };
@@ -155,8 +149,6 @@ export function runPartialCardInfoComputation(
     onTarget: partial.onTarget ?? function* () { return false; },
     factor: partial.factor ?? "neutral",
     activateFactor: partial.activateFactor ?? "neutral",
-    evaluate: partial.evaluate ?? (() => [0.01, 0]),
-    evaluateActivate: partial.evaluateActivate ?? (() => [0.01, 0]),
   };
 }
 

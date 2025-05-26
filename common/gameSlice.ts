@@ -173,16 +173,13 @@ export function opponentOf(player: PlayerId) {
   return player == 0 ? 1 : 0;
 }
 
-export function currentPlayer(game: { turn: number }) {
-  return game.turn % 2 == 0 ? (0 as const) : (1 as const);
-}
-
 export function self(game: GameState, card: Target) {
-  return findCard(game, card)?.player ?? currentPlayer(game);
+  return findCard(game, card)?.player;
 }
 
 export function opponent(game: GameState, card: Target) {
-  return opponentOf(self(game, card));
+  const player = self(game, card);
+  return player == null ? null : opponentOf(player);
 }
 
 export function isPlayerAction(action: PayloadAction<{}>) {

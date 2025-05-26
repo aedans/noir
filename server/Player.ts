@@ -4,7 +4,6 @@ import {
   GameState,
   PlayerId,
   Winner,
-  currentPlayer,
   gameSlice,
   initialGameState,
 } from "../common/gameSlice.js";
@@ -15,22 +14,19 @@ import CardInfoCache from "../common/CardInfoCache.js";
 import LocalCardInfoCache from "./LocalCardInfoCache.js";
 import { CardCosmetic } from "../common/card.js";
 import { defaultDecks } from "../common/decks.js";
-import AI, { AISettings } from "./AI.js";
 
 export default interface Player {
   id: string | null;
   name: string;
-  ai: AI | null;
   init(): Promise<PlayerInit>;
   send(actions: GameAction[], name: string): void;
   cosmetic(id: string, cosmetic: CardCosmetic): void;
   error(message: string): void;
   end(winner: Winner): void;
-  onAction(callback: (action: PlayerAction | "concede") => void): void;
+  turn(): Promise<PlayerAction[]>;
 }
 
 export class SocketPlayer implements Player {
-  callbacks: ((action: PlayerAction | "concede") => void)[] = [];
   actions: GameAction[] = [];
   cosmetics: [string, CardCosmetic][] = [];
   ai = null;
@@ -51,18 +47,6 @@ export class SocketPlayer implements Player {
 
   connect(socket: NoirServerSocket) {
     this.socket = socket;
-
-    this.socket.on("action", (action) => {
-      for (const callback of this.callbacks) {
-        callback(action);
-      }
-    });
-
-    this.socket.on("concede", () => {
-      for (const callback of this.callbacks) {
-        callback("concede");
-      }
-    });
 
     this.socket.emit("init", this.player, this.names);
     this.socket.emit("actions", this.actions, `player${this.player}/load`);
@@ -100,23 +84,21 @@ export class SocketPlayer implements Player {
     this.socket.disconnect();
   }
 
-  onAction(callback: (action: PlayerAction | "concede") => void) {
-    this.callbacks.push(callback);
+  turn(): Promise<PlayerAction[]> {
+    return new Promise((resolve) => this.socket.once("turn", (action) => resolve(action)));
   }
 }
 
 export abstract class AIPlayer implements Player {
-  callbacks: ((action: PlayerAction) => void)[] = [];
   state: GameState = initialGameState();
   invalid: PlayerAction[] = [];
   valid: PlayerAction[] = [];
   timeout: boolean = true;
   cache: CardInfoCache = new LocalCardInfoCache();
   id = null;
-  ai: AI;
 
-  constructor(public player: PlayerId, public name: string, public settings: Partial<AISettings>) {
-    this.ai = new AI(settings);
+  constructor(public player: PlayerId, public name: string) {
+
   }
 
   init(): Promise<PlayerInit> {
@@ -130,40 +112,18 @@ export abstract class AIPlayer implements Player {
 
     this.invalid = [];
     this.valid = [];
-
-    this.doAction();
   }
 
   cosmetic(): void {}
 
-  doAction() {
-    const current = currentPlayer(this.state);
-    if (current == this.player) {
-      this.cache.reset();
-      const action = this.ai.bestAction(this.state, this.cache, this.invalid);
-
-      this.valid.push(action);
-
-      setTimeout(
-        () => {
-          for (const callback of this.callbacks) {
-            callback(action);
-          }
-        },
-        this.timeout ? 1000 : 0
-      );
-    }
-  }
-
-  onAction(callback: (action: PlayerAction) => void): void {
-    this.callbacks.push(callback);
-    this.doAction();
+  turn(): Promise<PlayerAction[]> {
+    this.cache.reset();
+    return Promise.resolve([]);
   }
 
   error() {
     this.invalid.push(...this.valid);
     this.valid = [];
-    this.doAction();
   }
 
   end() {}
@@ -181,10 +141,9 @@ export abstract class SoloPlayer extends AIPlayer {
   constructor(
     public player: PlayerId,
     name: MissionName | TutorialName,
-    public difficulty?: Difficulty,
-    settings: Partial<AISettings> = {}
+    public difficulty?: Difficulty
   ) {
-    super(player, difficulty ? `${name} level ${difficulty}` : name, settings);
+    super(player, difficulty ? `${name} level ${difficulty}` : name);
   }
 
   abstract deck1: Deck;

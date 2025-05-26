@@ -9,7 +9,7 @@ export type { User, ReplayMeta, Replay } from "../server/db.js";
 export type { MissionName, Difficulty } from "../server/Mission.js";
 export type { QueueName } from "../server/Queue.js";
 
-export type PlayerAction = { type: "end" } | { type: "do"; id: string; target?: Target; prepared: Target[] };
+export type PlayerAction = { id: string; target?: Target; prepared: Target[] };
 
 export type PlayerInit = { deck: Deck };
 
@@ -24,7 +24,7 @@ export type ServerToClientEvents = {
 export type ClientToServerEvents = {
   queue: (queue: QueueName, name: string, token: string | null) => void;
   init: (deck: Deck) => void;
-  action: (action: PlayerAction) => void;
+  turn: (actions: PlayerAction[]) => void;
   concede: () => void;
 };
 

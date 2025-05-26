@@ -230,8 +230,9 @@ export const cardKeywordEffects: { [name in CardKeywordName]: CardKeywordEffect 
           operations: info.keywords.filter(([name, type]) => name == "tribute" && type == "operation").length,
         };
 
+        const player = self(game, state)!
         const lowestCards = util.filter(cache, game, {
-          players: [self(game, state)],
+          players: [player],
           zones: ["deck"],
           types: ["operation"],
           random: true,
@@ -240,7 +241,7 @@ export const cardKeywordEffects: { [name in CardKeywordName]: CardKeywordEffect 
         });
 
         const lowestAgents = util.filter(cache, game, {
-          players: [self(game, state)],
+          players: [player],
           zones: ["deck"],
           types: ["agent"],
           random: true,
@@ -249,7 +250,7 @@ export const cardKeywordEffects: { [name in CardKeywordName]: CardKeywordEffect 
         });
 
         const lowestOperations = util.filter(cache, game, {
-          players: [self(game, state)],
+          players: [player],
           zones: ["deck"],
           types: ["operation"],
           random: true,
