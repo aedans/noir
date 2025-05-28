@@ -4,11 +4,15 @@ import { Container } from "@pixi/react";
 import { targetResolution } from "../Camera.js";
 import { useClientSelector } from "../store.js";
 import Text from "../Text.js";
-import { PlayerContext } from "./Game.js";
+import { CacheContext, PlanContext, PlayerContext } from "./Game.js";
+import { planResources } from "../cards.js";
 
 export default function Resources() {
   const player = useContext(PlayerContext);
-  const money = useClientSelector((state) => state.game.players[player].money);
+  const cache = useContext(CacheContext);
+  const { plan } = useContext(PlanContext);
+  const game = useClientSelector((state) => state.game);
+  const { money } = planResources(cache, game, player, plan) || { money: 0 };
 
   const width = 400;
   const height = 100;

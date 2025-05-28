@@ -17,8 +17,8 @@ import anime from "animejs";
 import { GlowFilter } from "@pixi/filter-glow";
 import { colorlessColor, getColor, getRGB, hex } from "./color.js";
 import WindFilter from "./WindFilter.js";
-import DragFilter from "./DragFilter.js";
 import { CardKeyword } from "../common/keywords.js";
+import { ErrorBoundary } from "react-error-boundary";
 
 export const cardHeight = targetResolution.height / 4;
 export const cardWidth = cardHeight * (1 / 1.4);
@@ -244,7 +244,6 @@ export default React.memo(
     const dimFilterRef = useRef(new PixiFilters.ColorMatrixFilter());
     const windFilterRef = useRef(new WindFilter());
     const [texture, setTexture] = useState(null as RenderTexture | null);
-    const cleanup = useRef([] as RenderTexture[]);
     const app = useApp();
 
     function renderTexture() {
@@ -256,23 +255,16 @@ export default React.memo(
 
         app.renderer.render(containerRef.current, { renderTexture });
         setTexture(renderTexture);
-
-        cleanup.current.push(renderTexture);
       }
     }
 
     useEffect(() => {
       if (texture != null) {
         setTexture(null);
+        texture.destroy();
       }
 
-      return () => {
-        for (const texture of cleanup.current) {
-          texture.destroy(true);
-        }
-
-        cleanup.current = [];
-      };
+      return () => texture?.destroy();
     }, [props.info, props.state]);
 
     useImperativeHandle(ref, () => containerRef.current);
@@ -289,7 +281,7 @@ export default React.memo(
       borderTintRef.current.tint = props.borderTint ?? colorlessColor;
       levelCosmeticRef.current.tint = hiddenColor;
       glowFilterRef.current.outerStrength = props.shouldGlow ? 4 : 0;
-      glowFilterRef.current.enabled = props.shouldGlow ? true : false;
+      glowFilterRef.current.enabled = props.shouldGlow ?? true;
       dimFilterRef.current.alpha = 0;
       dimFilterRef.current.enabled = false;
       windFilterRef.current.setSprite(borderBannerRef.current);
@@ -437,20 +429,33 @@ export default React.memo(
       );
 
     return (
-      <Container pivot={[cardWidth / 2, cardHeight / 2]} filters={[dimFilterRef.current, glowFilterRef.current]}>
-        <Rectangle fill={0xffffff} width={cardWidth - 20} height={cardHeight - 40} x={10} y={14} ref={colorRef} />
-        <Sprite width={cardWidth - 55} height={cardHeight / 2 - 40} x={30} y={60} texture={imageTexture} />
-        <Sprite width={cardWidth} height={cardHeight} texture={borderTexture} />
-        <Sprite width={cardWidth} height={cardHeight} texture={borderTypeTexture} ref={borderTypeRef} />
-        <Container filters={props.cosmetic?.top ? [windFilterRef.current] : []}>
-          <Sprite width={cardWidth} height={cardHeight} texture={borderBannerTexture} ref={borderBannerRef} />
-          <Sprite width={cardWidth} height={cardHeight} texture={borderCostTexture} ref={borderCostRef} />
-          <Sprite width={cardWidth} height={cardHeight} texture={borderAgentsTexture} ref={borderAgentsRef} />
-          <Sprite width={cardWidth} height={cardHeight} texture={borderTintTexture} ref={borderTintRef} />
-          {info}
+      <ErrorBoundary
+        fallback={
+          <Rectangle
+            fill={0}
+            width={cardWidth - 20}
+            height={cardHeight - 40}
+            x={10 - cardWidth / 2}
+            y={14 - cardHeight / 2}
+            ref={colorRef}
+          />
+        }
+      >
+        <Container pivot={[cardWidth / 2, cardHeight / 2]} filters={[dimFilterRef.current, glowFilterRef.current]}>
+          <Rectangle fill={0xffffff} width={cardWidth - 20} height={cardHeight - 40} x={10} y={14} ref={colorRef} />
+          <Sprite width={cardWidth - 55} height={cardHeight / 2 - 40} x={30} y={60} texture={imageTexture} />
+          <Sprite width={cardWidth} height={cardHeight} texture={borderTexture} />
+          <Sprite width={cardWidth} height={cardHeight} texture={borderTypeTexture} ref={borderTypeRef} />
+          <Container filters={props.cosmetic?.top ? [windFilterRef.current] : []}>
+            <Sprite width={cardWidth} height={cardHeight} texture={borderBannerTexture} ref={borderBannerRef} />
+            <Sprite width={cardWidth} height={cardHeight} texture={borderCostTexture} ref={borderCostRef} />
+            <Sprite width={cardWidth} height={cardHeight} texture={borderAgentsTexture} ref={borderAgentsRef} />
+            <Sprite width={cardWidth} height={cardHeight} texture={borderTintTexture} ref={borderTintRef} />
+            {info}
+          </Container>
+          {levelCosmetic}
         </Container>
-        {levelCosmetic}
-      </Container>
+      </ErrorBoundary>
     );
   }),
   isCardPropsEqual

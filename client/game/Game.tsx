@@ -60,7 +60,7 @@ export const HighlightContext = React.createContext(
   }
 );
 
-export type PlanProps = { action: PlayerAction; card: CardState };
+export type PlanProps = { type: "play" | "activate", action: PlayerAction; card: CardState };
 
 export const PlanContext = React.createContext(
   {} as {

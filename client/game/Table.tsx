@@ -15,7 +15,7 @@ export default function Table() {
     () => ({
       accept: "card",
       drop: (state: CardState) => {
-        setPlan((plan) => [...plan, { card: state, action: { id: state.id, prepared: costDisplay.prepared } }]);
+        setPlan((plan) => [...plan, { type: "play", card: state, action: { id: state.id, prepared: costDisplay.prepared } }]);
       },
       collect: () => ({}),
     }),

@@ -1,5 +1,5 @@
-import React, { MutableRefObject, useContext, useEffect, useLayoutEffect } from "react";
-import { Container, Ticker } from "./pixi";
+import React, { MutableRefObject, useContext, useEffect } from "react";
+import { Container } from "./pixi";
 import anime from "animejs";
 import { useTick } from "@pixi/react";
 

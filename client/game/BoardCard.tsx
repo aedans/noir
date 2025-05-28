@@ -1,17 +1,18 @@
-import React, { Ref, useContext, useRef, MutableRefObject, useImperativeHandle, useEffect } from "react";
+import React, { Ref, useContext, useRef, MutableRefObject, useImperativeHandle, useEffect, useCallback } from "react";
 import { useDrag } from "react-dnd";
 import { useClientSelector } from "../store.js";
 import { CacheContext, CostDisplayContext, PlanContext, PlayerContext } from "./Game.js";
 import GameCard, { GameCardProps } from "./GameCard.js";
 import util from "../../common/util.js";
 import { PixiContainer } from "../pixi.js";
+import { canUseCard } from "../cards.js";
 
 export default React.forwardRef(function BoardCard(props: GameCardProps, ref: Ref<PixiContainer>) {
   const player = useContext(PlayerContext);
   const cache = useContext(CacheContext);
   const game = useClientSelector((state) => state.game);
   const { costDisplay, setCostDisplay } = useContext(CostDisplayContext);
-  const { setPlan } = useContext(PlanContext);
+  const { plan, setPlan } = useContext(PlanContext);
   const cardRef = useRef() as MutableRefObject<PixiContainer>;
 
   const isExhausted = costDisplay.exhausted.some((card) => card.id == props.state.id);
@@ -60,8 +61,11 @@ export default React.forwardRef(function BoardCard(props: GameCardProps, ref: Re
     }
 
     if (e.nativeEvent.which == 1) {
-      if (!props.info.activateTargets) {
-        setPlan((plan) => [...plan, { card: props.state, action: { id: props.state.id, prepared: costDisplay.prepared } }]);
+      if (!props.info.activateTargets && canUseCard(cache, game, player, props.state, "activate", plan)) {
+        setPlan((plan) => [
+          ...plan,
+          { type: "activate", card: props.state, action: { id: props.state.id, prepared: costDisplay.prepared } },
+        ]);
       }
     } else if (e.nativeEvent.which == 3) {
       if (!isPrepared) {
@@ -122,16 +126,9 @@ export default React.forwardRef(function BoardCard(props: GameCardProps, ref: Re
   const shouldGlow =
     !props.state.exhausted &&
     props.info.hasActivate &&
-    util.canPayCost(
-      cache,
-      game,
-      props.state,
-      player,
-      props.info.colors,
-      props.info.activateCost,
-      props.info.activateTargets,
-      costDisplay.prepared
-    );
+    canUseCard(cache, game, player, props.state, "activate", plan)
+
+  // console.log(shouldGlow);
 
   let x = props.x ?? 0;
   let y = props.y ?? 0;

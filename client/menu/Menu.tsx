@@ -13,38 +13,41 @@ export default function Menu() {
     setLocation("/queue/Tutorial/");
   }
 
+  let y = -200;
+
   return (
     <Container x={targetResolution.width / 2} y={targetResolution.height / 2 - 200}>
       <Button
         text="Play"
+        y={y += 200}
         pointerdown={() => {
           setLocation("/play/");
         }}
       />
       <Button
         text="Decks"
-        y={200}
+        y={y += 200}
         pointerdown={() => {
           setLocation("/decks/");
         }}
       />
       <Button
         text="Replays"
-        y={400}
+        y={y += 200}
         pointerdown={() => {
           setLocation("/replays/");
         }}
       />
       <Button
         text="Tutorial"
-        y={600}
+        y={y += 200}
         pointerdown={() => {
           setLocation("/queue/Tutorial/");
         }}
       />
       <Button
         text={auth.token == null ? "Login" : "Logout"}
-        y={800}
+        y={y += 200}
         pointerdown={() => {
           const endpoint = auth.token == null ? "login" : "logout";
           window.location.href = `${serverOrigin}/${endpoint}?returnTo=${window.location.host}`;

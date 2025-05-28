@@ -14,7 +14,6 @@ import { CardColors, CardState } from "../../common/card.js";
 import Card, { CardProps, cardHeight, cardWidth, combineColors, isCardPropsEqual } from "../Card.js";
 import {
   CacheContext,
-  ConnectionContext,
   CosmeticContext,
   CostDisplayContext,
   HelpContext,
@@ -82,6 +81,7 @@ export default React.memo(
           setPlan((plan) => [
             ...plan,
             {
+              type: "play",
               card: state,
               action: { id: state.id, target: { id: props.state.id }, prepared: costDisplay.prepared },
             },

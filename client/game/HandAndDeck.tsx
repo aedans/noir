@@ -4,13 +4,15 @@ import { CardStateInfo } from "../../common/card.js";
 import util, { ordered } from "../../common/util.js";
 import { useClientSelector } from "../store.js";
 import Deck from "./Deck.js";
-import { CacheContext, PlayerContext } from "./Game.js";
+import { CacheContext, PlanContext, PlayerContext } from "./Game.js";
 import Hand from "./Hand.js";
 import { useCardInfoList } from "../CardList.js";
+import { canUseCard } from "../cards.js";
 
 export default function HandAndDeck() {
   const player = useContext(PlayerContext);
   const cache = useContext(CacheContext);
+  const { plan } = useContext(PlanContext);
   const game = useClientSelector((state) => state.game);
   const cards = useCardInfoList(game.players[player].deck, [game]);
 
@@ -19,7 +21,11 @@ export default function HandAndDeck() {
     const deck = [] as CardStateInfo[];
 
     for (const card of ordered(cards, ["color", "money"], (card) => card.info)) {
-      if (util.canPayCost(cache, game, card.state, player, card.info.colors, card.info.cost, card.info.targets, [])) {
+      if (plan.some(x => x.card.id == card.state.id)) {
+        continue;
+      }
+      
+      if (canUseCard(cache, game, player, card.state, "play", plan)) {
         hand.push(card);
       } else {
         deck.push(card);
@@ -27,7 +33,7 @@ export default function HandAndDeck() {
     }
 
     return { hand, deck };
-  }, [cards]);
+  }, [cards, plan]);
 
   return (
     <>

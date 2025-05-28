@@ -8,17 +8,20 @@ import { hasWon } from "../wins.js";
 export default function Play() {
   const [_, setLocation] = useLocation();
 
+  let y = -200;
+
   return (
     <Container x={targetResolution.width / 2} y={targetResolution.height / 2 - 100}>
       <Button
         text="Solo"
+        y={y += 200}
         pointerdown={() => {
           setLocation("/solo/");
         }}
       />
       <Button
         text={"Casual"}
-        y={200}
+        y={y += 200}
         style={{ tint: hasWon("Random Citizens level 1") ? 0xffffff : 0x767676 }}
         pointerdown={() => {
           if (hasWon("Random Citizens level 1")) {
