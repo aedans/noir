@@ -1,13 +1,16 @@
-import { Assets, Container } from "pixi.js";
+import { Assets, Container, settings, Ticker } from "pixi.js";
 
 export class Root {
   view = new Container();
 
-  constructor(appReady, create: (root: Root) => void) {
-    appReady.then(async () => {
+  constructor(pixi, create: (root: Root) => void) {
+    pixi.appReady.then(async () => {
       await Assets.load("/Oswald.fnt");
+      settings.RENDER_OPTIONS!.antialias = true;
+      console.log(pixi.app.ticker);
+
       create(this);
-    })
+    });
   }
 
   resize(w: number, h: number) {}

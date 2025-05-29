@@ -13,7 +13,7 @@ export default {
 
 export const Default = {
   render: (args, ctx) => {
-    return new Root(ctx.parameters.pixi.appReady, (root) => {
+    return new Root(ctx.parameters.pixi, (root) => {
       const state = defaultCardState("", "");
       const info = fillPartialCardInfo({});
       createRoot(root.view).render(

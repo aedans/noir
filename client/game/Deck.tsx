@@ -5,7 +5,6 @@ import GameCard, {
   GameCardProps,
   gameCardHeight,
   gameCardHeightDiff,
-  gameCardScale,
   gameCardWidth,
   gameCardWidthDiff,
   gameCardZoom,

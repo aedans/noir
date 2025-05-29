@@ -22,7 +22,7 @@ export default {
 
 export const Default = {
   render: (args, ctx) => {
-    return new Root(ctx.parameters.pixi.appReady, (root) => {
+    return new Root(ctx.parameters.pixi, (root) => {
       createRoot(root.view).render(<Text {...args} style={{ ...args }} />);
     });
   },

@@ -3,7 +3,6 @@ import { Container } from "@pixi/react";
 import { CardState, CardStateInfo } from "../common/card.js";
 import { isCardInfoEqual, isCardStateEqual } from "./Card.js";
 import { GameCardProps } from "./game/GameCard.js";
-import { useClientSelector } from "./store.js";
 import { CacheContext } from "./game/Game.js";
 import { isLoaded, loadCard } from "./cards.js";
 
@@ -37,7 +36,6 @@ export function isCardListPropsEqual(a: CardListProps, b: CardListProps) {
 export function useCardInfoList(states: CardState[], deps: ReadonlyArray<unknown>) {
   const [cards, setCards] = useState([] as CardStateInfo[]);
   const cache = useContext(CacheContext);
-  const game = useClientSelector((state) => state.game);
 
   function resetCards() {
     setCards(states.filter((card) => isLoaded(card)).map((state) => ({ state, info: cache.getDefaultCardInfo(state) })));
