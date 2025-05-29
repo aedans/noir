@@ -1,5 +1,5 @@
 import { AppProvider, Container, createRoot } from "@pixi/react";
-import Card from "../client/Card";
+import Card, { cardHeight, cardWidth } from "../client/Card";
 import { defaultCardState } from "../common/gameSlice";
 import { Root } from "./Root";
 import React from "react";
@@ -18,7 +18,7 @@ export const Default = {
       const info = fillPartialCardInfo({});
       createRoot(root.view).render(
         <AppProvider value={ctx.parameters.pixi.app}>
-          <Container x={300} y={300}>
+          <Container x={cardWidth / 2} y={cardHeight / 2}>
             <Card state={state} info={info} {...args} />
           </Container>
         </AppProvider>

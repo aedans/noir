@@ -18,7 +18,6 @@ import { GlowFilter } from "@pixi/filter-glow";
 import { colorlessColor, getColor, getRGB, hex } from "./color.js";
 import WindFilter from "./WindFilter.js";
 import { CardKeyword } from "../common/keywords.js";
-import { ErrorBoundary } from "react-error-boundary";
 
 export const cardHeight = targetResolution.height / 4;
 export const cardWidth = cardHeight * (1 / 1.4);
