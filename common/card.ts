@@ -71,19 +71,14 @@ export type CardInfo = {
   secondaryEffectFilter: Filter;
   secondaryEffect: CardEffect;
   modifiers: { [name: string]: CardModifier };
-  validateDeck: (deck: Deck) => string[];
+  validateDeck: (deck: Deck, state: CardState) => string[];
   modifyDeckSize: (deck: Deck) => number;
   onTarget: CardTrigger;
   factor: CardFactor;
   activateFactor: CardFactor;
 };
 
-export type PartialCardInfoComputation = (
-  util: Util,
-  cache: CardInfoCache,
-  game: GameState,
-  card: CardState
-) => { [K in keyof CardInfo]?: DeepPartial<CardInfo[K]> } & {
+export type PartialCardInfo = { [K in keyof CardInfo]?: DeepPartial<CardInfo[K]> } & {
   colors?: CardColor[];
   keywords?: CardKeyword[];
   targets?: Filter;
@@ -101,15 +96,7 @@ export type PartialCardInfoComputation = (
 
 export type Target = { id: string };
 
-export function runPartialCardInfoComputation(
-  computation: PartialCardInfoComputation,
-  util: Util,
-  cache: CardInfoCache,
-  game: GameState,
-  card: CardState
-): CardInfo {
-  const partial = computation(util, cache, game, card);
-
+export function fillPartialCardInfo(partial: PartialCardInfo): CardInfo {
   const cost: CardCost = {
     money: partial.cost?.money ?? 0,
     agents: partial.cost?.agents ?? 0,
@@ -144,9 +131,13 @@ export function runPartialCardInfoComputation(
     secondaryEffect: partial.secondaryEffect ?? (() => ({})),
     secondaryEffectFilter: partial.secondaryEffectFilter ?? {},
     modifiers: partial.modifiers ?? {},
-    validateDeck: (deck) => (deck.cards[card.name] > 2 ? [`Cannot run more than two copies of ${card.name}`] : []),
+    validateDeck: (deck, state) => (deck.cards[state.name] > 2 ? [`Cannot run more than two copies of ${state.name}`] : []),
     modifyDeckSize: () => 0,
-    onTarget: partial.onTarget ?? function* () { return false; },
+    onTarget:
+      partial.onTarget ??
+      function* () {
+        return false;
+      },
     factor: partial.factor ?? "neutral",
     activateFactor: partial.activateFactor ?? "neutral",
   };

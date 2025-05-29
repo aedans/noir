@@ -3,10 +3,10 @@ import React, { Ref } from "react";
 import { BitmapText as PixiBitmapText, IBitmapTextStyle } from "./pixi.js";
 
 export type TextProps = {
-  anchor?: [number, number];
   x?: number;
   y?: number;
   text: string | number;
+  anchor?: [number, number];
   style?: Partial<IBitmapTextStyle>;
 };
 

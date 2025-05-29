@@ -429,33 +429,20 @@ export default React.memo(
       );
 
     return (
-      <ErrorBoundary
-        fallback={
-          <Rectangle
-            fill={0}
-            width={cardWidth - 20}
-            height={cardHeight - 40}
-            x={10 - cardWidth / 2}
-            y={14 - cardHeight / 2}
-            ref={colorRef}
-          />
-        }
-      >
-        <Container pivot={[cardWidth / 2, cardHeight / 2]} filters={[dimFilterRef.current, glowFilterRef.current]}>
-          <Rectangle fill={0xffffff} width={cardWidth - 20} height={cardHeight - 40} x={10} y={14} ref={colorRef} />
-          <Sprite width={cardWidth - 55} height={cardHeight / 2 - 40} x={30} y={60} texture={imageTexture} />
-          <Sprite width={cardWidth} height={cardHeight} texture={borderTexture} />
-          <Sprite width={cardWidth} height={cardHeight} texture={borderTypeTexture} ref={borderTypeRef} />
-          <Container filters={props.cosmetic?.top ? [windFilterRef.current] : []}>
-            <Sprite width={cardWidth} height={cardHeight} texture={borderBannerTexture} ref={borderBannerRef} />
-            <Sprite width={cardWidth} height={cardHeight} texture={borderCostTexture} ref={borderCostRef} />
-            <Sprite width={cardWidth} height={cardHeight} texture={borderAgentsTexture} ref={borderAgentsRef} />
-            <Sprite width={cardWidth} height={cardHeight} texture={borderTintTexture} ref={borderTintRef} />
-            {info}
-          </Container>
-          {levelCosmetic}
+      <Container pivot={[cardWidth / 2, cardHeight / 2]} filters={[dimFilterRef.current, glowFilterRef.current]}>
+        <Rectangle fill={0xffffff} width={cardWidth - 20} height={cardHeight - 40} x={10} y={14} ref={colorRef} />
+        <Sprite width={cardWidth - 55} height={cardHeight / 2 - 40} x={30} y={60} texture={imageTexture} />
+        <Sprite width={cardWidth} height={cardHeight} texture={borderTexture} />
+        <Sprite width={cardWidth} height={cardHeight} texture={borderTypeTexture} ref={borderTypeRef} />
+        <Container filters={props.cosmetic?.top ? [windFilterRef.current] : []}>
+          <Sprite width={cardWidth} height={cardHeight} texture={borderBannerTexture} ref={borderBannerRef} />
+          <Sprite width={cardWidth} height={cardHeight} texture={borderCostTexture} ref={borderCostRef} />
+          <Sprite width={cardWidth} height={cardHeight} texture={borderAgentsTexture} ref={borderAgentsRef} />
+          <Sprite width={cardWidth} height={cardHeight} texture={borderTintTexture} ref={borderTintRef} />
+          {info}
         </Container>
-      </ErrorBoundary>
+        {levelCosmetic}
+      </Container>
     );
   }),
   isCardPropsEqual
