@@ -41,6 +41,7 @@ export const cards = moize(() => {
     state,
     info: cache.getDefaultCardInfo(state),
   }));
+  console.log(allCards.find(x => x.state.name == "Detain"))
   const orderedCards = ordered(allCards, ["color", "money"], (card) => card.info);
   return orderedCards.map((card) => card.state.name);
 });

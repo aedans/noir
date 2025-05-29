@@ -40,7 +40,7 @@ export function useCardInfoList(states: CardState[], deps: ReadonlyArray<unknown
   const game = useClientSelector((state) => state.game);
 
   function resetCards() {
-    setCards(states.filter((card) => isLoaded(card)).map((state) => ({ state, info: cache.getCardInfo(game, state) })));
+    setCards(states.filter((card) => isLoaded(card)).map((state) => ({ state, info: cache.getDefaultCardInfo(state) })));
   }
 
   useEffect(() => {

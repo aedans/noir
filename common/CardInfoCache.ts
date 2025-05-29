@@ -14,7 +14,9 @@ export default abstract class CardInfoCache {
   abstract getPartialCardInfoComputation(card: CardState): PartialCardInfoComputation;
 
   getDefaultCardInfo(card: CardState) {
-    return this.getCardInfo(initialGameState(), card);
+    const state = initialGameState();
+    state.players[1].deck.push(card);
+    return this.getCardInfo(state, card);
   }
 
   getCardInfo(game: GameState, card: CardState): CardInfo {
