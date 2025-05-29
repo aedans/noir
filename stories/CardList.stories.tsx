@@ -5,7 +5,7 @@ import { Root } from "./Root";
 import React from "react";
 import { CardStateInfo, fillPartialCardInfo } from "../common/card";
 import ExpandableCardList from "../client/ExpandableCardList";
-import CardList from "../client/CardList";
+import AnimatedCard, { CardAnimationContext } from "../client/AnimatedCard";
 
 export default {
   title: "CardList",
@@ -33,34 +33,16 @@ export const Default = {
     return new Root(ctx.parameters.pixi, (root) => {
       createRoot(root.view).render(
         <AppProvider value={ctx.parameters.pixi.app}>
-          <CardList
-            expanded
-            x={0}
-            y={0}
-            cardWidth={cardWidth}
-            cardHeight={cardHeight}
-            card={(props) => <Card {...props} />}
-            cards={createCards(args.size)}
-          />
-        </AppProvider>
-      );
-    });
-  },
-};
-
-export const Expandable = {
-  render: (args, ctx) => {
-    return new Root(ctx.parameters.pixi, (root) => {
-      createRoot(root.view).render(
-        <AppProvider value={ctx.parameters.pixi.app}>
-          <ExpandableCardList
-            x={0}
-            y={0}
-            cardWidth={cardWidth}
-            cardHeight={cardHeight}
-            card={(props) => <Card {...props} />}
-            cards={createCards(args.size)}
-          />
+          <CardAnimationContext.Provider value={{ current: {} }}>
+            <ExpandableCardList
+              x={0}
+              y={0}
+              cardWidth={cardWidth}
+              cardHeight={cardHeight}
+              card={(props) => <AnimatedCard {...props} />}
+              cards={createCards(args.size)}
+            />
+          </CardAnimationContext.Provider>
         </AppProvider>
       );
     });

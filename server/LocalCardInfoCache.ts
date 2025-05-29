@@ -1,13 +1,13 @@
 import importSync from "import-sync";
 import CardInfoCache from "../common/CardInfoCache.js";
-import { CardState, PartialCardInfo } from "../common/card.js";
+import { CardState, PartialCardInfo, PartialCardInfoComputation } from "../common/card.js";
 
-const cards: { [name: string]: PartialCardInfo } = {};
+const cards: { [name: string]: PartialCardInfoComputation } = {};
 
 export default class LocalCardInfoCache extends CardInfoCache {
   static instance = new LocalCardInfoCache();
 
-  getPartialCardInfo(card: CardState): PartialCardInfo {
+  getPartialCardInfoComputation(card: CardState): PartialCardInfoComputation {
     if (!card.name) {
       throw new Error(`Card name is "${card.name}"`);
     }

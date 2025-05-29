@@ -82,8 +82,6 @@ export function getDisplayName(keyword: CardKeyword) {
 }
 
 export type CardProps = {
-  x?: number;
-  y?: number;
   state: CardState;
   info: CardInfo;
   cosmetic?: CardCosmetic;
@@ -137,8 +135,6 @@ export function isCardPropsEqual(a: CardProps, b: CardProps) {
   return (
     isCardStateEqual(a.state, b.state) &&
     isCardInfoEqual(a.info, b.info) &&
-    a.x == b.x &&
-    a.y == b.y &&
     a.cosmetic?.level == b.cosmetic?.level &&
     a.cosmetic?.top == b.cosmetic?.top &&
     a.shouldGlow == b.shouldGlow &&
@@ -435,8 +431,6 @@ export default React.memo(
       <Container
         pivot={[cardWidth / 2, cardHeight / 2]}
         filters={[dimFilterRef.current, glowFilterRef.current]}
-        x={props.x ?? 0}
-        y={props.y ?? 0}
       >
         <Rectangle fill={0xffffff} width={cardWidth - 20} height={cardHeight - 40} x={10} y={14} ref={colorRef} />
         <Sprite width={cardWidth - 55} height={cardHeight / 2 - 40} x={30} y={60} texture={imageTexture} />

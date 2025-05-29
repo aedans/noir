@@ -1,5 +1,5 @@
 import { AnyAction } from "redux";
-import { CardState, CardStateInfo, PartialCardInfoComputation } from "../common/card";
+import { CardState, PartialCardInfo, PartialCardInfoComputation } from "../common/card";
 import CardInfoCache from "../common/CardInfoCache";
 import { createTRPCProxyClient, httpBatchLink, httpLink, splitLink } from "@trpc/client";
 import { NoirRouter } from "../common/network";

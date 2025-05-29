@@ -6,7 +6,7 @@ import { useClientSelector } from "../store.js";
 import { defaultCardState } from "../../common/gameSlice.js";
 import { targetResolution } from "../Camera.js";
 import Rectangle from "../Rectangle.js";
-import { CardAnimationContext, CardAnimationState } from "../animation.js";
+import { CardAnimationContext, CardAnimationState } from "../AnimatedCard.js";
 import { ordered, validateDeck } from "../../common/util.js";
 import { Container, useApp } from "@pixi/react";
 import { cardHeight, cardWidth } from "../Card.js";

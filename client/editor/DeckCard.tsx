@@ -2,7 +2,7 @@ import React, { MutableRefObject, Ref, useCallback, useContext, useImperativeHan
 import { Container } from "@pixi/react";
 import Card from "../Card.js";
 import { PixiContainer } from "../pixi.js";
-import { CardAnimationContext, useCardAnimation } from "../animation.js";
+import { CardAnimationContext, useCardAnimation } from "../AnimatedCard.js";
 import { useClientDispatch } from "../store.js";
 import { removeDeckCard } from "../decksSlice.js";
 import { GameCardProps, isGameCardPropsEqual } from "../game/GameCard.js";

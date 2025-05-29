@@ -25,7 +25,7 @@ import { useClientSelector } from "../store.js";
 import { hex } from "../color.js";
 import util from "../../common/util.js";
 import { PixiContainer } from "../pixi.js";
-import { useCardAnimation } from "../animation.js";
+import { useCardAnimation } from "../AnimatedCard.js";
 
 export type GameCardProps = CardProps &
   Parameters<typeof Container>[0] & {

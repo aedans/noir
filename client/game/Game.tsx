@@ -2,7 +2,7 @@ import React, { Dispatch, SetStateAction, useEffect, useRef, useState } from "re
 import { Container, useApp } from "@pixi/react";
 import Board from "./Board.js";
 import EndTurn from "./EndTurn.js";
-import { CardAnimationContext, CardAnimationState } from "../animation.js";
+import { CardAnimationContext, CardAnimationState } from "../AnimatedCard.js";
 import { PlayerId } from "../../common/gameSlice.js";
 import Resources from "./Resources.js";
 import OpponentBoard from "./OpponentBoard.js";

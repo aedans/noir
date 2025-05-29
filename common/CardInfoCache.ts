@@ -1,4 +1,4 @@
-import { CardInfo, CardState, fillPartialCardInfo, PartialCardInfo } from "./card.js";
+import { CardInfo, CardState, fillPartialCardInfo, PartialCardInfoComputation } from "./card.js";
 import { GameState, findCard, getCard, initialGameState } from "./gameSlice.js";
 import { cardKeywordEffects } from "./keywords.js";
 import util from "./util.js";
@@ -11,7 +11,7 @@ export default abstract class CardInfoCache {
     this.valid.clear();
   }
 
-  abstract getPartialCardInfo(card: CardState): PartialCardInfo;
+  abstract getPartialCardInfoComputation(card: CardState): PartialCardInfoComputation;
 
   getDefaultCardInfo(card: CardState) {
     const state = initialGameState();
@@ -31,7 +31,7 @@ export default abstract class CardInfoCache {
         );
       }
 
-      const baseInfo = fillPartialCardInfo(this.getPartialCardInfo(card));
+      const baseInfo = fillPartialCardInfo(this.getPartialCardInfoComputation(card)(util, this, game, card));
       this.info.set(card.id, baseInfo);
       const info = this.updateCardInfo(game, card, baseInfo);
       this.info.set(card.id, info);

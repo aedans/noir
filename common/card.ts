@@ -94,6 +94,13 @@ export type PartialCardInfo = { [K in keyof CardInfo]?: DeepPartial<CardInfo[K]>
   onTarget?: CardTrigger;
 };
 
+export type PartialCardInfoComputation = (
+  util: Util,
+  cache: CardInfoCache,
+  game: GameState,
+  card: CardState
+) => PartialCardInfo;
+
 export type Target = { id: string };
 
 export function fillPartialCardInfo(partial: PartialCardInfo): CardInfo {
@@ -131,7 +138,8 @@ export function fillPartialCardInfo(partial: PartialCardInfo): CardInfo {
     secondaryEffect: partial.secondaryEffect ?? (() => ({})),
     secondaryEffectFilter: partial.secondaryEffectFilter ?? {},
     modifiers: partial.modifiers ?? {},
-    validateDeck: (deck, state) => (deck.cards[state.name] > 2 ? [`Cannot run more than two copies of ${state.name}`] : []),
+    validateDeck: (deck, state) =>
+      deck.cards[state.name] > 2 ? [`Cannot run more than two copies of ${state.name}`] : [],
     modifyDeckSize: () => 0,
     onTarget:
       partial.onTarget ??

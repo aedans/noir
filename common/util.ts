@@ -193,8 +193,9 @@ export function validateDeck(cache: CardInfoCache, deck: Deck): DeckValidationRe
   let expectedSize = 20;
 
   for (const [name, count] of Object.entries(deck.cards)) {
-    const info = cache.getDefaultCardInfo(defaultCardState(name, `${name} ${count}`));
-    errors.push(...info.validateDeck(deck));
+    const state = defaultCardState(name, `${name} ${count}`);
+    const info = cache.getDefaultCardInfo(state);
+    errors.push(...info.validateDeck(deck, state));
     actualSize += count;
     expectedSize += info.modifyDeckSize(deck);
   }

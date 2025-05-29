@@ -1,7 +1,8 @@
-import React, { MutableRefObject, useContext, useEffect } from "react";
-import { Container } from "./pixi";
+import React, { MutableRefObject, Ref, useContext, useEffect, useImperativeHandle, useRef } from "react";
+import { PixiContainer } from "./pixi";
 import anime from "animejs";
-import { useTick } from "@pixi/react";
+import { useTick, Container } from "@pixi/react";
+import Card, { CardProps } from "./Card";
 
 export type CardAnimationState = {
   x: number;
@@ -16,7 +17,7 @@ export function useCardAnimation(
   props: CardAnimationState & {
     skipPosition?: boolean;
     skipScale?: boolean;
-    componentRef: MutableRefObject<Container>;
+    componentRef: MutableRefObject<PixiContainer>;
   }
 ) {
   const state = useContext(CardAnimationContext);
@@ -74,3 +75,28 @@ export function useCardAnimation(
 
   return state.current[id];
 }
+
+export type AnimatedCardProps = CardProps & {
+  x?: number;
+  y?: number;
+  scale?: number;
+}
+
+export default React.forwardRef(function AnimatedCard(props: AnimatedCardProps, ref: Ref<PixiContainer>) {
+  const componentRef = useRef() as MutableRefObject<PixiContainer>;
+
+  const { x, y, scale } = useCardAnimation(props.state.id, {
+    componentRef,
+    x: props.x ?? 0,
+    y: props.y ?? 0,
+    scale: 1,
+  });
+
+  useImperativeHandle(ref, () => componentRef.current);
+
+  return (
+    <Container ref={componentRef} x={x} y={y} scale={scale}>
+      <Card state={props.state} info={props.info} cosmetic={props.cosmetic} />
+    </Container>
+  );
+});
