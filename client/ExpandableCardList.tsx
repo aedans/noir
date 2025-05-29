@@ -4,11 +4,11 @@ import React from "react";
 import { Container } from "@pixi/react";
 
 export type ExpandableCardListProps = Omit<CardListProps, "expanded"> & {
-  beginExpanded: boolean;
+  beginExpanded?: boolean;
 }
 
 export default function ExpandableCardList(props: ExpandableCardListProps) {
-  const [isExpanded, setIsExpanded] = useState(props.beginExpanded);
+  const [isExpanded, setIsExpanded] = useState(props.beginExpanded ?? false);
 
   const pointerdown = useCallback(() => {
     if (props.cards.length > 0) {
