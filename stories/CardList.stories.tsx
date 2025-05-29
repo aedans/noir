@@ -10,10 +10,16 @@ import AnimatedCard, { CardAnimationContext } from "../client/AnimatedCard";
 export default {
   title: "CardList",
   args: {
-    size: 3,
+    x: 0,
+    y: 0,
+    scale: 50,
+    size: 10,
   },
   argTypes: {
-    size: { control: { type: "range", min: 1, max: 10 } },
+    x: { control: { type: "range", min: 1, max: 1000 } },
+    y: { control: { type: "range", min: 1, max: 1000 } },
+    scale: { control: { type: "range", min: 0, max: 200 } },
+    size: { control: { type: "range", min: 1, max: 50 } },
   },
 };
 
@@ -35,11 +41,12 @@ export const Default = {
         <AppProvider value={ctx.parameters.pixi.app}>
           <CardAnimationContext.Provider value={{ current: {} }}>
             <ExpandableCardList
-              x={0}
-              y={0}
-              cardWidth={cardWidth}
-              cardHeight={cardHeight}
-              card={(props) => <AnimatedCard {...props} />}
+              beginExpanded
+              x={args.x}
+              y={args.y}
+              cardWidth={cardWidth * (args.scale / 100)}
+              cardHeight={cardHeight * (args.scale / 100)}
+              card={(props) => <AnimatedCard scale={args.scale / 100} {...props} />}
               cards={createCards(args.size)}
             />
           </CardAnimationContext.Provider>
