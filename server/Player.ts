@@ -18,6 +18,7 @@ import { defaultDecks } from "../common/decks.js";
 export default interface Player {
   id: string | null;
   name: string;
+  trusted: boolean;
   init(): Promise<PlayerInit>;
   send(actions: GameAction[], name: string): void;
   cosmetic(id: string, cosmetic: CardCosmetic): void;
@@ -30,6 +31,7 @@ export class SocketPlayer implements Player {
   actions: GameAction[] = [];
   cosmetics: [string, CardCosmetic][] = [];
   ai = null;
+  trusted = false;
 
   constructor(
     public socket: NoirServerSocket,
@@ -96,6 +98,7 @@ export abstract class AIPlayer implements Player {
   timeout: boolean = true;
   cache: CardInfoCache = new LocalCardInfoCache();
   id = null;
+  trusted = true;
 
   constructor(public player: PlayerId, public name: string) {
 

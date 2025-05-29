@@ -25,7 +25,6 @@ import {
   noop,
   activateCard,
   defaultCardState,
-  initialGameState,
 } from "./gameSlice.js";
 import CardInfoCache from "./CardInfoCache.js";
 import { Deck } from "../common/decks.js";
@@ -194,7 +193,7 @@ export function validateDeck(cache: CardInfoCache, deck: Deck): DeckValidationRe
   let expectedSize = 20;
 
   for (const [name, count] of Object.entries(deck.cards)) {
-    const info = cache.getCardInfo(initialGameState(), defaultCardState(name, `${name} ${count}`));
+    const info = cache.getDefaultCardInfo(defaultCardState(name, `${name} ${count}`));
     errors.push(...info.validateDeck(deck));
     actualSize += count;
     expectedSize += info.modifyDeckSize(deck);

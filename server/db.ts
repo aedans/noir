@@ -1,6 +1,6 @@
 import moize from "moize";
 import { Collection, MongoClient } from "mongodb";
-import { GameAction, Winner, defaultCardState, initialGameState } from "../common/gameSlice.js";
+import { GameAction, Winner, defaultCardState } from "../common/gameSlice.js";
 import { PlayerInit } from "../common/network.js";
 import LocalCardInfoCache from "./LocalCardInfoCache.js";
 import fs from "fs";
@@ -41,7 +41,6 @@ export const cards = moize(() => {
     state,
     info: cache.getDefaultCardInfo(state),
   }));
-  console.log(allCards.find(x => x.state.name == "Detain"))
   const orderedCards = ordered(allCards, ["color", "money"], (card) => card.info);
   return orderedCards.map((card) => card.state.name);
 });
