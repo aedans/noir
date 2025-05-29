@@ -2,7 +2,7 @@ import React, { Dispatch, SetStateAction, useEffect, useRef, useState } from "re
 import { Container, useApp } from "@pixi/react";
 import Board from "./Board.js";
 import EndTurn from "./EndTurn.js";
-import { MoveAnimationContext, MoveAnimationState } from "../animation.js";
+import { CardAnimationContext, CardAnimationState } from "../animation.js";
 import { PlayerId } from "../../common/gameSlice.js";
 import Resources from "./Resources.js";
 import OpponentBoard from "./OpponentBoard.js";
@@ -73,7 +73,7 @@ export default function Game(props: { message: string }) {
   const app = useApp();
   const cache = useRef(new RemoteCardInfoCache() as CardInfoCache);
   const game = useClientSelector((state) => state.game);
-  const cards = useRef({} as { [id: string]: MoveAnimationState });
+  const cards = useRef({} as { [id: string]: CardAnimationState });
   const timeColorFilterRef = useTimeColorFilter();
   const [help, setHelp] = useState(null as CardState | null);
   const [costDisplay, setCostDisplay] = useState({ exhausted: [], prepared: [] } as CostDisplay);
@@ -93,7 +93,7 @@ export default function Game(props: { message: string }) {
       <HelpContext.Provider value={{ help, setHelp }}>
         <CacheContext.Provider value={cache.current}>
           <CostDisplayContext.Provider value={{ costDisplay, setCostDisplay }}>
-            <MoveAnimationContext.Provider value={cards}>
+            <CardAnimationContext.Provider value={cards}>
               <HighlightContext.Provider value={{ highlight, setHighlight }}>
                 <PlanContext.Provider value={{ plan, setPlan }}>
                   <Container filters={[timeColorFilterRef.current]} sortableChildren>
@@ -113,7 +113,7 @@ export default function Game(props: { message: string }) {
                   </Container>
                 </PlanContext.Provider>
               </HighlightContext.Provider>
-            </MoveAnimationContext.Provider>
+            </CardAnimationContext.Provider>
           </CostDisplayContext.Provider>
         </CacheContext.Provider>
       </HelpContext.Provider>

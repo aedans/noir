@@ -3,23 +3,23 @@ import { Container } from "./pixi";
 import anime from "animejs";
 import { useTick } from "@pixi/react";
 
-export type MoveAnimationState = {
+export type CardAnimationState = {
   x: number;
   y: number;
   scale: number;
 };
 
-export const MoveAnimationContext = React.createContext({ current: {} as { [id: string]: MoveAnimationState } });
+export const CardAnimationContext = React.createContext({ current: {} as { [id: string]: CardAnimationState } });
 
-export function useMoveAnimation(
+export function useCardAnimation(
   id: string,
-  props: MoveAnimationState & {
+  props: CardAnimationState & {
     skipPosition?: boolean;
     skipScale?: boolean;
     componentRef: MutableRefObject<Container>;
   }
 ) {
-  const state = useContext(MoveAnimationContext);
+  const state = useContext(CardAnimationContext);
 
   useTick(() => {
     const container = props.componentRef.current;

@@ -128,8 +128,6 @@ export default React.forwardRef(function BoardCard(props: GameCardProps, ref: Re
     props.info.hasActivate &&
     canUseCard(cache, game, player, props.state, "activate", plan)
 
-  // console.log(shouldGlow);
-
   let x = props.x ?? 0;
   let y = props.y ?? 0;
 

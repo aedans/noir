@@ -7,7 +7,6 @@ export class Root {
     pixi.appReady.then(async () => {
       await Assets.load("/Oswald.fnt");
       settings.RENDER_OPTIONS!.antialias = true;
-      console.log(pixi.app.ticker);
 
       create(this);
     });

@@ -6,7 +6,7 @@ import { useClientSelector } from "../store.js";
 import { defaultCardState } from "../../common/gameSlice.js";
 import { targetResolution } from "../Camera.js";
 import Rectangle from "../Rectangle.js";
-import { MoveAnimationContext, MoveAnimationState } from "../animation.js";
+import { CardAnimationContext, CardAnimationState } from "../animation.js";
 import { ordered, validateDeck } from "../../common/util.js";
 import { Container, useApp } from "@pixi/react";
 import { cardHeight, cardWidth } from "../Card.js";
@@ -25,7 +25,7 @@ import GridCard from "./GridCard.js";
 
 export default function Editor(props: { params: { deck: string } }) {
   const app = useApp();
-  const cards = useRef({} as { [id: string]: MoveAnimationState });
+  const cards = useRef({} as { [id: string]: CardAnimationState });
   const [scroll, setScroll] = useState(0);
   const [user, setUser] = useState(null as User | null);
   const [top, setTop] = useState([] as string[]);
@@ -116,7 +116,7 @@ export default function Editor(props: { params: { deck: string } }) {
         <Container y={scroll}>
           <Grid elements={sortedAllCards} maxWidth={3000} card={gridCard} />
         </Container>
-        <MoveAnimationContext.Provider value={cards}>
+        <CardAnimationContext.Provider value={cards}>
           <CardList
             x={targetResolution.width - cardWidth}
             y={100}
@@ -127,7 +127,7 @@ export default function Editor(props: { params: { deck: string } }) {
             expanded
             expandOnHover
           />
-        </MoveAnimationContext.Provider>
+        </CardAnimationContext.Provider>
       </CacheContext.Provider>
     </DndProvider>
   );

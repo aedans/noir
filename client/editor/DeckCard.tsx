@@ -2,7 +2,7 @@ import React, { MutableRefObject, Ref, useCallback, useContext, useImperativeHan
 import { Container } from "@pixi/react";
 import Card from "../Card.js";
 import { PixiContainer } from "../pixi.js";
-import { MoveAnimationContext, useMoveAnimation } from "../animation.js";
+import { CardAnimationContext, useCardAnimation } from "../animation.js";
 import { useClientDispatch } from "../store.js";
 import { removeDeckCard } from "../decksSlice.js";
 import { GameCardProps, isGameCardPropsEqual } from "../game/GameCard.js";
@@ -19,9 +19,9 @@ export default React.memo(
   React.forwardRef(function DeckCard(props: DeckCardProps, ref: Ref<PixiContainer>) {
     const dispatch = useClientDispatch();
     const componentRef = useRef() as MutableRefObject<PixiContainer>;
-    const context = useContext(MoveAnimationContext);
+    const context = useContext(CardAnimationContext);
 
-    const { x, y, scale } = useMoveAnimation(props.state.id, {
+    const { x, y, scale } = useCardAnimation(props.state.id, {
       componentRef,
       x: props.x ?? 0,
       y: props.y ?? 0,

@@ -25,7 +25,7 @@ import { useClientSelector } from "../store.js";
 import { hex } from "../color.js";
 import util from "../../common/util.js";
 import { PixiContainer } from "../pixi.js";
-import { useMoveAnimation } from "../animation.js";
+import { useCardAnimation } from "../animation.js";
 
 export type GameCardProps = CardProps &
   Parameters<typeof Container>[0] & {
@@ -128,7 +128,7 @@ export default React.memo(
 
     const shouldHighlight = (highlight?.findIndex((h) => h.id == props.state.id) ?? -1) != -1;
 
-    const { x, y, scale } = useMoveAnimation(props.state.id, {
+    const { x, y, scale } = useCardAnimation(props.state.id, {
       componentRef,
       x: (props.x ?? 0) + (zoom ? props.zoomOffsetX ?? 0 : 0),
       y: (props.y ?? 0) + (zoom ? props.zoomOffsetY ?? 0 : 0),
