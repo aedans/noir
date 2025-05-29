@@ -1,18 +1,15 @@
 import React, { MutableRefObject, Ref, useCallback, useContext, useImperativeHandle, useRef } from "react";
-import { Container } from "@pixi/react";
-import Card from "../Card.js";
 import { PixiContainer } from "../pixi.js";
-import { CardAnimationContext, useCardAnimation } from "../AnimatedCard.js";
+import AnimatedCard, { AnimatedCardProps, CardAnimationContext, isAnimatedCardPropsEqual } from "../AnimatedCard.js";
 import { useClientDispatch } from "../store.js";
 import { removeDeckCard } from "../decksSlice.js";
-import { GameCardProps, isGameCardPropsEqual } from "../game/GameCard.js";
 
-export type DeckCardProps = GameCardProps & {
+export type DeckCardProps = AnimatedCardProps & {
   deckName: string;
 };
 
 export function isDeckCardPropsEqual(a: DeckCardProps, b: DeckCardProps) {
-  return isGameCardPropsEqual(a, b) && a.deckName == b.deckName;
+  return isAnimatedCardPropsEqual(a, b) && a.deckName == b.deckName;
 }
 
 export default React.memo(
@@ -20,13 +17,6 @@ export default React.memo(
     const dispatch = useClientDispatch();
     const componentRef = useRef() as MutableRefObject<PixiContainer>;
     const context = useContext(CardAnimationContext);
-
-    const { x, y, scale } = useCardAnimation(props.state.id, {
-      componentRef,
-      x: props.x ?? 0,
-      y: props.y ?? 0,
-      scale: 1,
-    });
 
     useImperativeHandle(ref, () => componentRef.current);
 
@@ -36,9 +26,18 @@ export default React.memo(
     }, [props.state.id, props.deckName, props.state.name]);
 
     return (
-      <Container {...props} eventMode="static" pointerdown={pointerdown} x={x} y={y} scale={scale} ref={componentRef}>
-        <Card state={props.state} info={props.info} cosmetic={props.cosmetic} />
-      </Container>
+      <AnimatedCard
+        {...props}
+        eventMode="static"
+        pointerdown={pointerdown}
+        x={props.x ?? 0}
+        y={props.y ?? 0}
+        scale={1}
+        ref={componentRef}
+        state={props.state}
+        info={props.info}
+        cosmetic={props.cosmetic}
+      />
     );
   }),
   isDeckCardPropsEqual

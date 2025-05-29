@@ -2,7 +2,7 @@ import React, { MutableRefObject, Ref, useContext, useEffect, useImperativeHandl
 import { PixiContainer } from "./pixi";
 import anime from "animejs";
 import { useTick, Container } from "@pixi/react";
-import Card, { CardProps } from "./Card";
+import Card, { CardProps, isCardPropsEqual } from "./Card";
 
 export type CardAnimationState = {
   x: number;
@@ -80,6 +80,24 @@ export type AnimatedCardProps = CardProps & {
   x?: number;
   y?: number;
   scale?: number;
+  zIndex?: number;
+  angle?: number;
+  eventMode?: Parameters<typeof Container>[0]["eventMode"];
+  pointerover?: Parameters<typeof Container>[0]["pointerover"];
+  pointerout?: Parameters<typeof Container>[0]["pointerout"];
+  pointerdown?: Parameters<typeof Container>[0]["pointerdown"];
+};
+
+export function isAnimatedCardPropsEqual(a: AnimatedCardProps, b: AnimatedCardProps) {
+  return (
+    a.x == b.x &&
+    a.y == b.y &&
+    a.zIndex == b.zIndex &&
+    a.angle == b.angle &&
+    a.scale == b.scale &&
+    a.eventMode == b.eventMode &&
+    isCardPropsEqual(a, b)
+  );
 }
 
 export default React.forwardRef(function AnimatedCard(props: AnimatedCardProps, ref: Ref<PixiContainer>) {
@@ -89,14 +107,32 @@ export default React.forwardRef(function AnimatedCard(props: AnimatedCardProps, 
     componentRef,
     x: props.x ?? 0,
     y: props.y ?? 0,
-    scale: 1,
+    scale: props.scale ?? 1,
   });
 
   useImperativeHandle(ref, () => componentRef.current);
 
   return (
-    <Container ref={componentRef} x={x} y={y} scale={scale}>
-      <Card state={props.state} info={props.info} cosmetic={props.cosmetic} />
+    <Container
+      ref={componentRef}
+      x={x}
+      y={y}
+      scale={scale}
+      zIndex={props.zIndex}
+      angle={props.angle}
+      eventMode={props.eventMode}
+      pointerover={props.pointerover}
+      pointerout={props.pointerout}
+      pointerdown={props.pointerdown}
+    >
+      <Card
+        state={props.state}
+        info={props.info}
+        cosmetic={props.cosmetic}
+        shouldGlow={props.shouldGlow}
+        shouldDimWhenExhausted={props.shouldDimWhenExhausted}
+        borderTint={props.borderTint}
+      />
     </Container>
   );
 });

@@ -9,9 +9,8 @@ import React, {
   useState,
 } from "react";
 import { useDrop } from "react-dnd";
-import { Container } from "@pixi/react";
 import { CardColors, CardState } from "../../common/card.js";
-import Card, { CardProps, cardHeight, cardWidth, combineColors, isCardPropsEqual } from "../Card.js";
+import { cardHeight, cardWidth, combineColors, isCardPropsEqual } from "../Card.js";
 import {
   CacheContext,
   CosmeticContext,
@@ -25,20 +24,13 @@ import { useClientSelector } from "../store.js";
 import { hex } from "../color.js";
 import util from "../../common/util.js";
 import { PixiContainer } from "../pixi.js";
-import { useCardAnimation } from "../AnimatedCard.js";
+import AnimatedCard, { AnimatedCardProps, isAnimatedCardPropsEqual, useCardAnimation } from "../AnimatedCard.js";
 
-export type GameCardProps = CardProps &
-  Parameters<typeof Container>[0] & {
-    scale?: number;
-    useLastPos?: boolean;
-    x?: number;
-    y?: number;
-    zIndex?: number;
-    angle?: number;
-    eventMode?: string;
-    zoomOffsetX?: number;
-    zoomOffsetY?: number;
-  };
+export type GameCardProps = AnimatedCardProps & {
+  useLastPos?: boolean;
+  zoomOffsetX?: number;
+  zoomOffsetY?: number;
+};
 
 export const gameCardScale = 0.9;
 export const gameCardZoomScale = 1;
@@ -51,13 +43,10 @@ export const gameCardHeightDiff = (gameCardHeight * (gameCardZoom - 1)) / 2;
 export function isGameCardPropsEqual(a: GameCardProps, b: GameCardProps) {
   return (
     isCardPropsEqual(a, b) &&
-    a.scale == b.scale &&
+    isAnimatedCardPropsEqual(a, b) &&
     a.useLastPos == b.useLastPos &&
-    a.x == b.x &&
-    a.y == b.y &&
-    a.zIndex == b.zIndex &&
-    a.angle == b.angle &&
-    a.eventMode == b.eventMode
+    a.zoomOffsetX == b.zoomOffsetX &&
+    a.zoomOffsetY == b.zoomOffsetY
   );
 }
 
@@ -98,7 +87,7 @@ export default React.memo(
       drop(componentRef);
 
       return () => {
-        onmouseout();
+        pointerout();
       };
     }, []);
 
@@ -128,16 +117,9 @@ export default React.memo(
 
     const shouldHighlight = (highlight?.findIndex((h) => h.id == props.state.id) ?? -1) != -1;
 
-    const { x, y, scale } = useCardAnimation(props.state.id, {
-      componentRef,
-      x: (props.x ?? 0) + (zoom ? props.zoomOffsetX ?? 0 : 0),
-      y: (props.y ?? 0) + (zoom ? props.zoomOffsetY ?? 0 : 0),
-      scale: (props.scale ?? 1) * (shouldHighlight ? 1.1 : 1) * gameCardScale * (zoom ? gameCardZoom : 1),
-    });
-
     let isMousedOver = false;
 
-    const onmouseover = useCallback(() => {
+    const pointerover = useCallback(() => {
       setZoom(true);
       isMousedOver = true;
       setTimeout(() => {
@@ -147,32 +129,29 @@ export default React.memo(
       }, 1000);
     }, []);
 
-    const onmouseout = useCallback(() => {
+    const pointerout = useCallback(() => {
       setZoom(false);
       isMousedOver = false;
       setHelp(null);
     }, []);
 
     return (
-      <Container
+      <AnimatedCard
         {...props}
-        x={x}
-        y={y}
-        scale={scale}
-        onmouseover={onmouseover}
-        onmouseout={onmouseout}
+        x={(props.x ?? 0) + (zoom ? props.zoomOffsetX ?? 0 : 0)}
+        y={(props.y ?? 0) + (zoom ? props.zoomOffsetY ?? 0 : 0)}
+        scale={(props.scale ?? 1) * (shouldHighlight ? 1.1 : 1) * gameCardScale * (zoom ? gameCardZoom : 1)}
+        pointerover={pointerover}
+        pointerout={pointerout}
         eventMode="static"
         ref={componentRef}
-      >
-        <Card
-          state={props.state}
-          info={props.info}
-          cosmetic={cosmetics[props.state.id]}
-          shouldGlow={props.shouldGlow || isOver || shouldHighlight}
-          shouldDimWhenExhausted={props.shouldDimWhenExhausted}
-          borderTint={borderColors.length == 0 ? undefined : hex[combineColors(borderColors)]}
-        />
-      </Container>
+        state={props.state}
+        info={props.info}
+        cosmetic={cosmetics[props.state.id]}
+        shouldGlow={props.shouldGlow || isOver || shouldHighlight}
+        shouldDimWhenExhausted={props.shouldDimWhenExhausted}
+        borderTint={borderColors.length == 0 ? undefined : hex[combineColors(borderColors)]}
+      />
     );
   }),
   isGameCardPropsEqual
