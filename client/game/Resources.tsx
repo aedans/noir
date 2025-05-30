@@ -5,7 +5,7 @@ import { targetResolution } from "../Camera.js";
 import { useClientSelector } from "../store.js";
 import Text from "../Text.js";
 import { CacheContext, PlanContext, PlayerContext } from "./Game.js";
-import { planResources } from "../cards.js";
+import { planResources } from "../../common/util.js";
 
 export default function Resources() {
   const player = useContext(PlayerContext);

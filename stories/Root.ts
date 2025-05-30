@@ -1,4 +1,4 @@
-import { Assets, Container, settings, Ticker } from "pixi.js";
+import { Assets, Container, settings } from "pixi.js";
 
 export class Root {
   view = new Container();

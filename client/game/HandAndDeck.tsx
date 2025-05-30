@@ -1,13 +1,12 @@
 import React from "react";
 import { useContext, useMemo } from "react";
 import { CardStateInfo } from "../../common/card.js";
-import util, { ordered } from "../../common/util.js";
+import { ordered, planResources } from "../../common/util.js";
 import { useClientSelector } from "../store.js";
 import Deck from "./Deck.js";
 import { CacheContext, PlanContext, PlayerContext } from "./Game.js";
 import Hand from "./Hand.js";
 import { useCardInfoList } from "../CardList.js";
-import { canUseCard } from "../cards.js";
 
 export default function HandAndDeck() {
   const player = useContext(PlayerContext);
@@ -21,11 +20,11 @@ export default function HandAndDeck() {
     const deck = [] as CardStateInfo[];
 
     for (const card of ordered(cards, ["color", "money"], (card) => card.info)) {
-      if (plan.some(x => x.card.id == card.state.id)) {
+      if (plan.some((x) => x.card.id == card.state.id)) {
         continue;
       }
-      
-      if (canUseCard(cache, game, player, card.state, "play", plan)) {
+
+      if (planResources(cache, game, player, [...plan, { type: "play", card: card.state }]) != false) {
         hand.push(card);
       } else {
         deck.push(card);

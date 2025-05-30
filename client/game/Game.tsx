@@ -23,6 +23,7 @@ import RemoteCardInfoCache from "../cards.js";
 import { DndProvider } from "react-dnd";
 import PIXIBackend from "../PIXIBackend.js";
 import Plan from "./Plan.js";
+import { PlanProps } from "../../common/util.js";
 
 export const PlayerContext = React.createContext(0 as PlayerId);
 export const CacheContext = React.createContext(new RemoteCardInfoCache() as CardInfoCache);
@@ -47,8 +48,6 @@ export const HighlightContext = React.createContext(
     setHighlight: Dispatch<SetStateAction<Target[]>>;
   }
 );
-
-export type PlanProps = { type: "play" | "activate", action: PlayerAction; card: CardState };
 
 export const PlanContext = React.createContext(
   {} as {

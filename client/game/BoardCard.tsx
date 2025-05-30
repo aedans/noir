@@ -3,9 +3,8 @@ import { useDrag } from "react-dnd";
 import { useClientSelector } from "../store.js";
 import { CacheContext, PlanContext, PlayerContext } from "./Game.js";
 import GameCard, { GameCardProps } from "./GameCard.js";
-import util from "../../common/util.js";
 import { PixiContainer } from "../pixi.js";
-import { canUseCard } from "../cards.js";
+import { planResources } from "../../common/util.js";
 
 export default React.forwardRef(function BoardCard(props: GameCardProps, ref: Ref<PixiContainer>) {
   const player = useContext(PlayerContext);
@@ -33,21 +32,19 @@ export default React.forwardRef(function BoardCard(props: GameCardProps, ref: Re
     }
   });
 
+  const canActivate =
+    !props.state.exhausted &&
+    props.info.hasActivate &&
+    planResources(cache, game, player, [...plan, { type: "activate", card: props.state }]) != false;
+
   function pointerdown(e: any) {
     if (props.state.exhausted || props.info.type != "agent") {
       return;
     }
 
     if (e.nativeEvent.which == 1) {
-      if (
-        props.info.hasActivate &&
-        !props.info.activateTargets &&
-        canUseCard(cache, game, player, props.state, "activate", plan)
-      ) {
-        setPlan((plan) => [
-          ...plan,
-          { type: "activate", card: props.state, action: { id: props.state.id } },
-        ]);
+      if (canActivate && !props.info.activateTargets) {
+        setPlan((plan) => [...plan, { type: "activate", card: props.state, action: { id: props.state.id } }]);
       }
     }
   }
@@ -58,9 +55,6 @@ export default React.forwardRef(function BoardCard(props: GameCardProps, ref: Re
     }
   }
 
-  const shouldGlow =
-    !props.state.exhausted && props.info.hasActivate && canUseCard(cache, game, player, props.state, "activate", plan);
-
   let x = props.x ?? 0;
   let y = props.y ?? 0;
 
@@ -70,7 +64,7 @@ export default React.forwardRef(function BoardCard(props: GameCardProps, ref: Re
       x={x}
       y={y}
       state={props.state}
-      shouldGlow={shouldGlow}
+      shouldGlow={canActivate}
       shouldDimWhenExhausted
       ref={cardRef}
       eventMode="static"

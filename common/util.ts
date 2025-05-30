@@ -29,9 +29,11 @@ import {
 import CardInfoCache from "./CardInfoCache.js";
 import { Deck } from "../common/decks.js";
 import { CardKeyword, cardKeywords } from "./keywords.js";
+import { PlayerAction } from "./network.js";
 
 export type Filter = {
   excludes?: Target[];
+  includes?: Target[];
   players?: PlayerId[];
   zones?: Zone[];
   names?: string[];
@@ -66,6 +68,10 @@ export function filter(this: Util, cache: CardInfoCache, game: GameState, filter
 
       if (filter.excludes != undefined && filter.excludes.length > 0) {
         f = f.filter((card) => filter.excludes!.every((c) => c.id != card.id));
+      }
+
+      if (filter.includes != undefined && filter.includes.length > 0) {
+        f = f.filter((card) => filter.includes!.some((c) => c.id == card.id));
       }
 
       if (filter.hidden != undefined) {
@@ -284,9 +290,65 @@ export function canPayCost(
   cost: CardCost,
   targets: Filter | undefined
 ) {
-  return (
-    typeof this.tryPayCost(cache, game, card, "play", card.name, player, colors, cost, targets) != "string"
-  );
+  return typeof this.tryPayCost(cache, game, card, "play", card.name, player, colors, cost, targets) != "string";
+}
+
+export type PlanProps = { type: "play" | "activate"; action: PlayerAction; card: CardState };
+
+export function planResources(
+  cache: CardInfoCache,
+  game: GameState,
+  player: PlayerId,
+  plan: Pick<PlanProps, "type" | "card">[]
+) {
+  let moneyCost = 0;
+  let agentsCost: Filter[] = [];
+
+  for (const action of plan) {
+    const info = cache.getCardInfo(game, action.card);
+    const cost = action.type == "play" ? info.cost : info.activateCost;
+    moneyCost += cost.money;
+
+    for (let i = 0; i < cost.agents; i++) {
+      agentsCost.push({ colors: info.colors });
+    }
+
+    if (action.type == "activate") {
+      agentsCost.unshift({ includes: [action.card] });
+    }
+  }
+
+  if (moneyCost > game.players[player].money) {
+    return false;
+  }
+  
+  let possibleAgents: CardState[][] = [[]];
+
+  while (agentsCost.length > 0) {
+    const cost = agentsCost.shift()!;
+
+    possibleAgents = possibleAgents.flatMap((possibility) => {
+      return util
+        .filter(cache, game, {
+          players: [player],
+          types: ["agent"],
+          zones: ["board"],
+          exhausted: false,
+          excludes: possibility,
+          ...cost,
+        })
+        .map((agent) => [...possibility, agent]);
+    });
+  }
+
+  if (possibleAgents.length == 0) {
+    return false;
+  }
+
+  return {
+    money: game.players[player].money - moneyCost,
+    possibleAgents
+  };
 }
 
 export function* revealRandom(

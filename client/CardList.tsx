@@ -71,7 +71,6 @@ export default React.memo(function CardList(props: CardListProps) {
 
   const pointerover = useCallback(
     (index: number) => {
-      console.log(index)
       if (props.expandOnHover) {
         if (index >= props.cards.length) {
           setExpandedIndex(collapsedIndex);

@@ -121,7 +121,7 @@ export default React.forwardRef(function AnimatedCard(props: AnimatedCardProps, 
       x={x}
       y={y}
       scale={scale}
-      zIndex={props.zIndex}
+      zIndex={props.zIndex ?? 0}
       angle={props.angle ?? 0}
       eventMode={props.eventMode}
       pointerover={props.pointerover}
