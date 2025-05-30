@@ -54,7 +54,6 @@ export default function Game(props: { message: string }) {
   const game = useClientSelector((state) => state.game);
   const cards = useRef({} as { [id: string]: CardAnimationState });
   const timeColorFilterRef = useTimeColorFilter();
-  const [help, setHelp] = useState(null as CardState | null);
   const [highlight, setHighlight] = useState([] as Target[]);
   const [plan, setPlan] = useState([] as PlanProps[]);
 
@@ -77,9 +76,9 @@ export default function Game(props: { message: string }) {
                 <Grave />
                 <Plan />
                 <OpponentHand />
-                <HandAndDeck />
                 <Resources />
                 <Concede />
+                <HandAndDeck />
                 <Explanations />
                 <Message text={props.message} />
               </Container>
