@@ -34,13 +34,6 @@ export const ConnectionContext = React.createContext(
   }
 );
 
-export const HelpContext = React.createContext(
-  {} as {
-    help: null | CardState;
-    setHelp: Dispatch<SetStateAction<null | CardState>>;
-  }
-);
-
 export const HighlightContext = React.createContext(
   {} as {
     highlight: Target[];
@@ -71,31 +64,29 @@ export default function Game(props: { message: string }) {
 
   return (
     <DndProvider backend={PIXIBackend(app)}>
-      <HelpContext.Provider value={{ help, setHelp }}>
-        <CacheContext.Provider value={cache.current}>
-          <CardAnimationContext.Provider value={cards}>
-            <HighlightContext.Provider value={{ highlight, setHighlight }}>
-              <PlanContext.Provider value={{ plan, setPlan }}>
-                <Container filters={[timeColorFilterRef.current]} sortableChildren>
-                  <Table />
-                  <OpponentBoard />
-                  <Board />
-                  <EndTurn />
-                  <OpponentGrave />
-                  <Grave />
-                  <Plan />
-                  <OpponentHand />
-                  <HandAndDeck />
-                  <Resources />
-                  <Concede />
-                  <Explanations />
-                  <Message text={props.message} />
-                </Container>
-              </PlanContext.Provider>
-            </HighlightContext.Provider>
-          </CardAnimationContext.Provider>
-        </CacheContext.Provider>
-      </HelpContext.Provider>
+      <CacheContext.Provider value={cache.current}>
+        <CardAnimationContext.Provider value={cards}>
+          <HighlightContext.Provider value={{ highlight, setHighlight }}>
+            <PlanContext.Provider value={{ plan, setPlan }}>
+              <Container filters={[timeColorFilterRef.current]} sortableChildren>
+                <Table />
+                <OpponentBoard />
+                <Board />
+                <EndTurn />
+                <OpponentGrave />
+                <Grave />
+                <Plan />
+                <OpponentHand />
+                <HandAndDeck />
+                <Resources />
+                <Concede />
+                <Explanations />
+                <Message text={props.message} />
+              </Container>
+            </PlanContext.Provider>
+          </HighlightContext.Provider>
+        </CardAnimationContext.Provider>
+      </CacheContext.Provider>
     </DndProvider>
   );
 }

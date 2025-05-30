@@ -11,7 +11,7 @@ import React, {
 import { useDrop } from "react-dnd";
 import { CardColors, CardState } from "../../common/card.js";
 import { cardHeight, cardWidth, combineColors, isCardPropsEqual } from "../Card.js";
-import { CacheContext, CosmeticContext, HelpContext, HighlightContext, PlanContext } from "./Game.js";
+import { CacheContext, CosmeticContext, HighlightContext, PlanContext } from "./Game.js";
 import { getCard } from "../../common/gameSlice.js";
 import { useClientSelector } from "../store.js";
 import { hex } from "../color.js";
@@ -49,7 +49,6 @@ export default React.memo(
     const cache = useContext(CacheContext);
     const { highlight } = useContext(HighlightContext);
     const cosmetics = useContext(CosmeticContext);
-    const { setHelp } = useContext(HelpContext);
     const { setPlan } = useContext(PlanContext);
     const componentRef = useRef() as MutableRefObject<PixiContainer>;
     const [zoom, setZoom] = useState(false);
@@ -77,11 +76,6 @@ export default React.memo(
 
     useEffect(() => {
       drop(componentRef);
-
-      return () => {
-        isMousedOver = false;
-        setHelp(null);
-      };
     }, []);
 
     const borderColors: CardColors[] = [];
@@ -110,18 +104,10 @@ export default React.memo(
 
     const shouldHighlight = (highlight?.findIndex((h) => h.id == props.state.id) ?? -1) != -1;
 
-    let isMousedOver = false;
-
     const pointerover = useCallback(
       (e) => {
         props.pointerover?.(e);
         setZoom(true);
-        isMousedOver = true;
-        setTimeout(() => {
-          if (isMousedOver) {
-            setHelp(props.state);
-          }
-        }, 1000);
       },
       [props.pointerover]
     );
@@ -130,8 +116,6 @@ export default React.memo(
       (e) => {
         props.pointerout?.(e);
         setZoom(false);
-        isMousedOver = false;
-        setHelp(null);
       },
       [props.pointerout]
     );

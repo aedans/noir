@@ -2,7 +2,7 @@ import React, { useLayoutEffect } from "react";
 import { Dispatch, MutableRefObject, SetStateAction, useContext, useEffect, useRef, useState } from "react";
 import { Explanation, explain, isExplained, keywordExplanations, setExplained } from "../explain.js";
 import { useClientSelector } from "../store.js";
-import { CacheContext, HelpContext, HighlightContext, PlayerContext } from "./Game.js";
+import { CacheContext, HighlightContext, PlayerContext } from "./Game.js";
 import Rectangle from "../Rectangle.js";
 import { Container } from "@pixi/react-animated";
 import { Spring } from "react-spring";
@@ -115,41 +115,21 @@ export function ExplanationPopup(props: ExplanationProps) {
 export default function Explanations() {
   const player = useContext(PlayerContext);
   const cache = useContext(CacheContext);
-  const { help } = useContext(HelpContext);
   const game = useClientSelector((state) => state.game);
   const [clickExplanations, setClickExplanations] = useState([] as Explanation[]);
-  const [tempExplanations, setTempExplanations] = useState([] as Explanation[]);
 
   useEffect(() => {
     const newExplanations = explain(cache, game, player).filter((e) => !isExplained(e));
     setClickExplanations((es) => [...es, ...newExplanations.filter((e1) => !es.find((e2) => e1.text == e2.text))]);
   }, [game]);
 
-  useEffect(() => {
-    if (help != null) {
-      setTempExplanations(
-        keywordExplanations.filter((e) =>
-          e.relevantCards(cache, game, player, true).some((c) => c.id == help.id)
-        )
-      );
-    } else {
-      setTimeout(() => {
-        setTempExplanations([]);
-      }, 300);
-    }
-  }, [help]);
-
   const clicks = clickExplanations.map((e, i) => (
     <ExplanationPopup explanation={e} setClickExplanations={setClickExplanations} index={i} key={`click-${e.id}`} />
   ));
 
-  const temps = tempExplanations.map((e, i) => (
-    <ExplanationPopup explanation={e} help={help} index={clickExplanations.length + i} key={`temp-${e.id}`} />
-  ));
-
   return (
     <Container x={targetResolution.width - explanationWidth} zIndex={10000}>
-      {[...clicks, ...temps]}
+      {clicks}
     </Container>
   );
 }
