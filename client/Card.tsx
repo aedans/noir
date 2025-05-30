@@ -135,11 +135,11 @@ export function isCardPropsEqual(a: CardProps, b: CardProps) {
   return (
     isCardStateEqual(a.state, b.state) &&
     isCardInfoEqual(a.info, b.info) &&
-    a.cosmetic?.level == b.cosmetic?.level &&
-    a.cosmetic?.top == b.cosmetic?.top &&
     a.shouldGlow == b.shouldGlow &&
     a.shouldDimWhenExhausted == b.shouldDimWhenExhausted &&
-    a.borderTint == b.borderTint
+    a.borderTint == b.borderTint && 
+    a.cosmetic?.level == b.cosmetic?.level &&
+    a.cosmetic?.top == b.cosmetic?.top
   );
 }
 
@@ -282,8 +282,8 @@ export default React.memo(
       levelCosmeticRef.current.tint = hiddenColor;
       glowFilterRef.current.outerStrength = props.shouldGlow ? 4 : 0;
       glowFilterRef.current.enabled = props.shouldGlow ?? true;
-      dimFilterRef.current.alpha = 0;
-      dimFilterRef.current.enabled = false;
+      dimFilterRef.current.alpha = props.state.exhausted && props.shouldDimWhenExhausted ? 0.5 : 0;
+      dimFilterRef.current.enabled = props.state.exhausted && (props.shouldDimWhenExhausted ?? false);
       windFilterRef.current.setSprite(borderBannerRef.current);
     }, []);
 
@@ -379,7 +379,7 @@ export default React.memo(
           dimFilterRef.current.enabled = dimFilterRef.current.alpha != 0;
         },
       });
-    }, [props.state.exhausted]);
+    }, [props.state.exhausted, props.shouldDimWhenExhausted]);
 
     useEffect(() => {
       glowFilterRef.current.color = color;
@@ -397,7 +397,7 @@ export default React.memo(
           glowFilterRef.current.enabled = glowFilterRef.current.outerStrength != 0;
         },
       });
-    }, [props.shouldGlow, props.shouldDimWhenExhausted, props.state.exhausted]);
+    }, [props.shouldGlow]);
 
     const info = texture ? (
       <Sprite texture={texture} />
