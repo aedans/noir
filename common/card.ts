@@ -49,13 +49,12 @@ export type CardTargetAction = (target: Target) => CardGenerator;
 export type CardModifier = (card: CardInfo, modifier: ModifierState, state: CardState) => Partial<CardInfo>;
 export type CardEffect = (card: CardInfo, state: CardState) => Partial<CardInfo> | undefined;
 export type CardTrigger = (action: GameAction) => CardGenerator<boolean>;
-export type CardFactor = "positive" | "negative" | "neutral";
 
 export type CardInfo = {
-  text: string;
   type: CardType;
   colors: CardColor[];
   cost: CardCost;
+  text: string;
   keywords: CardKeyword[];
   targets?: Filter;
   play: CardTargetAction;
@@ -74,8 +73,6 @@ export type CardInfo = {
   validateDeck: (deck: Deck, state: CardState) => string[];
   modifyDeckSize: (deck: Deck) => number;
   onTarget: CardTrigger;
-  factor: CardFactor;
-  activateFactor: CardFactor;
 };
 
 export type PartialCardInfo = { [K in keyof CardInfo]?: DeepPartial<CardInfo[K]> } & {
@@ -146,8 +143,6 @@ export function fillPartialCardInfo(partial: PartialCardInfo): CardInfo {
       function* () {
         return false;
       },
-    factor: partial.factor ?? "neutral",
-    activateFactor: partial.activateFactor ?? "neutral",
   };
 }
 

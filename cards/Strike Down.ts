@@ -10,6 +10,4 @@ export const card: PartialCardInfoComputation = (util, cache, game, card) => ({
   play: function* (target) {
     yield util.removeCard({ source: card, target });
   },
-  factor: "negative",
-  evaluate: (ai, target) => ai.evaluateRemove(game, cache, target),
 });

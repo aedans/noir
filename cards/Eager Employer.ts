@@ -12,6 +12,5 @@ export const card: PartialCardInfoComputation = (util, cache, game, card) => ({
       player: util.self(game, card),
       money: 2,
     });
-  },
-  evaluateActivate: () => [2, 0],
+  }
 });

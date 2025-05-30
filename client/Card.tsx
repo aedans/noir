@@ -385,7 +385,7 @@ export default React.memo(
     }, [props.info.colors]);
 
     useEffect(() => {
-      const outerStrength = props.shouldGlow && !(props.shouldDimWhenExhausted && props.state.exhausted) ? 4 : 0;
+      const outerStrength = props.shouldGlow ? 4 : 0;
       anime({
         targets: glowFilterRef.current,
         duration: 700,

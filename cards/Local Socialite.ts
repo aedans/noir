@@ -9,7 +9,6 @@ export const card: PartialCardInfoComputation = (util, cache, game, card) => ({
   activate: function* () {
     yield util.setProp({ source: card, target: card, name: "socializing", value: true });
   },
-  evaluateActivate: () => [1, 0],
   effectFilter: {
     players: [util.self(game, card)],
     types: ["agent"],

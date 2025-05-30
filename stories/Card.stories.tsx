@@ -12,32 +12,60 @@ export default {
     x: 0,
     y: 0,
     scale: 100,
+    name: "Random Citizen",
+    hidden: true,
+    exhausted: false,
+    type: "agent",
+    colors: [],
+    moneyCost: 3,
+    agentCost: 0,
+    text: "",
+    keywords: [["disloyal"]],
+    shouldGlow: false,
+    level: 0,
+    top: false,
+    props: {},
+    modifiers: [],
   },
   argTypes: {
     x: { control: { type: "range", min: 1, max: 1000 } },
     y: { control: { type: "range", min: 1, max: 1000 } },
     scale: { control: { type: "range", min: 0, max: 200 } },
+    level: { control: { type: "range", min: 0, max: 3 } }
   },
 };
 
 export const Default = {
   render: (args, ctx) => {
     return new Root(ctx.parameters.pixi, (root) => {
-      const state = defaultCardState("Random Citizen", "");
-      const info = fillPartialCardInfo({
-        type: "agent",
-        cost: { money: 3 },
-        keywords: [["disloyal"]],
-      });
       const scale = args.scale / 100;
       createRoot(root.view).render(
         <AppProvider value={ctx.parameters.pixi.app}>
           <AnimatedCard
+            shouldDimWhenExhausted
             scale={scale}
             x={args.x + (cardWidth / 2) * scale}
             y={args.y + (cardHeight / 2) * scale}
-            state={state}
-            info={info}
+            state={{
+              id: "",
+              name: args.name,
+              hidden: args.hidden,
+              exhausted: args.exhausted,
+              props: args.props,
+              modifiers: args.modifiers,
+            }}
+            info={fillPartialCardInfo({
+              type: args.type,
+              colors: args.colors,
+              cost: {
+                money: args.moneyCost,
+                agents: args.agentCost,
+              },
+              text: args.text,
+              keywords: args.keywords,
+            })}
+            shouldGlow={args.shouldGlow}
+            cosmetic={{ level: args.level, top: args.top }}
           />
         </AppProvider>
       );
