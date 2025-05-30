@@ -4,22 +4,21 @@ import Rectangle from "../Rectangle.js";
 import { targetResolution } from "../Camera.js";
 import { useDrop } from "react-dnd";
 import { CardState } from "../../common/card.js";
-import { CostDisplayContext, PlanContext } from "./Game.js";
+import { PlanContext } from "./Game.js";
 import { Container } from "@pixi/react";
 
 export default function Table() {
-  const { costDisplay } = useContext(CostDisplayContext);
   const { setPlan } = useContext(PlanContext);
 
   const [{}, drop] = useDrop(
     () => ({
       accept: "card",
       drop: (state: CardState) => {
-        setPlan((plan) => [...plan, { type: "play", card: state, action: { id: state.id, prepared: costDisplay.prepared } }]);
+        setPlan((plan) => [...plan, { type: "play", card: state, action: { id: state.id } }]);
       },
       collect: () => ({}),
     }),
-    [costDisplay.prepared]
+    []
   );
 
   return (

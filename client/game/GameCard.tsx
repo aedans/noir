@@ -14,7 +14,6 @@ import { cardHeight, cardWidth, combineColors, isCardPropsEqual } from "../Card.
 import {
   CacheContext,
   CosmeticContext,
-  CostDisplayContext,
   HelpContext,
   HighlightContext,
   PlanContext,
@@ -54,7 +53,6 @@ export default React.memo(
   React.forwardRef(function GameCard(props: GameCardProps, ref: Ref<PixiContainer>) {
     const game = useClientSelector((state) => state.game);
     const cache = useContext(CacheContext);
-    const { costDisplay } = useContext(CostDisplayContext);
     const { highlight } = useContext(HighlightContext);
     const cosmetics = useContext(CosmeticContext);
     const { setHelp } = useContext(HelpContext);
@@ -72,7 +70,7 @@ export default React.memo(
             {
               type: "play",
               card: state,
-              action: { id: state.id, target: { id: props.state.id }, prepared: costDisplay.prepared },
+              action: { id: state.id, target: { id: props.state.id } },
             },
           ]);
         },
@@ -80,7 +78,7 @@ export default React.memo(
           isOver: monitor.isOver(),
         }),
       }),
-      [costDisplay.prepared]
+      []
     );
 
     useEffect(() => {

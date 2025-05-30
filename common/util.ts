@@ -111,7 +111,7 @@ export function filter(this: Util, cache: CardInfoCache, game: GameState, filter
       if (filter.playable != undefined && filter.playable) {
         f = f.filter((card) => {
           const info = cache.getCardInfo(game, card);
-          return this.canPayCost(cache, game, card, player, info.colors, info.cost, info.targets, []);
+          return this.canPayCost(cache, game, card, player, info.colors, info.cost, info.targets);
         });
       }
 
@@ -121,7 +121,7 @@ export function filter(this: Util, cache: CardInfoCache, game: GameState, filter
           return (
             !card.exhausted &&
             info.hasActivate &&
-            this.canPayCost(cache, game, card, player, info.colors, info.activateCost, info.activateTargets, [])
+            this.canPayCost(cache, game, card, player, info.colors, info.activateCost, info.activateTargets)
           );
         });
       }
@@ -245,8 +245,7 @@ export function tryPayCost(
   player: PlayerId,
   colors: CardColor[],
   cost: CardCost,
-  targets: Filter | undefined,
-  prepared: Target[]
+  targets: Filter | undefined
 ): string | { agents: CardState[]; money: number } {
   if (cost.money > 0 && game.players[player].money < cost.money) {
     return `Not enough money to ${verb} ${name}`;
@@ -269,24 +268,6 @@ export function tryPayCost(
     return `No valid targets for ${name}`;
   }
 
-  agents.sort((a, b) => {
-    if (prepared.some((card) => card.id == a.id)) {
-      return -1;
-    } else if (prepared.some((card) => card.id == b.id)) {
-      return 1;
-    } else {
-      const aCardInfo = cache.getCardInfo(game, a);
-      const bCardInfo = cache.getCardInfo(game, b);
-      if (aCardInfo.hasActivate && !bCardInfo.hasActivate) {
-        return 1;
-      } else if (bCardInfo.hasActivate && !aCardInfo.hasActivate) {
-        return -1;
-      } else {
-        return -bCardInfo.colors.length - -aCardInfo.colors.length;
-      }
-    }
-  });
-
   return {
     agents: agents.slice(0, cost.agents),
     money: cost.money,
@@ -301,11 +282,10 @@ export function canPayCost(
   player: PlayerId,
   colors: CardColor[],
   cost: CardCost,
-  targets: Filter | undefined,
-  prepared: Target[]
+  targets: Filter | undefined
 ) {
   return (
-    typeof this.tryPayCost(cache, game, card, "play", card.name, player, colors, cost, targets, prepared) != "string"
+    typeof this.tryPayCost(cache, game, card, "play", card.name, player, colors, cost, targets) != "string"
   );
 }
 

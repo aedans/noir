@@ -9,7 +9,7 @@ export type { User, ReplayMeta, Replay } from "../server/db.js";
 export type { MissionName, Difficulty } from "../server/Mission.js";
 export type { QueueName } from "../server/Queue.js";
 
-export type PlayerAction = { id: string; target?: Target; prepared: Target[] };
+export type PlayerAction = { id: string; target?: Target };
 
 export type PlayerInit = { deck: Deck };
 
