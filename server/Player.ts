@@ -7,7 +7,7 @@ import {
   gameSlice,
   initialGameState,
 } from "../common/gameSlice.js";
-import { random } from "../common/util.js";
+import { PlanProps, random } from "../common/util.js";
 import { PlayerInit, PlayerAction, NoirServerSocket } from "../common/network.js";
 import { Difficulty, MissionName, TutorialName } from "./Mission.js";
 import CardInfoCache from "../common/CardInfoCache.js";
@@ -24,7 +24,7 @@ export default interface Player {
   cosmetic(id: string, cosmetic: CardCosmetic): void;
   error(message: string): void;
   end(winner: Winner): void;
-  turn(): Promise<PlayerAction[]>;
+  turn(): Promise<PlanProps[]>;
 }
 
 export class SocketPlayer implements Player {
@@ -86,7 +86,7 @@ export class SocketPlayer implements Player {
     this.socket.disconnect();
   }
 
-  turn(): Promise<PlayerAction[]> {
+  turn(): Promise<PlanProps[]> {
     return new Promise((resolve) => this.socket.once("turn", (action) => resolve(action)));
   }
 }
@@ -119,7 +119,7 @@ export abstract class AIPlayer implements Player {
 
   cosmetic(): void {}
 
-  turn(): Promise<PlayerAction[]> {
+  turn(): Promise<PlanProps[]> {
     this.cache.reset();
     return Promise.resolve([]);
   }

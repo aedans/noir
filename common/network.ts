@@ -4,6 +4,7 @@ import { QueueName } from "../server/Queue.js";
 import { CardCosmetic, Target } from "./card.js";
 import { Deck } from "../common/decks.js";
 import { GameAction, PlayerId, Winner } from "./gameSlice.js";
+import { PlanProps } from "./util.js";
 export type { NoirRouter } from "../server/index.js";
 export type { User, ReplayMeta, Replay } from "../server/db.js";
 export type { MissionName, Difficulty } from "../server/Mission.js";
@@ -24,7 +25,7 @@ export type ServerToClientEvents = {
 export type ClientToServerEvents = {
   queue: (queue: QueueName, name: string, token: string | null) => void;
   init: (deck: Deck) => void;
-  turn: (actions: PlayerAction[]) => void;
+  turn: (actions: PlanProps[]) => void;
   concede: () => void;
 };
 

@@ -12,7 +12,6 @@ import Grave from "./Grave.js";
 import { CardCosmetic, CardState, Target } from "../../common/card.js";
 import HandAndDeck from "./HandAndDeck.js";
 import OpponentGrave from "./OpponentGrave.js";
-import { PlayerAction } from "../../common/network.js";
 import { useClientSelector } from "../store.js";
 import Concede from "./Concede.js";
 import { useTimeColorFilter } from "../time.js";
@@ -30,7 +29,7 @@ export const CacheContext = React.createContext(new RemoteCardInfoCache() as Car
 export const CosmeticContext = React.createContext({} as { [id: string]: CardCosmetic });
 export const ConnectionContext = React.createContext(
   {} as {
-    turn: (_: PlayerAction[]) => void;
+    turn: (_: PlanProps[]) => void;
     concede: () => void;
   }
 );

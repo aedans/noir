@@ -4,7 +4,6 @@ import {
   addCard,
   addMoney,
   endTurn,
-  exhaustCard,
   findCard,
   GameAction,
   GameState,
@@ -19,8 +18,8 @@ import {
   revealCard,
   Winner,
 } from "../common/gameSlice.js";
-import { CardColor, CardCost, CardGenerator, CardState, runCardGenerator, Target } from "../common/card.js";
-import util, { Filter, isRevealed, validateDeck } from "../common/util.js";
+import { CardGenerator, CardState, runCardGenerator, Target } from "../common/card.js";
+import util, { Filter, isRevealed, planResources, validateDeck } from "../common/util.js";
 import { PlayerAction, PlayerInit } from "../common/network.js";
 import CardInfoCache from "../common/CardInfoCache.js";
 import LocalCardInfoCache from "./LocalCardInfoCache.js";
@@ -67,38 +66,9 @@ function validateTargets(
   }
 }
 
-function* payCost(
-  cache: CardInfoCache,
-  game: GameState,
-  player: PlayerId,
-  card: Target,
-  verb: string,
-  name: string,
-  colors: CardColor[],
-  cost: CardCost,
-  targets: Filter | undefined
-) {
-  const result = util.tryPayCost(cache, game, card, verb, name, player, colors, cost, targets);
-
-  if (typeof result == "string") {
-    throw result;
-  }
-
-  const { agents, money } = result;
-
-  if (money > 0) {
-    yield removeMoney({ source: card, player, money });
-  }
-
-  for (const agent of agents) {
-    yield exhaustCard({ source: card, target: agent });
-  }
-}
-
 function* doPlayCard(
   cache: CardInfoCache,
   game: GameState,
-  player: PlayerId,
   card: CardState,
   target: Target | undefined
 ): CardGenerator {
@@ -109,15 +79,12 @@ function* doPlayCard(
   const payload: PlayCardParams = { source: card, target: card, type: info.type };
 
   yield playCard(payload);
-
-  yield* payCost(cache, game, player, card, "play", card.name, info.colors, info.cost, info.targets);
   yield* info.play(target!);
 }
 
 function* doActivateCard(
   cache: CardInfoCache,
   game: GameState,
-  player: PlayerId,
   card: CardState,
   target: Target | undefined
 ): CardGenerator {
@@ -134,17 +101,6 @@ function* doActivateCard(
   validateTargets(cache, game, card, info.activateTargets, target);
 
   yield activateCard({ source: card, target: card });
-  yield* payCost(
-    cache,
-    game,
-    player,
-    card,
-    "activate",
-    card.name,
-    info.colors,
-    info.activateCost,
-    info.activateTargets
-  );
   yield* info.activate(target!);
 }
 
@@ -163,9 +119,9 @@ function* doCard(
     }
 
     if (zone == "deck") {
-      yield* doPlayCard(cache, game, self, game.players[player][zone][index], target);
+      yield* doPlayCard(cache, game, game.players[player][zone][index], target);
     } else if (zone == "board") {
-      yield* doActivateCard(cache, game, self, game.players[player][zone][index], target);
+      yield* doActivateCard(cache, game, game.players[player][zone][index], target);
     }
   }
 }
@@ -327,8 +283,23 @@ export async function createGame(players: [Player, Player], onEnd: OnGameEnd) {
     onEnd(winner, players, inits, state, true);
   }
 
-  while (!hasEnded) {    
-    const turns = await Promise.all(players.map((x) => x.turn()));
+  async function payTurn(player: PlayerId) {
+    const turn = await players[player].turn();
+    const resources = planResources(cache, state, player, turn);
+    if (resources == false) {
+      players[player].error("Cannot pay for planned turn");
+      return await payTurn(player);
+    } else {
+      const generator = function* () {
+        yield removeMoney({ source: undefined, player, money: resources.moneyCost });
+      };
+      sendActions(generator(), player, `player${player}/payTurn`);
+      return turn;
+    }
+  }
+
+  while (!hasEnded) {
+    const turns = await Promise.all(([0, 1] as const).map((x) => payTurn(x)));
 
     for (let i = 0; turns.some((turn) => i < turn.length); i++) {
       for (const player of [0, 1] as const) {
@@ -337,7 +308,7 @@ export async function createGame(players: [Player, Player], onEnd: OnGameEnd) {
             continue;
           }
 
-          const action = turns[player][i];
+          const action = turns[player][i].action;
 
           cache.reset();
           const generator = doPlayerAction(cache, state, player, action);

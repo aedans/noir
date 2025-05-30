@@ -50,8 +50,6 @@ export type Filter = {
   reversed?: boolean;
   number?: number;
   text?: string;
-  playable?: boolean;
-  activatable?: boolean;
   hasActivate?: boolean;
 } & { [key in CardKeyword[0]]?: boolean };
 
@@ -112,24 +110,6 @@ export function filter(this: Util, cache: CardInfoCache, game: GameState, filter
             cache.getCardInfo(game, card).text.toLowerCase().includes(filter.text!.toLowerCase()) ||
             cache.getCardInfo(game, card).keywords.some((k) => k[0].includes(filter.text!.toLowerCase()))
         );
-      }
-
-      if (filter.playable != undefined && filter.playable) {
-        f = f.filter((card) => {
-          const info = cache.getCardInfo(game, card);
-          return this.canPayCost(cache, game, card, player, info.colors, info.cost, info.targets);
-        });
-      }
-
-      if (filter.activatable != undefined && filter.activatable) {
-        f = f.filter((card) => {
-          const info = cache.getCardInfo(game, card);
-          return (
-            !card.exhausted &&
-            info.hasActivate &&
-            this.canPayCost(cache, game, card, player, info.colors, info.activateCost, info.activateTargets)
-          );
-        });
       }
 
       if (filter.hasActivate != undefined) {
@@ -241,58 +221,6 @@ export function getTargets(this: Util, cache: CardInfoCache, game: GameState, ca
   }
 }
 
-export function tryPayCost(
-  this: Util,
-  cache: CardInfoCache,
-  game: GameState,
-  card: Target,
-  verb: string,
-  name: string,
-  player: PlayerId,
-  colors: CardColor[],
-  cost: CardCost,
-  targets: Filter | undefined
-): string | { agents: CardState[]; money: number } {
-  if (cost.money > 0 && game.players[player].money < cost.money) {
-    return `Not enough money to ${verb} ${name}`;
-  }
-
-  const agents = this.filter(cache, game, {
-    excludes: [card],
-    players: [player],
-    types: ["agent"],
-    zones: ["board"],
-    exhausted: false,
-    colors,
-  });
-
-  if (agents.length < cost.agents) {
-    return `Not enough agents to ${verb} ${name}`;
-  }
-
-  if (targets != undefined && this.getTargets(cache, game, card, targets).length == 0) {
-    return `No valid targets for ${name}`;
-  }
-
-  return {
-    agents: agents.slice(0, cost.agents),
-    money: cost.money,
-  };
-}
-
-export function canPayCost(
-  this: Util,
-  cache: CardInfoCache,
-  game: GameState,
-  card: CardState,
-  player: PlayerId,
-  colors: CardColor[],
-  cost: CardCost,
-  targets: Filter | undefined
-) {
-  return typeof this.tryPayCost(cache, game, card, "play", card.name, player, colors, cost, targets) != "string";
-}
-
 export type PlanProps = { type: "play" | "activate"; action: PlayerAction; card: CardState };
 
 export function planResources(
@@ -347,6 +275,7 @@ export function planResources(
 
   return {
     money: game.players[player].money - moneyCost,
+    moneyCost,
     possibleAgents
   };
 }
@@ -438,8 +367,6 @@ const util = {
   filter,
   ordered,
   getTargets,
-  tryPayCost,
-  canPayCost,
   revealRandom,
   keywordModifier,
   cid,

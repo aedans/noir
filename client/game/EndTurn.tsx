@@ -15,7 +15,7 @@ export default function EndTurn() {
   const y = (targetResolution.height - height) / 2;
 
   function pointerdown() {
-    connection.turn(plan.map(x => x.action));
+    connection.turn(plan);
     setPlan([]);
   }
 

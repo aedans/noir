@@ -35,7 +35,6 @@ class KeywordExplanation implements Explanation {
         ...util.filter(cache, game, {
           players: [player],
           zones: ["deck"],
-          playable: all ? undefined : true,
           text: this.keyword,
         })
       );
@@ -86,7 +85,7 @@ export const explanations = [
     "hand",
     "Cards in your deck that you can currently play are shown in your hand",
     [],
-    (cache, game, player) => util.filter(cache, game, { players: [player], zones: ["deck"], playable: true })
+    (cache, game, player) => util.filter(cache, game, { players: [player], zones: ["deck"] })
   ),
   new SituationExplanation(
     "money",
@@ -97,7 +96,6 @@ export const explanations = [
         ? util.filter(cache, game, {
             players: [player],
             zones: ["deck"],
-            playable: true,
             minMoney: game.players[player].money - 2,
           })
         : []
@@ -118,14 +116,14 @@ export const explanations = [
     "activate",
     "Agents can be exhausted to activate their ability",
     ["agent"],
-    (cache, game, player) => util.filter(cache, game, { players: [player], zones: ["board"], activatable: true })
+    (cache, game, player) => util.filter(cache, game, { players: [player], zones: ["board"] })
   ),
   new SituationExplanation(
     "win",
     "You win the game when you remove all of your opponent's agents",
     ["agent"],
     (cache, game, player) =>
-      util.filter(cache, game, { players: [player], zones: ["deck"], playable: true, text: "remove" })
+      util.filter(cache, game, { players: [player], zones: ["deck"], text: "remove" })
   ),
   new SituationExplanation(
     "revealSelf",
