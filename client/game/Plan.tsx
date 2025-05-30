@@ -19,8 +19,7 @@ export default function Plan() {
   );
 
   const removeFromPlan = useCallback((state: CardState) => {
-    console.log(state);
-    setPlan((plan) => plan.filter((x) => x.card.id != state.id));
+    setPlan((plan) => plan.filter((x) => x.card.id.includes(state.id)));
   }, []);
 
   const planCard = useCallback(
