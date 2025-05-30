@@ -3,3 +3,4 @@ node_modules
 stats.html
 .env
 *storybook.log
+storybook-static
