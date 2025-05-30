@@ -1,19 +1,19 @@
+import moize from "moize";
 import { Assets, Container, IBaseTextureOptions, settings, Texture, TextureSource } from "pixi.js";
 
-const from = Texture.from;
-Texture.from = (
-  source: TextureSource | TextureSource[],
-  options?: IBaseTextureOptions<any>,
-  strict?: boolean
-) => {
-  return from(Array.isArray(source) ? source.map((x) => `.${x}`) : `.${source}`, options, strict);
-};
+const textureFix = moize(() => {
+  const from = Texture.from;
+  Texture.from = (source: TextureSource | TextureSource[], options?: IBaseTextureOptions<any>, strict?: boolean) => {
+    return from(Array.isArray(source) ? source.map((x) => `.${x}`) : `.${source}`, options, strict);
+  };
+});
 
 export class Root {
   view = new Container();
 
   constructor(pixi, create: (root: Root) => void) {
     pixi.appReady.then(async () => {
+      textureFix();
       try {
         await Assets.load("./Oswald.fnt");
       } catch (e) {
