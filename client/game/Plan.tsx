@@ -1,20 +1,33 @@
 import React, { useCallback, useContext } from "react";
 import { targetResolution } from "../Camera";
-import GameCard, { GameCardProps, gameCardHeightDiff, gameCardWidth, gameCardHeight, gameCardZoom } from "./GameCard";
+import GameCard, { gameCardHeightDiff, gameCardWidth, gameCardHeight, gameCardZoom } from "./GameCard";
 import { PlanContext } from "./Game";
 import CardList, { useCardInfoList } from "../CardList";
 import { useTimeShadowFilter } from "../time";
 import { Container } from "@pixi/react";
 import { useClientSelector } from "../store";
+import { AnimatedCardProps } from "../AnimatedCard";
+import { CardState } from "../../common/card";
 
 export default function Plan() {
-  const { plan } = useContext(PlanContext);
+  const { plan, setPlan } = useContext(PlanContext);
   const turn = useClientSelector((state) => state.game.turn);
-  const planCard = useCallback((props: GameCardProps) => <GameCard {...props} />, []);
   const timeShadowFilterRef = useTimeShadowFilter(10);
   const cards = useCardInfoList(
     plan.map((x) => x.card),
     [plan]
+  );
+
+  const removeFromPlan = useCallback((state: CardState) => {
+    console.log(state);
+    setPlan((plan) => plan.filter((x) => x.card.id != state.id));
+  }, []);
+
+  const planCard = useCallback(
+    (props: AnimatedCardProps) => (
+      <GameCard {...props} zoomOffsetY={gameCardHeightDiff} pointerdown={() => removeFromPlan(props.state)} />
+    ),
+    []
   );
 
   const x = 0;
@@ -24,6 +37,7 @@ export default function Plan() {
     <Container filters={[timeShadowFilterRef.current]}>
       <CardList
         expanded
+        expandOnHover
         x={x}
         y={y}
         cardWidth={gameCardWidth}
