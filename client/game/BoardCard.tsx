@@ -61,7 +61,11 @@ export default React.forwardRef(function BoardCard(props: GameCardProps, ref: Re
     }
 
     if (e.nativeEvent.which == 1) {
-      if (!props.info.activateTargets && canUseCard(cache, game, player, props.state, "activate", plan)) {
+      if (
+        props.info.hasActivate &&
+        !props.info.activateTargets &&
+        canUseCard(cache, game, player, props.state, "activate", plan)
+      ) {
         setPlan((plan) => [
           ...plan,
           { type: "activate", card: props.state, action: { id: props.state.id, prepared: costDisplay.prepared } },
@@ -124,9 +128,7 @@ export default React.forwardRef(function BoardCard(props: GameCardProps, ref: Re
   }
 
   const shouldGlow =
-    !props.state.exhausted &&
-    props.info.hasActivate &&
-    canUseCard(cache, game, player, props.state, "activate", plan)
+    !props.state.exhausted && props.info.hasActivate && canUseCard(cache, game, player, props.state, "activate", plan);
 
   let x = props.x ?? 0;
   let y = props.y ?? 0;

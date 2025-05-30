@@ -16,10 +16,7 @@ export type DeckProps = {
 };
 
 export default function Deck(props: DeckProps) {
-  const card = useCallback(
-    (props: GameCardProps) => <GameCard {...props} zoomOffsetY={gameCardHeightDiff} />,
-    []
-  );
+  const card = useCallback((props: GameCardProps) => <GameCard {...props} zoomOffsetY={gameCardHeightDiff} />, []);
 
   const x = targetResolution.width - gameCardWidth - gameCardWidthDiff;
   const y = targetResolution.height - gameCardHeight - gameCardHeightDiff * 2;

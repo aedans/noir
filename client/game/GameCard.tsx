@@ -87,7 +87,11 @@ export default React.memo(
       drop(componentRef);
 
       return () => {
-        pointerout();
+        setTimeout(() => {
+          if (isMousedOver) {
+            setHelp(props.state);
+          }
+        }, 1000);
       };
     }, []);
 
@@ -119,7 +123,8 @@ export default React.memo(
 
     let isMousedOver = false;
 
-    const pointerover = useCallback(() => {
+    const pointerover = useCallback((e) => {
+      props.pointerover?.(e);
       setZoom(true);
       isMousedOver = true;
       setTimeout(() => {
@@ -127,13 +132,14 @@ export default React.memo(
           setHelp(props.state);
         }
       }, 1000);
-    }, []);
+    }, [props.pointerover]);
 
-    const pointerout = useCallback(() => {
+    const pointerout = useCallback((e) => {
+      props.pointerout?.(e);
       setZoom(false);
       isMousedOver = false;
       setHelp(null);
-    }, []);
+    }, [props.pointerout]);
 
     return (
       <AnimatedCard

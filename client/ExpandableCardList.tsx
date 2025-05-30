@@ -11,7 +11,7 @@ export function isExpandableCardListPropsEqual(a: ExpandableCardListProps, b: Ex
   return isCardListPropsEqual(a, b) && a.beginExpanded == b.beginExpanded;
 }
 
-export default React.memo(function ExpandableCardList(props: ExpandableCardListProps) {
+export default function ExpandableCardList(props: ExpandableCardListProps) {
   const [isExpanded, setIsExpanded] = useState(props.beginExpanded ?? false);
 
   const pointerdown = useCallback(() => {
@@ -25,4 +25,4 @@ export default React.memo(function ExpandableCardList(props: ExpandableCardListP
       <CardList expanded={isExpanded} expandOnHover {...props} />
     </Container>
   );
-});
+};

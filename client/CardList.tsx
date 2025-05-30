@@ -44,7 +44,9 @@ export function useCardInfoList(states: CardState[], deps: ReadonlyArray<unknown
   const cache = useContext(CacheContext);
 
   function resetCards() {
-    setCards(states.filter((card) => isLoaded(card)).map((state) => ({ state, info: cache.getDefaultCardInfo(state) })));
+    setCards(
+      states.filter((card) => isLoaded(card)).map((state) => ({ state, info: cache.getDefaultCardInfo(state) }))
+    );
   }
 
   useEffect(() => {
@@ -69,6 +71,7 @@ export default React.memo(function CardList(props: CardListProps) {
 
   const pointerover = useCallback(
     (index: number) => {
+      console.log(index)
       if (props.expandOnHover) {
         if (index >= props.cards.length) {
           setExpandedIndex(collapsedIndex);
