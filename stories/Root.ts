@@ -13,7 +13,13 @@ export class Root {
       ) => {
         return from(Array.isArray(source) ? source.map((x) => `.${x}`) : `.${source}`, options, strict);
       };
-      await Assets.load("./Oswald.fnt");
+
+      try {
+        await Assets.load("./Oswald.fnt");
+      } catch (e) {
+        console.error(e);
+      }
+
       settings.RENDER_OPTIONS!.antialias = true;
 
       create(this);
