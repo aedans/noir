@@ -11,13 +11,7 @@ import React, {
 import { useDrop } from "react-dnd";
 import { CardColors, CardState } from "../../common/card.js";
 import { cardHeight, cardWidth, combineColors, isCardPropsEqual } from "../Card.js";
-import {
-  CacheContext,
-  CosmeticContext,
-  HelpContext,
-  HighlightContext,
-  PlanContext,
-} from "./Game.js";
+import { CacheContext, CosmeticContext, HelpContext, HighlightContext, PlanContext } from "./Game.js";
 import { getCard } from "../../common/gameSlice.js";
 import { useClientSelector } from "../store.js";
 import { hex } from "../color.js";
@@ -85,11 +79,8 @@ export default React.memo(
       drop(componentRef);
 
       return () => {
-        setTimeout(() => {
-          if (isMousedOver) {
-            setHelp(props.state);
-          }
-        }, 1000);
+        isMousedOver = false;
+        setHelp(null);
       };
     }, []);
 
@@ -121,23 +112,29 @@ export default React.memo(
 
     let isMousedOver = false;
 
-    const pointerover = useCallback((e) => {
-      props.pointerover?.(e);
-      setZoom(true);
-      isMousedOver = true;
-      setTimeout(() => {
-        if (isMousedOver) {
-          setHelp(props.state);
-        }
-      }, 1000);
-    }, [props.pointerover]);
+    const pointerover = useCallback(
+      (e) => {
+        props.pointerover?.(e);
+        setZoom(true);
+        isMousedOver = true;
+        setTimeout(() => {
+          if (isMousedOver) {
+            setHelp(props.state);
+          }
+        }, 1000);
+      },
+      [props.pointerover]
+    );
 
-    const pointerout = useCallback((e) => {
-      props.pointerout?.(e);
-      setZoom(false);
-      isMousedOver = false;
-      setHelp(null);
-    }, [props.pointerout]);
+    const pointerout = useCallback(
+      (e) => {
+        props.pointerout?.(e);
+        setZoom(false);
+        isMousedOver = false;
+        setHelp(null);
+      },
+      [props.pointerout]
+    );
 
     return (
       <AnimatedCard
