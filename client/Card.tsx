@@ -138,7 +138,8 @@ export function isCardPropsEqual(a: CardProps, b: CardProps) {
     a.cosmetic?.level == b.cosmetic?.level &&
     a.cosmetic?.top == b.cosmetic?.top &&
     a.shouldGlow == b.shouldGlow &&
-    a.shouldDimWhenExhausted == b.shouldDimWhenExhausted
+    a.shouldDimWhenExhausted == b.shouldDimWhenExhausted &&
+    a.borderTint == b.borderTint
   );
 }
 

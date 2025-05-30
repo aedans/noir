@@ -1,10 +1,11 @@
 import { AppProvider, createRoot } from "@pixi/react";
 import { cardHeight, cardWidth } from "../client/Card";
-import { defaultCardState } from "../common/gameSlice";
 import { Root } from "./Root";
 import React from "react";
 import { fillPartialCardInfo } from "../common/card";
 import AnimatedCard from "../client/AnimatedCard";
+import parse from "color-parse";
+import { blueColor, colorlessColor, getColor, greenColor, orangeColor, purpleColor } from "../client/color";
 
 export default {
   title: "Card",
@@ -22,6 +23,7 @@ export default {
     text: "",
     keywords: [["disloyal"]],
     shouldGlow: false,
+    borderTint: undefined,
     level: 0,
     top: false,
     props: {},
@@ -31,7 +33,8 @@ export default {
     x: { control: { type: "range", min: 1, max: 1000 } },
     y: { control: { type: "range", min: 1, max: 1000 } },
     scale: { control: { type: "range", min: 0, max: 200 } },
-    level: { control: { type: "range", min: 0, max: 3 } }
+    level: { control: { type: "range", min: 0, max: 3 } },
+    borderTint: { control: { type: "color", presetColors: ['#767676', '#eb6300', '#0087eb', '#12eb00', '#d800eb'] } },
   },
 };
 
@@ -39,6 +42,13 @@ export const Default = {
   render: (args, ctx) => {
     return new Root(ctx.parameters.pixi, (root) => {
       const scale = args.scale / 100;
+
+      let borderTint: number | undefined = undefined;
+      if (args.borderTint) {
+        const value = parse(args.borderTint);
+        borderTint = getColor({ r: value.values[0], g: value.values[1], b: value.values[2] });
+      }
+
       createRoot(root.view).render(
         <AppProvider value={ctx.parameters.pixi.app}>
           <AnimatedCard
@@ -65,6 +75,7 @@ export const Default = {
               keywords: args.keywords,
             })}
             shouldGlow={args.shouldGlow}
+            borderTint={borderTint}
             cosmetic={{ level: args.level, top: args.top }}
           />
         </AppProvider>
