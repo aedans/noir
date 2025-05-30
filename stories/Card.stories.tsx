@@ -5,7 +5,7 @@ import React from "react";
 import { fillPartialCardInfo } from "../common/card";
 import AnimatedCard from "../client/AnimatedCard";
 import parse from "color-parse";
-import { blueColor, colorlessColor, getColor, greenColor, orangeColor, purpleColor } from "../client/color";
+import { getColor } from "../client/color";
 
 export default {
   title: "Card",
