@@ -1,5 +1,5 @@
 import type { Preview } from "@storybook/html";
-import { Assets } from "pixi.js";
+import { Assets, IBaseTextureOptions, settings, Texture, TextureSource } from "pixi.js";
 
 const preview: Preview = {
   parameters: {
@@ -32,7 +32,14 @@ const preview: Preview = {
   },
   loaders: [
     async () => {
-      Assets.load("/Oswald.fnt");
+      Assets.load("./Oswald.fnt");
+      settings.RENDER_OPTIONS!.antialias = true;
+
+      const rootPrefix = (str: TextureSource) => typeof str != "string" ? str : str.startsWith('.') ? `${str}` : `.${str}`;
+      const from = Texture.from;
+      Texture.from = (source: TextureSource | TextureSource[], options?: IBaseTextureOptions<any>, strict?: boolean) => {
+        return from(Array.isArray(source) ? source.map((x) => rootPrefix(x)) : rootPrefix(source), options, strict);
+      };
     },
   ],
 };
