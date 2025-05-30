@@ -18,6 +18,7 @@ import { GlowFilter } from "@pixi/filter-glow";
 import { colorlessColor, getColor, getRGB, hex } from "./color.js";
 import WindFilter from "./WindFilter.js";
 import { CardKeyword } from "../common/keywords.js";
+import moize from "moize";
 
 export const cardHeight = targetResolution.height / 4;
 export const cardWidth = cardHeight * (1 / 1.4);
@@ -137,7 +138,7 @@ export function isCardPropsEqual(a: CardProps, b: CardProps) {
     isCardInfoEqual(a.info, b.info) &&
     a.shouldGlow == b.shouldGlow &&
     a.shouldDimWhenExhausted == b.shouldDimWhenExhausted &&
-    a.borderTint == b.borderTint && 
+    a.borderTint == b.borderTint &&
     a.cosmetic?.level == b.cosmetic?.level &&
     a.cosmetic?.top == b.cosmetic?.top
   );
@@ -202,29 +203,43 @@ const CardImpl = React.forwardRef(function CardImpl(props: CardProps, ref: Ref<P
   );
 });
 
-const borderTexture = Texture.from("/border_base.png");
-const border1Texture = Texture.from("/border_1.png");
-const border2Texture = Texture.from("/border_2.png");
-const border3Texture = Texture.from("/border_3.png");
-const borderBannerTexture = Texture.from("/border_banner.png");
-const borderCostTexture = Texture.from("/border_cost.png");
-const borderAgentsTexture = Texture.from("/border_agents.png");
-const borderTypeTexture = Texture.from("/border_type.png");
-const borderTintTexture = Texture.from("/border_tint.png");
+const getTextures = moize(() => {
+  const border = Texture.from("/border_base.png");
+  const border1 = Texture.from("/border_1.png");
+  const border2 = Texture.from("/border_2.png");
+  const border3 = Texture.from("/border_3.png");
+  const borderBanner = Texture.from("/border_banner.png");
+  const borderCost = Texture.from("/border_cost.png");
+  const borderAgents = Texture.from("/border_agents.png");
+  const borderType = Texture.from("/border_type.png");
+  const borderTint = Texture.from("/border_tint.png");
 
-for (const texture of [
-  borderTexture,
-  border1Texture,
-  border2Texture,
-  border3Texture,
-  borderBannerTexture,
-  borderCostTexture,
-  borderAgentsTexture,
-  borderTypeTexture,
-  borderTintTexture,
-]) {
-  texture.baseTexture.mipmap = MIPMAP_MODES.ON;
-}
+  for (const texture of [
+    border,
+    border1,
+    border2,
+    border3,
+    borderBanner,
+    borderCost,
+    borderAgents,
+    borderType,
+    borderTint,
+  ]) {
+    texture.baseTexture.mipmap = MIPMAP_MODES.ON;
+  }
+
+  return {
+    border,
+    border1,
+    border2,
+    border3,
+    borderBanner,
+    borderCost,
+    borderAgents,
+    borderType,
+    borderTint,
+  };
+});
 
 export default React.memo(
   React.forwardRef(function Card(props: CardProps, ref: Ref<PixiContainer>) {
@@ -416,11 +431,13 @@ export default React.memo(
     const imageTexture = Texture.from(`/images/${props.state.name}.png`);
     imageTexture.baseTexture.mipmap = MIPMAP_MODES.ON;
 
+    const textures = getTextures();
+
     const levelCosmeticTexture: Texture = {
       0: Texture.EMPTY,
-      1: border1Texture,
-      2: border2Texture,
-      3: border3Texture,
+      1: textures.border1,
+      2: textures.border2,
+      3: textures.border3,
     }[props.cosmetic?.level ?? 0];
 
     const levelCosmetic =
@@ -429,19 +446,16 @@ export default React.memo(
       );
 
     return (
-      <Container
-        pivot={[cardWidth / 2, cardHeight / 2]}
-        filters={[dimFilterRef.current, glowFilterRef.current]}
-      >
+      <Container pivot={[cardWidth / 2, cardHeight / 2]} filters={[dimFilterRef.current, glowFilterRef.current]}>
         <Rectangle fill={0xffffff} width={cardWidth - 20} height={cardHeight - 40} x={10} y={14} ref={colorRef} />
         <Sprite width={cardWidth - 55} height={cardHeight / 2 - 40} x={30} y={60} texture={imageTexture} />
-        <Sprite width={cardWidth} height={cardHeight} texture={borderTexture} />
-        <Sprite width={cardWidth} height={cardHeight} texture={borderTypeTexture} ref={borderTypeRef} />
+        <Sprite width={cardWidth} height={cardHeight} texture={textures.border} />
+        <Sprite width={cardWidth} height={cardHeight} texture={textures.borderType} ref={borderTypeRef} />
         <Container filters={props.cosmetic?.top ? [windFilterRef.current] : []}>
-          <Sprite width={cardWidth} height={cardHeight} texture={borderBannerTexture} ref={borderBannerRef} />
-          <Sprite width={cardWidth} height={cardHeight} texture={borderCostTexture} ref={borderCostRef} />
-          <Sprite width={cardWidth} height={cardHeight} texture={borderAgentsTexture} ref={borderAgentsRef} />
-          <Sprite width={cardWidth} height={cardHeight} texture={borderTintTexture} ref={borderTintRef} />
+          <Sprite width={cardWidth} height={cardHeight} texture={textures.borderBanner} ref={borderBannerRef} />
+          <Sprite width={cardWidth} height={cardHeight} texture={textures.borderCost} ref={borderCostRef} />
+          <Sprite width={cardWidth} height={cardHeight} texture={textures.borderAgents} ref={borderAgentsRef} />
+          <Sprite width={cardWidth} height={cardHeight} texture={textures.borderTint} ref={borderTintRef} />
           {info}
         </Container>
         {levelCosmetic}
