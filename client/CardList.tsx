@@ -21,10 +21,16 @@ export type CardListProps = {
 
 export function isCardListPropsEqual(a: CardListProps, b: CardListProps) {
   return (
+    a.x == b.x &&
+    a.y == b.y &&
+    a.cardWidth == b.cardWidth &&
+    a.cardHeight == b.cardHeight &&
+    a.hoverScale == b.hoverScale &&
+    a.expandOnHover == b.expandOnHover &&
     a.expanded == b.expanded &&
     a.reversed == b.reversed &&
-    a.card == b.card &&
     a.cards.length == b.cards.length &&
+    a.card == b.card &&
     a.cards.every(
       (_, index) =>
         isCardStateEqual(a.cards[index].state, b.cards[index].state) &&

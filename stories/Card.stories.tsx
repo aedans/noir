@@ -4,7 +4,7 @@ import { defaultCardState } from "../common/gameSlice";
 import { Root } from "./Root";
 import React from "react";
 import { fillPartialCardInfo } from "../common/card";
-import AnimatedCard from "../client/AnimatedCard";
+import AnimatedCard, { CardAnimationContext } from "../client/AnimatedCard";
 
 export default {
   title: "Card",
@@ -34,7 +34,7 @@ export const Default = {
         <AppProvider value={ctx.parameters.pixi.app}>
           <AnimatedCard
             scale={scale}
-            x={args.x +  (cardWidth / 2) * scale}
+            x={args.x + (cardWidth / 2) * scale}
             y={args.y + (cardHeight / 2) * scale}
             state={state}
             info={info}

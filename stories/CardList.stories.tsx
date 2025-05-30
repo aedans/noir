@@ -14,6 +14,7 @@ export default {
     y: 0,
     scale: 50,
     size: 10,
+    reversed: false,
   },
   argTypes: {
     x: { control: { type: "range", min: 1, max: 1000 } },
@@ -39,17 +40,16 @@ export const Default = {
     return new Root(ctx.parameters.pixi, (root) => {
       createRoot(root.view).render(
         <AppProvider value={ctx.parameters.pixi.app}>
-          <CardAnimationContext.Provider value={{ current: {} }}>
-            <ExpandableCardList
-              beginExpanded
-              x={args.x}
-              y={args.y}
-              cardWidth={cardWidth * (args.scale / 100)}
-              cardHeight={cardHeight * (args.scale / 100)}
-              card={(props) => <AnimatedCard scale={args.scale / 100} {...props} />}
-              cards={createCards(args.size)}
-            />
-          </CardAnimationContext.Provider>
+          <ExpandableCardList
+            reversed={args.reversed}
+            beginExpanded
+            x={args.x}
+            y={args.y + (args.reversed ? ((cardHeight * args.scale) / 1000) * (args.size - 1) : 0)}
+            cardWidth={cardWidth * (args.scale / 100)}
+            cardHeight={cardHeight * (args.scale / 100)}
+            card={(props) => <AnimatedCard scale={args.scale / 100} {...props} />}
+            cards={createCards(args.size)}
+          />
         </AppProvider>
       );
     });

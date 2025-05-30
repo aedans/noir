@@ -96,6 +96,9 @@ export function isAnimatedCardPropsEqual(a: AnimatedCardProps, b: AnimatedCardPr
     a.angle == b.angle &&
     a.scale == b.scale &&
     a.eventMode == b.eventMode &&
+    a.pointerover == b.pointerover &&
+    a.pointerout == b.pointerout &&
+    a.pointerdown == b.pointerdown &&
     isCardPropsEqual(a, b)
   );
 }
