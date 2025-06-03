@@ -43,12 +43,17 @@ export type CardCost = {
   agents: number;
 };
 
+export type CardEvaluation = {
+  target?: Target;
+};
+
 export type CardGenerator<T = void> = Generator<GameAction, T, GameState>;
 export type CardAction = () => CardGenerator;
 export type CardTargetAction = (target: Target) => CardGenerator;
 export type CardModifier = (card: CardInfo, modifier: ModifierState, state: CardState) => Partial<CardInfo>;
 export type CardEffect = (card: CardInfo, state: CardState) => Partial<CardInfo> | undefined;
 export type CardTrigger = (action: GameAction) => CardGenerator<boolean>;
+export type CardEvaluator = () => CardEvaluation;
 
 export type CardInfo = {
   type: CardType;
@@ -73,6 +78,8 @@ export type CardInfo = {
   validateDeck: (deck: Deck, state: CardState) => string[];
   modifyDeckSize: (deck: Deck) => number;
   onTarget: CardTrigger;
+  evaluate?: CardEvaluator;
+  evaluateActivate?: CardEvaluator;
 };
 
 export type PartialCardInfo = { [K in keyof CardInfo]?: DeepPartial<CardInfo[K]> } & {
@@ -89,6 +96,8 @@ export type PartialCardInfo = { [K in keyof CardInfo]?: DeepPartial<CardInfo[K]>
   secondaryEffect?: CardEffect;
   modifiers?: { [name: string]: CardModifier };
   onTarget?: CardTrigger;
+  evaluate?: CardEvaluator;
+  evaluateActivate?: CardEvaluator;
 };
 
 export type PartialCardInfoComputation = (
@@ -143,6 +152,8 @@ export function fillPartialCardInfo(partial: PartialCardInfo): CardInfo {
       function* () {
         return false;
       },
+    evaluate: partial.evaluate,
+    evaluateActivate: partial.evaluateActivate,
   };
 }
 

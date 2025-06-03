@@ -1,7 +1,7 @@
 import React from "react";
 import { useContext, useMemo } from "react";
 import { CardStateInfo } from "../../common/card.js";
-import { ordered, planResources } from "../../common/util.js";
+import { canPayPlan, ordered, planResources } from "../../common/util.js";
 import { useClientSelector } from "../store.js";
 import Deck from "./Deck.js";
 import { CacheContext, PlanContext, PlayerContext } from "./Game.js";
@@ -24,7 +24,7 @@ export default function HandAndDeck() {
         continue;
       }
 
-      if (planResources(cache, game, player, [...plan, { type: "play", card: card.state }]) != false) {
+      if (canPayPlan(cache, game, player, plan, { type: "play", card: card.state })) {
         hand.push(card);
       } else {
         deck.push(card);

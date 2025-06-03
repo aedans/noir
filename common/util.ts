@@ -249,7 +249,7 @@ export function planResources(
   if (moneyCost > game.players[player].money) {
     return false;
   }
-  
+
   let possibleAgents: CardState[][] = [[]];
 
   while (agentsCost.length > 0) {
@@ -276,8 +276,18 @@ export function planResources(
   return {
     money: game.players[player].money - moneyCost,
     moneyCost,
-    possibleAgents
+    possibleAgents,
   };
+}
+
+export function canPayPlan(
+  cache: CardInfoCache,
+  game: GameState,
+  player: PlayerId,
+  plan: Pick<PlanProps, "type" | "card">[],
+  pay: Pick<PlanProps, "type" | "card">
+) {
+  return planResources(cache, game, player, [...plan, pay]) != false;
 }
 
 export function* revealRandom(

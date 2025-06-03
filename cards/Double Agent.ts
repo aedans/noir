@@ -6,11 +6,13 @@ export const card: PartialCardInfoComputation = (util, cache, game, card) => ({
   cost: { money: 4 },
   colors: card.props.colors ?? [],
   play: function* () {
-    const coloredCards = util.filter(cache, game, {
-      players: [util.opponent(game, card)],
-      zones: ["deck"],
-    }).filter(state => cache.getCardInfo(game, state).colors.length > 0);
-    
+    const coloredCards = util
+      .filter(cache, game, {
+        players: [util.opponent(game, card)],
+        zones: ["deck"],
+      })
+      .filter((state) => cache.getCardInfo(game, state).colors.length > 0);
+
     if (coloredCards.length == 0) {
       return;
     }
@@ -28,4 +30,5 @@ export const card: PartialCardInfoComputation = (util, cache, game, card) => ({
       .reduce((a, b) => (a.number > b.number ? a : b), { colors: [], number: 0 });
     yield util.setProp({ source: card, target: card, name: "colors", value: colors });
   },
+  evaluate: () => ({}),
 });

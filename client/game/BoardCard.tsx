@@ -4,7 +4,7 @@ import { useClientSelector } from "../store.js";
 import { CacheContext, PlanContext, PlayerContext } from "./Game.js";
 import GameCard, { GameCardProps } from "./GameCard.js";
 import { PixiContainer } from "../pixi.js";
-import { planResources } from "../../common/util.js";
+import { canPayPlan, planResources } from "../../common/util.js";
 
 export default React.forwardRef(function BoardCard(props: GameCardProps, ref: Ref<PixiContainer>) {
   const player = useContext(PlayerContext);
@@ -35,7 +35,7 @@ export default React.forwardRef(function BoardCard(props: GameCardProps, ref: Re
   const canActivate =
     !props.state.exhausted &&
     props.info.hasActivate &&
-    planResources(cache, game, player, [...plan, { type: "activate", card: props.state }]) != false;
+    canPayPlan(cache, game, player, plan, { type: "activate", card: props.state });
 
   function pointerdown(e: any) {
     if (props.state.exhausted || props.info.type != "agent") {

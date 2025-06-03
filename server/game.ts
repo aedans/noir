@@ -313,12 +313,6 @@ export async function createGame(players: [Player, Player], onEnd: OnGameEnd) {
           cache.reset();
           const generator = doPlayerAction(cache, state, player, action);
           sendActions(generator, player, `player${player}/doAction`);
-
-          const winner = hasWinner(cache, state);
-          if (winner != null) {
-            tryEndGame(winner);
-            return;
-          }
         } catch (e) {
           if (typeof e == "string") {
             players[player].error(e);
@@ -327,6 +321,12 @@ export async function createGame(players: [Player, Player], onEnd: OnGameEnd) {
           }
         }
       }
+    }
+
+    const winner = hasWinner(cache, state);
+    if (winner != null) {
+      tryEndGame(winner);
+      return;
     }
 
     for (const player of [0, 1] as const) {

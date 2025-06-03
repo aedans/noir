@@ -8,12 +8,13 @@ import {
   initialGameState,
 } from "../common/gameSlice.js";
 import { PlanProps, random } from "../common/util.js";
-import { PlayerInit, PlayerAction, NoirServerSocket } from "../common/network.js";
+import { PlayerInit, NoirServerSocket } from "../common/network.js";
 import { Difficulty, MissionName, TutorialName } from "./Mission.js";
 import CardInfoCache from "../common/CardInfoCache.js";
 import LocalCardInfoCache from "./LocalCardInfoCache.js";
 import { CardCosmetic } from "../common/card.js";
 import { defaultDecks } from "../common/decks.js";
+import { calculateTurn } from "./ai.js";
 
 export default interface Player {
   id: string | null;
@@ -93,8 +94,6 @@ export class SocketPlayer implements Player {
 
 export abstract class AIPlayer implements Player {
   state: GameState = initialGameState();
-  invalid: PlayerAction[] = [];
-  valid: PlayerAction[] = [];
   timeout: boolean = true;
   cache: CardInfoCache = new LocalCardInfoCache();
   id = null;
@@ -112,21 +111,17 @@ export abstract class AIPlayer implements Player {
     for (const action of actions) {
       this.state = gameSlice.reducer(this.state, action);
     }
-
-    this.invalid = [];
-    this.valid = [];
   }
 
   cosmetic(): void {}
 
   turn(): Promise<PlanProps[]> {
     this.cache.reset();
-    return Promise.resolve([]);
+    return Promise.resolve(calculateTurn(this.cache, this.state, this.player));
   }
 
-  error() {
-    this.invalid.push(...this.valid);
-    this.valid = [];
+  error(message: string) {
+    console.error(message);
   }
 
   end() {}
