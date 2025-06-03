@@ -53,7 +53,7 @@ export type GameAction = PayloadAction<{ source: Target | undefined; target?: Ta
       | "game/refreshCard"
       | "game/exhaustCard"
     >
-  | PayloadAction<NoActionParams, "game/endTurn" | "game/noop" | "game/reset">
+  | PayloadAction<NoActionParams, "game/endTurn" | "game/reset">
   | PayloadAction<RevealCardParams, "game/revealCard">
   | PayloadAction<UndoneActionParams, "game/undone">
   | PayloadAction<AddCardParams, "game/addCard">
@@ -194,7 +194,6 @@ function clearBoard(state: GameState, player: PlayerId) {
 }
 
 export const gameReducers = {
-  noop: (state: GameState, action: PayloadAction<NoActionParams>) => {},
   reset: (state: GameState, action: PayloadAction<NoActionParams>) => {
     return initialGameState();
   },
@@ -322,7 +321,6 @@ export const gameSlice = createSlice({
 });
 
 export const {
-  noop,
   reset,
   endTurn,
   addCard,

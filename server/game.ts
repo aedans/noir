@@ -37,10 +37,7 @@ function* doEndTurn(cache: CardInfoCache, game: GameState, player: PlayerId): Ca
   yield endTurn({ source: undefined });
 
   for (const card of game.players[player].board) {
-    if (card.exhausted) {
-      yield refreshCard({ source: card, target: card });
-    }
-
+    yield refreshCard({ source: card, target: card });
     yield* cache.getCardInfo(game, card).turn();
   }
 
@@ -136,14 +133,10 @@ function* doGameAction(cache: CardInfoCache, game: GameState, action: GameAction
     const card = getCard(game, action.payload.target);
     if (card) {
       const info = cache.getCardInfo(game, card);
-      const [actions, _, shouldIgnore] = runCardGenerator(game, info.onTarget(action));
+      const [actions, _] = runCardGenerator(game, info.onTarget(action));
 
       for (const action of actions) {
         yield* doGameAction(cache, game, action, depth + 1);
-      }
-
-      if (shouldIgnore) {
-        return;
       }
     }
   }
@@ -225,14 +218,14 @@ function* initializePlayer(cache: CardInfoCache, state: GameState, player: Playe
 export async function createGame(players: [Player, Player], onEnd: OnGameEnd) {
   let state = initialGameState();
 
-  function sendActions(generator: CardGenerator, source: PlayerId, name: string) {
+  function sendActions(generator: CardGenerator, source: PlayerId) {
     const [actions, newState] = runCardGenerator(state, generator);
     state = newState;
 
     for (const player of [0, 1] as const) {
-      const revealedActions = actions
-        .filter((x) => x.type != "game/noop")
-        .filter((action) => !action.payload.target || player == source || isRevealed(state, action.payload.target?.id));
+      const revealedActions = actions.filter(
+        (action) => !action.payload.target || player == source || isRevealed(state, action.payload.target?.id)
+      );
 
       for (const action of revealedActions) {
         if (action.payload.target) {
@@ -244,7 +237,7 @@ export async function createGame(players: [Player, Player], onEnd: OnGameEnd) {
         }
       }
 
-      players[player].send(revealedActions, name);
+      players[player].send(revealedActions);
     }
   }
 
@@ -267,7 +260,7 @@ export async function createGame(players: [Player, Player], onEnd: OnGameEnd) {
 
   for (const player of [0, 1] as const) {
     const generator = initializePlayer(cache, state, player, inits[player]);
-    sendActions(generator, player, `player${player}/init`);
+    sendActions(generator, player);
   }
 
   let hasEnded = false;
@@ -293,26 +286,20 @@ export async function createGame(players: [Player, Player], onEnd: OnGameEnd) {
       const generator = function* () {
         yield removeMoney({ source: undefined, player, money: resources.moneyCost });
       };
-      sendActions(generator(), player, `player${player}/payTurn`);
+      sendActions(generator(), player);
       return turn;
     }
   }
 
   while (!hasEnded) {
+    cache.reset();
     const turns = await Promise.all(([0, 1] as const).map((x) => payTurn(x)));
 
-    for (let i = 0; turns.some((turn) => i < turn.length); i++) {
-      for (const player of [0, 1] as const) {
+    const actions: { [player in PlayerId]: GameAction[] } = { [0]: [], [1]: [] };
+    for (const player of [0, 1] as const) {
+      for (const elem of turns[player]) {
         try {
-          if (i >= turns[player].length) {
-            continue;
-          }
-
-          const action = turns[player][i].action;
-
-          cache.reset();
-          const generator = doPlayerAction(cache, state, player, action);
-          sendActions(generator, player, `player${player}/doAction`);
+          actions[player].push(...doPlayerAction(cache, state, player, elem.action));
         } catch (e) {
           if (typeof e == "string") {
             players[player].error(e);
@@ -321,17 +308,23 @@ export async function createGame(players: [Player, Player], onEnd: OnGameEnd) {
           }
         }
       }
+
+      actions[player].push(...doEndTurn(cache, state, player));
+    }
+
+    for (const player of [0, 1] as const) {
+      sendActions(
+        (function* () {
+          yield* actions[player];
+        })(),
+        player
+      );
     }
 
     const winner = hasWinner(cache, state);
     if (winner != null) {
       tryEndGame(winner);
       return;
-    }
-
-    for (const player of [0, 1] as const) {
-      const generator = doEndTurn(cache, state, player);
-      sendActions(generator, player, `player${player}/endAction`);
     }
   }
 }

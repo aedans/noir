@@ -21,7 +21,7 @@ export default interface Player {
   name: string;
   trusted: boolean;
   init(): Promise<PlayerInit>;
-  send(actions: GameAction[], name: string): void;
+  send(actions: GameAction[]): void;
   cosmetic(id: string, cosmetic: CardCosmetic): void;
   error(message: string): void;
   end(winner: Winner): void;
@@ -52,7 +52,7 @@ export class SocketPlayer implements Player {
     this.socket = socket;
 
     this.socket.emit("init", this.player, this.names);
-    this.socket.emit("actions", this.actions, `player${this.player}/load`);
+    this.socket.emit("actions", this.actions);
 
     for (const [id, cosmetic] of this.cosmetics) {
       this.socket.emit("cosmetic", id, cosmetic);
@@ -68,8 +68,8 @@ export class SocketPlayer implements Player {
     });
   }
 
-  send(actions: GameAction[], name: string) {
-    this.socket.emit("actions", actions, name);
+  send(actions: GameAction[]) {
+    this.socket.emit("actions", actions);
     this.actions.push(...actions);
   }
 

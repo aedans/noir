@@ -22,7 +22,6 @@ import {
   opponent,
   self,
   modifyCard,
-  noop,
   activateCard,
   defaultCardState,
 } from "./gameSlice.js";
@@ -383,7 +382,6 @@ const util = {
   random,
   randoms,
   isRevealed,
-  noop,
 };
 
 export type Util = typeof util;

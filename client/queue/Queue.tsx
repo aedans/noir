@@ -24,7 +24,7 @@ export default function Queue(props: { params: { queue: string; deck?: string } 
   useEffect(() => {
     const socket: NoirClientSocket = io(serverOrigin);
 
-    socket.on("actions", (actions, name) => {
+    socket.on("actions", (actions) => {
       (async () => {
         for (const action of actions) {
           await loadCardsFromAction(action);

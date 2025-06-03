@@ -16,7 +16,7 @@ export type PlayerInit = { deck: Deck };
 
 export type ServerToClientEvents = {
   init: (player: PlayerId, names: readonly [string, string]) => void;
-  actions: (actions: GameAction[], name: string) => void;
+  actions: (actions: GameAction[]) => void;
   cosmetic: (id: string, cosmetic: CardCosmetic) => void;
   error: (error: string) => void;
   end: (winner: Winner) => void;

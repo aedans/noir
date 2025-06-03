@@ -47,7 +47,7 @@ export type CardEvaluation = {
   target?: Target;
 };
 
-export type CardGenerator<T = void> = Generator<GameAction, T, GameState>;
+export type CardGenerator<T = void> = Generator<GameAction, T>;
 export type CardAction = () => CardGenerator;
 export type CardTargetAction = (target: Target) => CardGenerator;
 export type CardModifier = (card: CardInfo, modifier: ModifierState, state: CardState) => Partial<CardInfo>;
@@ -157,13 +157,11 @@ export function fillPartialCardInfo(partial: PartialCardInfo): CardInfo {
   };
 }
 
-export function runCardGenerator<T>(state: GameState, generator: CardGenerator<T>): [GameAction[], GameState, T] {
+export function runCardGenerator<T>(state: GameState, generator: CardGenerator<T>): [GameAction[], GameState] {
   const actions: GameAction[] = [];
-  let next = generator.next(state);
-  while (!next.done) {
-    actions.push(next.value);
-    state = gameSlice.reducer(state, next.value);
-    next = generator.next(state);
+  for (const action of generator) {
+    actions.push(action);
+    state = gameSlice.reducer(state, action);
   }
-  return [actions, state, next.value];
+  return [actions, state];
 }
