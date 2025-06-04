@@ -43,31 +43,31 @@ export function initialGameState(): GameState {
 }
 
 // export type GameAction = PayloadAction<GameParams, `game/${keyof typeof gameReducers}`>;
-export type GameAction = PayloadAction<{ source: Target | undefined; target?: Target }> & (
-  | PayloadAction<
-      TargetParams,
-      | "game/activateCard"
-      | "game/removeCard"
-      | "game/enterCard"
-      | "game/bounceCard"
-      | "game/refreshCard"
-      | "game/exhaustCard"
-    >
-  | PayloadAction<NoActionParams, "game/endTurn" | "game/reset">
-  | PayloadAction<RevealCardParams, "game/revealCard">
-  | PayloadAction<UndoneActionParams, "game/undone">
-  | PayloadAction<AddCardParams, "game/addCard">
-  | PayloadAction<PlayCardParams, "game/playCard">
-  | PayloadAction<StealCardParams, "game/stealCard">
-  | PayloadAction<SetPropParams, "game/setProp">
-  | PayloadAction<ChangeMoneyParams, "game/addMoney" | "game/removeMoney">
-  | PayloadAction<ModifyCardParams, "game/modifyCard">
-);
+export type GameAction = PayloadAction<{ source: Target | undefined; target?: Target }> &
+  (
+    | PayloadAction<
+        TargetParams,
+        | "game/activateCard"
+        | "game/removeCard"
+        | "game/enterCard"
+        | "game/bounceCard"
+        | "game/refreshCard"
+        | "game/exhaustCard"
+      >
+    | PayloadAction<NoActionParams, "game/endTurn" | "game/reset">
+    | PayloadAction<TargetParams, "game/revealCard">
+    | PayloadAction<UndoneActionParams, "game/undone">
+    | PayloadAction<AddCardParams, "game/addCard">
+    | PayloadAction<PlayCardParams, "game/playCard">
+    | PayloadAction<StealCardParams, "game/stealCard">
+    | PayloadAction<SetPropParams, "game/setProp">
+    | PayloadAction<ChangeMoneyParams, "game/addMoney" | "game/removeMoney">
+    | PayloadAction<ModifyCardParams, "game/modifyCard">
+  );
 
 export type GameParams =
   | TargetParams
   | NoActionParams
-  | RevealCardParams
   | UndoneActionParams
   | AddCardParams
   | PlayCardParams
@@ -93,7 +93,7 @@ export type UndoneActionParams = SourceParams & {
 export type AddCardParams = TargetParams & {
   zone: Zone;
   player: PlayerId;
-  name: string;
+  state: CardState;
 };
 
 export type PlayCardParams = TargetParams & {
@@ -102,12 +102,6 @@ export type PlayCardParams = TargetParams & {
 
 export type StealCardParams = TargetParams & {
   zone: Zone;
-};
-
-export type RevealCardParams = TargetParams & {
-  player: PlayerId;
-  zone: Zone;
-  target: CardState;
 };
 
 export type SetPropParams = TargetParams & {
@@ -206,11 +200,7 @@ export const gameReducers = {
   },
   addCard: (state: GameState, action: PayloadAction<AddCardParams>) => {
     state.history.push(action as GameAction);
-    const card = defaultCardState(action.payload.name, action.payload.target.id);
-    if (action.payload.source) {
-      card.hidden = getCard(state, action.payload.source)?.hidden ?? true;
-    }
-    state.players[action.payload.player][action.payload.zone].push(card);
+    state.players[action.payload.player][action.payload.zone].push(action.payload.state);
   },
   playCard: (state: GameState, action: PayloadAction<PlayCardParams>) => {
     state.history.push(action as GameAction);
@@ -272,15 +262,11 @@ export const gameReducers = {
       clearBoard(state, player);
     }
   },
-  revealCard: (state: GameState, action: PayloadAction<RevealCardParams>) => {
+  revealCard: (state: GameState, action: PayloadAction<TargetParams>) => {
     state.history.push(action as GameAction);
-    const info = updateCard(state, action.payload.target, (card) => {
-      Object.assign(card, action.payload.target);
+    updateCard(state, action.payload.target, (card) => {
       card.hidden = false;
     });
-    if (!info) {
-      state.players[action.payload.player][action.payload.zone].push({ ...action.payload.target, hidden: false });
-    }
   },
   refreshCard: (state: GameState, action: PayloadAction<TargetParams>) => {
     state.history.push(action as GameAction);

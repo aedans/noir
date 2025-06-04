@@ -67,10 +67,6 @@ export async function loadCard(card: { name: string }) {
 
 export async function loadCardsFromAction(action: AnyAction) {
   if (action.type == "game/addCard") {
-    await loadCard({ name: action.payload.name });
-  }
-
-  if (action.type == "game/revealCard" && action.payload.target?.name) {
-    await loadCard({ name: action.payload.target.name });
+    await loadCard({ name: action.payload.state.name });
   }
 }

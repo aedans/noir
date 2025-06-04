@@ -21,13 +21,13 @@ export const card: PartialCardInfoComputation = (util, cache, game, card) => ({
     return {
       onTarget: function* (action) {
         if (action.type == "game/revealCard") {
-          const name = util.getCard(game, affectedCard).name;
+          const state = util.getCard(game, affectedCard);
           const player = util.self(game, card);
           if (util.opponent(game, action.payload.target) == player) {
             yield util.addCard({
               source: card,
               target: util.cid(),
-              name: name,
+              state,
               player: player,
               zone: "deck",
             });

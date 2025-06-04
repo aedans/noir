@@ -13,15 +13,15 @@ export const card: PartialCardInfoComputation = (util, cache, game, card) => ({
 
     if (card.props.turns == 1) {
       const target = util.cid();
+      const state = util.defaultCardState("Random Citizen", target.id);
+      state.modifiers.push({ card, name: "purple", props: {} })
       yield util.addCard({
         source: card,
         target,
-        name: "Random Citizen",
+        state,
         player: util.findCard(game, card).player,
         zone: "deck",
       });
-
-      yield util.modifyCard({ source: card, target, modifier: { card, name: "purple" } });
     }
   },
   modifiers: {

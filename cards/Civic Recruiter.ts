@@ -16,7 +16,7 @@ export const card: PartialCardInfoComputation = (util, cache, game, card) => ({
       yield util.addCard({
         source: card,
         target,
-        name: "Random Citizen",
+        state: util.defaultCardState("Random Citizen", target.id),
         player: util.findCard(game, card).player,
         zone: "board",
       });

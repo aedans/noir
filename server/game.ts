@@ -3,6 +3,7 @@ import {
   activateCard,
   addCard,
   addMoney,
+  defaultCardState,
   endTurn,
   findCard,
   GameAction,
@@ -168,8 +169,7 @@ function* doPlayerAction(cache: CardInfoCache, game: GameState, player: PlayerId
   }
 
   for (const target of toReveal) {
-    const { zone, player } = findCard(game, target)!;
-    actions.push(revealCard({ source: undefined, target, zone, player }));
+    actions.push(revealCard({ source: undefined, target }));
   }
 
   for (const action of actions) {
@@ -200,14 +200,14 @@ function hasWinner(cache: CardInfoCache, game: GameState): Winner | null {
   }
 }
 
-function* initializePlayer(cache: CardInfoCache, state: GameState, player: PlayerId, init: PlayerInit): CardGenerator {
+function* initializePlayer(cache: CardInfoCache, game: GameState, player: PlayerId, init: PlayerInit): CardGenerator {
   for (const [name, number] of Object.entries(init.deck.cards)) {
     for (let i = 0; i < number; i++) {
       const card = util.cid();
       yield addCard({
         source: card,
         target: card,
-        name,
+        state: defaultCardState(name, card.id),
         player,
         zone: "deck",
       });
@@ -217,6 +217,10 @@ function* initializePlayer(cache: CardInfoCache, state: GameState, player: Playe
 
 export async function createGame(players: [Player, Player], onEnd: OnGameEnd) {
   let state = initialGameState();
+  const revealed: { [player in PlayerId]: Set<string> } = {
+    [0]: new Set(),
+    [1]: new Set(),
+  };
 
   function runActions(generator: CardGenerator): GameAction[] {
     const [actions, newState] = runCardGenerator(state, generator);
@@ -225,22 +229,36 @@ export async function createGame(players: [Player, Player], onEnd: OnGameEnd) {
   }
 
   function sendActions(actions: GameAction[], source: PlayerId) {
-    for (const player of [0, 1] as const) {
+    for (const toPlayer of [0, 1] as const) {
       const revealedActions = actions.filter(
-        (action) => !action.payload.target || player == source || isRevealed(state, action.payload.target?.id)
+        (action) => !action.payload.target || toPlayer == source || isRevealed(state, action.payload.target?.id)
       );
 
       for (const action of revealedActions) {
         if (action.payload.target) {
+          if (action.type == "game/revealCard" && !revealed[toPlayer].has(action.payload.target.id)) {
+            const { player, zone, index } = findCard(state, action.payload.target)!;
+            revealed[toPlayer].add(action.payload.target.id);
+            players[toPlayer].send([
+              addCard({
+                source: undefined,
+                target: action.payload.target,
+                player,
+                zone,
+                state: state.players[player][zone][index],
+              }),
+            ]);
+          }
+
           const card = util.getCard(state, action.payload.target);
           const cardPlayer = util.findCard(state, card).player;
           getCosmetic(players[cardPlayer].id, card.name).then((cosmetic) =>
-            players[player].cosmetic(card.id, cosmetic)
+            players[toPlayer].cosmetic(card.id, cosmetic)
           );
         }
       }
 
-      players[player].send(revealedActions);
+      players[toPlayer].send(revealedActions);
     }
   }
 

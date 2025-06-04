@@ -8,21 +8,14 @@ export const card: PartialCardInfoComputation = (util, cache, game, card) => ({
   onTarget: function* (action) {
     if (action.type == "game/removeCard") {
       const target = util.cid();
+      const state = util.defaultCardState("Random Citizen", target.id);
+      state.modifiers.push({ name: "purple", card, props: {} });
       yield util.addCard({
         source: card,
         target,
-        name: "Random Citizen",
+        state,
         player: util.self(game, card),
         zone: "deck",
-      });
-
-      yield util.modifyCard({
-        source: card,
-        target,
-        modifier: {
-          name: "purple",
-          card,
-        },
       });
     }
 

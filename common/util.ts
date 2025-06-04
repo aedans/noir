@@ -316,8 +316,7 @@ export function* revealRandom(
   }
 
   for (const target of cards) {
-    const { player, zone } = findCard(game, target)!;
-    yield revealCard({ source: card, target, player, zone });
+    yield revealCard({ source: card, target });
   }
 
   return cards;
@@ -368,6 +367,7 @@ const util = {
   modifyCard,
   addMoney,
   removeMoney,
+  defaultCardState,
   findCard: findCard as (game: GameState, card: Target) => { player: PlayerId; zone: Zone; index: number },
   getCard: getCard as (game: GameState, card: Target) => CardState,
   opponentOf,
