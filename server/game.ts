@@ -218,10 +218,13 @@ function* initializePlayer(cache: CardInfoCache, state: GameState, player: Playe
 export async function createGame(players: [Player, Player], onEnd: OnGameEnd) {
   let state = initialGameState();
 
-  function sendActions(generator: CardGenerator, source: PlayerId) {
+  function runActions(generator: CardGenerator): GameAction[] {
     const [actions, newState] = runCardGenerator(state, generator);
     state = newState;
+    return actions;
+  }
 
+  function sendActions(actions: GameAction[], source: PlayerId) {
     for (const player of [0, 1] as const) {
       const revealedActions = actions.filter(
         (action) => !action.payload.target || player == source || isRevealed(state, action.payload.target?.id)
@@ -260,7 +263,8 @@ export async function createGame(players: [Player, Player], onEnd: OnGameEnd) {
 
   for (const player of [0, 1] as const) {
     const generator = initializePlayer(cache, state, player, inits[player]);
-    sendActions(generator, player);
+    const actions = runActions(generator);
+    sendActions(actions, player);
   }
 
   let hasEnded = false;
@@ -283,10 +287,12 @@ export async function createGame(players: [Player, Player], onEnd: OnGameEnd) {
       players[player].error("Cannot pay for planned turn");
       return await payTurn(player);
     } else {
-      const generator = function* () {
-        yield removeMoney({ source: undefined, player, money: resources.moneyCost });
-      };
-      sendActions(generator(), player);
+      const actions = runActions(
+        (function* () {
+          yield removeMoney({ source: undefined, player, money: resources.moneyCost });
+        })()
+      );
+      sendActions(actions, player);
       return turn;
     }
   }
@@ -312,13 +318,15 @@ export async function createGame(players: [Player, Player], onEnd: OnGameEnd) {
       actions[player].push(...doEndTurn(cache, state, player));
     }
 
+    runActions(
+      (function* () {
+        yield* actions[0];
+        yield* actions[1];
+      })()
+    );
+
     for (const player of [0, 1] as const) {
-      sendActions(
-        (function* () {
-          yield* actions[player];
-        })(),
-        player
-      );
+      sendActions(actions[player], player);
     }
 
     const winner = hasWinner(cache, state);
