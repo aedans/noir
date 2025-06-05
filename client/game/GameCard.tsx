@@ -12,7 +12,7 @@ import { useDrop } from "react-dnd";
 import { CardColors, CardState } from "../../common/card.js";
 import { cardHeight, cardWidth, combineColors, isCardPropsEqual } from "../Card.js";
 import { CacheContext, CosmeticContext, HighlightContext, PlanContext } from "./Game.js";
-import { getCard } from "../../common/gameSlice.js";
+import { findCard, getCard } from "../../common/gameSlice.js";
 import { useClientSelector } from "../store.js";
 import { hex } from "../color.js";
 import util from "../../common/util.js";
@@ -58,20 +58,35 @@ export default React.memo(
       () => ({
         accept: "target",
         drop: (state: CardState) => {
-          setPlan((plan) => [
-            ...plan,
-            {
-              type: "play",
-              card: state,
-              action: { id: state.id, target: { id: props.state.id } },
-            },
-          ]);
+          const found = findCard(game, state);
+          if (!found) {
+            return;
+          }
+
+          const info = cache.getCardInfo(game, state);
+          if (
+            (found.zone == "deck" &&
+              info.targets &&
+              util.filter(cache, game, info.targets).some((c) => c.id == props.state.id)) ||
+            (found.zone == "board" &&
+              info.activateTargets &&
+              util.filter(cache, game, info.activateTargets).some((c) => c.id == props.state.id))
+          ) {
+            setPlan((plan) => [
+              ...plan,
+              {
+                type: found.zone == "deck" ? "play" : "activate",
+                card: state,
+                action: { id: state.id, target: { id: props.state.id } },
+              },
+            ]);
+          }
         },
         collect: (monitor) => ({
           isOver: monitor.isOver(),
         }),
       }),
-      []
+      [game, props.state.id]
     );
 
     useEffect(() => {

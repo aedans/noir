@@ -236,6 +236,11 @@ export async function createGame(players: [Player, Player], onEnd: OnGameEnd) {
 
       for (const action of revealedActions) {
         if (action.payload.target) {
+          if (action.type == "game/addCard") {
+            const { player } = findCard(state, action.payload.target)!;
+            revealed[player].add(action.payload.target.id);
+          }
+
           if (action.type == "game/revealCard" && !revealed[toPlayer].has(action.payload.target.id)) {
             const { player, zone, index } = findCard(state, action.payload.target)!;
             revealed[toPlayer].add(action.payload.target.id);

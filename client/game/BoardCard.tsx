@@ -15,6 +15,11 @@ export default React.forwardRef(function BoardCard(props: GameCardProps, ref: Re
 
   useImperativeHandle(ref, () => cardRef.current);
 
+  const canActivate =
+    !props.state.exhausted &&
+    props.info.hasActivate &&
+    canPayPlan(cache, game, player, plan, { type: "activate", card: props.state });
+
   const [{ isDragging }, drag, dragPreview] = useDrag(
     () => ({
       type: props.info.activateTargets ? "target" : "card",
@@ -22,8 +27,9 @@ export default React.forwardRef(function BoardCard(props: GameCardProps, ref: Re
       collect: (monitor) => ({
         isDragging: monitor.isDragging(),
       }),
+      canDrag: () => canActivate
     }),
-    []
+    [canActivate]
   );
 
   useEffect(() => {
@@ -31,11 +37,6 @@ export default React.forwardRef(function BoardCard(props: GameCardProps, ref: Re
       dragPreview(cardRef);
     }
   });
-
-  const canActivate =
-    !props.state.exhausted &&
-    props.info.hasActivate &&
-    canPayPlan(cache, game, player, plan, { type: "activate", card: props.state });
 
   function pointerdown(e: any) {
     if (props.state.exhausted || props.info.type != "agent") {

@@ -7,7 +7,7 @@ import { useTimeShadowFilter } from "../time";
 import { Container } from "@pixi/react";
 import { useClientSelector } from "../store";
 import { AnimatedCardProps } from "../AnimatedCard";
-import { CardState } from "../../common/card";
+import { CardState, CardStateInfo } from "../../common/card";
 
 export default function Plan() {
   const { plan, setPlan } = useContext(PlanContext);
@@ -32,6 +32,13 @@ export default function Plan() {
   const x = 0;
   const y = (targetResolution.height - gameCardHeight) / 2 - cards.length * gameCardHeightDiff;
 
+  const listCards: CardStateInfo[] = [];
+  for (let i = 0; i < cards.length; i++) {
+    if (i >= plan.length) continue;
+    const id = plan[i].type == "activate" ? `activate:${cards[i].state.id}-${turn}` : cards[i].state.id;
+    listCards.push({ info: cards[i].info, state: { ...cards[i].state, id } });
+  }
+
   return (
     <Container filters={[timeShadowFilterRef.current]}>
       <CardList
@@ -42,11 +49,7 @@ export default function Plan() {
         cardWidth={gameCardWidth}
         cardHeight={gameCardHeight}
         card={planCard}
-        cards={cards.flatMap((x, i) => {
-          if (i >= plan.length) return [];
-          const id = plan[i].type == "activate" ? `activate:${x.state.id}-${turn}` : x.state.id;
-          return [{ info: x.info, state: { ...x.state, id } }];
-        })}
+        cards={listCards}
         hoverScale={gameCardZoom}
       />
     </Container>

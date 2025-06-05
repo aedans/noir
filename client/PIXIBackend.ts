@@ -26,7 +26,7 @@ const PIXIBackend: (app: Application) => BackendFactory = (app: Application) => 
     }
 
     function mouseDownListener(e: any) {
-      if (currentObject == null) {
+      if (currentObject == null && manager.getMonitor().canDragSource(sourceId)) {
         currentObject = reticle;
         initIndex = node.zIndex;
         initVisible = reticle.visible;
@@ -52,17 +52,17 @@ const PIXIBackend: (app: Application) => BackendFactory = (app: Application) => 
         const pos = reticle.parent.toLocal(e);
         if (manager.getMonitor().isDragging()) {
           reticle.position.copyFrom(pos);
-        }
 
-        const matchingTargetIds = Object.keys(targetObjects)
-          .filter((key) => targetObjects[key].getBounds().contains(e.x, e.y) && targetObjects[key].zIndex < 1000)
-          .filter((key) => manager.getRegistry().getTargetType(key) == manager.getMonitor().getItemType());
+          const matchingTargetIds = Object.keys(targetObjects)
+            .filter((key) => targetObjects[key].getBounds().contains(e.x, e.y) && targetObjects[key].zIndex < 1000)
+            .filter((key) => manager.getRegistry().getTargetType(key) == manager.getMonitor().getItemType());
 
-        if (matchingTargetIds.length > 0) {
-          matchingTargetIds.sort((a, b) => targetObjects[b].zIndex - targetObjects[a].zIndex);
-          manager.getActions().hover([matchingTargetIds[0]]);
-        } else {
-          manager.getActions().hover([]);
+          if (matchingTargetIds.length > 0) {
+            matchingTargetIds.sort((a, b) => targetObjects[b].zIndex - targetObjects[a].zIndex);
+            manager.getActions().hover([matchingTargetIds[0]]);
+          } else {
+            manager.getActions().hover([]);
+          }
         }
       }
     }
