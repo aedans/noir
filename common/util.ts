@@ -29,6 +29,7 @@ import CardInfoCache from "./CardInfoCache.js";
 import { Deck } from "../common/decks.js";
 import { CardKeyword, cardKeywords } from "./keywords.js";
 import { PlayerAction } from "./network.js";
+import { bestTarget } from "../server/ai.js";
 
 export type Filter = {
   excludes?: Target[];
@@ -382,6 +383,7 @@ const util = {
   random,
   randoms,
   isRevealed,
+  bestTarget
 };
 
 export type Util = typeof util;

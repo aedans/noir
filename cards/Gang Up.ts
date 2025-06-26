@@ -11,4 +11,5 @@ export const card: PartialCardInfoComputation = (util, cache, game, card) => ({
   play: function* (target) {
     yield util.removeCard({ source: card, target });
   },
+  evaluate: (ai) => util.bestTarget(ai, cache, game, card, { players: [util.opponent(game, card)] }),
 });

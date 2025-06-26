@@ -8,5 +8,6 @@ export const card: PartialCardInfoComputation = (util, cache, game, card) => ({
     yield* util.revealRandom(cache, game, card, 1, {
       zones: ["deck"],
     });
-  }
+  },
+  evaluate: (ai) => ({ value: ai.reveal.deck })
 });

@@ -30,5 +30,5 @@ export const card: PartialCardInfoComputation = (util, cache, game, card) => ({
       .reduce((a, b) => (a.number > b.number ? a : b), { colors: [], number: 0 });
     yield util.setProp({ source: card, target: card, name: "colors", value: colors });
   },
-  evaluate: () => ({}),
+  evaluate: () => ({ value: 0 }),
 });

@@ -6,5 +6,6 @@ export const card: PartialCardInfoComputation = (util, cache, game, card) => ({
   cost: { money: 2, agents: 1 },
   play: function* () {
     yield* util.revealRandom(cache, game, card, 2, {});
-  }
+  },
+  evaluate: (ai) => ({ value: ai.reveal.any * 2 })
 });

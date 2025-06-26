@@ -14,7 +14,7 @@ import CardInfoCache from "../common/CardInfoCache.js";
 import LocalCardInfoCache from "./LocalCardInfoCache.js";
 import { CardCosmetic } from "../common/card.js";
 import { defaultDecks } from "../common/decks.js";
-import { calculateTurn } from "./ai.js";
+import { calculateTurn, defaultAIValues } from "./ai.js";
 
 export default interface Player {
   id: string | null;
@@ -117,7 +117,7 @@ export abstract class AIPlayer implements Player {
 
   turn(): Promise<PlanProps[]> {
     this.cache.reset();
-    return Promise.resolve(calculateTurn(this.cache, this.state, this.player));
+    return Promise.resolve(calculateTurn(this.cache, this.state, this.player, defaultAIValues));
   }
 
   error(message: string) {

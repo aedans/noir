@@ -25,4 +25,6 @@ export const card: PartialCardInfoComputation = (util, cache, game, card) => ({
       };
     }
   },
+  evaluate: () => ({ value: 0 }),
+  evaluateActivate: (ai) => ({ value: ai.cost.money }),
 });

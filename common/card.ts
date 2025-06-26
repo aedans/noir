@@ -4,6 +4,7 @@ import { Filter, Util } from "./util.js";
 import CardInfoCache from "./CardInfoCache.js";
 import { Deck } from "../common/decks.js";
 import { CardKeyword } from "./keywords.js";
+import { AIValues } from "../server/ai.js";
 
 export type CardStateInfo = {
   state: CardState;
@@ -44,6 +45,7 @@ export type CardCost = {
 };
 
 export type CardEvaluation = {
+  value: number;
   target?: Target;
 };
 
@@ -53,7 +55,7 @@ export type CardTargetAction = (target: Target) => CardGenerator;
 export type CardModifier = (card: CardInfo, modifier: ModifierState, state: CardState) => Partial<CardInfo>;
 export type CardEffect = (card: CardInfo, state: CardState) => Partial<CardInfo> | undefined;
 export type CardTrigger = (action: GameAction) => CardGenerator<boolean>;
-export type CardEvaluator = () => CardEvaluation;
+export type CardEvaluator = (ai: AIValues) => CardEvaluation | undefined;
 
 export type CardInfo = {
   type: CardType;

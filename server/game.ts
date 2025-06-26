@@ -149,9 +149,9 @@ function* doPlayerAction(cache: CardInfoCache, game: GameState, player: PlayerId
   const actions: GameAction[] = [];
   actions.push(...runCardGenerator(game, doCard(cache, game, player, action.id, action.target))[0]);
 
-  const toReveal: CardState[] = [];
+  const toReveal: Set<string> = new Set();
   for (const card of util.filter(cache, game, { zones: ["board"], hidden: true })) {
-    if (toReveal.some((c) => c.id == card.id)) {
+    if (toReveal.has(card.id)) {
       continue;
     }
 
@@ -163,13 +163,22 @@ function* doPlayerAction(cache: CardInfoCache, game: GameState, player: PlayerId
       const secondaryEffectsOpponent =
         info.hasSecondaryEffect && (info.secondaryEffectFilter.players?.includes(opponent) ?? true);
       if (effectsOpponent || secondaryEffectsOpponent) {
-        toReveal.push(card);
+        toReveal.add(card.id);
       }
     }
   }
 
-  for (const target of toReveal) {
-    actions.push(revealCard({ source: undefined, target }));
+  for (const action of actions) {
+    if (action.payload.target && !toReveal.has(action.payload.target.id) && action.payload.source) {
+      const card = getCard(game, action.payload.source)!;
+      if (card.hidden) {
+        toReveal.add(card.id);
+      }
+    }
+  }
+
+  for (const id of toReveal) {
+    actions.push(revealCard({ source: undefined, target: { id } }));
   }
 
   for (const action of actions) {
