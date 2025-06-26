@@ -8,12 +8,11 @@ export const defaultAIValues = {
     money: 1,
     agent: 1,
   },
-  agents: {
-    base: [1],
-    orange: [0.5],
-    blue: [0.5],
-    green: [0.5],
-    purple: [0.5],
+  agent: {
+    orange: 1,
+    blue: 1,
+    green: 1,
+    purple: 1,
   },
   reveal: {
     any: 1,
@@ -91,16 +90,9 @@ export function evaluateBase(ai: AIValues, cache: CardInfoCache, game: GameState
   const info = cache.getCardInfo(game, card);
 
   if (info.type == "agent") {
-    const player = findCard(game, card)!.player;
-    const agents = util.filter(cache, game, {
-      players: [player],
-      types: ["agent"],
-    });
-
-    value += ai.agents.base[Math.min(agents.length, ai.agents.base.length - 1)];
+    value += ai.cost.agent;
     for (const color of info.colors) {
-      const coloredAgents = agents.filter((card) => cache.getCardInfo(game, card).colors.includes(color));
-      value += ai.agents[color][Math.min(coloredAgents.length, ai.agents[color].length - 1)];
+      value += ai.agent[color];
     }
   }
 
@@ -119,7 +111,14 @@ export function evaluateCard(ai: AIValues, cache: CardInfoCache, game: GameState
   }
 }
 
-export function bestTarget(this: Util, ai: AIValues, cache: CardInfoCache, game: GameState, card: CardState, filter: Filter) {
+export function bestTarget(
+  this: Util,
+  ai: AIValues,
+  cache: CardInfoCache,
+  game: GameState,
+  card: CardState,
+  filter: Filter
+) {
   const info = cache.getCardInfo(game, card);
   const cards = this.filter(cache, game, { ...info.targets!, ...filter });
   if (cards.length == 0) {
