@@ -6,11 +6,12 @@ import { NoirClientSocket, QueueName } from "../../common/network.js";
 import Button from "../Button.js";
 import { targetResolution } from "../Camera.js";
 import { loadCardsFromAction, serverOrigin, trpc } from "../cards.js";
-import Game, { ConnectionContext, CosmeticContext, PlayerContext } from "../game/Game.js";
+import Game, { ConnectionContext, CosmeticContext, PlanContext, PlayerContext } from "../game/Game.js";
 import { getUsername, useClientDispatch, useClientSelector } from "../store.js";
 import { setWon } from "../wins.js";
 import { CardCosmetic } from "../../common/card.js";
 import { batch } from "react-redux";
+import { PlanProps } from "../../common/util.js";
 
 export default function Queue(props: { params: { queue: string; deck?: string } }) {
   let [player, setPlayer] = useState(null as PlayerId | null);
@@ -21,6 +22,7 @@ export default function Queue(props: { params: { queue: string; deck?: string } 
   const [message, setMessage] = useState("");
   const [_, setLocation] = useLocation();
   const dispatch = useClientDispatch();
+  const [plan, setPlan] = useState([] as PlanProps[]);
 
   useEffect(() => {
     const socket: NoirClientSocket = io(serverOrigin);
@@ -35,6 +37,8 @@ export default function Queue(props: { params: { queue: string; deck?: string } 
           for (const action of actions) {
             dispatch(action);
           }
+
+          setPlan([]);
         });
       })();
     });
@@ -114,7 +118,9 @@ export default function Queue(props: { params: { queue: string; deck?: string } 
       >
         <PlayerContext.Provider value={player}>
           <CosmeticContext.Provider value={cosmetics}>
-            <Game message={message} />
+            <PlanContext.Provider value={{ plan, setPlan }}>
+              <Game message={message} />
+            </PlanContext.Provider>
           </CosmeticContext.Provider>
         </PlayerContext.Provider>
       </ConnectionContext.Provider>

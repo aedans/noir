@@ -144,64 +144,13 @@ export function isCardPropsEqual(a: CardProps, b: CardProps) {
   );
 }
 
-const CardImpl = React.forwardRef(function CardImpl(props: CardProps, ref: Ref<PixiContainer>) {
-  const containerRef = useRef() as MutableRefObject<PixiContainer>;
-
-  useImperativeHandle(ref, () => containerRef.current);
-
-  let text = props.info.text;
-  let keywords = collapseKeywords(props.info.keywords);
-
-  if (keywords.length > 0) {
-    text = `${keywords.map(getDisplayName).join(", ")}\n${text}`.trim();
-  }
-
-  let propsText: string[] = [];
-  for (const [name, value] of Object.entries(props.state.props)) {
-    if (value != undefined) {
-      const upperName = name.charAt(0).toUpperCase() + name.slice(1);
-      propsText.push(`${upperName}: ${value.name ?? value}`);
-    }
-  }
-
-  if (propsText.length > 0) {
-    text = `${text}\n${propsText.join(", ")}`;
-  }
-
-  return (
-    <Container ref={containerRef}>
-      <Text anchor={[0.5, 0]} x={cardWidth / 2 + 20} y={28} text={props.state.name} style={{ fontSize: 32, tint: 0 }} />
-      <Text
-        anchor={[0.5, 0]}
-        x={cardWidth / 2}
-        y={283}
-        text={props.info.type.toUpperCase()}
-        style={{ fontSize: 28, tint: 0 }}
-      />
-      <Text
-        anchor={[0.5, 0.5]}
-        x={cardWidth / 2}
-        y={cardHeight * (3 / 4) + 15}
-        text={text}
-        style={{ fontSize: 32, align: "center", maxWidth: cardWidth - 20, letterSpacing: 1 }}
-      />
-      <Text
-        anchor={[0.5, 0.5]}
-        x={40}
-        y={40}
-        text={Math.max(0, props.info.cost.money)}
-        style={{ fontSize: 32, tint: 0 }}
-      />
-      <Text
-        anchor={[0.5, 0.5]}
-        x={40}
-        y={92}
-        text={Math.max(0, props.info.cost.agents) || ""}
-        style={{ fontSize: 32, tint: 0 }}
-      />
-    </Container>
-  );
-});
+const imageTexture = moize((name: string) => {
+  const imageTexture = Texture.from(`/images/${name}.png`);
+  imageTexture.baseTexture.mipmap = MIPMAP_MODES.ON;
+  return imageTexture;
+}, {
+  maxSize: Infinity
+})
 
 const getTextures = moize(() => {
   const border = Texture.from("/border_base.png");
@@ -258,29 +207,6 @@ export default React.memo(
     const glowFilterRef = useRef(new GlowFilter());
     const dimFilterRef = useRef(new PixiFilters.ColorMatrixFilter());
     const windFilterRef = useRef(new WindFilter());
-    const [texture, setTexture] = useState(null as RenderTexture | null);
-    const app = useApp();
-
-    function renderTexture() {
-      if (containerRef.current && texture == null) {
-        const renderTexture = RenderTexture.create({
-          width: cardWidth,
-          height: cardHeight,
-        });
-
-        app.renderer.render(containerRef.current, { renderTexture });
-        setTexture(renderTexture);
-      }
-    }
-
-    useEffect(() => {
-      if (texture != null) {
-        setTexture(null);
-        texture.destroy();
-      }
-
-      return () => texture?.destroy();
-    }, [props.info, props.state]);
 
     useImperativeHandle(ref, () => containerRef.current);
 
@@ -414,23 +340,6 @@ export default React.memo(
       });
     }, [props.shouldGlow]);
 
-    const info = texture ? (
-      <Sprite texture={texture} />
-    ) : (
-      <CardImpl
-        {...props}
-        ref={(c) => {
-          if (c != null) {
-            containerRef.current = c;
-            renderTexture();
-          }
-        }}
-      />
-    );
-
-    const imageTexture = Texture.from(`/images/${props.state.name}.png`);
-    imageTexture.baseTexture.mipmap = MIPMAP_MODES.ON;
-
     const textures = getTextures();
 
     const levelCosmeticTexture: Texture = {
@@ -445,10 +354,29 @@ export default React.memo(
         <Sprite width={cardWidth} height={cardHeight} texture={levelCosmeticTexture} ref={levelCosmeticRef} />
       );
 
+    let text = props.info.text;
+    let keywords = collapseKeywords(props.info.keywords);
+
+    if (keywords.length > 0) {
+      text = `${keywords.map(getDisplayName).join(", ")}\n${text}`.trim();
+    }
+
+    let propsText: string[] = [];
+    for (const [name, value] of Object.entries(props.state.props)) {
+      if (value != undefined) {
+        const upperName = name.charAt(0).toUpperCase() + name.slice(1);
+        propsText.push(`${upperName}: ${value.name ?? value}`);
+      }
+    }
+
+    if (propsText.length > 0) {
+      text = `${text}\n${propsText.join(", ")}`;
+    }
+
     return (
       <Container pivot={[cardWidth / 2, cardHeight / 2]} filters={[dimFilterRef.current, glowFilterRef.current]}>
         <Rectangle fill={0xffffff} width={cardWidth - 20} height={cardHeight - 40} x={10} y={14} ref={colorRef} />
-        <Sprite width={cardWidth - 55} height={cardHeight / 2 - 40} x={30} y={60} texture={imageTexture} />
+        <Sprite width={cardWidth - 55} height={cardHeight / 2 - 40} x={30} y={60} texture={imageTexture(props.state.name)} />
         <Sprite width={cardWidth} height={cardHeight} texture={textures.border} />
         <Sprite width={cardWidth} height={cardHeight} texture={textures.borderType} ref={borderTypeRef} />
         <Container filters={props.cosmetic?.top ? [windFilterRef.current] : []}>
@@ -456,7 +384,41 @@ export default React.memo(
           <Sprite width={cardWidth} height={cardHeight} texture={textures.borderCost} ref={borderCostRef} />
           <Sprite width={cardWidth} height={cardHeight} texture={textures.borderAgents} ref={borderAgentsRef} />
           <Sprite width={cardWidth} height={cardHeight} texture={textures.borderTint} ref={borderTintRef} />
-          {info}
+          <Text
+            anchor={[0.5, 0]}
+            x={cardWidth / 2 + 20}
+            y={28}
+            text={props.state.name}
+            style={{ fontSize: 32, tint: 0 }}
+          />
+          <Text
+            anchor={[0.5, 0]}
+            x={cardWidth / 2}
+            y={283}
+            text={props.info.type.toUpperCase()}
+            style={{ fontSize: 28, tint: 0 }}
+          />
+          <Text
+            anchor={[0.5, 0.5]}
+            x={cardWidth / 2}
+            y={cardHeight * (3 / 4) + 15}
+            text={text}
+            style={{ fontSize: 32, align: "center", maxWidth: cardWidth - 20, letterSpacing: 1 }}
+          />
+          <Text
+            anchor={[0.5, 0.5]}
+            x={40}
+            y={40}
+            text={Math.max(0, props.info.cost.money)}
+            style={{ fontSize: 32, tint: 0 }}
+          />
+          <Text
+            anchor={[0.5, 0.5]}
+            x={40}
+            y={92}
+            text={Math.max(0, props.info.cost.agents) || ""}
+            style={{ fontSize: 32, tint: 0 }}
+          />
         </Container>
         {levelCosmetic}
       </Container>

@@ -55,7 +55,6 @@ export default function Game(props: { message: string }) {
   const cards = useRef({} as { [id: string]: CardAnimationState });
   const timeColorFilterRef = useTimeColorFilter();
   const [highlight, setHighlight] = useState([] as Target[]);
-  const [plan, setPlan] = useState([] as PlanProps[]);
 
   useEffect(() => {
     cache.current.reset();
@@ -66,23 +65,21 @@ export default function Game(props: { message: string }) {
       <CacheContext.Provider value={cache.current}>
         <CardAnimationContext.Provider value={cards}>
           <HighlightContext.Provider value={{ highlight, setHighlight }}>
-            <PlanContext.Provider value={{ plan, setPlan }}>
-              <Container filters={[timeColorFilterRef.current]} sortableChildren>
-                <Table />
-                <OpponentBoard />
-                <Board />
-                <EndTurn />
-                <OpponentGrave />
-                <Grave />
-                <Plan />
-                <OpponentHand />
-                <Resources />
-                <Concede />
-                <HandAndDeck />
-                <Explanations />
-                <Message text={props.message} />
-              </Container>
-            </PlanContext.Provider>
+            <Container filters={[timeColorFilterRef.current]} sortableChildren>
+              <Table />
+              <OpponentBoard />
+              <Board />
+              <EndTurn />
+              <OpponentGrave />
+              <Grave />
+              <Plan />
+              <OpponentHand />
+              <Resources />
+              <Concede />
+              <HandAndDeck />
+              <Explanations />
+              <Message text={props.message} />
+            </Container>
           </HighlightContext.Provider>
         </CardAnimationContext.Provider>
       </CacheContext.Provider>

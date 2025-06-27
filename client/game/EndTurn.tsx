@@ -1,23 +1,22 @@
-import React, { useContext } from "react";
 import { Container } from "@pixi/react";
-import Text from "../Text.js";
-import Rectangle from "../Rectangle.js";
+import React, { useCallback, useContext } from "react";
 import { targetResolution } from "../Camera.js";
+import Rectangle from "../Rectangle.js";
+import Text from "../Text.js";
 import { ConnectionContext, PlanContext } from "./Game.js";
 
 export default function EndTurn() {
   const connection = useContext(ConnectionContext);
-  const { plan, setPlan } = useContext(PlanContext);
+  const { plan } = useContext(PlanContext);
 
   const width = 400;
   const height = 100;
   const x = targetResolution.width - width;
   const y = (targetResolution.height - height) / 2;
 
-  function pointerdown() {
+  const pointerdown = useCallback(() => {
     connection.plan(plan);
-    setPlan([]);
-  }
+  }, [connection, plan]);
 
   return (
     <Container x={x} y={y} eventMode="static" pointerdown={pointerdown}>
