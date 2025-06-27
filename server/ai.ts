@@ -20,6 +20,7 @@ export const defaultAIValues = {
     deck: 1,
     board: 1,
   },
+  time: 3,
 };
 
 export type AIValues = typeof defaultAIValues;
@@ -70,13 +71,24 @@ export function calculateTurn(cache: CardInfoCache, game: GameState, player: Pla
     if (evaluations.length == 0) {
       return currentPlan;
     } else {
-      let maxEvaluation = evaluations[0];
-      for (const evaluation of evaluations.slice(1)) {
-        if (evaluation.ev.value > maxEvaluation.ev.value) {
+      const ready = util.filter(cache, game, {
+        players: [player],
+        zones: ["board"],
+        types: ["agent"],
+        exhausted: false,
+      });
+      let maxEvaluation: { plan?: PlanProps; ev: CardEvaluation } = { ev: { value: ready.length * -ai.cost.agent } };
+      for (const evaluation of evaluations) {
+        if (evaluation.ev.value >= maxEvaluation.ev.value) {
           maxEvaluation = evaluation;
         }
       }
-      currentPlan.push(maxEvaluation.plan);
+
+      if (maxEvaluation.plan) {
+        currentPlan.push(maxEvaluation.plan);
+      } else {
+        return currentPlan;
+      }
     }
   }
 }
@@ -90,10 +102,13 @@ export function evaluateBase(ai: AIValues, cache: CardInfoCache, game: GameState
   const info = cache.getCardInfo(game, card);
 
   if (info.type == "agent") {
-    value += ai.cost.agent;
+    let agentValue = ai.cost.agent;
     for (const color of info.colors) {
-      value += ai.agent[color];
+      agentValue += ai.agent[color];
     }
+
+    const activateValue = info.evaluateActivate?.(ai)?.value ?? 0;
+    value += Math.max(agentValue, activateValue) * ai.time;
   }
 
   return value;
@@ -102,12 +117,12 @@ export function evaluateBase(ai: AIValues, cache: CardInfoCache, game: GameState
 export function evaluateCard(ai: AIValues, cache: CardInfoCache, game: GameState, card: CardState) {
   const zone = findCard(game, card)!.zone;
   const info = cache.getCardInfo(game, card);
-  if (zone == "grave") {
-    return 0;
+  if (zone == "deck") {
+    return evaluateBase(ai, cache, game, card) - evaluateCost(ai, info.cost);
   } else if (zone == "board") {
     return evaluateBase(ai, cache, game, card);
   } else {
-    return evaluateBase(ai, cache, game, card) - evaluateCost(ai, info.cost);
+    return 0;
   }
 }
 

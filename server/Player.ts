@@ -151,6 +151,6 @@ export abstract class SoloPlayer extends AIPlayer {
   playerDeck?: Deck | undefined;
 
   get deck(): Deck {
-    return this.deck2 && this.difficulty == 1 ? this.deck2 : this.deck1;
+    return this.deck2 && this.difficulty == 2 ? this.deck2 : this.deck1;
   }
 }
