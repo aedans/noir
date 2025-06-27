@@ -10,6 +10,7 @@ import Game, { ConnectionContext, CosmeticContext, PlayerContext } from "../game
 import { getUsername, useClientDispatch, useClientSelector } from "../store.js";
 import { setWon } from "../wins.js";
 import { CardCosmetic } from "../../common/card.js";
+import { batch } from "react-redux";
 
 export default function Queue(props: { params: { queue: string; deck?: string } }) {
   let [player, setPlayer] = useState(null as PlayerId | null);
@@ -28,8 +29,13 @@ export default function Queue(props: { params: { queue: string; deck?: string } 
       (async () => {
         for (const action of actions) {
           await loadCardsFromAction(action);
-          dispatch(action);
         }
+
+        batch(() => {
+          for (const action of actions) {
+            dispatch(action);
+          }
+        });
       })();
     });
 
@@ -102,7 +108,7 @@ export default function Queue(props: { params: { queue: string; deck?: string } 
     return (
       <ConnectionContext.Provider
         value={{
-          turn: (turn) => socket.emit("turn", turn),
+          plan: (plan) => socket.emit("plan", plan),
           concede: () => socket.emit("concede"),
         }}
       >

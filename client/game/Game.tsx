@@ -29,7 +29,7 @@ export const CacheContext = React.createContext(new RemoteCardInfoCache() as Car
 export const CosmeticContext = React.createContext({} as { [id: string]: CardCosmetic });
 export const ConnectionContext = React.createContext(
   {} as {
-    turn: (_: PlanProps[]) => void;
+    plan: (_: PlanProps[]) => void;
     concede: () => void;
   }
 );

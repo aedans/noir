@@ -25,7 +25,7 @@ export const defaultAIValues = {
 
 export type AIValues = typeof defaultAIValues;
 
-export function calculateTurn(cache: CardInfoCache, game: GameState, player: PlayerId, ai: AIValues): PlanProps[] {
+export function calculatePlan(cache: CardInfoCache, game: GameState, player: PlayerId, ai: AIValues): PlanProps[] {
   const currentPlan: PlanProps[] = [];
 
   while (true) {

@@ -50,7 +50,7 @@ export default function Replay(props: { params: { id: string } }) {
   }, []);
 
   return (
-    <ConnectionContext.Provider value={{ turn: () => {}, concede: () => {} }}>
+    <ConnectionContext.Provider value={{ plan: () => {}, concede: () => {} }}>
       <PlayerContext.Provider value={0}>
         <Game message={replay == null ? "Loading Replay" : "Loaded Replay"} />
       </PlayerContext.Provider>

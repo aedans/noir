@@ -209,7 +209,7 @@ function hasWinner(cache: CardInfoCache, game: GameState): Winner | null {
   }
 }
 
-function* initializePlayer(cache: CardInfoCache, game: GameState, player: PlayerId, init: PlayerInit): CardGenerator {
+function* initializePlayer(player: PlayerId, init: PlayerInit): CardGenerator {
   for (const [name, number] of Object.entries(init.deck.cards)) {
     for (let i = 0; i < number; i++) {
       const card = util.cid();
@@ -225,54 +225,66 @@ function* initializePlayer(cache: CardInfoCache, game: GameState, player: Player
 }
 
 export async function createGame(players: [Player, Player], onEnd: OnGameEnd) {
-  let state = initialGameState();
+  let game = initialGameState();
   const revealed: { [player in PlayerId]: Set<string> } = {
     [0]: new Set(),
     [1]: new Set(),
   };
 
   function runActions(generator: CardGenerator): GameAction[] {
-    const [actions, newState] = runCardGenerator(state, generator);
-    state = newState;
+    const [actions, newState] = runCardGenerator(game, generator);
+    game = newState;
     return actions;
   }
 
-  function sendActions(actions: GameAction[], source: PlayerId) {
-    for (const toPlayer of [0, 1] as const) {
-      const revealedActions = actions.filter(
-        (action) => !action.payload.target || toPlayer == source || isRevealed(state, action.payload.target?.id)
-      );
+  function sendActions(actions: [GameAction[], GameAction[]]) {
+    const toSend: [GameAction[], GameAction[]] = [[], []];
 
-      for (const action of revealedActions) {
-        if (action.payload.target) {
-          if (action.type == "game/addCard") {
-            const { player } = findCard(state, action.payload.target)!;
-            revealed[player].add(action.payload.target.id);
+    for (const source of [0, 1] as const) {
+      for (const toPlayer of [0, 1] as const) {
+        const revealedActions = actions[source].filter(
+          (action) => !action.payload.target || toPlayer == source || isRevealed(game, action.payload.target?.id)
+        );
+
+        const toRevealActions: GameAction[] = [];
+
+        for (const action of revealedActions) {
+          if (action.payload.target) {
+            if (action.type == "game/addCard") {
+              const { player } = findCard(game, action.payload.target)!;
+              revealed[player].add(action.payload.target.id);
+            }
+
+            if (action.type == "game/revealCard" && !revealed[toPlayer].has(action.payload.target.id)) {
+              const { player, zone, index } = findCard(game, action.payload.target)!;
+              revealed[toPlayer].add(action.payload.target.id);
+              toRevealActions.push(
+                addCard({
+                  source: undefined,
+                  target: action.payload.target,
+                  player,
+                  zone,
+                  state: game.players[player][zone][index],
+                })
+              );
+            }
+
+            const card = util.getCard(game, action.payload.target);
+            const cardPlayer = util.findCard(game, card).player;
+            getCosmetic(players[cardPlayer].id, card.name).then((cosmetic) =>
+              players[toPlayer].cosmetic(card.id, cosmetic)
+            );
           }
-
-          if (action.type == "game/revealCard" && !revealed[toPlayer].has(action.payload.target.id)) {
-            const { player, zone, index } = findCard(state, action.payload.target)!;
-            revealed[toPlayer].add(action.payload.target.id);
-            players[toPlayer].send([
-              addCard({
-                source: undefined,
-                target: action.payload.target,
-                player,
-                zone,
-                state: state.players[player][zone][index],
-              }),
-            ]);
-          }
-
-          const card = util.getCard(state, action.payload.target);
-          const cardPlayer = util.findCard(state, card).player;
-          getCosmetic(players[cardPlayer].id, card.name).then((cosmetic) =>
-            players[toPlayer].cosmetic(card.id, cosmetic)
-          );
         }
-      }
 
-      players[toPlayer].send(revealedActions);
+        toSend[toPlayer].push(...[...revealedActions, ...toRevealActions]);
+      }
+    }
+
+    for (const player of [0, 1] as const) {
+      if (toSend[player].length > 0) {
+        players[player].send(toSend[player]);
+      }
     }
   }
 
@@ -288,16 +300,12 @@ export async function createGame(players: [Player, Player], onEnd: OnGameEnd) {
       players[player].error(errors[0]);
       players[0].end("draw");
       players[1].end("draw");
-      onEnd("draw", players, inits, state, false);
+      onEnd("draw", players, inits, game, false);
       return;
     }
   }
 
-  for (const player of [0, 1] as const) {
-    const generator = initializePlayer(cache, state, player, inits[player]);
-    const actions = runActions(generator);
-    sendActions(actions, player);
-  }
+  sendActions([runActions(initializePlayer(0, inits[0])), runActions(initializePlayer(1, inits[1]))]);
 
   let hasEnded = false;
 
@@ -309,35 +317,31 @@ export async function createGame(players: [Player, Player], onEnd: OnGameEnd) {
     hasEnded = true;
     players[0].end(winner);
     players[1].end(winner);
-    onEnd(winner, players, inits, state, true);
+    onEnd(winner, players, inits, game, true);
   }
 
-  async function payTurn(player: PlayerId) {
-    const turn = await players[player].turn();
-    const resources = planResources(cache, state, player, turn);
-    if (resources == false) {
-      players[player].error("Cannot pay for planned turn");
-      return await payTurn(player);
+  async function payPlan(player: PlayerId) {
+    const plan = await players[player].plan();
+    const resources = planResources(cache, game, player, plan);
+    if (typeof resources == "string") {
+      players[player].error(`Cannot pay for plan: ${resources}`);
+      return { actions: [], plan: [] };
     } else {
-      const actions = runActions(
-        (function* () {
-          yield removeMoney({ source: undefined, player, money: resources.moneyCost });
-        })()
-      );
-      sendActions(actions, player);
-      return turn;
+      return { actions: [removeMoney({ source: undefined, player, money: resources.moneyCost })], plan };
     }
   }
 
   while (!hasEnded) {
     cache.reset();
-    const turns = await Promise.all(([0, 1] as const).map((x) => payTurn(x)));
+    const plans = await Promise.all(([0, 1] as const).map((x) => payPlan(x)));
 
-    const actions: { [player in PlayerId]: GameAction[] } = { [0]: [], [1]: [] };
+    const actions: [GameAction[], GameAction[]] = [[], []];
     for (const player of [0, 1] as const) {
-      for (const elem of turns[player]) {
+      actions[player].push(...plans[player].actions);
+
+      for (const elem of plans[player].plan) {
         try {
-          actions[player].push(...doPlayerAction(cache, state, player, elem.action));
+          actions[player].push(...doPlayerAction(cache, game, player, elem.action));
         } catch (e) {
           if (typeof e == "string") {
             players[player].error(e);
@@ -347,7 +351,7 @@ export async function createGame(players: [Player, Player], onEnd: OnGameEnd) {
         }
       }
 
-      actions[player].push(...doEndTurn(cache, state, player));
+      actions[player].push(...doEndTurn(cache, game, player));
     }
 
     runActions(
@@ -357,11 +361,9 @@ export async function createGame(players: [Player, Player], onEnd: OnGameEnd) {
       })()
     );
 
-    for (const player of [0, 1] as const) {
-      sendActions(actions[player], player);
-    }
+    sendActions(actions);
 
-    const winner = hasWinner(cache, state);
+    const winner = hasWinner(cache, game);
     if (winner != null) {
       tryEndGame(winner);
       return;

@@ -1,12 +1,5 @@
 import { Deck } from "../common/decks.js";
-import {
-  GameAction,
-  GameState,
-  PlayerId,
-  Winner,
-  gameSlice,
-  initialGameState,
-} from "../common/gameSlice.js";
+import { GameAction, GameState, PlayerId, Winner, gameSlice, initialGameState } from "../common/gameSlice.js";
 import { PlanProps, random } from "../common/util.js";
 import { PlayerInit, NoirServerSocket } from "../common/network.js";
 import { Difficulty, MissionName, TutorialName } from "./Mission.js";
@@ -14,7 +7,7 @@ import CardInfoCache from "../common/CardInfoCache.js";
 import LocalCardInfoCache from "./LocalCardInfoCache.js";
 import { CardCosmetic } from "../common/card.js";
 import { defaultDecks } from "../common/decks.js";
-import { calculateTurn, defaultAIValues } from "./ai.js";
+import { calculatePlan, defaultAIValues } from "./ai.js";
 
 export default interface Player {
   id: string | null;
@@ -25,7 +18,7 @@ export default interface Player {
   cosmetic(id: string, cosmetic: CardCosmetic): void;
   error(message: string): void;
   end(winner: Winner): void;
-  turn(): Promise<PlanProps[]>;
+  plan(): Promise<PlanProps[]>;
 }
 
 export class SocketPlayer implements Player {
@@ -52,7 +45,10 @@ export class SocketPlayer implements Player {
     this.socket = socket;
 
     this.socket.emit("init", this.player, this.names);
-    this.socket.emit("actions", this.actions);
+
+    if (this.actions.length > 0) {
+      this.socket.emit("actions", this.actions);
+    }
 
     for (const [id, cosmetic] of this.cosmetics) {
       this.socket.emit("cosmetic", id, cosmetic);
@@ -87,8 +83,8 @@ export class SocketPlayer implements Player {
     this.socket.disconnect();
   }
 
-  turn(): Promise<PlanProps[]> {
-    return new Promise((resolve) => this.socket.once("turn", (action) => resolve(action)));
+  plan(): Promise<PlanProps[]> {
+    return new Promise((resolve) => this.socket.once("plan", (action) => resolve(action)));
   }
 }
 
@@ -99,9 +95,7 @@ export abstract class AIPlayer implements Player {
   id = null;
   trusted = true;
 
-  constructor(public player: PlayerId, public name: string) {
-
-  }
+  constructor(public player: PlayerId, public name: string) {}
 
   init(): Promise<PlayerInit> {
     return Promise.resolve({ deck: this.deck });
@@ -115,9 +109,9 @@ export abstract class AIPlayer implements Player {
 
   cosmetic(): void {}
 
-  turn(): Promise<PlanProps[]> {
+  plan(): Promise<PlanProps[]> {
     this.cache.reset();
-    return Promise.resolve(calculateTurn(this.cache, this.state, this.player, defaultAIValues));
+    return Promise.resolve(calculatePlan(this.cache, this.state, this.player, defaultAIValues));
   }
 
   error(message: string) {
@@ -136,11 +130,7 @@ export class TestPlayer extends AIPlayer {
 }
 
 export abstract class SoloPlayer extends AIPlayer {
-  constructor(
-    public player: PlayerId,
-    name: MissionName | TutorialName,
-    public difficulty?: Difficulty
-  ) {
+  constructor(public player: PlayerId, name: MissionName | TutorialName, public difficulty?: Difficulty) {
     super(player, difficulty ? `${name} level ${difficulty}` : name);
   }
 

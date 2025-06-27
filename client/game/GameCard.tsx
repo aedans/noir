@@ -17,7 +17,7 @@ import { useClientSelector } from "../store.js";
 import { hex } from "../color.js";
 import util from "../../common/util.js";
 import { PixiContainer } from "../pixi.js";
-import AnimatedCard, { AnimatedCardProps, isAnimatedCardPropsEqual, useCardAnimation } from "../AnimatedCard.js";
+import AnimatedCard, { AnimatedCardProps, isAnimatedCardPropsEqual } from "../AnimatedCard.js";
 
 export type GameCardProps = AnimatedCardProps & {
   useLastPos?: boolean;
@@ -35,7 +35,6 @@ export const gameCardHeightDiff = (gameCardHeight * (gameCardZoom - 1)) / 2;
 
 export function isGameCardPropsEqual(a: GameCardProps, b: GameCardProps) {
   return (
-    isCardPropsEqual(a, b) &&
     isAnimatedCardPropsEqual(a, b) &&
     a.useLastPos == b.useLastPos &&
     a.zoomOffsetX == b.zoomOffsetX &&
@@ -86,7 +85,7 @@ export default React.memo(
           isOver: monitor.isOver(),
         }),
       }),
-      [game, props.state.id]
+      [game, props.state]
     );
 
     useEffect(() => {

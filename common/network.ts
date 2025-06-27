@@ -25,7 +25,7 @@ export type ServerToClientEvents = {
 export type ClientToServerEvents = {
   queue: (queue: QueueName, name: string, token: string | null) => void;
   init: (deck: Deck) => void;
-  turn: (actions: PlanProps[]) => void;
+  plan: (actions: PlanProps[]) => void;
   concede: () => void;
 };
 

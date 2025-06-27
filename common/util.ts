@@ -247,7 +247,7 @@ export function planResources(
   }
 
   if (moneyCost > game.players[player].money) {
-    return false;
+    return "not enough money";
   }
 
   let possibleAgents: CardState[][] = [[]];
@@ -270,7 +270,7 @@ export function planResources(
   }
 
   if (possibleAgents.length == 0) {
-    return false;
+    return "not enough agents";
   }
 
   return {
@@ -287,7 +287,7 @@ export function canPayPlan(
   plan: Pick<PlanProps, "type" | "card">[],
   pay: Pick<PlanProps, "type" | "card">
 ) {
-  return planResources(cache, game, player, [...plan, pay]) != false;
+  return typeof planResources(cache, game, player, [...plan, pay]) != "string";
 }
 
 export function* revealRandom(
