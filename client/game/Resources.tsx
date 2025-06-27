@@ -12,7 +12,8 @@ export default function Resources() {
   const cache = useContext(CacheContext);
   const { plan } = useContext(PlanContext);
   const game = useClientSelector((state) => state.game);
-  const { money } = planResources(cache, game, player, plan) || { money: 0 };
+  const resources = planResources(cache, game, player, plan);
+  const money = typeof resources == "string" ? resources : resources.money;
 
   const width = 400;
   const height = 100;
@@ -21,7 +22,12 @@ export default function Resources() {
 
   return (
     <Container x={x} y={y}>
-      <Text x={40} y={5} text={"Money: " + money} style={{ fontSize: 100, tint: 0xffffff }} />
+      <Text
+        x={40}
+        y={5}
+        text={"Money: " + money}
+        style={{ fontSize: 100, tint: 0xffffff }}
+      />
     </Container>
   );
 }
