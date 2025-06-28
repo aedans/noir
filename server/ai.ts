@@ -135,7 +135,7 @@ export function bestTarget(
   filter: Filter
 ) {
   const info = cache.getCardInfo(game, card);
-  const cards = this.filter(cache, game, { ...info.targets!, ...filter });
+  const cards = this.filter(cache, game, { ...info.targets!, ...filter, hidden: false });
   if (cards.length == 0) {
     return undefined;
   }
